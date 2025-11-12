@@ -19,27 +19,28 @@ const notificationRoutes = require('./routes/notification.routes.js');
 
 const app = express();
 
-// === START: AGGRESSIVE CORS CONFIGURATION FOR DEBUGGING ===
-// This is placed at the very top to ensure it runs first.
 const allowedOrigins = [
-    'https://mostathmir-app.onrender.com', // رابط الواجهة الأمامية الخاص بك
-    'http://127.0.0.1:5500',              // واجهتك الأمامية المحلية للتجربة
-    'http://localhost:5500'                // أيضاً واجهتك الأمامية المحلية
+    'https://mostathmir-app.onrender.com',
+    'http://127.0.0.1:5500',
+    'http://localhost:5500'
 ];
 
-app.use(cors({
+const corsOptions = {
     origin: function (origin, callback) {
-        // السماح بالطلبات التي لا تحتوي على origin (مثل تطبيقات الموبايل أو curl)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'سياسة CORS لهذا الموقع لا تسمح بالوصول من المصدر المحدد.';
-            return callback(new Error(msg), false);
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('سياسة CORS لهذا الموقع لا تسمح بالوصول من المصدر المحدد.'));
         }
-        return callback(null, true);
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+};
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -47,7 +48,6 @@ mongoose.connect(process.env.MONGO_URI, {})
     .then(() => console.log('MongoDB Connected...'))
     .catch(err => console.error('MongoDB Connection Error:', err));
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
