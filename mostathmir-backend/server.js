@@ -21,13 +21,25 @@ const app = express();
 
 // === START: AGGRESSIVE CORS CONFIGURATION FOR DEBUGGING ===
 // This is placed at the very top to ensure it runs first.
-app.use(cors({
-    origin: '*', // Allows all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allows all standard methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Allows the necessary headers
-}));
-// === END: AGGRESSIVE CORS CONFIGURATION ===
+const allowedOrigins = [
+    'https://mostathmir-app.onrender.com', // رابط الواجهة الأمامية الخاص بك
+    'http://127.0.0.1:5500',              // واجهتك الأمامية المحلية للتجربة
+    'http://localhost:5500'                // أيضاً واجهتك الأمامية المحلية
+];
 
+app.use(cors({
+    origin: function (origin, callback) {
+        // السماح بالطلبات التي لا تحتوي على origin (مثل تطبيقات الموبايل أو curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'سياسة CORS لهذا الموقع لا تسمح بالوصول من المصدر المحدد.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
