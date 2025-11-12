@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const token = localStorage.getItem('user_token');
     if (!token) {
         alert(t('js-dashboard-login-required'));

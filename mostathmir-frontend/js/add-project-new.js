@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let expenseItems = [];
     let currentProjectImages = [];
 
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get("id");
     const isEditMode = !!projectId;
@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const container = document.getElementById(containerId);
         if (!container) return;
         const fileName = fileUrl.split('/').pop();
-        const API_BASE_URL = 'http://localhost:5000';
+        const API_BASE_URL = 'https://mostathmir-api.onrender.com';
         container.innerHTML = `
         <div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg mt-2">
             <div class="flex items-center gap-3">
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.displayUploadedImage = (containerId, imageUrl, index) => {
         const container = document.getElementById(containerId);
         if (!container) return;
-        const API_BASE_URL = 'http://localhost:5000';
+        const API_BASE_URL = 'https://mostathmir-api.onrender.com';
         const imgDiv = document.createElement("div");
         imgDiv.className = "relative w-24 h-24 rounded-lg overflow-hidden border border-gray-300 group";
         imgDiv.innerHTML = `

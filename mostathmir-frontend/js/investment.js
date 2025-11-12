@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 let currentProject = null;
 let selectedInvestmentType = 'full';
 const EXPECTED_RETURN_RATE = 0.15;

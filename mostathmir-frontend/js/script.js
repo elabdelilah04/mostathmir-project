@@ -8,7 +8,7 @@ async function fetchCurrentUser() {
         return null;
     }
     try {
-        const response = await fetch('http://localhost:5000/api/users/profile', {
+        const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) {
@@ -90,7 +90,7 @@ async function uploadProfilePicture(file) {
     formData.append('profilePicture', file);
     alert(t('js-script-uploading-image'));
     try {
-        const response = await fetch('http://localhost:5000/api/users/profile/picture', {
+        const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile/picture', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -389,7 +389,7 @@ async function initSettingsPage(user) {
     const token = localStorage.getItem('user_token');
     let latestUser;
     try {
-        const response = await fetch('http://localhost:5000/api/users/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+        const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', { headers: { 'Authorization': `Bearer ${token}` } });
         if (!response.ok) throw new Error('Failed to fetch latest user data');
         latestUser = await response.json();
     } catch {
@@ -594,7 +594,7 @@ async function initSettingsPage(user) {
 
             try {
                 const token2 = localStorage.getItem('user_token');
-                const response = await fetch('http://localhost:5000/api/users/profile', {
+                const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token2}` },
                     body: JSON.stringify(updatedData)
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     redirectIfLoggedIn();
 
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const user = await fetchCurrentUser();
 
     if (user) {

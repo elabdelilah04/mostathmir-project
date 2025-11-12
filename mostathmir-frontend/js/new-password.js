@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPasswordForm = document.getElementById('newPasswordForm');
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
-    const API_BASE_URL = 'http://localhost:5000'; // تأكد من وجود هذا المتغير
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com'; // تأكد من وجود هذا المتغير
 
     if (!token) {
         // استخدام مفتاح ترجمة موجود بالفعل

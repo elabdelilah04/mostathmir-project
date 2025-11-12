@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const projectsGrid = document.getElementById('projectsGrid');
     const token = localStorage.getItem('user_token');
     
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- 4. الإضافة الجديدة: تعبئة المرفقات وجعلها قابلة للنقر ---
         const attachmentsList = document.getElementById('detailAttachments');
-        const API_BASE_URL = 'http://localhost:5000';
+        const API_BASE_URL = 'https://mostathmir-api.onrender.com';
         attachmentsList.innerHTML = ''; // تفريغ القائمة
         if (currentProject.supportFiles && currentProject.supportFiles.length > 0) {
             currentProject.supportFiles.forEach(filePath => {

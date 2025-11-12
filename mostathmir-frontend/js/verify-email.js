@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const verifyForm = document.getElementById('verifyForm');
     const emailDisplay = document.getElementById('user-email-display');
     const resendLink = document.getElementById('resend-token-link');

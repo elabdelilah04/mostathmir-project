@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const token = localStorage.getItem('user_token');
     if (!token) {
         window.location.href = 'login.html';
@@ -32,7 +32,7 @@ async function initSettingsPage(user) {
     const settingsForm = document.getElementById('settingsForm');
     if (!settingsForm) return;
 
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
     const arabCountries = {
@@ -315,7 +315,7 @@ async function initSettingsPage(user) {
                 }))
             };
             try {
-                const response = await fetch('http://localhost:5000/api/users/profile', {
+                const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(updatedData)

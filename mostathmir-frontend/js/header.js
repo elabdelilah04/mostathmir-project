@@ -95,7 +95,7 @@
                 return null;
             }
             try {
-                var response = await fetch('http://localhost:5000/api/users/profile', { headers: { 'Authorization': 'Bearer ' + token } });
+                var response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', { headers: { 'Authorization': 'Bearer ' + token } });
                 if (!response.ok) {
                     localStorage.removeItem('user_token');
                     localStorage.removeItem('user_data');
@@ -138,7 +138,7 @@
 
     async function refreshHeaderBadges() {
         var token = localStorage.getItem('user_token');
-        var baseUrl = 'http://localhost:5000';
+        var baseUrl = 'https://mostathmir-api.onrender.com';
 
         var msgBadge = document.getElementById('headerMessagesBadge');
         var notiBadge = document.getElementById('headerNotificationsBadge');
@@ -269,7 +269,7 @@
                 if (vBtns) vBtns.style.display = 'none';
                 if (pCont) pCont.style.display = 'inline-block';
 
-                populateHeader(user, 'http://localhost:5000');
+                populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
 
                 var a = document.getElementById('nav-about');
