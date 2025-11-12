@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="settings-page-title">إعدادات الحساب - منصة مستثمر</title>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-page-key="page-title-settings">
+
+    <div class="app rtl" id="app">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+        <!-- Settings Section -->
+        <section class="settings-section">
+            <div class="container">
+                <h1 class="section-title" data-i18n-key="settings-title">إعدادات الحساب</h1>
+                <form id="settingsForm" class="settings-form">
+
+                    <!-- Account Information Card -->
+                    <div class="settings-card">
+
+                        <h2 class="settings-card-title" data-i18n-key="settings-account-info">معلومات الحساب</h2>
+                        <div class="settings-actions">
+                            <button type="button" class="btn btn-outline" data-i18n-key="settings-account-info-edit">
+                                تعديل </button>
+                            <button type="submit" class="btn btn-primary" data-i18n-key="settings-save-changes">حفظ
+                                التغييرات</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label" data-i18n-key="settings-email">البريد
+                                الإلكتروني</label>
+                            <input type="email" id="email" class="form-control" value="ahmed.mohammed@example.com"
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="fullName" class="form-label" data-i18n-key="signup-fullname">الاسم
+                                الكامل</label>
+                            <input type="text" id="fullName" class="form-control" value="completd-name" required
+                                disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileTitle" class="form-label"
+                                data-i18n-key="settings-profile-title-label">العنوان الوظيفي / الوصف المختصر</label>
+                            <input type="text" id="profileTitle" class="form-control"
+                                placeholder="مثال: مطور تطبيقات ومؤسس شركات تقنية"
+                                data-i18n-key="settings-profile-title-placeholder" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="form-label" data-i18n-key="signup-phone">رقم الهاتف </label>
+                            <input type="tel" id="phone" class="form-control" value="0600000000" disabled required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label" data-i18n-key="signup-password">كلمة السر</label>
+                            <input placeholder="**************" type="password" id="password" class="form-control"
+                                required disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location" class="form-label" data-i18n-key="signup-location">الموقع</label>
+                            <div class="mb-4">
+                                <label for="country" class="block text-gray-700"
+                                    data-i18n-key="settings-country-label">الدولة</label>
+                                <select id="country" name="country" class="form-select w-full border p-2 rounded"
+                                    required>
+                                    <option value="" data-i18n-key="settings-country-select">اختر الدولة</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="city" class="block text-gray-700"
+                                    data-i18n-key="settings-city-label">المدينة</label>
+                                <select id="city" name="city" class="form-select w-full border p-2 rounded" required>
+                                    <option value="" data-i18n-key="settings-city-select">اختر المدينة</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label for="bio" class="form-label" data-i18n-key="signup-bio">نبذة عنك</label>
+                            <textarea id="bio" class="form-control" rows="3"
+                                data-i18n-placeholder-key="signup-bio-placeholder" disabled></textarea>
+                        </div>
+                    </div>
+                    <div class="settings-card">
+                        <h2 class="settings-card-title" data-i18n-key="settings-skills-title">المهارات</h2>
+                        <div id="skillsFormContainer"></div>
+                        <button type="button" id="addSkillBtn" class="btn btn-outline-dashed" disabled
+                            data-i18n-key="settings-add-skill-btn">+ إضافة
+                            مهارة</button>
+                    </div>
+
+                    <template id="skillTemplate">
+                        <div class="dynamic-form-row skill-row">
+                            <input type="text" class="form-control skill-name"
+                                placeholder="اسم المهارة (مثال: التسويق الرقمي)"
+                                data-i18n-key="settings-skill-name-placeholder">
+                            <div class="skill-level-container">
+                                <input type="range" class="skill-level" min="0" max="100" value="80">
+                                <span class="skill-level-value">80%</span>
+                            </div>
+                            <button type="button" class="btn-icon remove-row-btn">&times;</button>
+                        </div>
+                    </template>
+
+                    <div class="settings-card">
+                        <h2 class="settings-card-title" data-i18n-key="settings-achievements-title">الإنجازات والجوائز
+                        </h2>
+                        <div id="achievementsFormContainer">
+                            <!-- صفوف الإنجازات ستضاف هنا -->
+                        </div>
+                        <button type="button" id="addAchievementBtn" class="btn btn-outline-dashed" disabled
+                            data-i18n-key="settings-add-achievement-btn">
+                            + إضافة إنجاز أو شهادة
+                        </button>
+                    </div>
+
+                    <template id="achievementTemplate">
+                        <div class="achievement-form-row">
+                            <input type="text" class="form-control ach-title" placeholder="اسم الشهادة أو الجائزة"
+                                data-i18n-key="settings-achievement-title-placeholder">
+                            <input type="text" class="form-control ach-issuer"
+                                placeholder="الجهة المانحة (مثال: جامعة الملك سعود)"
+                                data-i18n-key="settings-achievement-issuer-placeholder">
+                            <input type="text" class="form-control ach-year" placeholder="السنة"
+                                data-i18n-key="settings-achievement-year-placeholder">
+                            <button type="button" class="btn-icon remove-ach-btn"
+                                aria-label="Remove achievement">&times;</button>
+                        </div>
+                    </template>
+
+                    <!-- Professional Experience Card -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title" data-i18n-key="settings-experience-title">الخبرة المهنية</h2>
+                        <div id="experienceFormContainer">
+                            <!-- صفوف الخبرة ستضاف هنا -->
+                        </div>
+                        <button type="button" id="addExperienceBtn" class="btn btn-outline-dashed" disabled
+                            data-i18n-key="settings-add-experience-btn">
+                            + إضافة خبرة مهنية
+                        </button>
+                    </div>
+
+                    <template id="experienceTemplate">
+                        <div class="dynamic-form-row">
+                            <input type="text" class="form-control exp-title" placeholder="المنصب"
+                                data-i18n-key="settings-experience-title-placeholder">
+                            <input type="text" class="form-control exp-company" placeholder="اسم الشركة"
+                                data-i18n-key="settings-experience-company-placeholder">
+                            <input type="text" class="form-control exp-period" placeholder="الفترة (مثال: 2018 - الآن)"
+                                data-i18n-key="settings-experience-period-placeholder">
+                            <textarea class="form-control exp-description" placeholder="وصف موجز للمسؤوليات" rows="2"
+                                data-i18n-key="settings-experience-desc-placeholder"></textarea>
+                            <button type="button" class="btn-icon remove-row-btn">&times;</button>
+                        </div>
+                    </template>
+                    <!-- Education Card -->
+                    <div class="settings-card">
+                        <h2 class="settings-card-title" data-i18n-key="settings-education-title">التعليم والمؤهلات</h2>
+                        <div id="educationFormContainer">
+                            <!-- صفوف التعليم ستضاف هنا -->
+                        </div>
+                        <button type="button" id="addEducationBtn" class="btn btn-outline-dashed" disabled
+                            data-i18n-key="settings-add-education-btn">
+                            + إضافة مؤهل تعليمي
+                        </button>
+                    </div>
+
+                    <template id="educationTemplate">
+                        <div class="dynamic-form-row">
+                            <input type="text" class="form-control edu-degree" placeholder="الشهادة (مثال: بكالوريوس)"
+                                data-i18n-key="settings-education-degree-placeholder">
+                            <input type="text" class="form-control edu-institution" placeholder="المؤسسة التعليمية"
+                                data-i18n-key="settings-education-institution-placeholder">
+                            <input type="text" class="form-control edu-details"
+                                placeholder="تفاصيل (مثال: تخصص علوم الحاسب • 2015)"
+                                data-i18n-key="settings-education-details-placeholder">
+                            <button type="button" class="btn-icon remove-row-btn">&times;</button>
+                        </div>
+                    </template>
+
+                    <div class="settings-card">
+                        <h2 class="settings-card-title" data-i18n-key="settings-social-links">روابط التواصل الاجتماعي
+                        </h2>
+
+                        <div id="socialLinksContainer">
+                        </div>
+
+                        <button type="button" id="addSocialLinkBtn" class="btn btn-outline-dashed">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span data-i18n-key="settings-add-social">إضافة رابط</span>
+                        </button>
+                    </div>
+
+                    <template id="socialLinkTemplate">
+                        <div class="social-link-row">
+                            <select class="form-select social-platform">
+                                <option value="website">Website</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="github">GitHub</option>
+                                <option value="twitter">Twitter</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="facebook">Facebook</option>
+                            </select>
+                            <input type="text" class="form-control social-url"
+                                placeholder="أدخل اسم المستخدم أو الرابط الكامل"
+                                data-i18n-key="settings-social-url-placeholder">
+                            <button type="button" class="btn-icon remove-link-btn" aria-label="Remove link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                    </path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Preferences Card -->
+                    <div class="settings-card" id="PreferencesCard">
+                        <h2 class="settings-card-title" data-i18n-key="settings-preferences">التفضيلات</h2>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n-key="settings-interests">مجالات الاهتمام</label>
+                            <div class="interests-container" id="interestsContainer">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="language" class="form-label" data-i18n-key="settings-language">اللغة</label>
+                            <select id="language" class="form-select">
+                                <option value="ar" data-i18n-key="settings-lang-ar">العربية</option>
+                                <option value="en" data-i18n-key="settings-lang-en">English</option>
+                                <option value="fr" data-i18n-key="settings-lang-fr">Français</option>
+                            </select>
+                        </div>
+                        <div class="form-group-inline">
+                            <label for="notifications" data-i18n-key="settings-notifications">الإشعارات</label>
+                            <div class="switch-toggle">
+                                <input type="checkbox" id="notifications" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </div>
+                        <div class="form-group-inline">
+                            <label for="privacy" data-i18n-key="settings-privacy">إظهار معلومات ملفي الشخصي
+                                للجميع</label>
+                            <div class="switch-toggle">
+                                <input type="checkbox" id="privacy" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone Card -->
+                    <div class="settings-card danger-zone">
+                        <h2 class="settings-card-title" data-i18n-key="settings-delete-account">حذف الحساب</h2>
+                        <p data-i18n-key="settings-delete-warning">بمجرد حذف حسابك، سيتم مسح جميع بياناتك ومشاريعك بشكل
+                            دائم ولا يمكن استرجاعها. يرجى التأكد قبل المتابعة.</p>
+                        <button type="button" id="deleteAccountBtn" class="btn btn-danger"
+                            data-i18n-key="settings-delete-button">حذف حسابي نهائياً</button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="settings-actions">
+                        <a href="profile.html" class="btn btn-secondary" data-i18n-key="settings-back-to-profile">الرجوع
+                            للملف الشخصي</a>
+                        <button type="submit" class="btn btn-primary" data-i18n-key="settings-save-changes">حفظ
+                            التغييرات</button>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+        </footer>
+    </div>
+    <script src="./js/header.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/settings.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="verify-page-title">تأكيد البريد الإلكتروني - منصة مستثمر</title>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-page-key="page-title-verify">
+    <div class="app rtl" id="app">
+        <div id="header-placeholder"></div>
+
+        <section class="reset-container">
+            <div class="reset-form-container">
+                <img src="logo.png" alt="شعار مستثمر" class="reset-logo" data-i18n-key="verify-logo-alt">
+                <h1 class="reset-title" data-i18n-key="verify-title">تأكيد بريدك الإلكتروني</h1>
+                <p class="reset-subtitle" id="verify-subtitle" data-i18n-key="verify-subtitle">
+                    تم إرسال رمز مكون من 6 أرقام إلى بريدك الإلكتروني <strong id="user-email-display">...</strong>.
+                    الرجاء إدخاله أدناه.
+                </p>
+
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label for="verificationToken" class="form-label" data-i18n-key="verify-code-label">رمز
+                            التحقق</label>
+                        <input type="text" id="verificationToken" class="form-control"
+                            data-i18n-placeholder-key="verify-code-placeholder" required maxlength="6"
+                            style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem;">
+                    </div>
+
+                    <button type="submit" class="reset-btn" data-i18n-key="verify-button">تأكيد الحساب</button>
+                </form>
+
+                <div class="resend-link" style="margin-top: 1.5rem; text-align: center;">
+                    <span data-i18n-key="verify-no-code">لم تستلم الرمز؟</span>
+                    <a href="#" id="resend-token-link" data-i18n-key="verify-resend-link">إعادة إرسال الرمز</a>
+                </div>
+
+                <div class="login-link">
+                    <a href="login.html" data-i18n-key="verify-back-login">العودة لتسجيل الدخول</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/verify-email.js"></script>
+</body>
+
+</html>

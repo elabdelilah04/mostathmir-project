@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدعم والأسئلة الشائعة - منصة مستثمر</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body data-page-key="page-title-faq">
+    <div class="app rtl" id="app">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+        <!-- FAQ & Support Section -->
+        <main class="faq-support-section">
+            <div class="container">
+                <div class="faq-header">
+                    <h1 class="section-title" data-i18n-key="faq-main-title">مركز المساعدة</h1>
+                    <p class="section-description" data-i18n-key="faq-main-subtitle">مرحبًا بك في مركز المساعدة الخاص
+                        بمنصة مستثمر. هنا ستجد إجابات لأكثر الأسئلة شيوعًا. إذا لم تجد ما تبحث عنه، يمكنك دائمًا التواصل
+                        معنا مباشرة.</p>
+                </div>
+
+                <div class="faq-layout">
+                    <!-- FAQ Accordion -->
+                    <div class="faq-container">
+                        <h2 class="faq-section-title" data-i18n-key="faq-title">الأسئلة الشائعة</h2>
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <button class="accordion-header" data-i18n-key="faq-q1">كيف يمكنني إنشاء حساب على
+                                    المنصة؟</button>
+                                <div class="accordion-content">
+                                    <p data-i18n-key="faq-a1">يمكنك إنشاء حساب بسهولة عبر النقر على زر "تسجيل" في أعلى
+                                        الصفحة، ثم اختيار نوع حسابك (صاحب مشروع أو مستثمر) وملء البيانات المطلوبة.</p>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <button class="accordion-header" data-i18n-key="faq-q2">كيف أنشر مشروعي على
+                                    "مستثمر"؟</button>
+                                <div class="accordion-content">
+                                    <p data-i18n-key="faq-a2">بعد تسجيل الدخول، انتقل إلى لوحة التحكم الخاصة بك وانقر
+                                        على زر "إضافة مشروع جديد". سيتم إرشادك خلال عملية ملء جميع تفاصيل المشروع
+                                        المطلوبة.</p>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <button class="accordion-header" data-i18n-key="faq-q3">هل يمكن تعديل أو حذف مشروع بعد
+                                    نشره؟</button>
+                                <div class="accordion-content">
+                                    <p data-i18n-key="faq-a3">نعم، يمكنك تعديل أو حذف مشاريعك في أي وقت من خلال قسم
+                                        "مشاريعي" في لوحة التحكم الخاصة بك.</p>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <button class="accordion-header" data-i18n-key="faq-q4">من يمكنه الاطلاع على
+                                    مشروعي؟</button>
+                                <div class="accordion-content">
+                                    <p data-i18n-key="faq-a4">أثناء إضافة مشروعك، يمكنك تحديد إعدادات الخصوصية. يمكنك
+                                        جعله "عامًا" ليراه الجميع، "خاصًا" لا يراه أحد، أو "للمدعوين فقط" حيث لا يراه
+                                        إلا المستخدمون الذين ترسل لهم رابطًا مباشرًا.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Support Form -->
+                    <div class="support-form-container">
+                        <div class="card">
+                            <h2 class="faq-section-title" data-i18n-key="support-title">الدعم المباشر</h2>
+                            <p class="support-subtitle" data-i18n-key="support-subtitle">لم تجد ما تبحث عنه؟ قم بملء
+                                النموذج التالي وسنرد عليك في أقرب وقت.</p>
+                            <form id="supportForm">
+                                <div class="form-group">
+                                    <label for="supportName" class="form-label" data-i18n-key="support-name">الاسم
+                                        الكامل</label>
+                                    <input type="text" id="supportName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="supportEmail" class="form-label" data-i18n-key="support-email">البريد
+                                        الإلكتروني</label>
+                                    <input type="email" id="supportEmail" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="supportType" class="form-label" data-i18n-key="support-type">نوع
+                                        الطلب</label>
+                                    <select id="supportType" class="form-select" required>
+                                        <option value="" disabled selected
+                                            data-i18n-key="add-project-select-placeholder">اختر نوع الطلب...</option>
+                                        <option value="tech" data-i18n-key="support-type-tech">دعم تقني</option>
+                                        <option value="inquiry" data-i18n-key="support-type-inquiry">استفسار</option>
+                                        <option value="suggestion" data-i18n-key="support-type-suggestion">اقتراح
+                                        </option>
+                                        <option value="other" data-i18n-key="support-type-other">غير ذلك</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="supportMessage" class="form-label"
+                                        data-i18n-key="support-message">رسالتك</label>
+                                    <textarea id="supportMessage" class="form-control" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block"
+                                    data-i18n-key="support-send-btn">إرسال الرسالة</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./js/header.js"></script>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="addproject-page-title">إضافة مشروع جديد - منصة الاستثمار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="./CSS/add-project-new.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50 min-h-full">
+    <!-- Header -->
+
+    <div id="header-placeholder"></div>
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="goBack()" class="text-gray-600 hover:text-gray-800">
+                        <span class="text-xl">←</span>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800" data-i18n-key="addproject-header-title">إضافة مشروع
+                            جديد</h1>
+                        <p class="text-sm text-gray-500" data-i18n-key="addproject-header-subtitle">اعرض فكرتك على
+                            المستثمرين</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="saveDraft()" class="text-gray-600 hover:text-gray-800 px-3 py-2 border rounded-lg"
+                        data-i18n-key="addproject-draft-btn">
+                        حفظ كمسودة
+                    </button>
+
+                    <button type="button" onclick="submitForReview()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        data-i18n-key="addproject-submit-btn">
+                        إرسال للمراجعة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <section class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-center gap-8">
+                <div class="step-indicator active flex items-center gap-2 px-4 py-2 rounded-full">
+                    <span
+                        class="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    <span data-i18n-key="addproject-step-basic">معلومات أساسية</span>
+                </div>
+                <div class="w-8 h-0.5 bg-gray-300"></div>
+                <div class="step-indicator flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100">
+                    <span
+                        class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                    <span data-i18n-key="addproject-step-financial">التفاصيل المالية</span>
+                </div>
+                <div class="w-8 h-0.5 bg-gray-300"></div>
+                <div class="step-indicator flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100">
+                    <span
+                        class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                    <span data-i18n-key="addproject-step-review">المراجعة والنشر</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <form id="addProjectForm" onsubmit="event.preventDefault();">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <!-- Form Section -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Basic Information -->
+                    <div class="form-section active bg-white rounded-xl p-8 shadow-sm border-2">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="addproject-section-basic">
+                            المعلومات الأساسية</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="projectName" class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-name-label">اسم المشروع
+                                    *</label>
+                                <input type="text" id="projectName"
+                                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="أدخل اسم مشروعك" data-i18n-key="addproject-name-placeholder"
+                                    onchange="updatePreview()">
+                            </div>
+                            <div>
+                                <label for="projectDescription" class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-short-desc-label">وصف مختصر
+                                    *</label>
+                                <textarea id="projectDescription" rows="3"
+                                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="وصف مختصر وجذاب للمشروع (100-200 كلمة)"
+                                    data-i18n-key="addproject-short-desc-placeholder"
+                                    onchange="updatePreview()"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-4"
+                                    data-i18n-key="addproject-stage-label">مرحلة المشروع الحالية *</label>
+                                <div id="projectStageContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <label class="category-card p-4 border rounded-lg cursor-pointer" for="stage-idea">
+                                        <div class="flex items-center gap-3">
+                                            <input type="radio" name="projectStage" id="stage-idea" value="idea"
+                                                class="w-5 h-5 text-blue-600 focus:ring-blue-500">
+                                            <div>
+                                                <div class="font-semibold text-gray-800"
+                                                    data-i18n-key="addproject-stage-idea">فكرة</div>
+                                                <div class="text-sm text-gray-600"
+                                                    data-i18n-key="addproject-stage-idea-desc">المشروع لا يزال في مرحلة
+                                                    التخطيط
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="category-card p-4 border rounded-lg cursor-pointer"
+                                        for="stage-in-progress">
+                                        <div class="flex items-center gap-3">
+                                            <input type="radio" name="projectStage" id="stage-in-progress"
+                                                value="in-progress" class="w-5 h-5 text-blue-600 focus:ring-blue-500">
+                                            <div>
+                                                <div class="font-semibold text-gray-800"
+                                                    data-i18n-key="addproject-stage-inprogress">قيد التنفيذ</div>
+                                                <div class="text-sm text-gray-600"
+                                                    data-i18n-key="addproject-stage-inprogress-desc">تم البدء في بناء
+                                                    النموذج الأولي</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="category-card p-4 border rounded-lg cursor-pointer"
+                                        for="stage-established">
+                                        <div class="flex items-center gap-3">
+                                            <input type="radio" name="projectStage" id="stage-established"
+                                                value="established" class="w-5 h-5 text-blue-600 focus:ring-blue-500">
+                                            <div>
+                                                <div class="font-semibold text-gray-800"
+                                                    data-i18n-key="addproject-stage-established">مشروع قائم</div>
+                                                <div class="text-sm text-gray-600"
+                                                    data-i18n-key="addproject-stage-established-desc">يعمل وله
+                                                    عملاء/إيرادات</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="inProgressDetailsSection"
+                                class="hidden space-y-4 p-4 bg-gray-50 rounded-lg border">
+                                <div>
+                                    <label for="completionPercentage" class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-completion-percentage-label">نسبة
+                                        الإنجاز الحالية (%)</label>
+                                    <input type="number" id="completionPercentage" class="w-full p-3 border rounded-lg"
+                                        placeholder="مثال: 40"
+                                        data-i18n-key="addproject-completion-percentage-placeholder" min="0" max="100">
+                                </div>
+                                <div>
+                                    <label for="progressDetails" class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-progress-details-label">صف المرحلة
+                                        الحالية من التنفيذ</label>
+                                    <textarea id="progressDetails" rows="3" class="w-full p-3 border rounded-lg"
+                                        placeholder="مثال: تم الانتهاء من تصميم الواجهات ونعمل حالياً على برمجة الواجهة الخلفية..."
+                                        data-i18n-key="addproject-progress-details-placeholder"></textarea>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="projectCategory" class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-category-label">فئة
+                                        المشروع *</label>
+                                    <select id="projectCategory"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        onchange="updatePreview()">
+                                        <option value="" data-i18n-key="addproject-category-select"> </option>
+                                        <option value="تقنية" data-i18n-key="addproject-category-tech">تقنية</option>
+                                        <option value="تجارة إلكترونية" data-i18n-key="addproject-category-ecommerce">
+                                            تجارة إلكترونية</option>
+                                        <option value="تطبيقات جوال" data-i18n-key="addproject-category-mobile-apps">
+                                            تطبيقات جوال</option>
+                                        <option value="ذكاء اصطناعي" data-i18n-key="addproject-category-ai">ذكاء اصطناعي
+                                        </option>
+                                        <option value="تقنيات مالية" data-i18n-key="addproject-category-fintech">تقنيات
+                                            مالية</option>
+                                        <option value="صحة" data-i18n-key="addproject-category-health">صحة</option>
+                                        <option value="تعليم" data-i18n-key="addproject-category-education">تعليم
+                                        </option>
+                                        <option value="أخرى" data-i18n-key="addproject-category-other">أخرى</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="projectCountry" class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-country-label">الدولة
+                                        *</label>
+                                    <select id="projectCountry"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-3"
+                                        onchange="updateCities()">
+                                        <option value="" data-i18n-key="addproject-country-select">اختر الدولة</option>
+                                        <option value="saudi" data-i18n-key="addproject-country-saudi">السعودية</option>
+                                        <option value="uae" data-i18n-key="addproject-country-uae">الإمارات</option>
+                                        <option value="kuwait" data-i18n-key="addproject-country-kuwait">الكويت</option>
+                                        <option value="qatar" data-i18n-key="addproject-country-qatar">قطر</option>
+                                        <option value="bahrain" data-i18n-key="addproject-country-bahrain">البحرين
+                                        </option>
+                                        <option value="oman" data-i18n-key="addproject-country-oman">عمان</option>
+                                        <option value="morocco" data-i18n-key="addproject-country-morocco">المغرب
+                                        </option>
+                                        <option value="egypt" data-i18n-key="addproject-country-egypt">مصر</option>
+                                        <option value="jordan" data-i18n-key="addproject-country-jordan">الأردن</option>
+                                        <option value="lebanon" data-i18n-key="addproject-country-lebanon">لبنان
+                                        </option>
+                                    </select>
+                                    <label for="projectCity" class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-city-label">المدينة
+                                        *</label>
+                                    <select id="projectCity"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        onchange="updatePreview()" disabled>
+                                        <option value="" data-i18n-key="addproject-city-select">اختر المدينة</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="detailedDescription" class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-detailed-desc-label">الوصف
+                                    التفصيلي *</label>
+                                <textarea id="detailedDescription" rows="6"
+                                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="اشرح فكرة مشروعك بالتفصيل، المشكلة التي يحلها، والحل المقترح"
+                                    data-i18n-key="addproject-detailed-desc-placeholder"
+                                    onchange="updatePreview()"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-features-label">الميزات الرئيسية</label>
+                                <div id="featuresContainer" class="space-y-3">
+                                    <div class="flex gap-3">
+                                        <input type="text" id="featureInput" class="flex-1 p-3 border rounded-lg"
+                                            placeholder="أدخل ميزة رئيسية"
+                                            data-i18n-key="addproject-feature-placeholder">
+                                        <button type="button" onclick="addFeature()"
+                                            class="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600"
+                                            data-i18n-key="addproject-feature-add-btn">
+                                            إضافة
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="featuresList" class="mt-4 space-y-2"></div>
+                            </div>
+                            <div>
+                                <label for="projectVideo" class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-video-label">رابط فيديو تعريفي
+                                    (اختياري)</label>
+                                <input type="url" id="projectVideo"
+                                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="https://youtube.com/watch?v=... أو https://vimeo.com/..."
+                                    data-i18n-key="addproject-video-placeholder">
+                                <p class="text-sm text-gray-500 mt-2" data-i18n-key="addproject-video-note">يمكنك إضافة
+                                    رابط فيديو من YouTube أو Vimeo لعرض
+                                    مشروعك</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Information -->
+                    <div class="form-section bg-white rounded-xl p-8 shadow-sm border-2">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="addproject-section-financial">
+                            المعلومات المالية</h2>
+                        <div class="space-y-6">
+                            <div class="mb-6">
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-currency-label">العملة المفضلة</label>
+                                <select id="currency"
+                                    class="w-full md:w-64 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    onchange="changeCurrency()">
+                                    <option value="SAR" data-i18n-key="addproject-currency-sar">ريال سعودي (SAR)
+                                    </option>
+                                    <option value="USD" data-i18n-key="addproject-currency-usd">دولار أمريكي (USD)
+                                    </option>
+                                    <option value="EUR" data-i18n-key="addproject-currency-eur">يورو (EUR)</option>
+                                    <option value="AED" data-i18n-key="addproject-currency-aed">درهم إماراتي (AED)
+                                    </option>
+                                    <option value="KWD" data-i18n-key="addproject-currency-kwd">دينار كويتي (KWD)
+                                    </option>
+                                    <option value="QAR" data-i18n-key="addproject-currency-qar">ريال قطري (QAR)</option>
+                                    <option value="BHD" data-i18n-key="addproject-currency-bhd">دينار بحريني (BHD)
+                                    </option>
+                                    <option value="OMR" data-i18n-key="addproject-currency-omr">ريال عماني (OMR)
+                                    </option>
+                                    <option value="MAD" data-i18n-key="addproject-currency-mad">درهم مغربي (MAD)
+                                    </option>
+                                </select>
+                                <p class="text-sm text-gray-500 mt-2" data-i18n-key="addproject-currency-note">سيتم
+                                    تحويل جميع المبالغ تلقائياً حسب أسعار الصرف
+                                    الحالية</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">
+                                        <span data-i18n-key="addproject-funding-goal-label"></span>
+                                        <span id="fundingGoalCurrency"></span>
+
+                                    </label>
+
+                                    <input type="number" id="fundingGoal"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="500000" data-i18n-key="addproject-funding-goal-placeholder"
+                                        min="10000" onchange="updatePreview()">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">
+                                        <span data-i18n-key="addproject-min-investment-label">الحد الأدنى للاستثمار*
+                                        </span>
+                                        <span id="minInvestmentCurrency"> </span>
+                                    </label>
+                                    <input type="number" id="minInvestment"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="1000" data-i18n-key="addproject-min-investment-placeholder"
+                                        min="500" onchange="updatePreview()">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="equityOffered" class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-equity-label">المقابل
+                                    الاستثماري (نسبة الملكية المعروضة) *</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="relative flex-1">
+                                        <input type="number" id="equityOffered"
+                                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="10" data-i18n-key="addproject-equity-placeholder" min="1"
+                                            max="100">
+                                        <span required
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                                    </div>
+                                    <span id="equityContext" class="text-sm text-gray-600"
+                                        data-i18n-key="addproject-equity-context">مقابل الهدف المالي
+                                        المطلوب</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-return-label">العائد المتوقع (%) *</label>
+                                    <input type="number" id="expectedReturn"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="25" data-i18n-key="addproject-return-placeholder" min="5" max="100"
+                                        onchange="updatePreview()">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2"
+                                        data-i18n-key="addproject-duration-label">مدة الاستثمار (شهر) *</label>
+                                    <input type="number" id="investmentDuration"
+                                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="24" data-i18n-key="addproject-duration-placeholder" min="6"
+                                        onchange="updatePreview()">
+                                </div>
+                            </div>
+
+                            <!-- Budget Breakdown -->
+                            <div id="expenseItemsSection">
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-budget-label">توزيع الميزانية </label>
+                                <div id="expensesContainer" class="space-y-3">
+                                    <div class="flex gap-3">
+                                        <input type="text" id="expenseItemName" class="flex-1 p-3 border rounded-lg"
+                                            placeholder="اسم البند (مثل: التسويق)"
+                                            data-i18n-key="addproject-budget-item-placeholder">
+                                        <input type="number" id="expenseItemPercent" class="w-24 p-3 border rounded-lg"
+                                            placeholder="50" data-i18n-key="addproject-budget-percent-placeholder"
+                                            min="0" max="100">
+                                        <span class="flex items-center text-gray-500">%</span>
+                                        <button type="button" onclick="addExpenseItem()"
+                                            class="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600"
+                                            data-i18n-key="addproject-budget-add-btn">إضافة</button>
+                                    </div>
+                                </div>
+                                <div id="expensesList" class="mt-4 space-y-2"></div>
+                                <div id="totalPercentage" class="mt-3 text-sm">
+                                    <span data-i18n-key="addproject-budget-total">المجموع:</span> <span
+                                        id="totalPercent" class="font-semibold">0%</span>
+                                    <span id="percentageWarning" class="mr-2 text-sm"></span>
+                                </div>
+                            </div>
+
+                            <div id="pastFinancialsSection" class="hidden">
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-past-financials-label">الأداء المالي السابق</label>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse border border-gray-300">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="border p-3 text-right" data-i18n-key="addproject-table-year">
+                                                    السنة</th>
+                                                <th class="border p-3 text-right"
+                                                    data-i18n-key="addproject-table-revenue">الإيرادات</th>
+                                                <th class="border p-3 text-right"
+                                                    data-i18n-key="addproject-table-expenses">المصروفات</th>
+                                                <th class="border p-3 text-right"
+                                                    data-i18n-key="addproject-table-net-profit">صافي الربح</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border p-3"
+                                                    data-i18n-key="addproject-past-financials-prev-year">السنة السابقة
+                                                </td>
+                                                <td class="border p-3"><input type="number" id="pastRevenue1"
+                                                        class="w-full p-2 border rounded" placeholder="مثال: 150000"
+                                                        data-i18n-key="addproject-past-financials-revenue-placeholder">
+                                                </td>
+                                                <td class="border p-3"><input type="number" id="pastExpenses1"
+                                                        class="w-full p-2 border rounded" placeholder="مثال: 90000"
+                                                        data-i18n-key="addproject-past-financials-expenses-placeholder">
+                                                </td>
+                                                <td class="border p-3 font-semibold" id="pastProfit1">0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-forecast-label">التوقعات المالية (3 سنوات) - <span
+                                        id="financialTableCurrency"> </span></label>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse border border-gray-300">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="border border-gray-300 p-3 text-right"
+                                                    data-i18n-key="addproject-table-year">السنة</th>
+                                                <th class="border border-gray-300 p-3 text-right"
+                                                    data-i18n-key="addproject-forecast-expected-revenue">الإيرادات
+                                                    المتوقعة
+                                                </th>
+                                                <th class="border border-gray-300 p-3 text-right"
+                                                    data-i18n-key="addproject-forecast-expected-expenses">المصروفات
+                                                    المتوقعة
+                                                </th>
+                                                <th class="border border-gray-300 p-3 text-right"
+                                                    data-i18n-key="addproject-table-net-profit">صافي الربح</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border border-gray-300 p-3"
+                                                    data-i18n-key="addproject-forecast-year1">السنة الأولى</td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="revenue1" class="w-full p-2 border rounded"
+                                                        placeholder="800000"
+                                                        data-i18n-key="addproject-forecast-revenue1-placeholder"></td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="expenses1" class="w-full p-2 border rounded"
+                                                        placeholder="600000"
+                                                        data-i18n-key="addproject-forecast-expenses1-placeholder"></td>
+                                                <td class="border border-gray-300 p-3 font-semibold" id="profit1">
+                                                    000,000</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-gray-300 p-3"
+                                                    data-i18n-key="addproject-forecast-year2">السنة الثانية</td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="revenue2" class="w-full p-2 border rounded"
+                                                        placeholder="1500000"
+                                                        data-i18n-key="addproject-forecast-revenue2-placeholder"></td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="expenses2" class="w-full p-2 border rounded"
+                                                        placeholder="900000"
+                                                        data-i18n-key="addproject-forecast-expenses2-placeholder"></td>
+                                                <td class="border border-gray-300 p-3 font-semibold" id="profit2">
+                                                    000,000</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border border-gray-300 p-3"
+                                                    data-i18n-key="addproject-forecast-year3">السنة الثالثة</td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="revenue3" class="w-full p-2 border rounded"
+                                                        placeholder="2800000"
+                                                        data-i18n-key="addproject-forecast-revenue3-placeholder"></td>
+                                                <td class="border border-gray-300 p-3"><input type="number"
+                                                        id="expenses3" class="w-full p-2 border rounded"
+                                                        placeholder="1400000"
+                                                        data-i18n-key="addproject-forecast-expenses3-placeholder"></td>
+                                                <td class="border border-gray-300 p-3 font-semibold" id="profit3">
+                                                    0,000,000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Investors -->
+                    <div class="form-section bg-white rounded-xl p-8 shadow-sm border-2">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6"
+                            data-i18n-key="addproject-section-target-investors">المستثمرون المستهدفون</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-campaign-duration-label">مدة الحملة (أيام)</label>
+                                <select id="campaignDuration"
+                                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="30" data-i18n-key="addproject-campaign-duration-30">30 يوم</option>
+                                    <option value="45" data-i18n-key="addproject-campaign-duration-45">45 يوم</option>
+                                    <option value="60" data-i18n-key="addproject-campaign-duration-60">60 يوم</option>
+                                    <option value="90" data-i18n-key="addproject-campaign-duration-90">90 يوم</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents Upload -->
+                    <div class="form-section bg-white rounded-xl p-8 shadow-sm border-2">
+                        <div class="space-y-6">
+
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6"
+                                data-i18n-key="addproject-section-documents">المستندات والملفات</h2>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-image-label">صورة المشروع </label>
+                                <div class="upload-area p-8 rounded-lg text-center cursor-pointer"
+                                    onclick="document.getElementById('projectImages').click()">
+                                    <div class="text-4xl text-gray-400 mb-4">🖼️</div>
+                                    <div class="text-gray-600" data-i18n-key="addproject-image-prompt">اسحب وأفلت الصور
+                                        هنا أو انقر للاختيار</div>
+                                    <div class="text-sm text-gray-500 mt-2" data-i18n-key="addproject-image-specs">JPG,
+                                        PNG, GIF (حد أقصى 5MB لكل صورة)</div>
+                                </div>
+                                <input type="file" id="projectImages" class="hidden" accept="image/*" multiple>
+                            </div>
+                            <!-- لمكان عرض صور المشروع (يمكن أن يكون حاوية flex لعرض الصور جنبًا إلى جنب) -->
+                            <div id="projectImagesDisplay" class="flex flex-wrap gap-4 mt-4"></div>
+
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-business-plan-label">خطة العمل (PDF)</label>
+                                <div class="upload-area p-8 rounded-lg text-center cursor-pointer"
+                                    onclick="document.getElementById('businessPlan').click()">
+                                    <div class="text-4xl text-gray-400 mb-4">📄</div>
+                                    <div class="text-gray-600" data-i18n-key="addproject-business-plan-prompt">اسحب
+                                        وأفلت ملف خطة العمل هنا أو انقر للاختيار</div>
+                                    <div class="text-sm text-gray-500 mt-2"
+                                        data-i18n-key="addproject-business-plan-specs">PDF, DOC, DOCX (حد أقصى 10MB)
+                                    </div>
+                                </div>
+                                <input type="file" id="businessPlan" class="hidden" accept=".pdf,.doc,.docx">
+                            </div>
+
+                            <!-- لمكان عرض خطة العمل -->
+                            <div id="businessPlanDisplay"></div>
+
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2"
+                                    data-i18n-key="addproject-additional-files-label"> (اختياري) ملفات إضافية</label>
+                                <div class="upload-area p-8 rounded-lg text-center cursor-pointer"
+                                    onclick="document.getElementById('presentation').click()">
+                                    <div class="text-4xl text-gray-400 mb-4">📊</div>
+                                    <div class="text-gray-600" data-i18n-key="addproject-additional-files-prompt">اسحب
+                                        وأفلت الملف أو انقر للاختيار</div>
+                                    <div class="text-sm text-gray-500 mt-2"
+                                        data-i18n-key="addproject-additional-files-specs">PDF, PPT, PPTX (حد أقصى 15MB)
+                                    </div>
+                                </div>
+                                <input type="file" id="presentation" class="hidden" accept=".pdf,.ppt,.pptx">
+                            </div>
+
+                            <!-- لمكان عرض العرض التقديمي -->
+                            <div id="presentationDisplay"></div>
+
+
+                        </div>
+
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4">
+                        <button type="button" onclick="saveDraft()"
+                            class="flex-1 border border-gray-300 text-gray-700 py-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                            data-i18n-key="addproject-draft-btn">
+                            حفظ كمسودة
+                        </button>
+                        <button type="button" onclick="submitForReview()"
+                            class="flex-1 bg-blue-600 text-white py-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                            data-i18n-key="addproject-submit-btn">
+                            إرسال للمراجعة
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Preview Section -->
+                <aside class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden sticky top-24">
+                        <div class="preview-card text-white p-6">
+                            <h3 class="text-lg font-bold mb-2" data-i18n-key="addproject-preview-title">معاينة مباشرة
+                            </h3>
+                            <p class="text-sm text-gray-100" data-i18n-key="addproject-preview-subtitle">كما سيراها
+                                المستثمرون</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs"
+                                        data-i18n-key="addproject-preview-new-tag">جديد</span>
+                                    <span id="previewCategory"
+                                        class="bg-gray-100 px-2 py-1 rounded-full text-xs">تقنية</span>
+                                </div>
+                                <h4 id="previewTitle" class="text-lg font-bold text-gray-800"
+                                    data-i18n-key="addproject-preview-name-placeholder">اسم المشروع</h4>
+                                <p id="previewDescription" class="text-gray-600 text-sm mt-2"
+                                    data-i18n-key="addproject-preview-desc-placeholder">وصف المشروع سيظهر هنا...
+                                </p>
+                            </div>
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span data-i18n-key="addproject-preview-goal-label">الهدف</span>
+                                    <span id="previewGoal">0 ر.س</span>
+                                </div>
+                                <div class="bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-center text-sm mb-4">
+                                <div>
+                                    <div class="font-bold" id="previewReturn">0%</div>
+                                    <div class="text-gray-500" data-i18n-key="addproject-preview-return-label">عائد
+                                        متوقع</div>
+                                </div>
+                                <div>
+                                    <div class="font-bold" id="previewDuration">0</div>
+                                    <div class="text-gray-500" data-i18n-key="addproject-preview-duration-unit">شهر
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Currency Converter -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n-key="addproject-converter-title">محول
+                            العملة</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="font-semibold text-blue-800"
+                                        data-i18n-key="addproject-converter-usd-base">1 دولار أمريكي</div>
+                                    <div class="text-blue-600" id="usdToSelected">= 1.00 $</div>
+                                </div>
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="font-semibold text-green-800" id="selectedCurrencyName"
+                                        data-i18n-key=""></div>
+                                    <div class="text-green-600" id="selectedToUsd">= 0.27 $</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 text-center" data-i18n-key="addproject-converter-note">
+                                أسعار الصرف تقريبية وقد تختلف عن الأسعار الفعلية
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n-key="addproject-tips-title">نصائح
+                            لمشروع ناجح</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-600" data-i18n-key="addproject-tip1">اكتب وصفاً واضحاً ومقنعاً
+                                    للمشروع</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-600" data-i18n-key="addproject-tip2">حدد أهدافاً مالية واقعية
+                                    ومدروسة</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-600" data-i18n-key="addproject-tip3">أرفق خطة عمل مفصلة
+                                    ومدروسة</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n-key="addproject-progress-title">تقدم
+                            الإكمال</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span data-i18n-key="addproject-progress-basic">المعلومات الأساسية</span>
+                                <span id="basicProgress">0%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div id="basicProgressBar" class="progress-bar bg-blue-500 h-2 rounded-full"
+                                    style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span data-i18n-key="addproject-progress-financial">المعلومات المالية</span>
+                                <span id="financialProgress">0%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div id="financialProgressBar" class="progress-bar bg-green-500 h-2 rounded-full"
+                                    style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span data-i18n-key="addproject-progress-documents">المستندات</span>
+                                <span id="documentsProgress">0%</span>
+                            </div>
+                            <div class="bg-gray-200 rounded-full h-2">
+                                <div id="documentsProgressBar" class="progress-bar bg-purple-500 h-2 rounded-full"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </aside>
+            </div>
+        </form>
+    </main>
+    <script src="./js/header.js"></script>
+
+    <script src="./js/script.js"></script>
+    <script src="./JS/add-project-new.js"></script>
+    <script src="./js/translation.js"></script>
+
+</body>
+
+</html>

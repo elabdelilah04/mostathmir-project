@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="browse-page-title">تصفح المشاريع - اكتشف الفرص الاستثمارية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/browse.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="min-h-full">
+    <div id="header-placeholder"></div>
+    <div class="header-gradient text-white py-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-4" data-i18n-key="browse-title">تصفح المشاريع</h1>
+                <p class="text-xl text-gray-300 mb-8" data-i18n-key="browse-subtitle">اكتشف الفرص الاستثمارية الواعدة
+                </p>
+                <!-- Search Bar -->
+                <div class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="ابحث عن المشاريع..."
+                            data-i18n-key="browse-search-placeholder"
+                            class="search-input w-full py-4 px-6 pr-14 text-gray-900 text-lg">
+                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <span class="text-xl">🔍</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Filters -->
+        <div class="mb-8">
+            <div class="flex flex-wrap gap-4 justify-center items-center">
+                <button class="filter-btn active px-6 py-3 font-medium" data-filter="all"
+                    data-i18n-key="browse-filter-all">
+                    جميع المشاريع
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="تقنية" data-i18n-key="browse-filter-tech">
+                    تقنية
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="تجارة إلكترونية"
+                    data-i18n-key="browse-filter-ecommerce">
+                    تجارة إلكترونية
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="تطبيقات جوال"
+                    data-i18n-key="browse-filter-mobile-apps">
+                    تطبيقات جوال
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="ذكاء اصطناعي"
+                    data-i18n-key="browse-filter-ai">
+                    ذكاء اصطناعي
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="تقنيات مالية"
+                    data-i18n-key="browse-filter-fintech">
+                    تقنيات مالية
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="صحة" data-i18n-key="browse-filter-health">
+                    الصحة
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="تعليم"
+                    data-i18n-key="browse-filter-education">
+                    التعليم
+                </button>
+                <button class="filter-btn px-6 py-3 font-medium" data-filter="أخرى" data-i18n-key="browse-filter-other">
+                    أخرى
+                </button>
+
+                <!-- Advanced Filter Button -->
+                <button onclick="openAdvancedFilter()"
+                    class="filter-btn px-4 py-3 font-medium flex items-center gap-2 hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
+                    <span class="text-lg">⚙️</span>
+                    <span data-i18n-key="browse-filter-advanced">فلترة متقدمة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projectsGrid">
+            <!-- Project Card 1 (كبطاقة نموذجية) -->
+            <div class="project-card p-6 cursor-pointer" data-category="technology"
+                onclick="openProjectDetails('smart-delivery')">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="category-tag">منصة توصيل</div>
+                    <div class="status-badge status-active">نشط</div>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-900 mb-3"> </h3>
+                <p class="text-gray-600 text-sm mb-4 leading-relaxed">
+                </p>
+
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700" data-i18n-key="browse-card-funding-goal">التمويل
+                            المطلوب</span>
+                        <span class="text-sm font-bold text-blue-600"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="progress-bar h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-gray-600" data-i18n-key="browse-card-percent-complete">%
+                            مكتمل</span>
+                        <span class="text-xs font-medium text-green-600"> </span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            أ
+                        </div>
+                        <span class="text-sm text-gray-700"> </span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-gray-900"></div>
+                        <div class="text-xs text-gray-600" data-i18n-key="browse-card-views">مشاهدة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-12">
+            <button class="elegant-button px-8 py-4 font-medium" data-i18n-key="browse-show-more-btn">
+                عرض المزيد من المشاريع
+            </button>
+        </div>
+    </main>
+    <!-- Advanced Filter Modal -->
+    <div id="advancedFilterModal"
+        class="fixed inset-0 bg-black bg-opacity-50  hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900" data-i18n-key="browse-modal-filter-title">فلترة متقدمة</h3>
+                <button onclick="closeAdvancedFilter()"
+                    class="text-gray-500 hover:text-gray-700 text-3xl font-light">×</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Funding Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3"
+                        data-i18n-key="browse-modal-filter-funding-range">نطاق التمويل المطلوب</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="range1" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="range1" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-range1">أقل من 100,000 درهم</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="range2" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="range2" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-range2">100,000 - 200,000
+                                درهم</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="range3" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="range3" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-range3">أكثر من 200,000
+                                درهم</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project Status -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3"
+                        data-i18n-key="browse-modal-filter-status">حالة المشروع</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="status1" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="status1" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-status-active">نشط</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="status2" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="status2" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-status-seeking">يبحث عن
+                                تمويل</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="status3" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="status3" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-status-funded">مكتمل
+                                التمويل</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Progress Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3"
+                        data-i18n-key="browse-modal-filter-progress-range">نسبة الإنجاز</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="progress1" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="progress1" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-progress1">0% - 25%</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="progress2" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="progress2" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-progress2">26% - 50%</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="progress3" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="progress3" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-progress3">51% - 75%</label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="progress4" class="w-4 h-4 text-blue-600 rounded">
+                            <label for="progress4" class="text-sm text-gray-700"
+                                data-i18n-key="browse-modal-filter-progress4">76% - 100%</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sort Options -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3"
+                        data-i18n-key="browse-modal-filter-sort-by">ترتيب حسب</label>
+                    <select id="sortBy"
+                        class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none">
+                        <option value="newest" data-i18n-key="browse-modal-filter-sort-newest">الأحدث
+                        </option>
+                        <option value="oldest" data-i18n-key="browse-modal-filter-sort-oldest">الأقدم
+                        </option>
+                        <option value="funding-high" data-i18n-key="browse-modal-filter-sort-funding-high">التمويل
+                            الأعلى
+                        </option>
+                        <option value="funding-low" data-i18n-key="browse-modal-filter-sort-funding-low">التمويل الأقل
+                        </option>
+                        <option value="progress-high" data-i18n-key="browse-modal-filter-sort-progress-high">الإنجاز
+                            الأعلى
+                        </option>
+                        <option value="progress-low" data-i18n-key="browse-modal-filter-sort-progress-low">الإنجاز الأقل
+                        </option>
+                        <option value="views-high" data-i18n-key="browse-modal-filter-sort-views-high">الأكثر مشاهدة
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-8">
+                <button onclick="applyAdvancedFilter()" class="elegant-button flex-1 py-4 font-medium"
+                    data-i18n-key="browse-modal-filter-apply-btn">
+                    تطبيق الفلترة
+                </button>
+                <button onclick="resetAdvancedFilter()"
+                    class="flex-1 py-4 px-6 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:border-red-500 hover:text-red-500 transition-all duration-300"
+                    data-i18n-key="browse-modal-filter-reset-btn">
+                    إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Project Details Modal (Small Preview) -->
+    <div id="projectModal" class="fixed inset-0 bg-black bg-opacity-50  hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-2"></h3>
+                    <div id="modalCategory" class="category-tag inline-block"></div>
+                    <h4 class="font-bold text-gray-900 mb-3" data-i18n-key="browse-modal-details-desc-title">وصف المشروع
+                    </h4>
+                    <p id="modalDescription" class="text-gray-600 mb-6 leading-relaxed"></p>
+
+                    <h4 class="font-bold text-gray-900 mb-3" data-i18n-key="browse-modal-details-owner-info-title">
+                        معلومات رائد الأعمال</h4>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div id="modalOwnerAvatar"
+                            class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"></div>
+                        <div>
+                            <div id="modalOwnerName" class="font-semibold text-gray-900"></div>
+                            <!-- العنصر الجديد -->
+                            <div id="modalOwnerTitle" class="modal-owner-title text-sm text-gray-600"
+                                data-i18n-key="browse-modal-details-owner-role">رائد أعمال</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style=" display: flex ; justify-content: flex-end;">
+                        <button onclick="closeProjectModal()"
+                            class="text-gray-500 hover:text-gray-700 text-3xl font-light">×</button>
+                    </div>
+                    <h4 class="font-bold text-gray-900 mb-4" data-i18n-key="browse-modal-details-funding-title">تفاصيل
+                        التمويل</h4>
+                    <div class="investment-amount p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-medium text-gray-700"
+                                data-i18n-key="browse-modal-details-target-amount">المبلغ المطلوب</span>
+                            <span id="modalTargetAmount" class="text-lg font-bold text-blue-600"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-3">
+                            <div id="modalProgressBar" class="progress-bar h-3 rounded-full"></div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span id="modalProgress" class="text-sm text-gray-600"></span>
+                            <span id="modalRaisedAmount" class="text-sm font-medium text-green-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <a id="btnInvestInProject" href="#">
+                            <button id="btnInvestInProject" class="elegant-button w-full py-4 font-medium"
+                                data-i18n-key="browse-modal-details-invest-btn">
+                                استثمر في هذا المشروع
+                            </button>
+                        </a>
+                        <a href="#" id="btnOpenFullDetails"
+                            class="w-full py-4 px-6 text-center inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+                            data-i18n-key="browse-modal-details-full-details-btn">
+                            عرض تفاصيل المشروع كامل
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/header.js"></script>
+    <script src="./js/projectBrowse.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+</body>
+
+</html>

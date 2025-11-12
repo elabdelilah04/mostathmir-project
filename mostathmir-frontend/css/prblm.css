@@ -1,0 +1,537 @@
+body {
+    box-sizing: border-box;
+    font-family: 'Tajawal', Arial, sans-serif;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.card-shadow {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e2e8f0;
+}
+
+.star-rating {
+    color: #059669;
+}
+
+.skill-bar {
+    background: linear-gradient(90deg, #059669 0%, #047857 100%);
+}
+
+.achievement-badge {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.financial-highlight {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.investment-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-left: 4px solid #059669;
+}
+
+.project-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+/* ================================================================
+   Public Profile Page Styles
+   ================================================================ */
+
+.public-profile-page {
+    padding: 3rem 0;
+}
+
+.container-profile {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+/* --- Sidebar --- */
+.profile-sidebar-public {
+    flex: 0 0 320px;
+    position: relative;
+}
+
+.sidebar-sticky {
+    position: sticky;
+    top: 100px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.profile-avatar-container-public {
+    margin: -60px auto 1rem;
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.profile-avatar-public {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-avatar-public img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name-public {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.profile-role-public {
+    font-size: 1rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.profile-meta-public {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    text-align: right;
+}
+
+.meta-item-public {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.meta-item-public i {
+    color: #94a3b8;
+    width: 20px;
+    text-align: center;
+}
+
+.profile-social-public {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1.5rem;
+}
+
+.profile-social-public a {
+    color: #94a3b8;
+    font-size: 1.25rem;
+    transition: color 0.3s;
+}
+
+.profile-social-public a:hover {
+    color: #1d4ed8;
+}
+
+.sidebar-heading-public {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 1rem;
+    text-align: right;
+    border-bottom: 2px solid #eef2ff;
+    padding-bottom: 0.5rem;
+}
+
+.tags-container-public {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    margin-bottom: 30px;
+}
+
+.tags-container-public .tag {
+    background-color: #eef2ff;
+    color: #4338ca;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* --- Main Content --- */
+.profile-main-content-public {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-card-public {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.section-title-public {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-title-public::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #1d4ed8;
+}
+
+.profile-card-public p {
+    line-height: 1.8;
+    color: #475569;
+}
+
+.skills-container-public {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skills-container-public .skill-tag {
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.projects-grid-public {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* === START: Project Card Styling Fix === */
+.project-card-public {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+    padding: 0;
+    /* Remove padding from main card */
+    margin-bottom: 0;
+    /* Remove margin as gap is handled by grid */
+}
+
+.project-card-public:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.project-card-image-link {
+    display: block;
+    position: relative;
+}
+
+.project-card-image-link img {
+    width: 100%;
+    height: 180px;
+    /* Fixed height for all images */
+    object-fit: cover;
+    /* Crucial for uniform image size */
+    display: block;
+}
+
+.project-card-category {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(29, 78, 216, 0.8);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+}
+
+.project-card-content {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.project-card-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.project-card-title a {
+    text-decoration: none;
+    color: #1e293b;
+}
+
+.project-card-description {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.6;
+    flex-grow: 1;
+    margin-bottom: 1rem;
+}
+
+.project-card-meta {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 1rem;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+}
+
+.project-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* === END: Project Card Styling Fix === */
+
+.achievements-container-public {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.achievement-item-public {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+}
+
+.achievement-item-public .ach-icon {
+    font-size: 2rem;
+    color: #f59e0b;
+}
+
+.achievement-item-public .ach-details h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.achievement-item-public .ach-details p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.achievement-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .container-profile {
+        flex-direction: column;
+    }
+
+    .profile-sidebar-public {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+
+    .sidebar-sticky {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .projects-grid-public {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    z-index: 101;
+    width: 90%;
+    max-width: 500px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.modal-overlay.visible,
+.modal.visible {
+    opacity: 1;
+}
+
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #1e293b;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background-color: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+}
+
+.modal-footer .btn {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+
+/* --- START OF NEW CSS --- */
+.testimonial-card .testimonial-controls {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.testimonial-card:hover .testimonial-controls {
+    opacity: 1;
+}
+
+.testimonial-controls .control-btn {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e2e8f0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.testimonial-controls .control-btn:hover {
+    background-color: #fff;
+    color: #1e293b;
+}
+
+.testimonial-card.editing {
+    background-color: #eef2ff;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.edit-actions .save-btn {
+    background-color: #16a34a;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-actions .cancel-btn {
+    background-color: #e2e8f0;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}

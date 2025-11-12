@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="messages-page-title">الرسائل والإشعارات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/messages.css">
+</head>
+
+<body class="min-h-full">
+    <div id="header-placeholder"></div>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="card p-6 mb-8">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <div class="flex gap-2">
+                    <button onclick="switchTab('messages')" class="tab-button active" id="messagesTab"> <span
+                            data-i18n-key="messages-tab-messages">الرسائل</span>
+                        <span class="badge" id="messagesBadge">0</span>
+                    </button>
+                    <button onclick="switchTab('notifications')" class="tab-button" id="notificationsTab"> <span
+                            data-i18n-key="messages-tab-notifications"> الإشعارات </span>
+                        <span class="badge" id="notificationsBadge">0</span>
+                    </button>
+                </div>
+                <div class="flex-1 flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1"><input type="text" placeholder="البحث..." class="search-input" id="searchInput"
+                            oninput="filterContent()" data-i18n-key="messages-search-placeholder"></div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="filterByStatus('all')" class="filter-chip active" data-filter="all"
+                            data-i18n-key="messages-filter-all">الكل</button>
+                        <button onclick="filterByStatus('unread')" class="filter-chip" data-filter="unread"
+                            data-i18n-key="messages-filter-unread">غير مقروء</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="messagesSection" class="space-y-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900" data-i18n-key="messages-conversations-title">المحادثات</h2>
+                <div class="flex gap-2">
+                    <button onclick="markAllAsRead('messages')" class="control-btn"
+                        data-i18n-key="messages-mark-all-read"><i class="fas fa-check-double"></i>
+                        تحديد الكل كمقروء</button>
+                    <button onclick="deleteAll('messages')" class="control-btn danger"
+                        data-i18n-key="messages-delete-all"><i class="fas fa-trash-alt"></i>
+                        مسح الكل</button>
+                </div>
+            </div>
+            <div class="space-y-4" id="messagesList"></div>
+        </div>
+
+        <div id="notificationsSection" class="space-y-4 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900" data-i18n-key="messages-notifications-title">الإشعارات</h2>
+                <div class="flex gap-2">
+                    <button onclick="markAllAsRead('notifications')" class="control-btn"
+                        data-i18n-key="messages-mark-all-read"><i class="fas fa-check-double"></i> تحديد الكل
+                        كمقروء</button>
+                    <button onclick="deleteAll('notifications')" class="control-btn danger"
+                        data-i18n-key="messages-delete-all"><i class="fas fa-trash-alt"></i> مسح الكل</button>
+                </div>
+            </div>
+            <div class="space-y-4" id="notificationsList">
+            </div>
+        </div>
+    </main>
+    <div id="messageModal" class="modal fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="modal-content w-full max-w-2xl flex flex-col">
+                <div id="modalHeader" class="p-4 border-b border-gray-200"></div>
+                <div id="modalBody" class="p-6 flex-1 overflow-y-auto space-y-4"></div>
+                <div id="modalFooter" class="p-4 bg-gray-50 border-t"></div>
+            </div>
+        </div>
+    </div>
+    <div id="adminNoteModal" class="modal fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="modal-content w-full max-w-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-900" data-i18n-key="messages-admin-note-title">ملاحظات
+                            الإدارة</h2>
+                        <button onclick="closeAdminNoteModal()"
+                            class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p id="adminNoteContent" class="text-gray-700 leading-relaxed"></p>
+                </div>
+                <div class="p-4 bg-gray-50 border-t flex justify-end">
+                    <button onclick="closeAdminNoteModal()" class="elegant-button px-6 py-2"
+                        data-i18n-key="messages-close-btn">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="notificationDetailsModal" class="modal fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="modal-content w-full max-w-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-900" data-i18n-key="messages-notification-details-title">
+                            تفاصيل الإشعار</h2>
+                        <button onclick="closeNotificationDetailsModal()"
+                            class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="notificationDetailContent"></div>
+                    <div id="proposalResponseSection" class="mt-6 border-t pt-6" style="display: none;">
+                        <div class="flex justify-center gap-4 mb-6">
+                            <button id="acceptProposalBtn" class="success-button px-6 py-2 flex items-center gap-2"
+                                data-i18n-key="messages-accept-proposal-btn">قبول
+                                الشراكة ✅</button>
+                            <button id="requestInfoBtn" class="elegant-button px-6 py-2 flex items-center gap-2"
+                                data-i18n-key="messages-request-info-btn">طلب
+                                معلومات إضافية ❓</button>
+                            <button id="rejectProposalBtn" class="danger-button px-6 py-2 flex items-center gap-2"
+                                data-i18n-key="messages-reject-proposal-btn">❌ رفض
+                                الشراكة</button>
+                        </div>
+                        <form id="responseForm">
+                            <label class="block text-lg font-semibold text-gray-800 mb-2"
+                                data-i18n-key="messages-provide-response-label">قدم رد</label>
+                            <textarea id="responseMessageText" class="search-input w-full" rows="4"
+                                placeholder="اكتب ردك هنا..." data-i18n-key="messages-response-placeholder"></textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <div><span class="text-gray-400 text-2xl cursor-pointer">🙂</span> <span
+                                        class="text-gray-400 text-2xl cursor-pointer">📎</span></div>
+                                <button type="submit" class="elegant-button px-8 py-2"
+                                    data-i18n-key="messages-send-response-btn">إرسال الرد</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 border-t flex justify-between items-center">
+                    <button onclick="closeNotificationDetailsModal()" class="secondary-button px-6 py-2"
+                        data-i18n-key="messages-close-btn">إغلاق</button>
+                    <a href="#" id="notificationDetailLink" class="elegant-button px-6 py-2"
+                        data-i18n-key="messages-go-to-project-btn">الانتقال للمشروع</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/header.js"></script>
+    <script src="./js/messages.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+
+</html>

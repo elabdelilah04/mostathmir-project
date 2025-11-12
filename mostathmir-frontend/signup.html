@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="page-title-signup">تسجيل حساب جديد - منصة مستثمر</title>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./css/header-styles.css">
+
+</head>
+
+<body data-page-key="page-title-signup">
+    <div class="app rtl" id="app">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+
+        <!-- Signup Form Section -->
+        <section class="signup-container">
+            <div class="signup-form-container">
+                <div class="signup-welcome text-center">
+                    <img src="logo.png" alt="شعار مستثمر" style="width: 80px; height: auto; margin-bottom: 1rem;">
+                    <h1 class="signup-title"><span data-i18n-key="signup-welcome-title">مرحبا بك في</span> <span
+                            class="gold-accent">مستثمر</span></h1>
+                    <p class="signup-subtitle" data-i18n-key="signup-welcome-subtitle">سجّل وابدأ رحلتك نحو الاستثمار
+                        الذكي.</p>
+                </div>
+
+                <form id="signupForm" class="signup-form">
+                    <div class="form-group">
+                        <label for="accountType" class="form-label" data-i18n-key="signup-account-type">نوع
+                            الحساب</label>
+                        <select id="accountType" class="form-select" required>
+                            <option value="" disabled selected data-i18n-key="signup-account-type-placeholder">اختر نوع
+                                الحساب</option>
+                            <option value="investor" data-i18n-key="signup-account-investor">مستثمر</option>
+                            <option value="ideaHolder" data-i18n-key="signup-account-ideaholder">صاحب فكرة</option>
+                            <!-- <option value="serviceProvider" data-i18n-key="signup-account-serviceprovider">مزود خدمة</option> -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullName" class="form-label" data-i18n-key="signup-fullname">الاسم الكامل</label>
+                        <input type="text" id="fullName" class="form-control"
+                            data-i18n-placeholder-key="signup-fullname-placeholder" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label" data-i18n-key="signup-email">البريد الإلكتروني</label>
+                        <input type="email" id="email" class="form-control"
+                            data-i18n-placeholder-key="signup-email-placeholder" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="form-label" data-i18n-key="signup-phone">رقم الهاتف </label>
+                        <input type="tel" pattern="[0-9]{10}" id="phone" class="form-control"
+                            data-i18n-placeholder-key="signup-phone-placeholder" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label" data-i18n-key="signup-password">كلمة السر</label>
+                        <input type="password" id="password" class="form-control"
+                            data-i18n-placeholder-key="signup-password-placeholder" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label" data-i18n-key="signup-confirm-password">تأكيد
+                            كلمة السر</label>
+                        <input type="password" id="confirmPassword" class="form-control"
+                            data-i18n-placeholder-key="signup-confirm-password-placeholder" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location" class="form-label" data-i18n-key="signup-location">الموقع</label>
+                        <div class="mb-4">
+                            <label for="country" class="block text-gray-700"
+                                data-i18n-key="settings-country-label">الدولة</label>
+                            <select id="country" name="country" class="form-select w-full border p-2 rounded" required>
+                                <option value="" data-i18n-key="settings-country-select">اختر الدولة</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="city" class="block text-gray-700"
+                                data-i18n-key="settings-city-label">المدينة</label>
+                            <select id="city" name="city" class="form-select w-full border p-2 rounded" required>
+                                <option value="" data-i18n-key="settings-city-select">اختر المدينة</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="bio" class="form-label" data-i18n-key="signup-bio">نبذة عنك (اختياري)</label>
+                        <textarea id="bio" class="form-control" rows="3"
+                            data-i18n-placeholder-key="signup-bio-placeholder"></textarea>
+                    </div>
+                    <button type="submit" class="signup-btn" data-i18n-key="signup-button">سجّل الآن</button>
+
+                    <p class="terms-text">
+                        <span data-i18n-key="signup-terms-full"> بتسجيلك، فأنت توافق على
+                        </span>
+                        <a href="./legal.html" data-i18n-key="Terms">الشروط والأحكام
+                        </a>
+                        &
+                        <a href="./legal.html" data-i18n-key="Privacy-Policy">سياسة الخصوصية
+                        </a>.
+                    </p>
+                </form>
+
+                <div class="social-signup">
+                    <div class="social-signup-title" data-i18n-key="signup-social-title">أو سجل باستخدام</div>
+                    <div class="social-buttons">
+                        <button class="social-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="#4285F4">
+                                <path
+                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                    fill="#4285F4"></path>
+                                <path
+                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                    fill="#34A853"></path>
+                                <path
+                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                    fill="#FBBC05"></path>
+                                <path
+                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                    fill="#EA4335"></path>
+                            </svg>
+                            Google
+                        </button>
+                        <button class="social-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="#0A66C2">
+                                <path
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z">
+                                </path>
+                            </svg>
+                            LinkedIn
+                        </button>
+                    </div>
+                </div>
+                <div class="login-link">
+                    <span data-i18n-key="signup-have-account">لديك حساب بالفعل؟</span> <a href="login.html"
+                        data-i18n-key="signup-login-link">تسجيل الدخول</a>
+                </div>
+            </div>
+
+            <div class="signup-decoration">
+                <div class="decoration-content">
+                    <h2 class="decoration-title" data-i18n-key="signup-decoration-title">انضم إلى مجتمع مستثمر</h2>
+                    <p class="decoration-text" data-i18n-key="signup-decoration-text">منصة رائدة تربط أصحاب الأفكار
+                        والمشاريع الواعدة بالمستثمرين المهتمين، لخلق فرص نجاح مشتركة.</p>
+                    <div class="decoration-features">
+                        <div class="decoration-feature">
+                            <div class="feature-icon"><!-- icon --></div><span data-i18n-key="signup-feature1">تواصل مع
+                                مستثمرين من جميع أنحاء العالم</span>
+                        </div>
+                        <div class="decoration-feature">
+                            <div class="feature-icon"><!-- icon --></div><span data-i18n-key="signup-feature2">عرض
+                                مشروعك أمام الجمهور المناسب</span>
+                        </div>
+                        <div class="decoration-feature">
+                            <div class="feature-icon"><!-- icon --></div><span data-i18n-key="signup-feature3">استفد من
+                                خبرات المستثمرين وشبكة العلاقات</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="./js/script.js"></script>
+    <script src="./js/header.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/auth.js"></script>
+</body>
+
+</html>

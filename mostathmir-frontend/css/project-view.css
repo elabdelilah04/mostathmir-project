@@ -1,0 +1,151 @@
+body {
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+}
+
+.hero-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.funding-progress {
+    background: linear-gradient(90deg, #10b981, #059669);
+    transition: width 1s ease;
+}
+
+.investment-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.investment-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.investment-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+}
+
+.feature-card {
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.founder-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.risk-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.countdown-timer {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+}
+
+#investorsCountWrapper.clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#investorsCountWrapper.clickable:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 101;
+    width: 90%;
+    max-width: 800px;
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.modal-sort-filter {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.modal-projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.modal-project-card {
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border-left: 5px solid;
+    transition: box-shadow 0.2s ease;
+}

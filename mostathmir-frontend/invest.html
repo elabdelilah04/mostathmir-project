@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد الاستثمار -  مستثمر </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/investment-styles.css">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="min-h-full">
+    <!-- Header -->
+    <div id="header-placeholder"></div>
+
+
+    <div class="header-gradient text-white py-6">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="goBack()" class="text-white hover:text-blue-200 transition-colors">
+                        <span class="text-2xl">←</span>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold">تأكيد الاستثمار</h1>
+                        <p class="text-blue-200">مراجعة وتأكيد تفاصيل الاستثمار</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-blue-200">رقم العملية</div>
+                    <!-- === START: MODIFIED ELEMENT === -->
+                    <div class="font-bold" id="investment-id-displaتy">#INV-....-....</div>
+                    <!-- === END: MODIFIED ELEMENT === -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <div class="step-indicator step-completed px-6 py-3 text-center min-w-32">
+                    <div class="font-bold text-sm">1</div>
+                    <div class="text-xs mt-1">اختيار المبلغ</div>
+                </div>
+                <div class="h-1 w-16 bg-green-500 rounded"></div>
+                <div class="step-indicator step-active px-6 py-3 text-center min-w-32">
+                    <div class="font-bold text-sm">2</div>
+                    <div class="text-xs mt-1">مراجعة التفاصيل</div>
+                </div>
+                <div class="h-1 w-16 bg-gray-300 rounded"></div>
+                <div class="step-indicator px-6 py-3 text-center min-w-32">
+                    <div class="font-bold text-sm">3</div>
+                    <div class="text-xs mt-1">تأكيد الدفع</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Investment Details -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Project Summary -->
+                <div class="investment-card p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                        <span class="text-3xl">📊</span>
+                        ملخص المشروع
+                    </h2>
+
+                    <div class="flex items-start gap-6 mb-6">
+                        <div
+                            class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                            ت
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2" id="projectSummaryName">تطبيق التوصيل الذكي
+                            </h3>
+                            <p class="text-gray-600 mb-3" id="projectSummaryDescription">منصة توصيل ذكية تستخدم الذكاء
+                                الاصطناعي لتحسين عمليات التوصيل</p>
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        أ</div>
+                                    <span class="text-sm text-gray-700" id="projectSummaryOwner">أحمد محمد - رائد
+                                        الأعمال</span>
+                                </div>
+                                <!-- <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium" id="projectSummaryStatus">
+                                    نشط
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Progress -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-medium text-gray-700">تقدم التمويل</span>
+                            <span class="font-bold text-blue-600" id="currentProgressText">60% مكتمل</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-2 relative overflow-hidden">
+                            <!-- المحقق حالياً -->
+                            <div class="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-1000 ease-out"
+                                id="currentProgressBar" style="width: 60%"></div>
+                            <!-- المتوقع مع الاستثمار -->
+                            <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-3 rounded-full absolute top-0 transition-all duration-1000 ease-out opacity-70"
+                                id="projectedProgressBar" style="width: 60%; left: 60%"></div>
+                        </div>
+
+                        <!-- Progress Legend -->
+                        <div class="flex items-center justify-center gap-6 mb-4 text-xs">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
+                                <span class="text-gray-600">محقق حالياً</span>
+                            </div>
+                            <div class="flex items-center gap-2" id="projectedLegend">
+                                <div
+                                    class="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-70">
+                                </div>
+                                <span class="text-gray-600">متوقع مع استثمارك</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-lg font-bold text-gray-900" id="currentAmount">90,000</div>
+                                <div class="text-xs text-gray-600">محقق (درهم)</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-gray-900" id="targetGoalAmount">150,000</div>
+                                <div class="text-xs text-gray-600">الهدف (درهم)</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-gray-900" id="investorCount">23</div>
+                                <div class="text-xs text-gray-600">مستثمر</div>
+                            </div>
+                        </div>
+
+                        <!-- Projected Progress Info -->
+                        <div id="projectedInfo" class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200"
+                            style="display: none;">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-lg">📈</span>
+                                <span class="font-semibold text-blue-800">التقدم المتوقع مع استثمارك</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">المبلغ الجديد:</span>
+                                    <span class="font-bold text-blue-900" id="projectedAmount">115,000 درهم</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">النسبة الجديدة:</span>
+                                    <span class="font-bold text-blue-900" id="projectedPercentage">76.7%</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-blue-600">
+                                <span id="progressMessage">سيساهم استثمارك في تقريب المشروع من هدف التمويل!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investment Type Selection -->
+                <div class="investment-card p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                        <span class="text-3xl">💰</span>
+                        نوع الاستثمار
+                    </h2>
+
+                    <div class="space-y-6">
+                        <!-- Investment Type Options -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-4">اختر نوع الاستثمار</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Full Investment Option -->
+                                <div class="investment-type-card border-2 border-gray-200 rounded-xl p-6 cursor-pointer transition-all duration-300"
+                                    onclick="selectInvestmentType('full')">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full mt-1 investment-radio"
+                                            id="fullRadio"></div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="text-2xl">🚀</span>
+                                                <h3 class="text-lg font-bold text-gray-900">استثمار كامل فوري</h3>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">ادفع المبلغ كاملاً الآن وابدأ
+                                                الاستثمار فوراً</p>
+                                            <div class="space-y-2">
+                                                <div class="flex items-center gap-2 text-xs text-green-600">
+                                                    <span>✓</span>
+                                                    <span>بداية فورية للعوائد</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-green-600">
+                                                    <span>✓</span>
+                                                    <span>نسبة ملكية كاملة</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-green-600">
+                                                    <span>✓</span>
+                                                    <span>أولوية في التحديثات</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reservation Option -->
+                                <div class="investment-type-card border-2 border-gray-200 rounded-xl p-6 cursor-pointer transition-all duration-300"
+                                    onclick="selectInvestmentType('reservation')">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full mt-1 investment-radio"
+                                            id="reservationRadio"></div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="text-2xl">📋</span>
+                                                <h3 class="text-lg font-bold text-gray-900">حجز مكان كمستثمر</h3>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">ادفع 30% كتأكيد على الجدية إلى حين
+                                                اكتمال التمويل</p>
+                                            <div class="space-y-2">
+                                                <div class="flex items-center gap-2 text-xs text-blue-600">
+                                                    <span>✓</span>
+                                                    <span>ضمان المكان في المشروع</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-blue-600">
+                                                    <span>✓</span>
+                                                    <span>دفع الباقي عند اكتمال التمويل</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-blue-600">
+                                                    <span>✓</span>
+                                                    <span>أو عند وصول تاريخ تنفيذ المشروع</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Partnership Option -->
+                                <div class="investment-type-card border-2 border-gray-200 rounded-xl p-6 cursor-pointer transition-all duration-300 md:col-span-2"
+                                    onclick="selectInvestmentType('custom')">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full mt-1 investment-radio"
+                                            id="customRadio"></div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="text-2xl">🤝</span>
+                                                <h3 class="text-lg font-bold text-gray-900">اقتراح شراكة مخصصة</h3>
+                                                <span
+                                                    class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">جديد</span>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">اقترح نوع استثمار أو شراكة مخصصة مع
+                                                صاحب المشروع حسب خبرتك ومساهمتك</p>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>شراكة استراتيجية</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>مساهمة بالخبرة</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>شروط مرنة</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>تفاوض مباشر</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>عوائد مخصصة</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-purple-600">
+                                                    <span>✓</span>
+                                                    <span>مراجعة سريعة</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Investment Amount -->
+                        <div id="investmentAmountSection">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">مبلغ الاستثمار المرغوب</label>
+                            <div class="relative">
+                                <input type="number" id="investmentAmount" value="25000"
+                                    class="input-field w-full py-4 px-6 pr-20 text-xl font-bold text-blue-600"
+                                    min="1000" max="60000" step="1000">
+                                <div
+                                    class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+                                    درهم
+                                </div>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-600">
+                                الحد الأدنى: 1,000 درهم • الحد الأقصى: 60,000 درهم
+                            </div>
+                        </div>
+
+                        <!-- Quick Amount Buttons -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">مبالغ سريعة</label>
+                            <div class="grid grid-cols-4 gap-3">
+                                <button onclick="setAmount(5000)" class="secondary-button py-3 text-sm">5,000</button>
+                                <button onclick="setAmount(10000)" class="secondary-button py-3 text-sm">10,000</button>
+                                <button onclick="setAmount(25000)" class="secondary-button py-3 text-sm">25,000</button>
+                                <button onclick="setAmount(50000)" class="secondary-button py-3 text-sm">50,000</button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Partnership Form -->
+                        <div id="customPartnershipForm"
+                            class="bg-purple-50 rounded-xl p-6 border border-purple-200 hidden">
+                            <h4 class="font-bold text-purple-900 mb-4 flex items-center gap-2">
+                                <span class="text-xl">🤝</span>
+                                <span>تفاصيل الشراكة المقترحة</span>
+                            </h4>
+
+                            <div class="space-y-6">
+                                <!-- Partnership Type -->
+                                <div>
+                                    <label class="block text-sm font-medium text-purple-700 mb-3">نوع الشراكة
+                                        المقترحة</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <label
+                                            class="flex items-center gap-3 p-3 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-50">
+                                            <input type="radio" name="partnershipType" value="strategic"
+                                                class="text-purple-600">
+                                            <div>
+                                                <div class="font-medium text-purple-900">شراكة استراتيجية</div>
+                                                <div class="text-xs text-purple-600">مال + خبرة + شبكة علاقات</div>
+                                            </div>
+                                        </label>
+                                        <label
+                                            class="flex items-center gap-3 p-3 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-50">
+                                            <input type="radio" name="partnershipType" value="expertise"
+                                                class="text-purple-600">
+                                            <div>
+                                                <div class="font-medium text-purple-900">مساهمة بالخبرة</div>
+                                                <div class="text-xs text-purple-600">خبرة تقنية أو إدارية</div>
+                                            </div>
+                                        </label>
+                                        <label
+                                            class="flex items-center gap-3 p-3 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-50">
+                                            <input type="radio" name="partnershipType" value="advisory"
+                                                class="text-purple-600">
+                                            <div>
+                                                <div class="font-medium text-purple-900">مستشار تنفيذي</div>
+                                                <div class="text-xs text-purple-600">إرشاد ومتابعة دورية</div>
+                                            </div>
+                                        </label>
+                                        <label
+                                            class="flex items-center gap-3 p-3 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-50">
+                                            <input type="radio" name="partnershipType" value="hybrid"
+                                                class="text-purple-600">
+                                            <div>
+                                                <div class="font-medium text-purple-900">شراكة مختلطة</div>
+                                                <div class="text-xs text-purple-600">مزيج من المال والخبرة</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Expertise Areas -->
+                                <div>
+                                    <label class="block text-sm font-medium text-purple-700 mb-3">مجالات خبرتك
+                                        (اختياري)</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">التكنولوجيا</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">التسويق</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">المبيعات</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">الإدارة المالية</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">العمليات</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 text-sm">
+                                            <input type="checkbox" class="text-purple-600 rounded">
+                                            <span class="text-purple-700">الموارد البشرية</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Proposed Terms -->
+                                <div>
+                                    <label for="proposedTerms"
+                                        class="block text-sm font-medium text-purple-700 mb-2">اقتراحك التفصيلي</label>
+                                    <textarea id="proposedTerms" rows="4"
+                                        class="w-full p-4 border border-purple-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 resize-none"
+                                        placeholder="اشرح اقتراحك للشراكة: المبلغ المالي (إن وجد)، نوع المساهمة، الخبرات التي ستقدمها، النسبة المطلوبة، أو أي شروط خاصة..."></textarea>
+                                </div>
+
+                                <!-- Contact Preference -->
+                                <!-- <div>
+                                    <label class="block text-sm font-medium text-purple-700 mb-3">طريقة التواصل
+                                        المفضلة</label>
+                                    <div class="flex gap-4">
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="contactMethod" value="platform"
+                                                class="text-purple-600" checked>
+                                            <span class="text-sm text-purple-700">عبر المنصة</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="contactMethod" value="direct"
+                                                class="text-purple-600">
+                                            <span class="text-sm text-purple-700">اتصال مباشر</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="contactMethod" value="meeting"
+                                                class="text-purple-600">
+                                            <span class="text-sm text-purple-700">اجتماع شخصي</span>
+                                        </label>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+
+                        <!-- Payment Breakdown -->
+                        <div id="paymentBreakdown" class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                            <h4 class="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                                <span class="text-xl">💳</span>
+                                <span id="paymentTitle">تفاصيل الدفع</span>
+                            </h4>
+
+                            <!-- Full Payment Details -->
+                            <div id="fullPaymentDetails" class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">المبلغ المطلوب دفعه الآن:</span>
+                                    <span class="font-bold text-blue-900" id="currentPayment">25,000 درهم</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">نسبة مساهمتك في المشروع:</span>
+                                    <span class="font-bold text-blue-900" id="ownershipPercentage">16.7%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">العائد المتوقع سنوياً:</span>
+                                    <span class="font-bold text-green-600" id="expectedReturn">3,750 درهم</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-blue-700">مدة الاستثمار المتوقعة:</span>
+                                    <span class="font-bold text-blue-900">2-3 سنوات</span>
+                                </div>
+                            </div>
+
+                            <!-- Reservation Payment Details -->
+                            <div id="reservationPaymentDetails" class="space-y-3 text-sm hidden">
+                                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-blue-700 font-medium">دفعة الحجز (30%):</span>
+                                        <span class="font-bold text-blue-900" id="firstPayment">7,500 درهم</span>
+                                    </div>
+                                    <div class="text-xs text-blue-600">مطلوب الآن لتأكيد جدية الاستثمار</div>
+                                </div>
+
+                                <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-yellow-700 font-medium">الدفعة المتبقية (70%):</span>
+                                        <span class="font-bold text-yellow-800" id="secondPayment">17,500 درهم</span>
+                                    </div>
+                                    <div class="text-xs text-yellow-600">عند اكتمال التمويل أو وصول تاريخ تنفيذ المشروع
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-blue-200">
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-700">نسبة الملكية النهائية:</span>
+                                        <span class="font-bold text-blue-900" id="finalOwnership">16.7%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-700">العائد المتوقع (بعد الإكمال):</span>
+                                        <span class="font-bold text-green-600" id="finalReturn">3,750 درهم</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="investment-card p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                        <span class="text-3xl">📋</span>
+                        الشروط والأحكام
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="terms1" class="w-5 h-5 text-blue-600 rounded mt-1" required>
+                            <label for="terms1" class="text-sm text-gray-700 leading-relaxed">
+                                أوافق على <a href="#" class="text-blue-600 hover:underline">شروط وأحكام الاستثمار</a>
+                                وأتفهم المخاطر المرتبطة بالاستثمار في المشاريع الناشئة
+                            </label>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="terms2" class="w-5 h-5 text-blue-600 rounded mt-1" required>
+                            <label for="terms2" class="text-sm text-gray-700 leading-relaxed">
+                                أؤكد أنني قرأت <a href="#" class="text-blue-600 hover:underline">خطة العمل التفصيلية</a>
+                                وأتفهم طبيعة المشروع وأهدافه
+                            </label>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="terms3" class="w-5 h-5 text-blue-600 rounded mt-1" required>
+                            <label for="terms3" class="text-sm text-gray-700 leading-relaxed">
+                                أوافق على <a href="#" class="text-blue-600 hover:underline">سياسة الخصوصية</a> ومعالجة
+                                بياناتي الشخصية وفقاً للقوانين المعمول بها
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Investment Summary -->
+                <div class="investment-card p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <span class="text-2xl">📄</span>
+                        <span id="summaryTitle">ملخص الاستثمار</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Full Investment Summary -->
+                        <div id="fullSummary">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-gray-600">مبلغ الاستثمار</span>
+                                <span class="font-bold text-lg" id="summaryAmount">25,000 درهم</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-gray-600">رسوم المنصة (2%)</span>
+                                <span class="font-medium" id="platformFee">500 درهم</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-gray-600">رسوم المعالجة</span>
+                                <span class="font-medium">25 درهم</span>
+                            </div>
+                            <div
+                                class="flex justify-between items-center py-4 bg-blue-50 rounded-lg px-4 border-2 border-blue-200">
+                                <span class="font-bold text-blue-900">المجموع الكلي</span>
+                                <span class="font-bold text-xl text-blue-600" id="totalAmount">25,525 درهم</span>
+                            </div>
+                        </div>
+
+                        <!-- Reservation Summary -->
+                        <div id="reservationSummary" class="hidden">
+                            <div class="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+                                <div class="text-sm font-medium text-blue-800 mb-2">دفعة الحجز (مطلوبة الآن)</div>
+                                <div class="flex justify-between items-center py-2 border-b border-blue-200">
+                                    <span class="text-blue-600">مبلغ الحجز (30%)</span>
+                                    <span class="font-bold" id="reservationAmount">7,500 درهم</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-blue-200">
+                                    <span class="text-blue-600">رسوم المنصة</span>
+                                    <span class="font-medium" id="reservationPlatformFee">150 درهم</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-blue-600">رسوم المعالجة</span>
+                                    <span class="font-medium">15 درهم</span>
+                                </div>
+                                <div
+                                    class="flex justify-between items-center py-3 bg-blue-100 rounded-lg px-3 mt-3 border border-blue-300">
+                                    <span class="font-bold text-blue-900">المطلوب الآن</span>
+                                    <span class="font-bold text-lg text-blue-700" id="reservationTotal">7,665
+                                        درهم</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                                <div class="text-sm font-medium text-yellow-800 mb-2">الدفعة المتبقية (عند التنفيذ)
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-yellow-600">المبلغ المتبقي (70%)</span>
+                                    <span class="font-bold text-yellow-800" id="remainingAmount">17,500 درهم</span>
+                                </div>
+                                <div class="text-xs text-yellow-600 mt-2">
+                                    عند اكتمال التمويل من المستثمرين الآخرين أو وصول تاريخ تنفيذ المشروع
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Partnership Summary -->
+                        <div id="customSummary" class="hidden">
+                            <div class="bg-purple-50 rounded-lg p-4 mb-4 border border-purple-200">
+                                <div class="text-sm font-medium text-purple-800 mb-3">ملخص الشراكة المقترحة</div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center py-2 border-b border-purple-200">
+                                        <span class="text-purple-600">نوع الشراكة</span>
+                                        <span class="font-medium text-purple-800" id="partnershipTypeSummary">غير
+                                            محدد</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-purple-200">
+                                        <span class="text-purple-600">المبلغ المالي</span>
+                                        <span class="font-medium text-purple-800" id="financialContribution">حسب
+                                            التفاوض</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-2 border-b border-purple-200">
+                                        <span class="text-purple-600">رسوم تقديم الاقتراح</span>
+                                        <span class="font-medium text-purple-800">مجاني</span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between items-center py-3 bg-purple-100 rounded-lg px-3 border border-purple-300">
+                                        <span class="font-bold text-purple-900">حالة الاقتراح</span>
+                                        <span class="font-bold text-purple-700">في انتظار المراجعة</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+                                <div class="text-sm font-medium text-purple-800 mb-2">الخطوات التالية</div>
+                                <div class="space-y-2 text-xs text-purple-700">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                        <span>مراجعة الاقتراح من قبل صاحب المشروع</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
+                                        <span>التواصل معك خلال 3-5 أيام عمل</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-purple-300 rounded-full"></span>
+                                        <span>جدولة اجتماع لمناقشة التفاصيل</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Assessment -->
+                <div class="risk-box p-6">
+                    <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
+                        <span class="text-xl">⚠️</span>
+
+                        تذكير:
+                    </h3>
+                    <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <p class="text-xs text-red-700 leading-relaxed"> الاستثمار في المشاريع الناشئة ينطوي على مخاطر.
+                            قد تفقد جزءاً أو كامل استثمارك.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Expected Timeline -->
+                <div class="success-box p-6">
+                    <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+                        <span class="text-xl">⏰</span>
+                        الجدول الزمني المتوقع
+                    </h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-green-600 rounded-full"></div>
+                            <span class="text-green-700">تأكيد الاستثمار: فوري</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <span class="text-green-700">بداية العوائد: 6-12 شهر</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-purple-600 rounded-full"></div>
+                            <span class="text-green-700">استرداد رأس المال: 2-3 سنوات</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-4">
+                    <button onclick="proceedToPayment()" class="elegant-button w-full py-4 text-lg font-bold"
+                        id="confirmButton" disabled>
+                        متابعة إلى الدفع
+                    </button>
+                    <button onclick="goBack()" class="secondary-button w-full py-4 font-medium">
+                        العودة للتعديل
+                    </button>
+                    <!-- <button onclick="saveForLater()" class="w-full py-4 px-6 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-300">
+                        حفظ للمراجعة لاحقاً
+                    </button> -->
+                </div>
+
+                <!-- Contact Support -->
+                <div class="info-box p-4">
+                    <h4 class="font-bold text-yellow-800 mb-2 flex items-center gap-2">
+                        <span class="text-lg">💬</span>
+                        تحتاج مساعدة؟
+                    </h4>
+                    <p class="text-sm text-yellow-700 mb-3">
+                        فريق الدعم متاح لمساعدتك في أي استفسار
+                    </p>
+                    <button onclick="contactSupport()"
+                        class="w-full py-2 px-4 bg-yellow-600 text-white rounded-lg text-sm font-medium hover:bg-yellow-700 transition-colors">
+                        تواصل مع الدعم
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center slide-up">
+            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl text-white">✓</span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">تم حفظ الاستثمار!</h3>
+            <p class="text-gray-600 mb-6">
+                تم حفظ تفاصيل استثمارك بنجاح. يمكنك العودة لإكمال العملية في أي وقت.
+            </p>
+            <button onclick="closeSuccessModal()" class="elegant-button w-full py-3">
+                موافق
+            </button>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="supportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">تواصل مع الدعم</h3>
+                <button onclick="closeSupportModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div
+                    class="flex items-center gap-4 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
+                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                        <span class="text-xl">💬</span>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">الدردشة المباشرة</div>
+                        <div class="text-sm text-gray-600">متاح 24/7 - رد فوري</div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center gap-4 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer">
+                    <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white">
+                        <span class="text-xl">📞</span>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">الاتصال الهاتفي</div>
+                        <div class="text-sm text-gray-600">+971-4-123-4567</div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center gap-4 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer">
+                    <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white">
+                        <span class="text-xl">📧</span>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-900">البريد الإلكتروني</div>
+                        <div class="text-sm text-gray-600">support@platform.ae</div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeSupportModal()" class="secondary-button w-full py-3">
+                إغلاق
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Page (HTML structure for the final success screen) -->
+    <div id="paymentSuccessPage" style="display:none;">
+        <!-- Content will be injected here by showSuccessPage() -->
+    </div>
+    <script src="./js/header.js"></script>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/investment.js"></script>
+
+
+</body>
+
+</html>

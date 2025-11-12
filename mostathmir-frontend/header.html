@@ -1,0 +1,124 @@
+<!-- هذا هو محتوى ملف header.html -->
+
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <!-- Logo -->
+            <div class="logo-container">
+                <a href="index.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <img src="logo.png" alt="شعار مستثمر" class="logo-img">
+                    <span class="logo-text">مستثمر</span>
+                </a>
+            </div>
+
+            <!-- Main Navigation -->
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <!-- روابط للزوار فقط -->
+                    <li class="nav-item" id="nav-about"><a href="index.html#about" class="nav-link"
+                            data-i18n-key="nav-about">من نحن</a></li>
+                    <li class="nav-item" id="nav-how"><a href="index.html#how-it-works" class="nav-link"
+                            data-i18n-key="nav-how">كيف تعمل المنصة؟</a></li>
+
+                    <!-- روابط للمستخدمين المسجلين فقط -->
+                    <li class="nav-item" id="Myprofile"> <a href="#" class="nav-link Myprofil"
+                            data-i18n-key="profile-view">عرض الملف
+                            الشخصي</a>
+
+                    </li>
+                    <li class="nav-item" id="nav-browse-projects"><a href="browse-projects.html" class="nav-link"
+                            data-i18n-key="browse-projects">استعرض المشاريع</a></li>
+
+
+                    <!-- روابط لصاحب الفكرة -->
+                    <li class="nav-item" id="nav-my-projects"><a href="my-projects.html" class="nav-link"
+                            data-i18n-key="nav-my-projects">مشاريعي</a></li>
+
+                    <!-- روابط للمستثمر -->
+                    <li class="nav-item" id="nav-my-investments"><a href="investor-portfolio.html" class="nav-link"
+                            data-i18n-key="nav-my-investments">استثماراتي</a></li>
+
+                    <!-- رابط مشترك -->
+                    <li class="nav-item" id="nav-contact"><a href="faq-support.html" class="nav-link"
+                            data-i18n-key="nav-contact">الدعم</a></li>
+                </ul>
+            </nav>
+
+            <!-- User Actions (Right Side) -->
+            <div class="flex items-center gap-4 just1">
+                <!-- أزرار للزوار -->
+                <div id="auth-buttons-visitor" class="auth-buttons" style="display: none;">
+                    <a href="login.html" class="btn btn-outline" data-i18n-key="nav-login">دخول</a>
+                    <a href="signup.html" class="btn btn-primary" data-i18n-key="nav-register">تسجيل</a>
+                </div>
+                <!-- START: Header Inbox/Notifications Icons -->
+                <div class="header-icons" id="header-icons">
+                    <button class="header-icon-btn" id="headerMessagesBtn" title="">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span class="header-badge" id="headerMessagesBadge" style="display:none;">0</span>
+                    </button>
+
+                    <button class="header-icon-btn" id="headerNotificationsBtn" title="الإشعارات">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="header-badge" id="headerNotificationsBadge" style="display:none;">0</span>
+                    </button>
+                </div>
+                <!-- END: Header Inbox/Notifications Icons -->
+
+                <!-- قائمة منسدلة للمستخدم المسجل -->
+                <div id="profile-dropdown-container" class="profile-dropdown-container" style="display: none;">
+                    <div class="profile-trigger" id="profileTrigger">
+                        <div class="header-avatar" id="headerAvatar">
+                            <img src="" alt="الملف الشخصي" class="avatar-img" id="headerAvatarImage"
+                                style="display: none;">
+                            <div class="avatar-initials-sm" id="headerAvatarInitials" style="display: none;"></div>
+                        </div>
+                        <!-- <span class="profile-name1" id="headerProfileName"></span> -->
+                        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="profile-dropdown-menu" id="profileDropdown">
+                        <!-- User Info -->
+                        <div class="dropdown-user-info">
+                            <div class="user-details">
+                                <h3 class="user-name"></h3>
+                                <p class="user-role"></p>
+                                <div class="user-actions">
+                                    <a href="#" class="btn-view-profile" data-i18n-key="profile-view">عرض الملف
+                                        الشخصي</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Links -->
+                        <div class="dropdown-section">
+                            <ul class="dropdown-links">
+                                <li><a href="settings.html" class="dropdown-link"
+                                        data-i18n-key="profile-settings">إعدادات الحساب</a></li>
+                                <li><a href="faq-support.html" class="dropdown-link"
+                                        data-i18n-key="profile-help">المساعدة</a></li>
+                            </ul>
+                        </div>
+                        <!-- Sign Out -->
+                        <div class="dropdown-section">
+                            <ul class="dropdown-links">
+                                <li><a href="#" class="dropdown-link sign-out" data-i18n-key="profile-signout">تسجيل
+                                        الخروج</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language Switcher & Mobile Toggle -->
+                <div id="languageSwitcher" class="language-switcher">
+                    <button type="button" class="language-option active" data-lang="ar">Ar</button>
+                    <button type="button" class="language-option" data-lang="en">En</button>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,361 @@
+body {
+    box-sizing: border-box;
+    font-family: 'Tajawal', Arial, sans-serif;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.card-shadow {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e2e8f0;
+}
+
+.star-rating {
+    color: #059669;
+}
+
+.skill-bar {
+    background: linear-gradient(90deg, #059669 0%, #047857 100%);
+}
+
+.achievement-badge {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.financial-highlight {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.investment-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-left: 4px solid #059669;
+}
+
+.project-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+/* في نهاية ملف CSS الخاص بصفحة profile.html */
+
+/* Styles for Project Cards inside the Modal */
+.modal-projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    /* عمود واحد داخل المودال */
+    gap: 1rem;
+}
+
+.modal-project-card {
+    background-color: #f8fafc;
+    /* Cool Gray 50 */
+    border-radius: 0.75rem;
+    /* 12px */
+    padding: 1rem;
+    border-left: 5px solid;
+    /* سيتم تحديد اللون بواسطة JS */
+    transition: box-shadow 0.2s ease;
+}
+
+.modal-project-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.modal-project-card h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    /* Cool Gray 800 */
+    margin-bottom: 0.5rem;
+}
+
+.modal-project-card .funding-info {
+    font-size: 0.85rem;
+    color: #475569;
+    /* Cool Gray 600 */
+}
+
+/* Style for Admin Notes on Closed Projects */
+.admin-note-display {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background-color: #fffbeb;
+    /* Yellow 50 */
+    border-radius: 0.5rem;
+    /* 8px */
+    border: 1px solid #fef3c7;
+    /* Yellow 200 */
+}
+
+.admin-note-display p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #92400e;
+    /* Amber 900 */
+    line-height: 1.6;
+}
+
+.admin-note-display strong {
+    color: #b45309;
+    /* Amber 700 */
+}
+
+/* في نهاية public-profile.css */
+
+/* Styles for "Complete Your Profile" Section */
+#completionStepsContainer .step-card {
+    background-color: #f8fafc;
+    /* slate-50 */
+    border: 1px solid #e2e8f0;
+    /* slate-200 */
+    border-radius: 0.75rem;
+    /* 12px */
+    padding: 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#completionStepsContainer .step-card .icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    /* slate-300 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: #475569;
+    /* slate-600 */
+    font-size: 1.5rem;
+}
+
+#completionStepsContainer .step-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    /* slate-800 */
+    margin-bottom: 0.5rem;
+}
+
+#completionStepsContainer .step-card p {
+    font-size: 0.85rem;
+    color: #64748b;
+    /* slate-500 */
+    line-height: 1.5;
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+}
+
+#completionStepsContainer .step-card .action-button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    /* 8px */
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+#completionStepsContainer .step-card .action-button.add {
+    background-color: #1e293b;
+    /* slate-800 */
+    color: white;
+}
+
+#completionStepsContainer .step-card .action-button.add:hover {
+    background-color: #0f172a;
+    /* slate-900 */
+}
+
+#completionStepsContainer .step-card .action-button.done {
+    background-color: transparent;
+    color: #15803d;
+    /* green-700 */
+    border: 2px solid #bbf7d0;
+    /* green-200 */
+    cursor: default;
+}
+
+#completionStepsContainer .step-card.completed {
+    background-color: #f0fdf4;
+    /* green-50 */
+    border-color: #bbf7d0;
+    /* green-200 */
+}
+
+#completionStepsContainer .step-card.completed .icon-wrapper {
+    border-color: #16a34a;
+    /* green-600 */
+    color: #16a34a;
+    /* green-600 */
+}
+
+/* --- START OF NEW CSS --- */
+.testimonial-card .testimonial-controls {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.testimonial-card:hover .testimonial-controls {
+    opacity: 1;
+}
+
+.testimonial-controls .control-btn {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e2e8f0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+}
+
+.testimonial-controls .control-btn:hover {
+    background-color: #fff;
+    color: #1e293b;
+}
+
+.testimonial-card.editing {
+    background-color: #eef2ff;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.edit-actions .save-btn {
+    background-color: #16a34a;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-actions .cancel-btn {
+    background-color: #e2e8f0;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* --- END OF NEW CSS --- */
+
+
+.proposal-card {
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border-left: 5px solid #8b5cf6;
+    /* بنفسجي */
+    transition: box-shadow 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.proposal-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.proposal-details {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.proposal-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.proposal-status.status-pending {
+    background-color: #fef3c7;
+    /* yellow-100 */
+    color: #92400e;
+    /* yellow-800 */
+}
+
+.proposal-status.status-accepted {
+    background-color: #dcfce7;
+    /* green-100 */
+    color: #166534;
+    /* green-800 */
+}
+
+.proposal-status.status-rejected {
+    background-color: #fef2f2;
+    /* red-100 */
+    color: #b91c1c;
+    /* red-800 */
+}
+
+.proposal-actions {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+.respond-btn {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.respond-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+}
+
+.modal-sort-filter {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.modal-sort-filter .filter-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    color: #4b5563;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.modal-sort-filter .filter-btn.active {
+    background-color: #3730a3;
+    color: white;
+    border-color: #3730a3;
+}

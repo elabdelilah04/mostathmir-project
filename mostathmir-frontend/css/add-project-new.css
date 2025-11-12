@@ -1,0 +1,122 @@
+body {
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+}
+
+.hero-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.form-section {
+    transition: all 0.3s ease;
+}
+
+.form-section.active {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.step-indicator {
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.step-indicator.completed {
+    background: #10b981;
+    color: white;
+}
+
+.preview-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.category-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.category-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.category-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.06), rgba(118, 75, 162, 0.06));
+}
+
+.risk-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.upload-area {
+    border: 2px dashed #d1d5db;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: #667eea;
+    background-color: #f8faff;
+}
+
+.upload-area.dragover {
+    border-color: #667eea;
+    background-color: #f0f4ff;
+}
+
+.progress-bar {
+    transition: width 0.5s ease;
+}
+
+.total-warning {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.total-success {
+    color: #10b981;
+    font-weight: bold;
+}
+
+.risk-option {
+    transition: all 0.3s ease;
+}
+
+.risk-option.selected {
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.risk-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.budget-item-row {
+    display: grid;
+    grid-template-columns: auto 1fr 150px 100px;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background-color: white;
+}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستثمر - لوحة تحكم الإدارة - مصادقة المشاريع</title>
+    <link rel="stylesheet" href="./css/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+</head>
+
+<body>
+    <!-- شريط التنقل العلوي -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="nav-links">
+                    <a href="#" class="nav-link">الإعدادات</a>
+                    <a href="#" class="nav-link">التقارير</a>
+                    <a href="#" class="nav-link active">مصادقة المشاريع</a>
+                    <a href="#" class="nav-link">لوحة التحكم</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="admin-info">
+                    <span class="admin-name">مدير النظام</span>
+                    <i class="fas fa-user-shield admin-icon"></i>
+                </div>
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>مستثمر - الإدارة</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <!-- رأس الصفحة -->
+            <header class="page-header">
+                <div class="header-top">
+                    <h1 class="page-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        مصادقة المشاريع
+                    </h1>
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-number" id="pendingCount">0</span>
+                            <span class="stat-label">في الانتظار</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="approvedToday">0</span>
+                            <span class="stat-label">تم قبولها اليوم</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="rejectedToday">0</span>
+                            <span class="stat-label">تم رفضها اليوم</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شريط التصفية والبحث -->
+                <div class="filters-section">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label>تصفية حسب الحالة:</label>
+                            <select class="filter-select" id="statusFilter">
+                                <option value="">جميع الحالات</option>
+                                <option value="under-review">في انتظار المراجعة</option>
+                                <option value="published">تم القبول</option>
+                                <option value="closed">تم الرفض</option>
+                                <option value="needs-revision">يحتاج مراجعة</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>ترتيب حسب:</label>
+                            <select class="filter-select" id="sortFilter">
+                                <option value="newest">الأحدث</option>
+                                <option value="oldest">الأقدم</option>
+                                <!-- ======================================== -->
+
+                                <!-- <option value="priority">الأولوية</option>
+                                    <option value="funding">التمويل المطلوب</option> -->
+
+                                <!-- ========================= -->
+                            </select>
+                        </div>
+
+                        <div class="search-group">
+                            <input type="text" class="search-input" placeholder="البحث في المشاريع..." id="searchInput">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- منطقة عرض المشاريع -->
+            <section class="projects-grid" id="projectsGrid">
+                <!-- بطاقات المشاريع ستُضاف هنا بواسطة JavaScript -->
+            </section>
+        </div>
+    </main>
+
+    <!-- نافذة تفاصيل المشروع والمصادقة -->
+    <div class="modal" id="approvalModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalTitle">تفاصيل المشروع</h2>
+                <button class="close-btn" onclick="closeApprovalModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="project-details">
+                    <div class="detail-section">
+                        <h3>معلومات المشروع</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>عنوان المشروع:</label>
+                                <span id="detailTitle">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>صاحب المشروع:</label>
+                                <span id="detailOwner">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>تاريخ التقديم:</label>
+                                <span id="detailSubmissionDate">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>التمويل المطلوب:</label>
+                                <span id="detailFunding">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>فئة المشروع:</label>
+                                <span id="detailCategory">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>موقع المشروع:</label>
+                                <span id="detailLocation">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>وصف مختصر:</label>
+                                <span id="detailBriefDescription">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>التحديات الحالية:</label>
+                                <span id="detailChallenges">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>رابط الفيديو:</label>
+                                <span id="detailVideoLink">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>تفاصيل الإنفاق:</label>
+                                <span id="detailFundingDetails">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>إعدادات الرؤية:</label>
+                                <span id="detailVisibility">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>وصف المشروع</h3>
+                        <div class="description-box" id="detailDescription">
+                            -
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>المرفقات والوثائق</h3>
+                        <div class="attachments-list" id="detailAttachments">
+                            <div class="attachment-item">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>خطة العمل.pdf</span>
+                                <button class="view-btn">عرض</button>
+                            </div>
+                            <div class="attachment-item">
+                                <i class="fas fa-file-excel"></i>
+                                <span>الميزانية.xlsx</span>
+                                <button class="view-btn">عرض</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>ملاحظات الإدارة</h3>
+                        <textarea id="adminNotes" placeholder="أضف ملاحظاتك هنا..." rows="4"></textarea>
+                    </div>
+
+                    <div class="approval-actions">
+                        <button class="action-btn btn-success" onclick="approveProject()">
+                            <i class="fas fa-check"></i>
+                            قبول المشروع
+                        </button>
+                        <button class="action-btn btn-warning" onclick="requestRevision()">
+                            <i class="fas fa-edit"></i>
+                            طلب مراجعة
+                        </button>
+                        <button class="action-btn btn-danger" onclick="rejectProject()">
+                            <i class="fas fa-times"></i>
+                            رفض المشروع
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الإجراء -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2 id="confirmTitle">تأكيد الإجراء</h2>
+                <button class="close-btn" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">هل أنت متأكد من هذا الإجراء؟</p>
+                <div class="confirm-actions">
+                    <button class="action-btn btn-secondary" onclick="closeConfirmModal()">إلغاء</button>
+                    <button class="action-btn btn-primary" id="confirmBtn" onclick="executeAction()">تأكيد</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/admin-approval.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+
+</html>

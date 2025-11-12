@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="my-projects-page-title">مشاريعي - منصة مستثمر</title>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="./css/styles-my-projects.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body data-page-key="page-title-my-projects">
+    <div class="app rtl" id="app">
+        <!-- Header -->
+        <div id="header-placeholder"></div>
+
+
+        <!-- 2. المحتوى الرئيسي الجديد -->
+        <main class="main-content">
+            <div class="container">
+                <!-- رأس الصفحة -->
+                <header class="page-header">
+                    <div class="header-top">
+                        <h1 class="page-title" data-i18n-key="my-projects-title">مشاريعي</h1>
+                        <!-- === التعديل: تحويل الزر إلى رابط === -->
+                        <a href="./add-project-new.html" class="add-project-btn">
+                            <i class="fas fa-plus"></i>
+                            <span data-i18n-key="my-projects-add-new-btn">
+                                إضافة مشروع جديد
+                            </span>
+                        </a>
+                        <!-- =================================== -->
+                    </div>
+
+                    <!-- شريط التصفية والبحث -->
+                    <div class="filters-section">
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label data-i18n-key="my-projects-filter-label">تصفية حسب الحالة:</label>
+                                <select class="filter-select" id="statusFilter">
+                                    <option value="" data-i18n-key="my-projects-status-all">جميع الحالات</option>
+                                    <option value="draft" data-i18n-key="my-projects-status-draft">مسودة</option>
+                                    <option value="published" data-i18n-key="my-projects-status-published">منشور
+                                    </option>
+                                    <option value="funded" data-i18n-key="my-projects-status-funded">مكتمل التمويل
+                                    </option>
+                                    <option value="under-review" data-i18n-key="my-projects-status-review">قيد المراجعة
+                                    </option>
+                                    <option value="closed" data-i18n-key="my-projects-status-closed">مغلق</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label data-i18n-key="my-projects-sort-label">ترتيب حسب:</label>
+                                <select class="filter-select" id="sortFilter">
+                                    <option value="newest" data-i18n-key="my-projects-sort-newest">الأحدث</option>
+                                    <option value="oldest" data-i18n-key="my-projects-sort-oldest">الأقدم</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <input type="text" class="search-input" placeholder="البحث في المشاريع..."
+                                    id="searchInput" data-i18n-key="my-projects-search-placeholder">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- منطقة عرض المشاريع -->
+                <section class="projects-grid" id="projectsGrid">
+                    <!-- بطاقات المشاريع ستُضاف هنا بواسطة JavaScript -->
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="./js/header.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/my-projects.js"></script>
+
+
+</body>
+
+</html>

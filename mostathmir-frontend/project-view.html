@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستثمر - فرصة استثمارية</title>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header-styles.css">
+    <link rel="stylesheet" href="./css/project-view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-gray-50 min-h-full">
+    <div id="header-placeholder"></div>
+
+    <section class="hero-gradient text-white">
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        </span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm"></span>
+                    </div>
+                    <h1 class="text-4xl font-bold mb-4"> </h1>
+                    <p class="text-xl text-gray-100 mb-6"> </p>
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-founder-label">المؤسس</div>
+                            <div id="heroProjectOwner" class="font-semibold"> </div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-location-label">الموقع</div>
+                            <div id="heroProjectLocation" class="font-semibold"> </div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-stage-label">مرحلة المشروع
+                            </div>
+                            <div id="heroProjectStage" class="font-semibold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white bg-opacity-10 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="text-center mb-6">
+                        <div class="text-3xl font-bold mb-2">
+                            <!-- 0 -->
+                        </div>
+                        <div class="text-gray-200" data-i18n-key="project-view-goal-label">الهدف المطلوب</div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span data-i18n-key="project-view-raised-label">تم جمع</span>
+                            <span></span>
+                        </div>
+                        <div class="bg-white bg-opacity-30 rounded-full h-3">
+                            <div class="funding-progress h-3 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center mb-6">
+                        <div id="investorsCountWrapper">
+                            <div class="text-2xl font-bold" id="investorsCount">0</div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-investments-label">عمليات
+                                الإستثمار</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold" id="countdown">0</div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-days-left-label">يوم متبقي
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold" id="hero-expected-return">0%</div>
+                            <div class="text-sm text-gray-200" data-i18n-key="project-view-return-label">عائد متوقع
+                            </div>
+                        </div>
+                    </div>
+                    <button id="investNowButton"
+                        class="w-full bg-white text-purple-600 font-bold py-4 rounded-lg hover:bg-gray-100 transition-colors"
+                        data-i18n-key="project-view-invest-now-btn">استثمر
+                        الآن</button>
+                    <div class="flex items-center gap-4" style="margin-top: 10px; justify-content: space-around;">
+                        <button id="followButton" onclick="handleFollowClick()"
+                            class="flex items-center gap-2 text-white hover:text-gray-200 transition-colors">
+                            <span id="followButtonText" data-i18n-key="project-view-follow-btn">أبدي اهتمامك
+                                بالمشروع</span>
+                            <span class="text-xl" id="followButtonIcon">♡</span>
+                        </button>
+                        <button id="shareButton"
+                            class="flex items-center gap-2 text-white hover:text-gray-200 transition-colors">
+                            <span data-i18n-key="project-view-share-btn">مشاركة المشروع</span>
+                            <span class="text-xl">↗</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div id="projectStatusDetailsSection" class="bg-white rounded-xl p-8 shadow-sm" style="display: none;">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-stage-details-title">
+                        تفاصيل مرحلة المشروع</h2>
+                    <div id="projectStatusDetailsContent"></div>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-description-title">وصف
+                        المشروع</h2>
+                    <div class="prose prose-lg text-gray-600 space-y-4">
+                        <p></p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-features-title">
+                        الميزات الرئيسية</h2>
+                    <div id="keyFeaturesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+                </div>
+
+                <div id="projectVideoWrapper" style="display: none;">
+                    <div class="bg-white rounded-xl p-8 shadow-sm">
+                        <div id="videoAccordionHeader" class="flex justify-between items-center cursor-pointer">
+                            <h2 class="text-2xl font-bold text-gray-800" data-i18n-key="project-view-video-title">شاهد
+                                فيديو المشروع</h2>
+                            <span id="videoAccordionIcon" class="transform transition-transform duration-300">
+                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div id="videoAccordionBody" class="mt-4" style="display: none;">
+                            <div class="video-container" id="projectVideoContainer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-budget-title">توزيع
+                        الميزانية</h2>
+                    <div class="space-y-6" id="budgetBreakdownDisplayContainer">
+                    </div>
+                </div>
+
+                <div id="pastFinancialsSection" class="bg-white rounded-xl p-8 shadow-sm" style="display: none;">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"
+                        data-i18n-key="project-view-past-financials-title">
+                        الأداء المالي السابق
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-right py-3 text-gray-600" data-i18n-key="project-view-table-year">
+                                        السنة</th>
+                                    <th class="text-right py-3 text-gray-600"
+                                        data-i18n-key="project-view-table-revenue">الإيرادات</th>
+                                    <th class="text-right py-3 text-gray-600"
+                                        data-i18n-key="project-view-table-expenses">المصروفات</th>
+                                    <th class="text-right py-3 text-gray-600" data-i18n-key="project-view-table-profit">
+                                        صافي الربح</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pastFinancialsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"
+                        data-i18n-key="project-view-financial-forecast-title">التوقعات المالية</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-right py-3 text-gray-600" data-i18n-key="project-view-table-year">
+                                        السنة</th>
+                                    <th class="text-right py-3 text-gray-600"
+                                        data-i18n-key="project-view-table-revenue">الإيرادات</th>
+                                    <th class="text-right py-3 text-gray-600"
+                                        data-i18n-key="project-view-table-expenses">المصروفات</th>
+                                    <th class="text-right py-3 text-gray-600" data-i18n-key="project-view-table-profit">
+                                        صافي الربح</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financialProjectionsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-files-title">ملفات
+                        المشروع</h2>
+                    <div class="space-y-4" id="projectFilesContainer">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="space-y-6">
+                <div class="founder-card rounded-xl p-6 text-white">
+                    <h3 class="text-xl font-bold mb-4" data-i18n-key="project-view-founder-card-title">المؤسس</h3>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div
+                            class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-xl font-bold">
+                        </div>
+                        <div>
+                            <div class="font-semibold"> </div>
+                            <div id="founderProfileTitle" class="text-sm text-gray-200"></div>
+                        </div>
+                    </div>
+                    <p id="founderBio" class="text-sm text-gray-100 mb-4"></p>
+                    <div id="founderSocialLinks" class="flex gap-2"></div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n-key="project-view-funding-details-title">
+                        تفاصيل التمويل</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600" data-i18n-key="project-view-min-investment-label">الحد الأدنى
+                                للاستثمار</span>
+                            <span id="minInvestment" class="font-bold text-lg"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600" data-i18n-key="project-view-period-label">مدة الاستثمار</span>
+                            <span id="investmentPeriod" class="font-bold text-lg"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600" data-i18n-key="project-view-equity-label">الملكية
+                                المعروضة</span>
+                            <span id="equityOffered" class="font-bold text-lg text-blue-600"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"
+                        data-i18n-key="project-view-similar-projects-title">مشاريع مشابهة</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="similarProjectsContainer"
+                        style=" display: flex; flex-direction: column;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="statsModalOverlay" style="display: none;"></div>
+    <div class="modal" id="statsModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="statsModalTitle" data-i18n-key="project-view-modal-investors-title">قائمة المستثمرين</h3>
+                <div id="investorSortContainer" class="modal-sort-filter">
+                    <div>
+                        <label for="modalInvestorsSortFilter" class="text-sm text-gray-600"
+                            data-i18n-key="project-view-modal-sort-label">ترتيب حسب:</label>
+                        <select id="modalInvestorsSortFilter" class="text-sm border-gray-300 rounded p-1">
+                            <option value="newest" data-i18n-key="project-view-modal-sort-newest">الأحدث</option>
+                            <option value="highest" data-i18n-key="project-view-modal-sort-highest">الأعلى استثماراً
+                            </option>
+                            <option value="lowest" data-i18n-key="project-view-modal-sort-lowest">الأقل استثماراً
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="investmentTypeFilter" class="text-sm text-gray-600"
+                            data-i18n-key="project-view-modal-type-label">نوع الاستثمار:</label>
+                        <select id="investmentTypeFilter" class="text-sm border-gray-300 rounded p-1">
+                            <option value="all" data-i18n-key="project-view-modal-type-all">الكل</option>
+                            <option value="full" data-i18n-key="project-view-modal-type-full">تمويل كامل</option>
+                            <option value="reservation" data-i18n-key="project-view-modal-type-reservation">حجز</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="close-modal-btn" id="closeStatsModalBtn">×</button>
+            </div>
+            <div class="modal-body" id="statsModalBody">
+            </div>
+        </div>
+    </div>
+    <script src="./js/header.js"></script>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/project-view.js"></script>
+    <script src="./js/translation.js"></script>
+
+</body>
+
+</html>

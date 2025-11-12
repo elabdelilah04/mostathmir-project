@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="portfolio-page-title">محفظة المشاريع - منصة مستثمر</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/header-styles.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="./css/investor-portfolio.css">
+
+</head>
+
+<body class="bg-gradient-to-br from-purple-50 to-blue-50 min-h-full">
+
+    <div id="header-placeholder"></div>
+
+    <!-- Page Title and Subtitle -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2" data-i18n-key="portfolio-main-title">محفظتي الاستثمارية
+            </h1>
+            <p class="text-gray-600 text-lg" data-i18n-key="portfolio-main-subtitle">متابعة وإدارة استثماراتك والمشاريع
+                التي تهمك</p>
+        </div>
+    </div>
+
+    <!-- New Filters Section -->
+    <section class="max-w-7xl mx-auto px-6 py-8">
+        <div class="filter-section bg-white rounded-xl shadow-lg p-6">
+            <div class="main-filter-group mb-6">
+                <button class="main-filter-btn active" data-filter="investments"
+                    data-i18n-key="portfolio-tab-investments">استثماراتي</button>
+                <button class="main-filter-btn" data-filter="proposals" data-i18n-key="portfolio-tab-proposals">شراكاتي
+                    المقترحة</button>
+                <button class="main-filter-btn" data-filter="followed" data-i18n-key="portfolio-tab-followed">مشاريع
+                    مهتم بها</button>
+            </div>
+
+            <div class="sub-filters-container">
+                <!-- Filters for Investments -->
+                <div id="investments-filters" class="sub-filter-group active">
+                    <select id="investmentStatusFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-statuses">كل حالات المشروع</option>
+                        <option value="published" data-i18n-key="portfolio-filter-status-funding">قيد التمويل</option>
+                        <option value="funded" data-i18n-key="portfolio-filter-status-funded">مكتمل التمويل</option>
+                    </select>
+                    <select id="investmentTypeFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-types">كل أنواع الاستثمار</option>
+                        <option value="full" data-i18n-key="portfolio-filter-type-full">تمويل كامل</option>
+                        <option value="reservation" data-i18n-key="portfolio-filter-type-reservation">حجز</option>
+                    </select>
+                    <select id="investmentProgressFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-progress">كل نسب التقدم</option>
+                        <option value="0-25">0% - 25%</option>
+                        <option value="26-50">26% - 50%</option>
+                        <option value="51-75">51% - 75%</option>
+                        <option value="76-100">76% - 100%</option>
+                    </select>
+                    <select id="fundingSortFilter">
+                        <option value="" data-i18n-key="portfolio-filter-sort-funding">ترتيب حسب حجم التمويل</option>
+                        <option value="highest" data-i18n-key="portfolio-filter-sort-highest">الأعلى تمويلاً</option>
+                        <option value="lowest" data-i18n-key="portfolio-filter-sort-lowest">الأقل تمويلاً</option>
+                    </select>
+                </div>
+
+                <!-- Filters for Proposals -->
+                <div id="proposals-filters" class="sub-filter-group">
+                    <select id="proposalStatusFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-statuses-prop">كل الحالات</option>
+                        <option value="pending" data-i18n-key="portfolio-filter-status-pending">قيد المراجعة</option>
+                        <option value="accepted" data-i18n-key="portfolio-filter-status-accepted">مقبول</option>
+                        <option value="rejected" data-i18n-key="portfolio-filter-status-rejected">مرفوض</option>
+                    </select>
+                    <select id="proposalTypeFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-types-prop">كل الأنواع</option>
+                        <option value="strategic" data-i18n-key="portfolio-filter-type-strategic">استراتيجية</option>
+                        <option value="expertise" data-i18n-key="portfolio-filter-type-expertise">خبرة</option>
+                        <option value="advisory" data-i18n-key="portfolio-filter-type-advisory">استشارية</option>
+                        <option value="hybrid" data-i18n-key="portfolio-filter-type-hybrid">مختلطة</option>
+                    </select>
+                </div>
+
+                <!-- Filters for Followed Projects -->
+                <div id="followed-filters" class="sub-filter-group">
+                    <select id="followedFundingSortFilter">
+                        <option value="" data-i18n-key="portfolio-filter-sort-funding">ترتيب حسب حجم التمويل</option>
+                        <option value="highest" data-i18n-key="portfolio-filter-sort-highest">الأعلى تمويلاً</option>
+                        <option value="lowest" data-i18n-key="portfolio-filter-sort-lowest">الأقل تمويلاً</option>
+                    </select>
+                    <select id="followedProgressFilter">
+                        <option value="all" data-i18n-key="portfolio-filter-all-progress">كل نسب التقدم</option>
+                        <option value="0-25">0% - 25%</option>
+                        <option value="26-50">26% - 50%</option>
+                        <option value="51-75">51% - 75%</option>
+                        <option value="76-100">76% - 100%</option>
+                    </select>
+                </div>
+
+                <select id="sortBy">
+                    <option value="newest" data-i18n-key="portfolio-sort-newest">الأحدث</option>
+                    <option value="oldest" data-i18n-key="portfolio-sort-oldest">الأقدم</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Grid -->
+    <section class="max-w-7xl mx-auto px-6 pb-8">
+        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Content will be rendered here -->
+        </div>
+    </section>
+
+    <!-- Project Details Modal -->
+    <div id="projectModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-800" data-i18n-key="portfolio-modal-title">
+                    تفاصيل</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-3xl font-light">×</button>
+            </div>
+            <div id="modalContent" class="p-6 space-y-6 overflow-y-auto">
+                <!-- Modal content will be injected here -->
+            </div>
+            <div class="p-6 border-t bg-gray-50 text-center">
+                <a id="modalFullDetailsLink" href="#" target="_blank"
+                    class="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-lg transition-all font-medium inline-block"
+                    data-i18n-key="portfolio-modal-full-details-btn">
+                    عرض الصفحة الكاملة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/header.js"></script>
+
+    <script src="./js/script.js"></script>
+    <script src="./js/translation.js"></script>
+    <script src="./js/investor-portfolio.js"></script>
+</body>
+
+</html>
