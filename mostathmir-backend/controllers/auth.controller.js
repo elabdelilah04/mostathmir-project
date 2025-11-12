@@ -22,8 +22,7 @@ exports.registerUser = async (req, res) => {
         const verificationToken = user.createVerificationToken();
         await user.save({ validateBeforeSave: false });
 
-        const verificationURL = `${req.protocol}://${req.get('host')}/verify-email.html?email=${user.email}`;
-
+        const verificationURL = `${process.env.FRONTEND_URL}/verify-email.html?email=${user.email}`;
         const message = `
             <h2>مرحباً ${user.fullName},</h2>
             <p>شكراً لتسجيلك في منصة مستثمر. يرجى استخدام الرمز التالي لتفعيل حسابك:</p>
@@ -68,7 +67,7 @@ exports.loginUser = async (req, res) => {
             const verificationToken = user.createVerificationToken();
             await user.save({ validateBeforeSave: false });
 
-            const verificationURL = `${req.protocol}://${req.get('host')}/verify-email.html?email=${user.email}`;
+            const verificationURL = `${process.env.FRONTEND_URL}/verify-email.html?email=${user.email}`;
             const message = `
                 <h2>مرحباً ${user.fullName},</h2>
                 <p>لقد حاولت تسجيل الدخول لحسابك غير المفعل. يرجى استخدام الرمز الجديد التالي لإكمال عملية التفعيل:</p>
@@ -77,7 +76,7 @@ exports.loginUser = async (req, res) => {
                 <p>أو يمكنك تفعيل حسابك مباشرة عبر النقر على الرابط التالي:</p>
                 <a href="${verificationURL}" style="display: inline-block; padding: 10px 20px; background-color: #1E3A8A; color: white; text-decoration: none; border-radius: 5px;">تفعيل الحساب</a>
             `;
-            
+
             try {
                 await sendEmail({
                     email: user.email,
@@ -195,8 +194,7 @@ exports.forgotPassword = async (req, res) => {
         const resetToken = user.createPasswordResetToken();
         await user.save({ validateBeforeSave: false });
 
-        const resetURL = `${req.protocol}://${req.get('host')}/new-password.html?token=${resetToken}`;
-
+        const resetURL = `${process.env.FRONTEND_URL}/new-password.html?token=${resetToken}`;
         const message = `
             <h2>طلب إعادة تعيين كلمة السر</h2>
             <p>لقد طلبت إعادة تعيين كلمة السر لحسابك في منصة مستثمر.</p>
