@@ -1,39 +1,32 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+
+// قم بتعيين مفتاح API الخاص بك
+sgMail.setApiKey(process.env.EMAIL_PASS); // نحن نستخدم EMAIL_PASS لأنه يحتوي بالفعل على مفتاح SendGrid
 
 const sendEmail = async (options) => {
-    // 1. إنشاء "الناقل" (Transporter) باستخدام إعدادات الإنتاج
-    const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        // secure: false, // `secure: true` يكون لـ port 465, أما 587 فيستخدم STARTTLS
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        },
-        // (اختياري ولكن موصى به) لإضافة المزيد من الموثوقية
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
+    // استخراج البريد الإلكتروني الفعلي من EMAIL_FROM
+    // المثال: "Mostathmir Platform" <no-reply@mostathmir.com> -> no-reply@mostathmir.com
+    const fromEmailMatch = process.env.EMAIL_FROM.match(/<(.+)>/);
+    const fromEmail = fromEmailMatch ? fromEmailMatch[1] : process.env.EMAIL_USER; // استخدم بريد إلكتروني احتياطي
 
-    // 2. تحديد خيارات البريد الإلكتروني
-    const mailOptions = {
-        from: process.env.EMAIL_FROM,
+    const msg = {
         to: options.email,
+        from: {
+            email: fromEmail, // استخدم البريد الإلكتروني الذي قمت بتوثيقه في SendGrid
+            name: 'Mostathmir Platform'
+        },
         subject: options.subject,
-        html: options.html
-        // يمكنك إضافة نسخة نصية بسيطة كخيار احتياطي
-        // text: options.text 
+        html: options.html,
     };
 
-    // 3. إرسال البريد الإلكتروني
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Email sent successfully to:", options.email);
-        console.log("Message ID:", info.messageId);
+        await sgMail.send(msg);
+        console.log('Email sent successfully via SendGrid API to:', options.email);
     } catch (error) {
-        console.error("Error sending email:", error);
-        // رمي الخطأ مرة أخرى للسماح لوحدة التحكم بالتعامل معه
+        console.error('Error sending email via SendGrid API:', error);
+        if (error.response) {
+            console.error(error.response.body);
+        }
         throw new Error('فشل إرسال البريد الإلكتروني.');
     }
 };
