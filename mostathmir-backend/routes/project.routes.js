@@ -25,10 +25,14 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
+        const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
+
         return {
             folder: `mostathmir_projects/${req.user._id}`,
             allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx'],
-            public_id: `${file.fieldname}-${Date.now()}`
+            public_id: `${file.fieldname}-${Date.now()}`,
+            resource_type: resourceType // <== هذا هو السطر الحاسم
+
         };
     }
 });
