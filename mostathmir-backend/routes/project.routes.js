@@ -27,31 +27,23 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        // --- بداية التعديل النهائي ---
-
-        // 1. استخراج اسم الملف وامتداده الأصليين
-        const originalName = path.parse(file.originalname).name;
-        const extension = path.extname(file.originalname); // .pdf, .jpg etc.
-
-        // 2. تنقيح اسم الملف (إزالة المسافات والأحرف الخاصة)
-        const sanitizedName = originalName.replace(/[^a-zA-Z0-9]/g, '_');
-
-        // 3. بناء اسم الملف النهائي الفريد مع الحفاظ على الامتداد
-        const finalFilename = `${sanitizedName}-${Date.now()}${extension}`;
+        const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
+        const fileExtension = path.extname(file.originalname);
+        const public_id = `${fileName}-${Date.now()}`;
 
         return {
             folder: `mostathmir_projects/${req.user._id}`,
-            public_id: finalFilename, // <-- تمرير الاسم الكامل هنا
-            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw'
-            // 4. لا نحتاج لتحديد 'format' أو 'type'
+            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
+            public_id: public_id,
+            format: fileExtension.substring(1),
+            access_mode: 'public'
         };
-        // --- نهاية التعديل النهائي ---
     }
 });
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 15 } // 15MB limit
+    limits: { fileSize: 1024 * 1024 * 15 }
 });
 
 router.get('/public', getAuthUser, getAllProjects);
