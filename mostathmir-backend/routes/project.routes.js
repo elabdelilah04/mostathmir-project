@@ -26,20 +26,10 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: (req, file) => {
-        const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
-        const fileExtension = path.extname(file.originalname);
-        const public_id = `${fileName}-${Date.now()}`;
-
-        return {
-            folder: `mostathmir_projects/${req.user._id}`,
-            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
-            public_id: public_id,
-            format: fileExtension.substring(1),
-            type: 'upload',
-            access_mode: 'public'
-
-        };
+    params: {
+        folder: (req, file) => `mostathmir_projects/${req.user._id}`,
+        // هذا السطر يخبر Cloudinary باستخدام الإعدادات الصحيحة التي قمت بإنشائها
+        upload_preset: 'mostathmir_raw_files'
     }
 });
 
