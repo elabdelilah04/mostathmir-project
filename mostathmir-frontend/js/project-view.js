@@ -356,11 +356,13 @@ function populateFiles(project, baseUrl) {
 
 
 function createFileLink(url, name) {
-    if (!url) return '';
-
-    const fileName = url.split('/').pop();
+    if (!url) {
+        return '';
+    }
 
     const finalUrl = url;
+
+    const fileName = finalUrl.split('/').pop();
 
     return `
         <a href="${finalUrl}" target="_blank" class="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
