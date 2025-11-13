@@ -15,6 +15,7 @@ const {
     getInvestmentsInMyProjects
 } = require('../controllers/project.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
+const path = require('path'); // تأكد من استيراد 'path'
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -27,12 +28,13 @@ const storage = new CloudinaryStorage({
     params: (req, file) => {
         const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
 
+        const fileName = path.parse(file.originalname).name;
+        const publicId = `${fileName}-${Date.now()}`;
+
         return {
             folder: `mostathmir_projects/${req.user._id}`,
-            allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx'],
-            public_id: `${file.fieldname}-${Date.now()}`,
-            resource_type: resourceType // <== هذا هو السطر الحاسم
-
+            public_id: publicId,
+            resource_type: resourceType,
         };
     }
 });
