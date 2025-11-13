@@ -30,7 +30,6 @@ const storage = new CloudinaryStorage({
         return {
             folder: `mostathmir_projects/${req.user._id}`,
             allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx'],
-            public_id: `${file.fieldname}-${Date.now()}`,
             resource_type: resourceType
         };
     }
