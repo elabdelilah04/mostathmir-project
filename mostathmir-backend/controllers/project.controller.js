@@ -46,18 +46,75 @@ const createProject = async (req, res, next) => {
             status: projectStatus,
         });
 
+        // helper: يحاول استخراج public_id من URL أو من file.path كما يوفّره multer-storage-cloudinary
+        const extractPublicIdFromUrl = (url) => {
+            if (!url) return null;
+            // نبحث عن '/upload/' ثم نأخذ ما بعده حتى نهاية المسار (بدون query string)
+            try {
+                const afterUpload = url.split('/upload/')[1] || url;
+                const noQuery = afterUpload.split('?')[0];
+                // أزل أي امتداد إذا وُجد (سوف نستخدم format لاحقاً)
+                const withoutExt = (noQuery.lastIndexOf('.') !== -1) ? noQuery.substring(0, noQuery.lastIndexOf('.')) : noQuery;
+                return withoutExt;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        const buildSecureUrlFromPublicId = async (publicIdCandidate) => {
+            if (!publicIdCandidate) return null;
+            // حاول جلب معلومات المورد من Cloudinary (أولًا raw ثم image كاحتياط)
+            try {
+                let info = null;
+                try {
+                    info = await cloudinary.api.resource(publicIdCandidate, { resource_type: 'raw' });
+                } catch (errRaw) {
+                    // لو لم نجد كمورد raw حاول كصورة
+                    info = await cloudinary.api.resource(publicIdCandidate).catch(e => { throw e; });
+                }
+                if (info && info.format) {
+                    const resourceType = info.resource_type || 'raw';
+                    const fixedUrl = cloudinary.url(publicIdCandidate, { resource_type: resourceType, format: info.format, secure: true });
+                    return fixedUrl;
+                }
+                return null;
+            } catch (err) {
+                console.warn('Could not build secure URL from Cloudinary for', publicIdCandidate, err.message || err);
+                return null;
+            }
+        };
+
         if (req.files) {
+            // الصور
             if (req.files.projectImages && req.files.projectImages.length > 0) {
-                newProject.mainImage = req.files.projectImages[0].path;
-                newProject.projectImages = req.files.projectImages.map(file => file.path);
+                // نُفضّل استخدام URLs المصحّحة
+                const imagePromises = req.files.projectImages.map(async file => {
+                    const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                    const fixed = await buildSecureUrlFromPublicId(candidate);
+                    return fixed || file.path || file.secure_url || file.url;
+                });
+                const resolvedImages = await Promise.all(imagePromises);
+                newProject.projectImages = resolvedImages;
+                newProject.mainImage = resolvedImages[0] || newProject.mainImage;
             }
-            if (req.files.businessPlan) {
-                newProject.businessPlan = req.files.businessPlan[0].path;
+
+            // ملف خطة العمل
+            if (req.files.businessPlan && req.files.businessPlan[0]) {
+                const file = req.files.businessPlan[0];
+                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const fixed = await buildSecureUrlFromPublicId(candidate);
+                newProject.businessPlan = fixed || file.path || file.secure_url || file.url;
             }
-            if (req.files.presentation) {
-                newProject.presentation = req.files.presentation[0].path;
+
+            // ملف العرض
+            if (req.files.presentation && req.files.presentation[0]) {
+                const file = req.files.presentation[0];
+                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const fixed = await buildSecureUrlFromPublicId(candidate);
+                newProject.presentation = fixed || file.path || file.secure_url || file.url;
             }
         }
+
         const createdProject = await newProject.save();
 
         if (createdProject.status === 'under-review') {
@@ -102,21 +159,35 @@ const updateProject = async (req, res, next) => {
         }
 
         if (req.files) {
+            // projectImages: نضيف الصور الجديدة إلى القائمة الحالية
             if (req.files.projectImages && req.files.projectImages.length > 0) {
-                // Assuming you might want to add new images, not replace all
-                const newImagePaths = req.files.projectImages.map(file => file.path);
-                project.projectImages = [...project.projectImages, ...newImagePaths];
-                if (!project.mainImage) {
-                    project.mainImage = newImagePaths[0];
-                }
+                const newImagePromises = req.files.projectImages.map(async file => {
+                    const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                    const fixed = await buildSecureUrlFromPublicId(candidate);
+                    return fixed || file.path || file.secure_url || file.url;
+                });
+                const newImagePaths = await Promise.all(newImagePromises);
+                project.projectImages = [...(project.projectImages || []), ...newImagePaths];
+                if (!project.mainImage && newImagePaths.length > 0) project.mainImage = newImagePaths[0];
             }
-            if (req.files.businessPlan) {
-                project.businessPlan = req.files.businessPlan[0].path;
+
+            // businessPlan
+            if (req.files.businessPlan && req.files.businessPlan[0]) {
+                const file = req.files.businessPlan[0];
+                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const fixed = await buildSecureUrlFromPublicId(candidate);
+                project.businessPlan = fixed || file.path || file.secure_url || file.url;
             }
-            if (req.files.presentation) {
-                project.presentation = req.files.presentation[0].path;
+
+            // presentation
+            if (req.files.presentation && req.files.presentation[0]) {
+                const file = req.files.presentation[0];
+                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const fixed = await buildSecureUrlFromPublicId(candidate);
+                project.presentation = fixed || file.path || file.secure_url || file.url;
             }
         }
+
 
         const updatedProject = await project.save();
         const newStatus = updatedProject.status;
