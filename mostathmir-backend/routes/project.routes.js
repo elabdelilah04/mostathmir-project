@@ -35,7 +35,8 @@ const storage = new CloudinaryStorage({
             folder: `mostathmir_projects/${req.user._id}`,
             resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
             public_id: public_id,
-            format: fileExtension.substring(1)
+            format: fileExtension.substring(1),
+            type: 'upload' // يضمن أن الملف سيكون عامًا ومتاحًا للوصول
         };
     }
 });
@@ -60,7 +61,7 @@ router.post(
     createProject
 );
 
-router.get('/:id', getProjectById);
+router.get('/:id', getById);
 
 router.put(
     '/:id',
