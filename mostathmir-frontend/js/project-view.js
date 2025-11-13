@@ -342,11 +342,11 @@ function populateFiles(project, baseUrl) {
     container.innerHTML = '';
     let filesAvailable = false;
     if (project.businessPlan) {
-        container.innerHTML += createFileLink(baseUrl + project.businessPlan, t('js-project-view-business-plan'));
+        container.innerHTML += createFileLink(project.businessPlan, t('js-project-view-business-plan'));
         filesAvailable = true;
     }
     if (project.presentation) {
-        container.innerHTML += createFileLink(baseUrl + project.presentation, t('js-project-view-presentation'));
+        container.innerHTML += createFileLink(project.presentation, t('js-project-view-presentation'));
         filesAvailable = true;
     }
     if (!filesAvailable) {
