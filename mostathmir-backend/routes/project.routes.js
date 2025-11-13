@@ -32,14 +32,17 @@ const storage = new CloudinaryStorage({
         const public_id = `${fileName}-${Date.now()}`;
 
         return {
+            // السبب 1: لحل مشكلة التنظيم
             folder: `mostathmir_projects/${req.user._id}`,
-            // 2. نحدد نوع الملف بشكل صريح
-            resource_type: resourceType,
-            // 3. نستخدم الإعداد المسبق للحصول على الأذونات العامة
-            upload_preset: 'mostathmir_raw_files',
-            // 4. نحدد اسم الملف لإجبار Cloudinary على استخدامه (وهذا سيحافظ على الامتداد)
-            public_id: public_id,
-            access_mode: 'public'
+
+            // السبب 2: لحل مشكلة التمييز بين الصور والملفات
+            resource_type: 'raw',
+
+            // السبب 3: لحل مشكلة "طلب كلمة السر" بشكل نهائي
+            access_mode: 'public',
+
+            // السبب 4: لحل مشكلة "فقدان الامتداد" بشكل نهائي
+            public_id: public_id
         };
     }
 });
