@@ -3,6 +3,8 @@ const router = express.Router();
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
+const path = require('path'); // تم إضافة هذا السطر
+
 const {
     createProject,
     getMyProjects,
@@ -22,17 +24,27 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// --- بداية الكود المعدل ---
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
+        // استخراج اسم الملف الأصلي بدون الامتداد
+        const fileName = path.parse(file.originalname).name;
+
+        // إنشاء اسم فريد للملف باستخدام الاسم الأصلي والطابع الزمني
+        const public_id = `${fileName.replace(/ /g, '_')}-${Date.now()}`;
 
         return {
             folder: `mostathmir_projects/${req.user._id}`,
-            resource_type: resourceType
+            // تحديد نوع المورد (image للصور، raw للملفات الأخرى)
+            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
+            // تحديد اسم الملف الفريد، وسيقوم Cloudinary بإضافة الامتداد تلقائياً
+            public_id: public_id
         };
     }
 });
+// --- نهاية الكود المعدل ---
+
 
 const upload = multer({
     storage: storage,
