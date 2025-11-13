@@ -36,7 +36,7 @@ const storage = new CloudinaryStorage({
             resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
             public_id: public_id,
             format: fileExtension.substring(1),
-            access_mode: 'public'
+            type: 'upload' // هذا هو التعديل الحاسم: يجبر الرابط على أن يكون من النوع العام
         };
     }
 });
