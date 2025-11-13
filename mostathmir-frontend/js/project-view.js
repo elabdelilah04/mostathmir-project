@@ -354,15 +354,13 @@ function populateFiles(project, baseUrl) {
     }
 }
 
+
 function createFileLink(url, name) {
     if (!url) return '';
 
     const fileName = url.split('/').pop();
-    let finalUrl = url;
 
-    if (!url.startsWith('http')) {
-        finalUrl = `${API_BASE_URL}${url}`;
-    }
+    const finalUrl = url;
 
     return `
         <a href="${finalUrl}" target="_blank" class="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
