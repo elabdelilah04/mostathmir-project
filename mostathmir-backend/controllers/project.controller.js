@@ -13,6 +13,93 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+/**
+ * Helper: يحاول استخراج public_id صالح من:
+ * - كائن الملف (file.public_id إن وُجد)
+ * - أو من URL (file.path / file.secure_url / file.url)
+ * الدالة تزيل بادئات النسخة مثل v12345/ وتفك الترميز (%20) وتزيل الامتداد
+ */
+const extractPublicIdFromUrl = (input) => {
+    if (!input) return null;
+
+    // إذا المِلَف لديه public_id مباشرة (multer-storage-cloudinary قد يضعه)
+    if (typeof input === 'object' && input.public_id) {
+        return input.public_id;
+    }
+
+    // إذا أُعطي string (file.path أو secure_url)
+    let url = typeof input === 'string' ? input : (input.path || input.secure_url || input.url || '');
+    if (!url) return null;
+
+    try {
+        // لو هو URL كامل: احصل على الجزء بعد '/upload/'
+        const uploadIndex = url.indexOf('/upload/');
+        let afterUpload = uploadIndex !== -1 ? url.substring(uploadIndex + '/upload/'.length) : url;
+
+        // فك الترميز (يحوي %20 وغيرها)
+        afterUpload = decodeURIComponent(afterUpload);
+
+        // أزل query string إن وُجد
+        afterUpload = afterUpload.split('?')[0];
+
+        // إذا بدا أنه يبدأ بـ v{number}/ أزل هذا الجزء
+        afterUpload = afterUpload.replace(/^v\d+\//, '');
+
+        // أزل أي شرطة بادئة
+        if (afterUpload.startsWith('/')) afterUpload = afterUpload.substring(1);
+
+        // أزل الامتداد من آخر جزء فقط (cloudinary public_id لا يتضمن .ext)
+        const lastSegment = afterUpload.split('/').pop();
+        if (lastSegment && lastSegment.includes('.')) {
+            // نحذف الامتداد فقط من آخر الجزء
+            const withoutExt = afterUpload.substring(0, afterUpload.lastIndexOf('.'));
+            return withoutExt;
+        }
+
+        return afterUpload;
+    } catch (e) {
+        console.warn('extractPublicIdFromUrl parse error', e);
+        return null;
+    }
+};
+
+/**
+ * Helper: يبني URL آمن وثابت من public_id بالاستعلام عن Cloudinary للحصول على info.format و resource_type
+ * يجرب كـ image أولاً ثم كـ raw
+ */
+const buildSecureUrlFromPublicId = async (publicIdCandidate) => {
+    if (!publicIdCandidate) return null;
+    try {
+        // تجربة كـ image أولاً
+        try {
+            const info = await cloudinary.api.resource(publicIdCandidate, { resource_type: 'image' });
+            if (info && info.format) {
+                const resourceType = info.resource_type || 'image';
+                const fixedUrl = cloudinary.url(publicIdCandidate, { resource_type: resourceType, format: info.format, secure: true });
+                return fixedUrl;
+            }
+        } catch (errImage) {
+            // لم يجد كـ image -> حاول كـ raw
+            try {
+                const infoRaw = await cloudinary.api.resource(publicIdCandidate, { resource_type: 'raw' });
+                if (infoRaw && infoRaw.format) {
+                    const resourceType = infoRaw.resource_type || 'raw';
+                    const fixedUrl = cloudinary.url(publicIdCandidate, { resource_type: resourceType, format: infoRaw.format, secure: true });
+                    return fixedUrl;
+                }
+            } catch (errRaw) {
+                // كلا المحاولتين فشلتا
+                console.warn(`Could not build secure URL from Cloudinary for ${publicIdCandidate}`, (errRaw && errRaw.message) || errImage && errImage.message || errRaw || errImage);
+                return null;
+            }
+        }
+        return null;
+    } catch (err) {
+        console.error('buildSecureUrlFromPublicId unexpected error', err);
+        return null;
+    }
+};
+
 const parseProjectData = (body) => {
     const data = { ...body };
     const fieldsToParse = [
@@ -26,7 +113,13 @@ const parseProjectData = (body) => {
                 data[field] = JSON.parse(data[field]);
             } catch (e) {
                 console.error(`Failed to parse field ${field}:`, e);
-                data[field] = Array.isArray(Project.schema.path(field).caster) ? [] : {};
+                // fallback: إذا كان الحقل مصفوفة في السكيما اجعله مصفوفة، وإلا كائن
+                const schemaPath = Project.schema.path(field);
+                if (schemaPath && schemaPath.instance === 'Array') {
+                    data[field] = [];
+                } else {
+                    data[field] = {};
+                }
             }
         }
     });
@@ -46,50 +139,14 @@ const createProject = async (req, res, next) => {
             status: projectStatus,
         });
 
-        // helper: يحاول استخراج public_id من URL أو من file.path كما يوفّره multer-storage-cloudinary
-        const extractPublicIdFromUrl = (url) => {
-            if (!url) return null;
-            // نبحث عن '/upload/' ثم نأخذ ما بعده حتى نهاية المسار (بدون query string)
-            try {
-                const afterUpload = url.split('/upload/')[1] || url;
-                const noQuery = afterUpload.split('?')[0];
-                // أزل أي امتداد إذا وُجد (سوف نستخدم format لاحقاً)
-                const withoutExt = (noQuery.lastIndexOf('.') !== -1) ? noQuery.substring(0, noQuery.lastIndexOf('.')) : noQuery;
-                return withoutExt;
-            } catch (e) {
-                return null;
-            }
-        };
-
-        const buildSecureUrlFromPublicId = async (publicIdCandidate) => {
-            if (!publicIdCandidate) return null;
-            // حاول جلب معلومات المورد من Cloudinary (أولًا raw ثم image كاحتياط)
-            try {
-                let info = null;
-                try {
-                    info = await cloudinary.api.resource(publicIdCandidate, { resource_type: 'raw' });
-                } catch (errRaw) {
-                    // لو لم نجد كمورد raw حاول كصورة
-                    info = await cloudinary.api.resource(publicIdCandidate).catch(e => { throw e; });
-                }
-                if (info && info.format) {
-                    const resourceType = info.resource_type || 'raw';
-                    const fixedUrl = cloudinary.url(publicIdCandidate, { resource_type: resourceType, format: info.format, secure: true });
-                    return fixedUrl;
-                }
-                return null;
-            } catch (err) {
-                console.warn('Could not build secure URL from Cloudinary for', publicIdCandidate, err.message || err);
-                return null;
-            }
-        };
+        // إذا أردت فَك التعليق مؤقتاً لرؤية ما يصل من multer/cloudinary أثناء debugging:
+        // console.log('Uploaded files sample:', JSON.stringify(req.files, null, 2));
 
         if (req.files) {
-            // الصور
+            // projectImages: نعالج كل صورة ونحاول الحصول على URL ثابت مع الامتداد
             if (req.files.projectImages && req.files.projectImages.length > 0) {
-                // نُفضّل استخدام URLs المصحّحة
                 const imagePromises = req.files.projectImages.map(async file => {
-                    const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                    const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                     const fixed = await buildSecureUrlFromPublicId(candidate);
                     return fixed || file.path || file.secure_url || file.url;
                 });
@@ -98,18 +155,18 @@ const createProject = async (req, res, next) => {
                 newProject.mainImage = resolvedImages[0] || newProject.mainImage;
             }
 
-            // ملف خطة العمل
+            // businessPlan
             if (req.files.businessPlan && req.files.businessPlan[0]) {
                 const file = req.files.businessPlan[0];
-                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                 const fixed = await buildSecureUrlFromPublicId(candidate);
                 newProject.businessPlan = fixed || file.path || file.secure_url || file.url;
             }
 
-            // ملف العرض
+            // presentation
             if (req.files.presentation && req.files.presentation[0]) {
                 const file = req.files.presentation[0];
-                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                 const fixed = await buildSecureUrlFromPublicId(candidate);
                 newProject.presentation = fixed || file.path || file.secure_url || file.url;
             }
@@ -162,7 +219,7 @@ const updateProject = async (req, res, next) => {
             // projectImages: نضيف الصور الجديدة إلى القائمة الحالية
             if (req.files.projectImages && req.files.projectImages.length > 0) {
                 const newImagePromises = req.files.projectImages.map(async file => {
-                    const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                    const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                     const fixed = await buildSecureUrlFromPublicId(candidate);
                     return fixed || file.path || file.secure_url || file.url;
                 });
@@ -174,7 +231,7 @@ const updateProject = async (req, res, next) => {
             // businessPlan
             if (req.files.businessPlan && req.files.businessPlan[0]) {
                 const file = req.files.businessPlan[0];
-                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                 const fixed = await buildSecureUrlFromPublicId(candidate);
                 project.businessPlan = fixed || file.path || file.secure_url || file.url;
             }
@@ -182,12 +239,11 @@ const updateProject = async (req, res, next) => {
             // presentation
             if (req.files.presentation && req.files.presentation[0]) {
                 const file = req.files.presentation[0];
-                const candidate = extractPublicIdFromUrl(file.path || file.secure_url || file.url);
+                const candidate = extractPublicIdFromUrl(file.public_id ? { public_id: file.public_id } : (file.path || file.secure_url || file.url || file));
                 const fixed = await buildSecureUrlFromPublicId(candidate);
                 project.presentation = fixed || file.path || file.secure_url || file.url;
             }
         }
-
 
         const updatedProject = await project.save();
         const newStatus = updatedProject.status;
