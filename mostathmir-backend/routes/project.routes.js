@@ -8,7 +8,7 @@ const path = require('path');
 const {
     createProject,
     getMyProjects,
-    getProjectById,
+    getProjectById, // تم استيراد الاسم الصحيح هنا
     updateProject,
     deleteProject,
     getAllProjects,
@@ -36,7 +36,7 @@ const storage = new CloudinaryStorage({
             resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
             public_id: public_id,
             format: fileExtension.substring(1),
-            type: 'upload' // يضمن أن الملف سيكون عامًا ومتاحًا للوصول
+            type: 'upload'
         };
     }
 });
@@ -61,7 +61,8 @@ router.post(
     createProject
 );
 
-router.get('/:id', getById);
+// --- === تم تصحيح الخطأ هنا === ---
+router.get('/:id', getProjectById);
 
 router.put(
     '/:id',
