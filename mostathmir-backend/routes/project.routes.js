@@ -27,18 +27,23 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
+        const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
+        const fileExtension = path.extname(file.originalname);
+        const public_id = `${fileName}-${Date.now()}`;
 
         return {
             folder: `mostathmir_projects/${req.user._id}`,
-            resource_type: resourceType
+            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
+            public_id: public_id,
+            format: fileExtension.substring(1),
+            access_mode: 'public'
         };
     }
 });
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 15 } // 15MB limit
+    limits: { fileSize: 1024 * 1024 * 15 }
 });
 
 router.get('/public', getAuthUser, getAllProjects);
