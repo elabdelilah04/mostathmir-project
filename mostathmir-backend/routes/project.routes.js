@@ -27,10 +27,18 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
+        // 1. نقوم بإنشاء اسم الملف بأنفسنا للحفاظ على السياق
+        const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
+        const public_id = `${fileName}-${Date.now()}`;
+
         return {
             folder: `mostathmir_projects/${req.user._id}`,
+            // 2. نحدد نوع الملف بشكل صريح
             resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
-            upload_preset: 'mostathmir_raw_files'
+            // 3. نستخدم الإعداد المسبق للحصول على الأذونات العامة
+            upload_preset: 'mostathmir_raw_files',
+            // 4. نحدد اسم الملف لإجبار Cloudinary على استخدامه (وهذا سيحافظ على الامتداد)
+            public_id: public_id
         };
     }
 });
