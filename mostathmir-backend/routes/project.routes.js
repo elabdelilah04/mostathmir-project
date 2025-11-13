@@ -25,29 +25,11 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        // resource_type must be 'raw' for non-images (pdf/docx/zip etc.)
-        const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
-
-        // Extract original extension from the uploaded file name
-        const originalName = file.originalname || 'file';
-        const parts = originalName.split('.');
-        const ext = (parts.length > 1) ? parts.pop().toLowerCase() : undefined;
-
-        // Build params to keep original filename and extension in Cloudinary
-        const paramsObj = {
+        return {
             folder: `mostathmir_projects/${req.user._id}`,
-            resource_type: resourceType,
-            use_filename: true,       // keep original filename
-            unique_filename: false,   // do not force a random unique name (optional)
-            allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip'],
+            allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx'],
+            public_id: `${file.fieldname}-${Date.now()}`
         };
-
-        // If we were able to detect an extension, set format so Cloudinary's URL will include it
-        if (ext) {
-            paramsObj.format = ext;
-        }
-
-        return paramsObj;
     }
 });
 
