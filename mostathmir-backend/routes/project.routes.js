@@ -38,7 +38,8 @@ const storage = new CloudinaryStorage({
             // 3. نستخدم الإعداد المسبق للحصول على الأذونات العامة
             upload_preset: 'mostathmir_raw_files',
             // 4. نحدد اسم الملف لإجبار Cloudinary على استخدامه (وهذا سيحافظ على الامتداد)
-            public_id: public_id
+            public_id: public_id,
+            access_mode: 'public'
         };
     }
 });
