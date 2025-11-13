@@ -26,11 +26,13 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
         const resourceType = file.mimetype.startsWith('image') ? 'image' : 'raw';
-
         return {
             folder: `mostathmir_projects/${req.user._id}`,
+            use_filename: true,
+            unique_filename: false,
+            resource_type: resourceType,
             allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx'],
-            resource_type: resourceType
+            format: undefined
         };
     }
 });
