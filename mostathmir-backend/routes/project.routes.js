@@ -27,17 +27,25 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
-        const fileExtension = path.extname(file.originalname);
-        const public_id = `${fileName}-${Date.now()}`;
+        // --- بداية التعديل النهائي ---
+
+        // 1. استخراج اسم الملف وامتداده الأصليين
+        const originalName = path.parse(file.originalname).name;
+        const extension = path.extname(file.originalname); // .pdf, .jpg etc.
+
+        // 2. تنقيح اسم الملف (إزالة المسافات والأحرف الخاصة)
+        const sanitizedName = originalName.replace(/[^a-zA-Z0-9]/g, '_');
+
+        // 3. بناء اسم الملف النهائي الفريد مع الحفاظ على الامتداد
+        const finalFilename = `${sanitizedName}-${Date.now()}${extension}`;
 
         return {
             folder: `mostathmir_projects/${req.user._id}`,
-            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw',
-            public_id: public_id,
-            format: fileExtension.substring(1),
-            access_mode: 'public' // يضمن أن الملف سيكون عامًا ومتاحًا للوصول
+            public_id: finalFilename, // <-- تمرير الاسم الكامل هنا
+            resource_type: file.mimetype.startsWith('image') ? 'image' : 'raw'
+            // 4. لا نحتاج لتحديد 'format' أو 'type'
         };
+        // --- نهاية التعديل النهائي ---
     }
 });
 
@@ -46,7 +54,6 @@ const upload = multer({
     limits: { fileSize: 1024 * 1024 * 15 } // 15MB limit
 });
 
-// ... (باقي المسارات كما هي)
 router.get('/public', getAuthUser, getAllProjects);
 router.get('/myprojects', protect, getMyProjects);
 router.get('/my-investments', protect, getInvestmentsInMyProjects);
