@@ -28,6 +28,8 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
+        console.log("--- DEBUGGING FILE UPLOAD ---");
+        console.log(file);
         // استخراج اسم الملف الأصلي بدون الامتداد
         const fileName = path.parse(file.originalname).name;
 
