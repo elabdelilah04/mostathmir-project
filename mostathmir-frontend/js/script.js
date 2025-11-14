@@ -640,33 +640,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = {
-                fullName: (signupForm.querySelector('#fullName') || {}).value || '',
-                email: (signupForm.querySelector('#email') || {}).value || '',
-                phone: (signupForm.querySelector('#phone') || {}).value || '',
-                password: (signupForm.querySelector('#password') || {}).value || '',
-                accountType: (signupForm.querySelector('#accountType') || {}).value || '',
-                location: (signupForm.querySelector('#location') || {}).value || '',
-                bio: (signupForm.querySelector('#bio') || {}).value || ''
-            };
-            try {
-                const data = await handleApiRequest(`${API_BASE_URL}/api/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                }, signupForm);
-                if (data) {
-                    window.location.href = 'login.html';
-                }
-            } catch {
-                // Error is handled by handleApiRequest's alert
-            }
-        });
-    }
+    // const signupForm = document.getElementById('signupForm');
+    // if (signupForm) {
+    //     signupForm.addEventListener('submit', async (e) => {
+    //         e.preventDefault();
+    //         const formData = {
+    //             fullName: (signupForm.querySelector('#fullName') || {}).value || '',
+    //             email: (signupForm.querySelector('#email') || {}).value || '',
+    //             phone: (signupForm.querySelector('#phone') || {}).value || '',
+    //             password: (signupForm.querySelector('#password') || {}).value || '',
+    //             accountType: (signupForm.querySelector('#accountType') || {}).value || '',
+    //             location: (signupForm.querySelector('#location') || {}).value || '',
+    //             bio: (signupForm.querySelector('#bio') || {}).value || ''
+    //         };
+    //         try {
+    //             const data = await handleApiRequest(`${API_BASE_URL}/api/auth/register`, {
+    //                 method: 'POST',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify(formData)
+    //             }, signupForm);
+    //             if (data) {
+    //                 window.location.href = 'login.html';
+    //             }
+    //         } catch {
+    //             // Error is handled by handleApiRequest's alert
+    //         }
+    //     });
+    // }
 
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
