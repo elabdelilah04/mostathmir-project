@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg mt-2">
             <div class="flex items-center gap-3">
                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                <a href="${API_BASE_URL}${fileUrl}" target="_blank" class="text-blue-700 hover:underline font-semibold">${fileName}</a>
+                <a href="${fileUrl}" target="_blank" class="text-blue-700 hover:underline font-semibold">${fileName}</a>
             </div>
             <button type="button" onclick="removeUploadedFile('${fileType}', '${fileUrl}')" class="text-red-500 hover:text-red-700 text-lg">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const imgDiv = document.createElement("div");
         imgDiv.className = "relative w-24 h-24 rounded-lg overflow-hidden border border-gray-300 group";
         imgDiv.innerHTML = `
-        <img src="${API_BASE_URL}${imageUrl}" alt="Project Image" class="w-full h-full object-cover">
+        <img src="${imageUrl}"  alt="Project Image" class="w-full h-full object-cover">
         <button type="button" onclick="removeUploadedFile('projectImage', '${imageUrl}')" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
             ×
         </button>`;
