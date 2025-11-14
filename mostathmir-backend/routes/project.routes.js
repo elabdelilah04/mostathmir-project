@@ -27,22 +27,24 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: (req, file) => {
-        // 1. نقوم بإنشاء اسم الملف بأنفسنا للحفاظ على السياق
+        // --- === هذا هو المنطق الكامل والصحيح === ---
+
+        // 1. إنشاء اسم فريد للملف
         const fileName = path.parse(file.originalname).name.replace(/ /g, '_');
         const public_id = `${fileName}-${Date.now()}`;
 
+        // 2. استخراج الامتداد الأصلي للملف
+        const fileExtension = path.extname(file.originalname);
+        
+        // 3. تحديد نوع المورد بشكل ديناميكي (صورة أو ملف خام)
+        const resource_type = file.mimetype.startsWith('image') ? 'image' : 'raw';
+
         return {
-            // السبب 1: لحل مشكلة التنظيم
             folder: `mostathmir_projects/${req.user._id}`,
-
-            // السبب 2: لحل مشكلة التمييز بين الصور والملفات
-            resource_type: 'raw',
-
-            // السبب 3: لحل مشكلة "طلب كلمة السر" بشكل نهائي
-            access_mode: 'public',
-
-            // السبب 4: لحل مشكلة "فقدان الامتداد" بشكل نهائي
-            public_id: public_id
+            public_id: public_id,           // للحفاظ على اسم الملف
+            resource_type: resource_type,   // للتمييز بين الصور والملفات
+            access_mode: 'public',          // لمنع طلب كلمة السر
+            format: fileExtension.substring(1) // للحفاظ على الامتداد
         };
     }
 });
