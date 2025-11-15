@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const user = await response.json();
         initSettingsPage(user);
 
+        // Force re-translation after dynamic content is added
         if (window.translatePage) {
             window.translatePage();
         }
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+
 async function initSettingsPage(user) {
     const settingsForm = document.getElementById('settingsForm');
     if (!settingsForm) return;
@@ -33,58 +35,68 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-    // في auth.js
-
-    const countriesData = {
-        saudi: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-dammam')],
-        uae: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah')],
-        kuwait: [t('js-city-kuwait_city')],
-        qatar: [t('js-city-doha')],
-        bahrain: [t('js-city-manama')],
-        oman: [t('js-city-muscat')],
-        morocco: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')],
-        egypt: [t('js-city-cairo'), t('js-city-alexandria')],
-        jordan: [t('js-city-amman')],
-        lebanon: [t('js-city-beirut')]
+    const arabCountries = {
+        [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
+        [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
+        [t('js-country-tunisia')]: [t('js-city-tunis'), t('js-city-sfax'), t('js-city-sousse'), t('js-city-bizerte')],
+        [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria'), t('js-city-giza'), t('js-city-portsaid'), t('js-city-mansoura')],
+        [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-mecca'), t('js-city-medina'), t('js-city-dammam')],
+        [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah'), t('js-city-alain')],
+        [t('js-country-qatar')]: [t('js-city-doha'), t('js-city-alrayyan'), t('js-city-alwakrah')],
+        [t('js-country-kuwait')]: [t('js-city-kuwait_city'), t('js-city-alfarwaniyah'), t('js-city-hawalli'), t('js-city-alahmadi')],
+        [t('js-country-bahrain')]: [t('js-city-manama'), t('js-city-muharraq'), t('js-city-sitra')],
+        [t('js-country-oman')]: [t('js-city-muscat'), t('js-city-salalah'), t('js-city-sohar')],
+        [t('js-country-jordan')]: [t('js-city-amman'), t('js-city-irbid'), t('js-city-zarqa')],
+        [t('js-country-lebanon')]: [t('js-city-beirut'), t('js-city-tripoli'), t('js-city-sidon')],
+        [t('js-country-iraq')]: [t('js-city-baghdad'), t('js-city-basra'), t('js-city-mosul'), t('js-city-erbil')],
+        [t('js-country-palestine')]: [t('js-city-jerusalem'), t('js-city-ramallah'), t('js-city-gaza'), t('js-city-nablus'), t('js-city-hebron')],
+        [t('js-country-yemen')]: [t('js-city-sanaa'), t('js-city-aden'), t('js-city-taiz'), t('js-city-alhodeidah'), t('js-city-ibb')],
+        [t('js-country-sudan')]: [t('js-city-khartoum'), t('js-city-omdurman'), t('js-city-portsudan')]
     };
 
-    function initCountryCityDropdowns() {
+    function initCountryCityDropdowns(currentLocation) {
         const countrySelect = document.getElementById("country");
         const citySelect = document.getElementById("city");
         if (!countrySelect || !citySelect) return;
-
-        // ملء قائمة الدول من HTML لأنها مترجمة هناك
-        countrySelect.addEventListener("change", function () {
-            const selectedCountry = this.value; // القيمة هنا هي "saudi", "uae", etc.
-            citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
-
-            if (selectedCountry && citiesData[selectedCountry]) {
-                citySelect.disabled = false;
-                citiesData[selectedCountry].forEach(city => {
-                    const option = new Option(city, city);
-                    citySelect.add(option);
-                });
-            } else {
-                citySelect.disabled = true;
-            }
-        });
-    }
-    window.updateCities = () => {
-        const countrySelect = document.getElementById("country");
-        const citySelect = document.getElementById("city");
-        const selectedCountry = countrySelect.value;
-        citySelect.innerHTML = `<option value="">${t('js-addproject-select-city')}</option>`;
-        if (selectedCountry && citiesData[selectedCountry]) {
-            citySelect.disabled = false;
-            citiesData[selectedCountry].forEach(city => {
-                const option = new Option(city, city);
-                citySelect.add(option);
-            });
+        let initialCountry = '';
+        let initialCity = '';
+        if (currentLocation && currentLocation.includes(', ')) {
+            const parts = currentLocation.split(', ');
+            initialCity = parts[0];
+            initialCountry = parts[1];
         } else {
-            citySelect.disabled = true;
+            initialCountry = currentLocation;
         }
-        updatePreview();
-    };
+        Object.keys(arabCountries).forEach(country => {
+            const option = document.createElement("option");
+            option.value = country;
+            option.textContent = country;
+            if (country === initialCountry) {
+                option.selected = true;
+            }
+            countrySelect.appendChild(option);
+        });
+        const populateCities = (selectedCountry, selectedCity) => {
+            citySelect.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
+            if (selectedCountry && arabCountries[selectedCountry]) {
+                arabCountries[selectedCountry].forEach(city => {
+                    const option = document.createElement("option");
+                    option.value = city;
+                    option.textContent = city;
+                    if (city === selectedCity) {
+                        option.selected = true;
+                    }
+                    citySelect.appendChild(option);
+                });
+            }
+        };
+        populateCities(initialCountry, initialCity);
+        countrySelect.addEventListener("change", function () {
+            populateCities(this.value, null);
+        });
+        countrySelect.disabled = true;
+        citySelect.disabled = true;
+    }
 
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
@@ -261,17 +273,12 @@ async function initSettingsPage(user) {
     if (settingsForm && saveButton) {
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const countrySelect = document.getElementById('country');
-            const citySelect = document.getElementById('city');
-
-            if (!countrySelect.value || !citySelect.value) {
+            const newCountry = settingsForm.querySelector('#country').value;
+            const newCity = settingsForm.querySelector('#city').value;
+            const newLocation = newCountry && newCity ? `${newCity}, ${newCountry}` : '';
+            if (!newCountry || !newCity) {
                 return alert(t('js-settings-alert-select-country-city'));
             }
-
-            const selectedCountryOption = countrySelect.options[countrySelect.selectedIndex];
-            const countryText = selectedCountryOption.textContent;
-            const cityText = citySelect.value;
-            const newLocation = `${cityText}, ${countryText}`;
 
             const updatedSkills = Array.from(document.querySelectorAll('#skillsFormContainer .skill-row')).map(row => ({
                 name: row.querySelector('.skill-name').value.trim(),
@@ -308,7 +315,7 @@ async function initSettingsPage(user) {
                 }))
             };
             try {
-                const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
+                const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(updatedData)

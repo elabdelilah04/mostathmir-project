@@ -1,21 +1,23 @@
 const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 
-// في auth.js
-
-const countriesData = {
-    saudi: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-dammam')],
-    uae: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah')],
-    kuwait: [t('js-city-kuwait_city')],
-    qatar: [t('js-city-doha')],
-    bahrain: [t('js-city-manama')],
-    oman: [t('js-city-muscat')],
-    morocco: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')],
-    egypt: [t('js-city-cairo'), t('js-city-alexandria')],
-    jordan: [t('js-city-amman')],
-    lebanon: [t('js-city-beirut')]
+const arabCountries = {
+    [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
+    [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
+    [t('js-country-tunisia')]: [t('js-city-tunis'), t('js-city-sfax'), t('js-city-sousse'), t('js-city-bizerte')],
+    [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria'), t('js-city-giza'), t('js-city-portsaid'), t('js-city-mansoura')],
+    [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-mecca'), t('js-city-medina'), t('js-city-dammam')],
+    [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah'), t('js-city-alain')],
+    [t('js-country-qatar')]: [t('js-city-doha'), t('js-city-alrayyan'), t('js-city-alwakrah')],
+    [t('js-country-kuwait')]: [t('js-city-kuwait_city'), t('js-city-alfarwaniyah'), t('js-city-hawalli'), t('js-city-alahmadi')],
+    [t('js-country-bahrain')]: [t('js-city-manama'), t('js-city-muharraq'), t('js-city-sitra')],
+    [t('js-country-oman')]: [t('js-city-muscat'), t('js-city-salalah'), t('js-city-sohar')],
+    [t('js-country-jordan')]: [t('js-city-amman'), t('js-city-irbid'), t('js-city-zarqa')],
+    [t('js-country-lebanon')]: [t('js-city-beirut'), t('js-city-tripoli'), t('js-city-sidon')],
+    [t('js-country-iraq')]: [t('js-city-baghdad'), t('js-city-basra'), t('js-city-mosul'), t('js-city-erbil')],
+    [t('js-country-palestine')]: [t('js-city-jerusalem'), t('js-city-ramallah'), t('js-city-gaza'), t('js-city-nablus'), t('js-city-hebron')],
+    [t('js-country-yemen')]: [t('js-city-sanaa'), t('js-city-aden'), t('js-city-taiz'), t('js-city-alhodeidah'), t('js-city-ibb')],
+    [t('js-country-sudan')]: [t('js-city-khartoum'), t('js-city-omdurman'), t('js-city-portsudan')]
 };
-
-
 
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
@@ -27,13 +29,13 @@ async function handleApiRequest(url, options, form) {
         const data = await response.json();
         if (!response.ok) {
             const errorMessage = data.messageKey ? t(data.messageKey) : data.message;
-            const error = new Error(errorMessage || data.message || 'An unexpected error occurred');
+            const error = new Error(errorMessage || data.message || 'حدث خطأ غير متوقع');
             error.data = data;
             throw error;
         }
-        return data;
+        return data; // فقط قم بإرجاع البيانات
     } catch (error) {
-        throw error;
+        throw error; // ارمِ الخطأ ليتم التعامل معه في الدالة المستدعية
     } finally {
         if (submitButton) {
             submitButton.disabled = false;
@@ -83,6 +85,7 @@ function logoutUser() {
 }
 
 function redirectIfLoggedIn() {
+
     const pageKey = document.body.dataset.pageKey;
     if (pageKey === 'page-title-login' || pageKey === 'page-title-signup') {
         const token = localStorage.getItem('user_token');
@@ -99,53 +102,40 @@ function redirectIfLoggedIn() {
 
 async function handleSignupSubmit(e, signupForm) {
     e.preventDefault();
-
-    const countrySelect = signupForm.querySelector('#country');
-    const citySelect = signupForm.querySelector('#city');
-    const passwordInput = signupForm.querySelector('#password');
-    const confirmPasswordInput = signupForm.querySelector('#confirmPassword');
-
-    if (passwordInput.value !== confirmPasswordInput.value) {
-        return alert(t('js-auth-passwords-mismatch'));
-    }
-
-    if (!countrySelect.value || !citySelect.value) {
-        return alert(t('js-auth-select-country-city'));
-    }
-
-    const countryText = countrySelect.options[countrySelect.selectedIndex].textContent;
-    const cityText = citySelect.value;
-    const locationValue = `${cityText}, ${countryText}`;
-
+    const country = signupForm.querySelector('#country').value;
+    const city = signupForm.querySelector('#city').value;
+    const locationValue = country && city ? `${city}, ${country}` : '';
     const formData = {
         fullName: signupForm.querySelector('#fullName').value,
         email: signupForm.querySelector('#email').value,
         phone: signupForm.querySelector('#phone').value,
-        password: passwordInput.value,
+        password: signupForm.querySelector('#password').value,
         accountType: signupForm.querySelector('#accountType').value,
         location: locationValue,
         bio: signupForm.querySelector('#bio').value,
     };
-
+    if (formData.password !== signupForm.querySelector('#confirmPassword').value) {
+        return alert(t('js-auth-passwords-mismatch'));
+    }
+    if (!country || !city) {
+        return alert(t('js-auth-select-country-city'));
+    }
     try {
         const data = await handleApiRequest(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         }, signupForm);
-
         const successMessage = data.messageKey ? t(data.messageKey) : data.message;
         if (successMessage) {
             alert(successMessage);
         }
         window.location.href = `verify-email.html?email=${formData.email}`;
-
     } catch (error) {
         alert(error.message);
         console.error('Signup failed:', error);
     }
 }
-
 
 async function handleLoginSubmit(e, loginForm) {
     e.preventDefault();
@@ -184,10 +174,8 @@ async function handleLoginSubmit(e, loginForm) {
         alert(t('js-auth-server-error'));
         console.error('Login network/fetch failed:', error);
     } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = originalButtonText;
-        }
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
     }
 }
 
@@ -195,20 +183,24 @@ function initCountryCityDropdowns() {
     const countrySelect = document.getElementById("country");
     const citySelect = document.getElementById("city");
     if (!countrySelect || !citySelect) return;
-
-    // ملء قائمة الدول من HTML لأنها مترجمة هناك
+    Object.keys(arabCountries).forEach(country => {
+        const option = document.createElement("option");
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
+    });
     countrySelect.addEventListener("change", function () {
-        const selectedCountry = this.value; // القيمة هنا هي "saudi", "uae", etc.
-        citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
+        // citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+        citySelect.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
 
-        if (selectedCountry && citiesData[selectedCountry]) {
-            citySelect.disabled = false;
-            citiesData[selectedCountry].forEach(city => {
-                const option = new Option(city, city);
-                citySelect.add(option);
+        const selectedCountry = this.value;
+        if (selectedCountry && arabCountries[selectedCountry]) {
+            arabCountries[selectedCountry].forEach(city => {
+                const option = document.createElement("option");
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
             });
-        } else {
-            citySelect.disabled = true;
         }
     });
 }
