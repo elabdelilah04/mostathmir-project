@@ -59,13 +59,13 @@
         var headerAvatarImage = document.getElementById('headerAvatarImage');
         var headerAvatarInitials = document.getElementById('headerAvatarInitials');
         if (headerAvatarImage && headerAvatarInitials) {
-            var hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png';
+            var hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png' && user.profilePicture.startsWith('http');
             var parts = user.fullName ? user.fullName.trim().split(' ') : [];
             var initials = parts.length > 1
                 ? (parts[0][0] + parts[1][0]).toUpperCase()
                 : (user.fullName || '').trim().substring(0, 2).toUpperCase();
 
-            headerAvatarImage.src = hasProfilePic ? user.profilePicture : ''; 
+            headerAvatarImage.src = hasProfilePic ? user.profilePicture : '';
             headerAvatarImage.style.display = hasProfilePic ? 'block' : 'none';
             headerAvatarInitials.textContent = initials;
             headerAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
@@ -79,8 +79,14 @@
             if (dropdownUserRole) {
                 dropdownUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
             }
-            var viewProfileAnchor = dropdown.querySelector('.btn-view-profile .Myprofil') || dropdown.querySelector('.btn-view-profile');
-            if (viewProfileAnchor) viewProfileAnchor.href = user.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+            var viewProfileAnchor = dropdown.querySelector('.btn-view-profile');
+            if (viewProfileAnchor) {
+                viewProfileAnchor.href = user.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+            }
+            var myProfileLink = document.getElementById('Myprofile');
+            if (myProfileLink) {
+                myProfileLink.querySelector('a').href = user.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+            }
         }
     }
 
@@ -136,112 +142,69 @@
         }
     }
 
-    // ---------- Robust refreshHeaderBadges (updated) ----------
     async function refreshHeaderBadges() {
-        var token = localStorage.getItem('user_token');
-        var baseUrl = 'https://mostathmir-api.onrender.com';
+        const token = localStorage.getItem('user_token');
+        const baseUrl = 'https://mostathmir-api.onrender.com';
 
-        var msgBadge = document.getElementById('headerMessagesBadge');
-        var notiBadge = document.getElementById('headerNotificationsBadge');
-        if (!msgBadge && !notiBadge) return;
+        const msgBadge = document.getElementById('headerMessagesBadge');
+        const notiBadge = document.getElementById('headerNotificationsBadge');
+        if (!msgBadge || !notiBadge) return;
 
-        // If not logged in: hide both badges
         if (!token) {
-            if (msgBadge) { msgBadge.style.display = 'none'; msgBadge.textContent = '0'; }
-            if (notiBadge) { notiBadge.style.display = 'none'; notiBadge.textContent = '0'; }
+            msgBadge.style.display = 'none';
+            notiBadge.style.display = 'none';
             return;
         }
 
         try {
-            // ----- MESSAGES -----
-            var unreadMessages = 0;
+            let unreadMessages = 0;
             try {
-                var resMsg = await fetch(baseUrl + '/api/messages', { headers: { 'Authorization': 'Bearer ' + token } });
+                const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (resMsg.ok) {
-                    var msgBody = await resMsg.json();
-
-                    // Case A: API returns conversations array with unreadCount property per conversation
-                    if (Array.isArray(msgBody) && msgBody.length > 0 && typeof msgBody[0].unreadCount !== 'undefined') {
-                        unreadMessages = (msgBody || []).reduce(function (sum, c) { return sum + (parseInt(c.unreadCount, 10) || 0); }, 0);
+                    const conversations = await resMsg.json();
+                    if (Array.isArray(conversations)) {
+                        unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
                     }
-                    // Case B: API returns array of message objects (each message has 'recipient' and 'read')
-                    else if (Array.isArray(msgBody) && msgBody.length > 0 && typeof msgBody[0].read !== 'undefined') {
-                        var currentUser = JSON.parse(localStorage.getItem('user_data') || 'null');
-                        var currentUserId = currentUser && currentUser._id ? currentUser._id.toString() : null;
-                        if (currentUserId) {
-                            unreadMessages = (msgBody || []).filter(function (m) {
-                                try {
-                                    return (!m.read) && (m.recipient && (m.recipient.toString ? m.recipient.toString() : m.recipient) === currentUserId);
-                                } catch (e) {
-                                    return false;
-                                }
-                            }).length;
-                        } else {
-                            // fallback: count messages with read === false
-                            unreadMessages = (msgBody || []).filter(function (m) { return !m.read; }).length;
-                        }
-                    }
-                    // Case C: empty array or unexpected structure
-                    else if (Array.isArray(msgBody) && msgBody.length === 0) {
-                        unreadMessages = 0;
-                    } else {
-                        // unexpected shape: try to handle gracefully
-                        console.warn('refreshHeaderBadges: unexpected /api/messages response shape', msgBody);
-                        unreadMessages = 0;
-                    }
-                } else {
-                    console.warn('refreshHeaderBadges: /api/messages responded with status', resMsg.status);
                 }
             } catch (e) {
-                console.warn('refreshHeaderBadges: fetching /api/messages failed', e);
+                console.warn('refreshHeaderBadges: fetching messages failed', e);
             }
 
-            // ----- NOTIFICATIONS -----
-            var unreadNotifications = 0;
+            let unreadNotifications = 0;
             try {
-                var resNoti = await fetch(baseUrl + '/api/notifications', { headers: { 'Authorization': 'Bearer ' + token } });
+                const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (resNoti.ok) {
-                    var notifications = await resNoti.json();
+                    const notifications = await resNoti.json();
                     if (Array.isArray(notifications)) {
-                        unreadNotifications = (notifications || []).filter(function (n) { return !n.read; }).length;
-                    } else {
-                        console.warn('refreshHeaderBadges: unexpected /api/notifications response shape', notifications);
+                        unreadNotifications = notifications.filter(n => !n.read).length;
                     }
-                } else {
-                    console.warn('refreshHeaderBadges: /api/notifications responded with status', resNoti.status);
                 }
             } catch (e) {
-                console.warn('refreshHeaderBadges: fetching /api/notifications failed', e);
+                console.warn('refreshHeaderBadges: fetching notifications failed', e);
             }
 
-            // Update DOM badges
-            if (msgBadge) {
-                if (unreadMessages > 0) {
-                    msgBadge.textContent = unreadMessages;
-                    msgBadge.style.display = 'block';
-                } else {
-                    msgBadge.style.display = 'none';
-                    msgBadge.textContent = '0';
-                }
+            if (unreadMessages > 0) {
+                msgBadge.textContent = unreadMessages;
+                msgBadge.style.display = 'block';
+            } else {
+                msgBadge.style.display = 'none';
             }
-            if (notiBadge) {
-                if (unreadNotifications > 0) {
-                    notiBadge.textContent = unreadNotifications;
-                    notiBadge.style.display = 'block';
-                } else {
-                    notiBadge.style.display = 'none';
-                    notiBadge.textContent = '0';
-                }
+
+            if (unreadNotifications > 0) {
+                notiBadge.textContent = unreadNotifications;
+                notiBadge.style.display = 'block';
+            } else {
+                notiBadge.style.display = 'none';
             }
 
             document.dispatchEvent(new CustomEvent('header:badges-updated', {
-                detail: { unreadMessages: unreadMessages, unreadNotifications: unreadNotifications }
+                detail: { unreadMessages, unreadNotifications }
             }));
+
         } catch (ex) {
             console.warn('refreshHeaderBadges: unexpected error', ex);
         }
     }
-    // ---------- end refreshHeaderBadges ----------
 
     function relocateLanguageForMobile() {
         var switcher = document.getElementById('languageSwitcher');
@@ -251,12 +214,7 @@
         var navList = mainNav ? (mainNav.querySelector('ul, .nav-list, nav') || mainNav) : null;
 
         var topBarContainer =
-            document.getElementById('header-icons') ||
-            document.querySelector('.header-icons') ||
-            document.querySelector('.header-actions') ||
-            document.querySelector('.topbar-actions') ||
-            document.getElementById('header-actions') ||
-            (document.getElementById('header-placeholder') ? document.getElementById('header-placeholder').parentElement : null);
+            document.querySelector('.header-content > div:last-child');
 
         var existingLi = document.getElementById('languageSwitcherNavItem');
         var mobile = window.matchMedia('(max-width: 1024px)').matches;
@@ -274,7 +232,7 @@
             }
         } else {
             if (topBarContainer && !topBarContainer.contains(switcher)) {
-                topBarContainer.appendChild(switcher);
+                topBarContainer.insertBefore(switcher, document.querySelector('.mobile-menu-toggle'));
             }
             if (existingLi && existingLi.parentElement) {
                 existingLi.parentElement.removeChild(existingLi);
@@ -295,7 +253,7 @@
         var placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
         try {
-            var res = await fetch('header.html');
+            var res = await fetch('/header.html');
             if (!res.ok) throw new Error();
             var html = await res.text();
             placeholder.innerHTML = html;
@@ -318,7 +276,7 @@
                 var vBtns = document.getElementById('auth-buttons-visitor');
                 var pCont = document.getElementById('profile-dropdown-container');
                 if (vBtns) vBtns.style.display = 'none';
-                if (pCont) pCont.style.display = 'inline-block';
+                if (pCont) pCont.style.display = 'flex';
 
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
@@ -333,23 +291,19 @@
                     var mi = document.getElementById('nav-my-investments');
                     if (mp) mp.style.display = 'list-item';
                     if (mi) mi.style.display = 'none';
-
-                    var vp1 = document.querySelector('.btn-view-profile');
-                    var vp2 = document.querySelector('.Myprofil');
-                    if (vp1) vp1.href = 'profile.html';
-                    if (vp2) vp2.href = 'profile.html';
-
                 } else if (user.accountType === 'investor') {
                     var mp2 = document.getElementById('nav-my-projects');
                     var mi2 = document.getElementById('nav-my-investments');
                     if (mp2) mp2.style.display = 'none';
                     if (mi2) mi2.style.display = 'list-item';
-
-                    var vp3 = document.querySelector('.btn-view-profile');
-                    var vp4 = document.querySelector('.Myprofil');
-                    if (vp3) vp3.href = 'investor-profile.html';
-                    if (vp4) vp4.href = 'investor-profile.html';
                 }
+
+                const myProfileLink = document.getElementById('Myprofile');
+                if (myProfileLink) {
+                    myProfileLink.style.display = 'list-item';
+                    myProfileLink.querySelector('a').href = user.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+                }
+
 
                 var logoutButton = document.querySelector('.dropdown-link.sign-out');
                 if (logoutButton) {
@@ -371,19 +325,14 @@
                 var b = document.getElementById('nav-browse-projects');
                 var mp3 = document.getElementById('nav-my-projects');
                 var mi3 = document.getElementById('nav-my-investments');
+                var myp = document.getElementById('Myprofile');
                 if (b) b.style.display = 'none';
                 if (mp3) mp3.style.display = 'none';
                 if (mi3) mi3.style.display = 'none';
+                if (myp) myp.style.display = 'none';
 
-                var msgBtn = document.getElementById('headerMessagesBtn');
-                var notiBtn = document.getElementById('headerNotificationsBtn');
-                if (msgBtn) msgBtn.style.display = 'none';
-                if (notiBtn) notiBtn.style.display = 'none';
-                const myProfileLink = document.getElementById('Myprofile');
-                if (myProfileLink) myProfileLink.style.display = 'none';
-
-                var langSwitcher = document.getElementById('languageSwitcher');
-                if (langSwitcher) langSwitcher.style.display = 'flex';
+                var icons = document.getElementById('header-icons');
+                if (icons) icons.style.display = 'none';
             }
 
             var currentLang = localStorage.getItem('preferred_language') || 'ar';
@@ -399,13 +348,13 @@
     window.initHeader = async function () { await loadAndSetupHeader(); };
     window.loadAndSetupHeader = window.initHeader;
 
-    window.populateHeader = populateHeader;
-    window.ProfileDropdown = ProfileDropdown;
-    window.initMobileMenu = initMobileMenu;
-
     window.addEventListener('storage', function (e) {
         if (e.key === 'user_token' || e.key === 'user_data') {
             refreshHeaderBadges();
         }
     });
+
+    // Initialize header on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', window.initHeader);
+
 })();
