@@ -70,8 +70,8 @@ async function initSettingsPage(user) {
         });
     }
     window.updateCities = () => {
-        const countrySelect = document.getElementById("projectCountry");
-        const citySelect = document.getElementById("projectCity");
+        const countrySelect = document.getElementById("country");
+        const citySelect = document.getElementById("city");
         const selectedCountry = countrySelect.value;
         citySelect.innerHTML = `<option value="">${t('js-addproject-select-city')}</option>`;
         if (selectedCountry && citiesData[selectedCountry]) {
