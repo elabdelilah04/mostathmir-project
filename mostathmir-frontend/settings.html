@@ -70,7 +70,9 @@
                             <div class="mb-4">
                                 <label for="country" class="block text-gray-700"
                                     data-i18n-key="settings-country-label">الدولة</label>
-                                <select id="country" name="country" required>
+                                <select id="country" name="country" class="form-select w-full border p-2 rounded"
+                                    required onchange="updateCities()">
+                                    <option value="" data-i18n-key="settings-country-select">اختر الدولة</option>
                                     <option value="" data-i18n-key="addproject-country-select">اختر الدولة</option>
                                     <option value="saudi" data-i18n-key="addproject-country-saudi">السعودية</option>
                                     <option value="uae" data-i18n-key="addproject-country-uae">الإمارات</option>
