@@ -69,6 +69,22 @@ async function initSettingsPage(user) {
             }
         });
     }
+    window.updateCities = () => {
+        const countrySelect = document.getElementById("projectCountry");
+        const citySelect = document.getElementById("projectCity");
+        const selectedCountry = countrySelect.value;
+        citySelect.innerHTML = `<option value="">${t('js-addproject-select-city')}</option>`;
+        if (selectedCountry && citiesData[selectedCountry]) {
+            citySelect.disabled = false;
+            citiesData[selectedCountry].forEach(city => {
+                const option = new Option(city, city);
+                citySelect.add(option);
+            });
+        } else {
+            citySelect.disabled = true;
+        }
+        updatePreview();
+    };
 
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
