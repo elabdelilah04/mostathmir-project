@@ -208,6 +208,7 @@ function initCountryCityDropdowns(currentLocation) {
         const parts = currentLocation.split(', ');
         initialCityText = parts[0];
         const savedCountryText = parts[1];
+
         initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
     }
 
@@ -227,16 +228,20 @@ function initCountryCityDropdowns(currentLocation) {
 
         if (countryKey && countriesData[countryKey]) {
             citySelect.disabled = false;
+            // --- بداية التعديل ---
             countriesData[countryKey].cities.forEach(cityKey => {
                 const option = document.createElement("option");
-                const cityText = t(`js-city-${cityKey}`);
-                option.value = cityText;
-                option.textContent = cityText;
+                const cityText = t(cityKey); // الحصول على النص المترجم للمدينة
+
+                option.value = cityText; // القيمة التي سيتم حفظها هي النص المترجم
+                option.textContent = cityText; // النص المعروض هو نفسه
+
                 if (cityText === selectedCityText) {
                     option.selected = true;
                 }
                 citySelect.appendChild(option);
             });
+            // --- نهاية التعديل ---
         }
     };
 

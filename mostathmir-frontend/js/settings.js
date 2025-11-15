@@ -33,24 +33,24 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-const countriesData = {
-    "ma": { nameKey: "js-country-morocco", cities: ["js-city-rabat", "js-city-casablanca", "js-city-marrakech", "js-city-fes", "js-city-tanger", "js-city-agadir"] },
-    "dz": { nameKey: "js-country-algeria", cities: ["js-city-algiers", "js-city-oran", "js-city-constantine", "js-city-annaba"] },
-    "tn": { nameKey: "js-country-tunisia", cities: ["js-city-tunis", "js-city-sfax", "js-city-sousse", "js-city-bizerte"] },
-    "eg": { nameKey: "js-country-egypt", cities: ["js-city-cairo", "js-city-alexandria", "js-city-giza", "js-city-portsaid", "js-city-mansoura"] },
-    "sa": { nameKey: "js-country-saudi", cities: ["js-city-riyadh", "js-city-jeddah", "js-city-mecca", "js-city-medina", "js-city-dammam"] },
-    "ae": { nameKey: "js-country-uae", cities: ["js-city-dubai", "js-city-abudhabi", "js-city-sharjah", "js-city-alain"] },
-    "qa": { nameKey: "js-country-qatar", cities: ["js-city-doha", "js-city-alrayyan", "js-city-alwakrah"] },
-    "kw": { nameKey: "js-country-kuwait", cities: ["js-city-kuwait_city", "js-city-alfarwaniyah", "js-city-hawalli", "js-city-alahmadi"] },
-    "bh": { nameKey: "js-country-bahrain", cities: ["js-city-manama", "js-city-muharraq", "js-city-sitra"] },
-    "om": { nameKey: "js-country-oman", cities: ["js-city-muscat", "js-city-salalah", "js-city-sohar"] },
-    "jo": { nameKey: "js-country-jordan", cities: ["js-city-amman", "js-city-irbid", "js-city-zarqa"] },
-    "lb": { nameKey: "js-country-lebanon", cities: ["js-city-beirut", "js-city-tripoli", "js-city-sidon"] },
-    "iq": { nameKey: "js-country-iraq", cities: ["js-city-baghdad", "js-city-basra", "js-city-mosul", "js-city-erbil"] },
-    "ps": { nameKey: "js-country-palestine", cities: ["js-city-jerusalem", "js-city-ramallah", "js-city-gaza", "js-city-nablus", "js-city-hebron"] },
-    "ye": { nameKey: "js-country-yemen", cities: ["js-city-sanaa", "js-city-aden", "js-city-taiz", "js-city-alhodeidah", "js-city-ibb"] },
-    "sd": { nameKey: "js-country-sudan", cities: ["js-city-khartoum", "js-city-omdurman", "js-city-portsudan"] }
-};
+    const countriesData = {
+        "ma": { nameKey: "js-country-morocco", cities: ["js-city-rabat", "js-city-casablanca", "js-city-marrakech", "js-city-fes", "js-city-tanger", "js-city-agadir"] },
+        "dz": { nameKey: "js-country-algeria", cities: ["js-city-algiers", "js-city-oran", "js-city-constantine", "js-city-annaba"] },
+        "tn": { nameKey: "js-country-tunisia", cities: ["js-city-tunis", "js-city-sfax", "js-city-sousse", "js-city-bizerte"] },
+        "eg": { nameKey: "js-country-egypt", cities: ["js-city-cairo", "js-city-alexandria", "js-city-giza", "js-city-portsaid", "js-city-mansoura"] },
+        "sa": { nameKey: "js-country-saudi", cities: ["js-city-riyadh", "js-city-jeddah", "js-city-mecca", "js-city-medina", "js-city-dammam"] },
+        "ae": { nameKey: "js-country-uae", cities: ["js-city-dubai", "js-city-abudhabi", "js-city-sharjah", "js-city-alain"] },
+        "qa": { nameKey: "js-country-qatar", cities: ["js-city-doha", "js-city-alrayyan", "js-city-alwakrah"] },
+        "kw": { nameKey: "js-country-kuwait", cities: ["js-city-kuwait_city", "js-city-alfarwaniyah", "js-city-hawalli", "js-city-alahmadi"] },
+        "bh": { nameKey: "js-country-bahrain", cities: ["js-city-manama", "js-city-muharraq", "js-city-sitra"] },
+        "om": { nameKey: "js-country-oman", cities: ["js-city-muscat", "js-city-salalah", "js-city-sohar"] },
+        "jo": { nameKey: "js-country-jordan", cities: ["js-city-amman", "js-city-irbid", "js-city-zarqa"] },
+        "lb": { nameKey: "js-country-lebanon", cities: ["js-city-beirut", "js-city-tripoli", "js-city-sidon"] },
+        "iq": { nameKey: "js-country-iraq", cities: ["js-city-baghdad", "js-city-basra", "js-city-mosul", "js-city-erbil"] },
+        "ps": { nameKey: "js-country-palestine", cities: ["js-city-jerusalem", "js-city-ramallah", "js-city-gaza", "js-city-nablus", "js-city-hebron"] },
+        "ye": { nameKey: "js-country-yemen", cities: ["js-city-sanaa", "js-city-aden", "js-city-taiz", "js-city-alhodeidah", "js-city-ibb"] },
+        "sd": { nameKey: "js-country-sudan", cities: ["js-city-khartoum", "js-city-omdurman", "js-city-portsudan"] }
+    };
 
     function initCountryCityDropdowns(currentLocation) {
         const countrySelect = document.getElementById("country");
@@ -67,6 +67,7 @@ const countriesData = {
             const parts = currentLocation.split(', ');
             initialCityText = parts[0];
             const savedCountryText = parts[1];
+
             initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
         }
 
@@ -86,16 +87,20 @@ const countriesData = {
 
             if (countryKey && countriesData[countryKey]) {
                 citySelect.disabled = false;
+                // --- بداية التعديل ---
                 countriesData[countryKey].cities.forEach(cityKey => {
                     const option = document.createElement("option");
-                    const cityText = t(`js-city-${cityKey}`);
-                    option.value = cityText;
-                    option.textContent = cityText;
+                    const cityText = t(cityKey); // الحصول على النص المترجم للمدينة
+
+                    option.value = cityText; // القيمة التي سيتم حفظها هي النص المترجم
+                    option.textContent = cityText; // النص المعروض هو نفسه
+
                     if (cityText === selectedCityText) {
                         option.selected = true;
                     }
                     citySelect.appendChild(option);
                 });
+                // --- نهاية التعديل ---
             }
         };
 
@@ -107,7 +112,7 @@ const countriesData = {
             populateCities(this.value, null);
         });
     }
-    
+
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
         settingsForm.querySelector('#phone'),
