@@ -115,8 +115,11 @@ async function handleSignupSubmit(e, signupForm) {
         return alert(t('js-auth-select-country-city'));
     }
     
+    // نستخدم الآن القيمة كـ key ثم نكوّن النص المعروض باستخدام الترجمة الحالية
+    const countryCode = countrySelect.value; // مثال: 'ma'
+    const cityKey = citySelect.value;        // مثال: 'rabat'
     const countryText = countrySelect.options[countrySelect.selectedIndex].textContent;
-    const cityText = citySelect.value;
+    const cityText = t(`js-city-${cityKey}`);
     const locationValue = `${cityText}, ${countryText}`;
     
     const formData = {
@@ -126,6 +129,8 @@ async function handleSignupSubmit(e, signupForm) {
         password: passwordInput.value,
         accountType: signupForm.querySelector('#accountType').value,
         location: locationValue,
+        // إذا أردت تخزين codes على backend أضف countryCode و cityKey هنا أيضاً
+        // countryCode, cityKey,
         bio: signupForm.querySelector('#bio').value,
     };
 
@@ -202,13 +207,16 @@ function initCountryCityDropdowns(currentLocation) {
     citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
 
     let initialCountryKey = '';
-    let initialCityText = '';
+    let initialCityKey = '';
 
     if (currentLocation && currentLocation.includes(', ')) {
         const parts = currentLocation.split(', ');
-        initialCityText = parts[0];
+        const savedCityText = parts[0];
         const savedCountryText = parts[1];
-        initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
+        initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText) || '';
+        if (initialCountryKey) {
+            initialCityKey = countriesData[initialCountryKey].cities.find(cityKey => t(`js-city-${cityKey}`) === savedCityText) || '';
+        }
     }
 
     Object.keys(countriesData).forEach(countryKey => {
@@ -221,7 +229,7 @@ function initCountryCityDropdowns(currentLocation) {
         countrySelect.appendChild(option);
     });
 
-    const populateCities = (countryKey, selectedCityText) => {
+    const populateCities = (countryKey, selectedCityKey) => {
         citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
         citySelect.disabled = true;
 
@@ -230,9 +238,9 @@ function initCountryCityDropdowns(currentLocation) {
             countriesData[countryKey].cities.forEach(cityKey => {
                 const option = document.createElement("option");
                 const cityText = t(`js-city-${cityKey}`);
-                option.value = cityText;
+                option.value = cityKey;     // <-- FIXED: قيمة الخيار هي مفتاح المدينة (مثال: 'rabat')
                 option.textContent = cityText;
-                if (cityText === selectedCityText) {
+                if (cityKey === selectedCityKey) {
                     option.selected = true;
                 }
                 citySelect.appendChild(option);
@@ -241,7 +249,7 @@ function initCountryCityDropdowns(currentLocation) {
     };
 
     if (initialCountryKey) {
-        populateCities(initialCountryKey, initialCityText);
+        populateCities(initialCountryKey, initialCityKey);
     }
 
     countrySelect.addEventListener("change", function () {

@@ -61,26 +61,33 @@ async function initSettingsPage(user) {
         citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
 
         let initialCountryKey = '';
-        let initialCityText = '';
+        let initialCityKey = '';
 
         if (currentLocation && currentLocation.includes(', ')) {
             const parts = currentLocation.split(', ');
-            initialCityText = parts[0];
+            const savedCityText = parts[0];
             const savedCountryText = parts[1];
-            initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
+
+            initialCountryKey = Object.keys(countriesData).find(
+                key => t(countriesData[key].nameKey) === savedCountryText
+            ) || '';
+
+            if (initialCountryKey) {
+                initialCityKey = countriesData[initialCountryKey].cities.find(
+                    key => t(`js-city-${key}`) === savedCityText
+                ) || '';
+            }
         }
 
         Object.keys(countriesData).forEach(countryKey => {
             const option = document.createElement("option");
             option.value = countryKey;
             option.textContent = t(countriesData[countryKey].nameKey);
-            if (countryKey === initialCountryKey) {
-                option.selected = true;
-            }
+            if (countryKey === initialCountryKey) option.selected = true;
             countrySelect.appendChild(option);
         });
 
-        const populateCities = (countryKey, selectedCityText) => {
+        const populateCities = (countryKey, selectedCityKey) => {
             citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
             citySelect.disabled = true;
 
@@ -88,26 +95,23 @@ async function initSettingsPage(user) {
                 citySelect.disabled = false;
                 countriesData[countryKey].cities.forEach(cityKey => {
                     const option = document.createElement("option");
-                    const cityText = t(`js-city-${cityKey}`);
-                    option.value = cityText;
-                    option.textContent = cityText;
-                    if (cityText === selectedCityText) {
-                        option.selected = true;
-                    }
+                    option.value = cityKey;
+                    option.textContent = t(`js-city-${cityKey}`);
+                    if (cityKey === selectedCityKey) option.selected = true;
                     citySelect.appendChild(option);
                 });
             }
         };
 
         if (initialCountryKey) {
-            populateCities(initialCountryKey, initialCityText);
+            populateCities(initialCountryKey, initialCityKey);
         }
 
         countrySelect.addEventListener("change", function () {
             populateCities(this.value, null);
         });
     }
-    
+
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
         settingsForm.querySelector('#phone'),
@@ -283,6 +287,7 @@ async function initSettingsPage(user) {
     if (settingsForm && saveButton) {
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             const countrySelect = document.getElementById('country');
             const citySelect = document.getElementById('city');
 
@@ -290,9 +295,11 @@ async function initSettingsPage(user) {
                 return alert(t('js-settings-alert-select-country-city'));
             }
 
-            const selectedCountryOption = countrySelect.options[countrySelect.selectedIndex];
-            const countryText = selectedCountryOption.textContent;
-            const cityText = citySelect.value;
+            const countryKey = countrySelect.value;
+            const cityKey = citySelect.value;
+            const countryText = countrySelect.options[countrySelect.selectedIndex].textContent;
+            const cityText = t(`js-city-${cityKey}`);
+
             const newLocation = `${cityText}, ${countryText}`;
 
             const updatedSkills = Array.from(document.querySelectorAll('#skillsFormContainer .skill-row')).map(row => ({
@@ -329,6 +336,7 @@ async function initSettingsPage(user) {
                     details: row.querySelector('.edu-details').value,
                 }))
             };
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
                     method: 'PUT',
