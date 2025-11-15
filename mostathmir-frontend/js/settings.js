@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const user = await response.json();
         initSettingsPage(user);
 
-        // Force re-translation after dynamic content is added
         if (window.translatePage) {
             window.translatePage();
         }
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert(t('js-settings-error-loading-settings'));
     }
 });
-
 
 async function initSettingsPage(user) {
     const settingsForm = document.getElementById('settingsForm');
@@ -59,7 +57,6 @@ async function initSettingsPage(user) {
         const citySelect = document.getElementById("city");
         if (!countrySelect || !citySelect) return;
 
-        // مسح أي خيارات قديمة
         countrySelect.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
         citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
 
@@ -70,24 +67,19 @@ async function initSettingsPage(user) {
             const parts = currentLocation.split(', ');
             initialCityText = parts[0];
             const savedCountryText = parts[1];
-
-            // البحث عن مفتاح الدولة بناءً على النص المحفوظ
             initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
         }
 
-        // ملء قائمة الدول
         Object.keys(countriesData).forEach(countryKey => {
             const option = document.createElement("option");
-            option.value = countryKey; // القيمة هي المفتاح (مثال: 'ma')
-            option.textContent = t(countriesData[countryKey].nameKey); // النص هو الترجمة (مثال: 'المغرب')
-
+            option.value = countryKey;
+            option.textContent = t(countriesData[countryKey].nameKey);
             if (countryKey === initialCountryKey) {
                 option.selected = true;
             }
             countrySelect.appendChild(option);
         });
 
-        // دالة لملء قائمة المدن بناءً على مفتاح الدولة
         const populateCities = (countryKey, selectedCityText) => {
             citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
             citySelect.disabled = true;
@@ -96,11 +88,9 @@ async function initSettingsPage(user) {
                 citySelect.disabled = false;
                 countriesData[countryKey].cities.forEach(cityKey => {
                     const option = document.createElement("option");
-                    const cityText = t(`js-city-${cityKey}`); // الحصول على النص المترجم للمدينة
-
-                    option.value = cityText; // القيمة التي سيتم حفظها هي النص المترجم
-                    option.textContent = cityText; // النص المعروض هو نفسه
-
+                    const cityText = t(`js-city-${cityKey}`);
+                    option.value = cityText;
+                    option.textContent = cityText;
                     if (cityText === selectedCityText) {
                         option.selected = true;
                     }
@@ -109,19 +99,15 @@ async function initSettingsPage(user) {
             }
         };
 
-        // ملء المدن في البداية إذا كانت هناك دولة محددة مسبقاً
         if (initialCountryKey) {
             populateCities(initialCountryKey, initialCityText);
         }
 
-        // إضافة مستمع الأحداث لتحديث المدن عند تغيير الدولة
         countrySelect.addEventListener("change", function () {
             populateCities(this.value, null);
         });
-
-        // لا تقم بتعطيل الحقول هنا، دع دالة toggleEditMode تتحكم في ذلك
     }
-
+    
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
         settingsForm.querySelector('#phone'),
@@ -300,18 +286,13 @@ async function initSettingsPage(user) {
             const countrySelect = document.getElementById('country');
             const citySelect = document.getElementById('city');
 
-            // التحقق من أن المستخدم اختار قيمة
             if (!countrySelect.value || !citySelect.value) {
                 return alert(t('js-settings-alert-select-country-city'));
             }
 
-            // --- بداية التعديل ---
-            // الحصول على النص المعروض من الخيار المحدد في قائمة الدول
             const selectedCountryOption = countrySelect.options[countrySelect.selectedIndex];
             const countryText = selectedCountryOption.textContent;
-            // الحصول على قيمة المدينة (وهي النص المترجم بالفعل)
             const cityText = citySelect.value;
-            // بناء السلسلة النصية الصحيحة للحفظ
             const newLocation = `${cityText}, ${countryText}`;
 
             const updatedSkills = Array.from(document.querySelectorAll('#skillsFormContainer .skill-row')).map(row => ({
@@ -349,7 +330,7 @@ async function initSettingsPage(user) {
                 }))
             };
             try {
-                const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(updatedData)

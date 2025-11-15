@@ -29,13 +29,13 @@ async function handleApiRequest(url, options, form) {
         const data = await response.json();
         if (!response.ok) {
             const errorMessage = data.messageKey ? t(data.messageKey) : data.message;
-            const error = new Error(errorMessage || data.message || 'حدث خطأ غير متوقع');
+            const error = new Error(errorMessage || data.message || 'An unexpected error occurred');
             error.data = data;
             throw error;
         }
-        return data; // فقط قم بإرجاع البيانات
+        return data;
     } catch (error) {
-        throw error; // ارمِ الخطأ ليتم التعامل معه في الدالة المستدعية
+        throw error;
     } finally {
         if (submitButton) {
             submitButton.disabled = false;
@@ -85,7 +85,6 @@ function logoutUser() {
 }
 
 function redirectIfLoggedIn() {
-
     const pageKey = document.body.dataset.pageKey;
     if (pageKey === 'page-title-login' || pageKey === 'page-title-signup') {
         const token = localStorage.getItem('user_token');
@@ -102,40 +101,53 @@ function redirectIfLoggedIn() {
 
 async function handleSignupSubmit(e, signupForm) {
     e.preventDefault();
-    const country = signupForm.querySelector('#country').value;
-    const city = signupForm.querySelector('#city').value;
-    const locationValue = country && city ? `${city}, ${country}` : '';
+
+    const countrySelect = signupForm.querySelector('#country');
+    const citySelect = signupForm.querySelector('#city');
+    const passwordInput = signupForm.querySelector('#password');
+    const confirmPasswordInput = signupForm.querySelector('#confirmPassword');
+
+    if (passwordInput.value !== confirmPasswordInput.value) {
+        return alert(t('js-auth-passwords-mismatch'));
+    }
+
+    if (!countrySelect.value || !citySelect.value) {
+        return alert(t('js-auth-select-country-city'));
+    }
+    
+    const countryText = countrySelect.options[countrySelect.selectedIndex].textContent;
+    const cityText = citySelect.value;
+    const locationValue = `${cityText}, ${countryText}`;
+    
     const formData = {
         fullName: signupForm.querySelector('#fullName').value,
         email: signupForm.querySelector('#email').value,
         phone: signupForm.querySelector('#phone').value,
-        password: signupForm.querySelector('#password').value,
+        password: passwordInput.value,
         accountType: signupForm.querySelector('#accountType').value,
         location: locationValue,
         bio: signupForm.querySelector('#bio').value,
     };
-    if (formData.password !== signupForm.querySelector('#confirmPassword').value) {
-        return alert(t('js-auth-passwords-mismatch'));
-    }
-    if (!country || !city) {
-        return alert(t('js-auth-select-country-city'));
-    }
+
     try {
         const data = await handleApiRequest(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         }, signupForm);
+
         const successMessage = data.messageKey ? t(data.messageKey) : data.message;
         if (successMessage) {
             alert(successMessage);
         }
         window.location.href = `verify-email.html?email=${formData.email}`;
+
     } catch (error) {
         alert(error.message);
         console.error('Signup failed:', error);
     }
 }
+
 
 async function handleLoginSubmit(e, loginForm) {
     e.preventDefault();
@@ -174,8 +186,10 @@ async function handleLoginSubmit(e, loginForm) {
         alert(t('js-auth-server-error'));
         console.error('Login network/fetch failed:', error);
     } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = originalButtonText;
+        if(submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     }
 }
 
@@ -184,7 +198,6 @@ function initCountryCityDropdowns(currentLocation) {
     const citySelect = document.getElementById("city");
     if (!countrySelect || !citySelect) return;
 
-    // مسح أي خيارات قديمة
     countrySelect.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
     citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
 
@@ -195,24 +208,19 @@ function initCountryCityDropdowns(currentLocation) {
         const parts = currentLocation.split(', ');
         initialCityText = parts[0];
         const savedCountryText = parts[1];
-
-        // البحث عن مفتاح الدولة بناءً على النص المحفوظ
         initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
     }
 
-    // ملء قائمة الدول
     Object.keys(countriesData).forEach(countryKey => {
         const option = document.createElement("option");
-        option.value = countryKey; // القيمة هي المفتاح (مثال: 'ma')
-        option.textContent = t(countriesData[countryKey].nameKey); // النص هو الترجمة (مثال: 'المغرب')
-
+        option.value = countryKey;
+        option.textContent = t(countriesData[countryKey].nameKey);
         if (countryKey === initialCountryKey) {
             option.selected = true;
         }
         countrySelect.appendChild(option);
     });
 
-    // دالة لملء قائمة المدن بناءً على مفتاح الدولة
     const populateCities = (countryKey, selectedCityText) => {
         citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
         citySelect.disabled = true;
@@ -221,11 +229,9 @@ function initCountryCityDropdowns(currentLocation) {
             citySelect.disabled = false;
             countriesData[countryKey].cities.forEach(cityKey => {
                 const option = document.createElement("option");
-                const cityText = t(`js-city-${cityKey}`); // الحصول على النص المترجم للمدينة
-
-                option.value = cityText; // القيمة التي سيتم حفظها هي النص المترجم
-                option.textContent = cityText; // النص المعروض هو نفسه
-
+                const cityText = t(`js-city-${cityKey}`);
+                option.value = cityText;
+                option.textContent = cityText;
                 if (cityText === selectedCityText) {
                     option.selected = true;
                 }
@@ -234,17 +240,13 @@ function initCountryCityDropdowns(currentLocation) {
         }
     };
 
-    // ملء المدن في البداية إذا كانت هناك دولة محددة مسبقاً
     if (initialCountryKey) {
         populateCities(initialCountryKey, initialCityText);
     }
 
-    // إضافة مستمع الأحداث لتحديث المدن عند تغيير الدولة
     countrySelect.addEventListener("change", function () {
         populateCities(this.value, null);
     });
-
-    // لا تقم بتعطيل الحقول هنا، دع دالة toggleEditMode تتحكم في ذلك
 }
 
 document.addEventListener('DOMContentLoaded', () => {
