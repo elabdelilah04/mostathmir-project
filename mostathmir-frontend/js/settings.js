@@ -35,67 +35,91 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-    const arabCountries = {
-        [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
-        [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
-        [t('js-country-tunisia')]: [t('js-city-tunis'), t('js-city-sfax'), t('js-city-sousse'), t('js-city-bizerte')],
-        [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria'), t('js-city-giza'), t('js-city-portsaid'), t('js-city-mansoura')],
-        [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-mecca'), t('js-city-medina'), t('js-city-dammam')],
-        [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah'), t('js-city-alain')],
-        [t('js-country-qatar')]: [t('js-city-doha'), t('js-city-alrayyan'), t('js-city-alwakrah')],
-        [t('js-country-kuwait')]: [t('js-city-kuwait_city'), t('js-city-alfarwaniyah'), t('js-city-hawalli'), t('js-city-alahmadi')],
-        [t('js-country-bahrain')]: [t('js-city-manama'), t('js-city-muharraq'), t('js-city-sitra')],
-        [t('js-country-oman')]: [t('js-city-muscat'), t('js-city-salalah'), t('js-city-sohar')],
-        [t('js-country-jordan')]: [t('js-city-amman'), t('js-city-irbid'), t('js-city-zarqa')],
-        [t('js-country-lebanon')]: [t('js-city-beirut'), t('js-city-tripoli'), t('js-city-sidon')],
-        [t('js-country-iraq')]: [t('js-city-baghdad'), t('js-city-basra'), t('js-city-mosul'), t('js-city-erbil')],
-        [t('js-country-palestine')]: [t('js-city-jerusalem'), t('js-city-ramallah'), t('js-city-gaza'), t('js-city-nablus'), t('js-city-hebron')],
-        [t('js-country-yemen')]: [t('js-city-sanaa'), t('js-city-aden'), t('js-city-taiz'), t('js-city-alhodeidah'), t('js-city-ibb')],
-        [t('js-country-sudan')]: [t('js-city-khartoum'), t('js-city-omdurman'), t('js-city-portsudan')]
+    const countriesData = {
+        "ma": { nameKey: "js-country-morocco", cities: ["rabat", "casablanca", "marrakech", "fes", "tanger", "agadir"] },
+        "dz": { nameKey: "js-country-algeria", cities: ["algiers", "oran", "constantine", "annaba"] },
+        "tn": { nameKey: "js-country-tunisia", cities: ["tunis", "sfax", "sousse", "bizerte"] },
+        "eg": { nameKey: "js-country-egypt", cities: ["cairo", "alexandria", "giza", "portsaid", "mansoura"] },
+        "sa": { nameKey: "js-country-saudi", cities: ["riyadh", "jeddah", "mecca", "medina", "dammam"] },
+        "ae": { nameKey: "js-country-uae", cities: ["dubai", "abudhabi", "sharjah", "alain"] },
+        "qa": { nameKey: "js-country-qatar", cities: ["doha", "alrayyan", "alwakrah"] },
+        "kw": { nameKey: "js-country-kuwait", cities: ["kuwait_city", "alfarwaniyah", "hawalli", "alahmadi"] },
+        "bh": { nameKey: "js-country-bahrain", cities: ["manama", "muharraq", "sitra"] },
+        "om": { nameKey: "js-country-oman", cities: ["muscat", "salalah", "sohar"] },
+        "jo": { nameKey: "js-country-jordan", cities: ["amman", "irbid", "zarqa"] },
+        "lb": { nameKey: "js-country-lebanon", cities: ["beirut", "tripoli", "sidon"] },
+        "iq": { nameKey: "js-country-iraq", cities: ["baghdad", "basra", "mosul", "erbil"] },
+        "ps": { nameKey: "js-country-palestine", cities: ["jerusalem", "ramallah", "gaza", "nablus", "hebron"] },
+        "ye": { nameKey: "js-country-yemen", cities: ["sanaa", "aden", "taiz", "alhodeidah", "ibb"] },
+        "sd": { nameKey: "js-country-sudan", cities: ["khartoum", "omdurman", "portsudan"] }
     };
 
     function initCountryCityDropdowns(currentLocation) {
         const countrySelect = document.getElementById("country");
         const citySelect = document.getElementById("city");
         if (!countrySelect || !citySelect) return;
-        let initialCountry = '';
-        let initialCity = '';
+
+        // مسح أي خيارات قديمة
+        countrySelect.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
+        citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
+
+        let initialCountryKey = '';
+        let initialCityText = '';
+
         if (currentLocation && currentLocation.includes(', ')) {
             const parts = currentLocation.split(', ');
-            initialCity = parts[0];
-            initialCountry = parts[1];
-        } else {
-            initialCountry = currentLocation;
+            initialCityText = parts[0];
+            const savedCountryText = parts[1];
+
+            // البحث عن مفتاح الدولة بناءً على النص المحفوظ
+            initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
         }
-        Object.keys(arabCountries).forEach(country => {
+
+        // ملء قائمة الدول
+        Object.keys(countriesData).forEach(countryKey => {
             const option = document.createElement("option");
-            option.value = country;
-            option.textContent = country;
-            if (country === initialCountry) {
+            option.value = countryKey; // القيمة هي المفتاح (مثال: 'ma')
+            option.textContent = t(countriesData[countryKey].nameKey); // النص هو الترجمة (مثال: 'المغرب')
+
+            if (countryKey === initialCountryKey) {
                 option.selected = true;
             }
             countrySelect.appendChild(option);
         });
-        const populateCities = (selectedCountry, selectedCity) => {
-            citySelect.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
-            if (selectedCountry && arabCountries[selectedCountry]) {
-                arabCountries[selectedCountry].forEach(city => {
+
+        // دالة لملء قائمة المدن بناءً على مفتاح الدولة
+        const populateCities = (countryKey, selectedCityText) => {
+            citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
+            citySelect.disabled = true;
+
+            if (countryKey && countriesData[countryKey]) {
+                citySelect.disabled = false;
+                countriesData[countryKey].cities.forEach(cityKey => {
                     const option = document.createElement("option");
-                    option.value = city;
-                    option.textContent = city;
-                    if (city === selectedCity) {
+                    const cityText = t(`js-city-${cityKey}`); // الحصول على النص المترجم للمدينة
+
+                    option.value = cityText; // القيمة التي سيتم حفظها هي النص المترجم
+                    option.textContent = cityText; // النص المعروض هو نفسه
+
+                    if (cityText === selectedCityText) {
                         option.selected = true;
                     }
                     citySelect.appendChild(option);
                 });
             }
         };
-        populateCities(initialCountry, initialCity);
+
+        // ملء المدن في البداية إذا كانت هناك دولة محددة مسبقاً
+        if (initialCountryKey) {
+            populateCities(initialCountryKey, initialCityText);
+        }
+
+        // إضافة مستمع الأحداث لتحديث المدن عند تغيير الدولة
         countrySelect.addEventListener("change", function () {
             populateCities(this.value, null);
         });
-        countrySelect.disabled = true;
-        citySelect.disabled = true;
+
+        // لا تقم بتعطيل الحقول هنا، دع دالة toggleEditMode تتحكم في ذلك
     }
 
     const inputsToToggle = [
@@ -273,12 +297,22 @@ async function initSettingsPage(user) {
     if (settingsForm && saveButton) {
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newCountry = settingsForm.querySelector('#country').value;
-            const newCity = settingsForm.querySelector('#city').value;
-            const newLocation = newCountry && newCity ? `${newCity}, ${newCountry}` : '';
-            if (!newCountry || !newCity) {
+            const countrySelect = document.getElementById('country');
+            const citySelect = document.getElementById('city');
+
+            // التحقق من أن المستخدم اختار قيمة
+            if (!countrySelect.value || !citySelect.value) {
                 return alert(t('js-settings-alert-select-country-city'));
             }
+
+            // --- بداية التعديل ---
+            // الحصول على النص المعروض من الخيار المحدد في قائمة الدول
+            const selectedCountryOption = countrySelect.options[countrySelect.selectedIndex];
+            const countryText = selectedCountryOption.textContent;
+            // الحصول على قيمة المدينة (وهي النص المترجم بالفعل)
+            const cityText = citySelect.value;
+            // بناء السلسلة النصية الصحيحة للحفظ
+            const newLocation = `${cityText}, ${countryText}`;
 
             const updatedSkills = Array.from(document.querySelectorAll('#skillsFormContainer .skill-row')).map(row => ({
                 name: row.querySelector('.skill-name').value.trim(),
