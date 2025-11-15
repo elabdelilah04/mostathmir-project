@@ -136,6 +136,7 @@
         }
     }
 
+    // ---------- Robust refreshHeaderBadges (updated) ----------
     async function refreshHeaderBadges() {
         var token = localStorage.getItem('user_token');
         var baseUrl = 'https://mostathmir-api.onrender.com';
@@ -144,6 +145,7 @@
         var notiBadge = document.getElementById('headerNotificationsBadge');
         if (!msgBadge && !notiBadge) return;
 
+        // If not logged in: hide both badges
         if (!token) {
             if (msgBadge) { msgBadge.style.display = 'none'; msgBadge.textContent = '0'; }
             if (notiBadge) { notiBadge.style.display = 'none'; notiBadge.textContent = '0'; }
@@ -151,30 +153,75 @@
         }
 
         try {
+            // ----- MESSAGES -----
             var unreadMessages = 0;
             try {
                 var resMsg = await fetch(baseUrl + '/api/messages', { headers: { 'Authorization': 'Bearer ' + token } });
                 if (resMsg.ok) {
-                    var conversations = await resMsg.json();
-                    unreadMessages = (conversations || []).reduce(function (sum, c) { return sum + (c.unreadCount || 0); }, 0);
-                }
-            } catch (_) { }
+                    var msgBody = await resMsg.json();
 
+                    // Case A: API returns conversations array with unreadCount property per conversation
+                    if (Array.isArray(msgBody) && msgBody.length > 0 && typeof msgBody[0].unreadCount !== 'undefined') {
+                        unreadMessages = (msgBody || []).reduce(function (sum, c) { return sum + (parseInt(c.unreadCount, 10) || 0); }, 0);
+                    }
+                    // Case B: API returns array of message objects (each message has 'recipient' and 'read')
+                    else if (Array.isArray(msgBody) && msgBody.length > 0 && typeof msgBody[0].read !== 'undefined') {
+                        var currentUser = JSON.parse(localStorage.getItem('user_data') || 'null');
+                        var currentUserId = currentUser && currentUser._id ? currentUser._id.toString() : null;
+                        if (currentUserId) {
+                            unreadMessages = (msgBody || []).filter(function (m) {
+                                try {
+                                    return (!m.read) && (m.recipient && (m.recipient.toString ? m.recipient.toString() : m.recipient) === currentUserId);
+                                } catch (e) {
+                                    return false;
+                                }
+                            }).length;
+                        } else {
+                            // fallback: count messages with read === false
+                            unreadMessages = (msgBody || []).filter(function (m) { return !m.read; }).length;
+                        }
+                    }
+                    // Case C: empty array or unexpected structure
+                    else if (Array.isArray(msgBody) && msgBody.length === 0) {
+                        unreadMessages = 0;
+                    } else {
+                        // unexpected shape: try to handle gracefully
+                        console.warn('refreshHeaderBadges: unexpected /api/messages response shape', msgBody);
+                        unreadMessages = 0;
+                    }
+                } else {
+                    console.warn('refreshHeaderBadges: /api/messages responded with status', resMsg.status);
+                }
+            } catch (e) {
+                console.warn('refreshHeaderBadges: fetching /api/messages failed', e);
+            }
+
+            // ----- NOTIFICATIONS -----
             var unreadNotifications = 0;
             try {
                 var resNoti = await fetch(baseUrl + '/api/notifications', { headers: { 'Authorization': 'Bearer ' + token } });
                 if (resNoti.ok) {
                     var notifications = await resNoti.json();
-                    unreadNotifications = (notifications || []).filter(function (n) { return !n.read; }).length;
+                    if (Array.isArray(notifications)) {
+                        unreadNotifications = (notifications || []).filter(function (n) { return !n.read; }).length;
+                    } else {
+                        console.warn('refreshHeaderBadges: unexpected /api/notifications response shape', notifications);
+                    }
+                } else {
+                    console.warn('refreshHeaderBadges: /api/notifications responded with status', resNoti.status);
                 }
-            } catch (_) { }
+            } catch (e) {
+                console.warn('refreshHeaderBadges: fetching /api/notifications failed', e);
+            }
 
+            // Update DOM badges
             if (msgBadge) {
                 if (unreadMessages > 0) {
                     msgBadge.textContent = unreadMessages;
                     msgBadge.style.display = 'block';
                 } else {
                     msgBadge.style.display = 'none';
+                    msgBadge.textContent = '0';
                 }
             }
             if (notiBadge) {
@@ -183,14 +230,18 @@
                     notiBadge.style.display = 'block';
                 } else {
                     notiBadge.style.display = 'none';
+                    notiBadge.textContent = '0';
                 }
             }
 
             document.dispatchEvent(new CustomEvent('header:badges-updated', {
                 detail: { unreadMessages: unreadMessages, unreadNotifications: unreadNotifications }
             }));
-        } catch (_) { }
+        } catch (ex) {
+            console.warn('refreshHeaderBadges: unexpected error', ex);
+        }
     }
+    // ---------- end refreshHeaderBadges ----------
 
     function relocateLanguageForMobile() {
         var switcher = document.getElementById('languageSwitcher');
