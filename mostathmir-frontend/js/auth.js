@@ -1,22 +1,22 @@
 const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 
 const countriesData = {
-    "ma": { nameKey: "js-country-morocco", cities: ["rabat", "casablanca", "marrakech", "fes", "tanger", "agadir"] },
-    "dz": { nameKey: "js-country-algeria", cities: ["algiers", "oran", "constantine", "annaba"] },
-    "tn": { nameKey: "js-country-tunisia", cities: ["tunis", "sfax", "sousse", "bizerte"] },
-    "eg": { nameKey: "js-country-egypt", cities: ["cairo", "alexandria", "giza", "portsaid", "mansoura"] },
-    "sa": { nameKey: "js-country-saudi", cities: ["riyadh", "jeddah", "mecca", "medina", "dammam"] },
-    "ae": { nameKey: "js-country-uae", cities: ["dubai", "abudhabi", "sharjah", "alain"] },
-    "qa": { nameKey: "js-country-qatar", cities: ["doha", "alrayyan", "alwakrah"] },
-    "kw": { nameKey: "js-country-kuwait", cities: ["kuwait_city", "alfarwaniyah", "hawalli", "alahmadi"] },
-    "bh": { nameKey: "js-country-bahrain", cities: ["manama", "muharraq", "sitra"] },
-    "om": { nameKey: "js-country-oman", cities: ["muscat", "salalah", "sohar"] },
-    "jo": { nameKey: "js-country-jordan", cities: ["amman", "irbid", "zarqa"] },
-    "lb": { nameKey: "js-country-lebanon", cities: ["beirut", "tripoli", "sidon"] },
-    "iq": { nameKey: "js-country-iraq", cities: ["baghdad", "basra", "mosul", "erbil"] },
-    "ps": { nameKey: "js-country-palestine", cities: ["jerusalem", "ramallah", "gaza", "nablus", "hebron"] },
-    "ye": { nameKey: "js-country-yemen", cities: ["sanaa", "aden", "taiz", "alhodeidah", "ibb"] },
-    "sd": { nameKey: "js-country-sudan", cities: ["khartoum", "omdurman", "portsudan"] }
+    "ma": { nameKey: "js-country-morocco", cities: ["js-city-rabat", "js-city-casablanca", "js-city-marrakech", "js-city-fes", "js-city-tanger", "js-city-agadir"] },
+    "dz": { nameKey: "js-country-algeria", cities: ["js-city-algiers", "js-city-oran", "js-city-constantine", "js-city-annaba"] },
+    "tn": { nameKey: "js-country-tunisia", cities: ["js-city-tunis", "js-city-sfax", "js-city-sousse", "js-city-bizerte"] },
+    "eg": { nameKey: "js-country-egypt", cities: ["js-city-cairo", "js-city-alexandria", "js-city-giza", "js-city-portsaid", "js-city-mansoura"] },
+    "sa": { nameKey: "js-country-saudi", cities: ["js-city-riyadh", "js-city-jeddah", "js-city-mecca", "js-city-medina", "js-city-dammam"] },
+    "ae": { nameKey: "js-country-uae", cities: ["js-city-dubai", "js-city-abudhabi", "js-city-sharjah", "js-city-alain"] },
+    "qa": { nameKey: "js-country-qatar", cities: ["js-city-doha", "js-city-alrayyan", "js-city-alwakrah"] },
+    "kw": { nameKey: "js-country-kuwait", cities: ["js-city-kuwait_city", "js-city-alfarwaniyah", "js-city-hawalli", "js-city-alahmadi"] },
+    "bh": { nameKey: "js-country-bahrain", cities: ["js-city-manama", "js-city-muharraq", "js-city-sitra"] },
+    "om": { nameKey: "js-country-oman", cities: ["js-city-muscat", "js-city-salalah", "js-city-sohar"] },
+    "jo": { nameKey: "js-country-jordan", cities: ["js-city-amman", "js-city-irbid", "js-city-zarqa"] },
+    "lb": { nameKey: "js-country-lebanon", cities: ["js-city-beirut", "js-city-tripoli", "js-city-sidon"] },
+    "iq": { nameKey: "js-country-iraq", cities: ["js-city-baghdad", "js-city-basra", "js-city-mosul", "js-city-erbil"] },
+    "ps": { nameKey: "js-country-palestine", cities: ["js-city-jerusalem", "js-city-ramallah", "js-city-gaza", "js-city-nablus", "js-city-hebron"] },
+    "ye": { nameKey: "js-country-yemen", cities: ["js-city-sanaa", "js-city-aden", "js-city-taiz", "js-city-alhodeidah", "js-city-ibb"] },
+    "sd": { nameKey: "js-country-sudan", cities: ["js-city-khartoum", "js-city-omdurman", "js-city-portsudan"] }
 };
 
 async function handleApiRequest(url, options, form) {
@@ -114,14 +114,11 @@ async function handleSignupSubmit(e, signupForm) {
     if (!countrySelect.value || !citySelect.value) {
         return alert(t('js-auth-select-country-city'));
     }
-    
-    // نستخدم الآن القيمة كـ key ثم نكوّن النص المعروض باستخدام الترجمة الحالية
-    const countryCode = countrySelect.value; // مثال: 'ma'
-    const cityKey = citySelect.value;        // مثال: 'rabat'
+
     const countryText = countrySelect.options[countrySelect.selectedIndex].textContent;
-    const cityText = t(`js-city-${cityKey}`);
+    const cityText = citySelect.value;
     const locationValue = `${cityText}, ${countryText}`;
-    
+
     const formData = {
         fullName: signupForm.querySelector('#fullName').value,
         email: signupForm.querySelector('#email').value,
@@ -129,8 +126,6 @@ async function handleSignupSubmit(e, signupForm) {
         password: passwordInput.value,
         accountType: signupForm.querySelector('#accountType').value,
         location: locationValue,
-        // إذا أردت تخزين codes على backend أضف countryCode و cityKey هنا أيضاً
-        // countryCode, cityKey,
         bio: signupForm.querySelector('#bio').value,
     };
 
@@ -191,7 +186,7 @@ async function handleLoginSubmit(e, loginForm) {
         alert(t('js-auth-server-error'));
         console.error('Login network/fetch failed:', error);
     } finally {
-        if(submitButton) {
+        if (submitButton) {
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
         }
@@ -207,16 +202,13 @@ function initCountryCityDropdowns(currentLocation) {
     citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
 
     let initialCountryKey = '';
-    let initialCityKey = '';
+    let initialCityText = '';
 
     if (currentLocation && currentLocation.includes(', ')) {
         const parts = currentLocation.split(', ');
-        const savedCityText = parts[0];
+        initialCityText = parts[0];
         const savedCountryText = parts[1];
-        initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText) || '';
-        if (initialCountryKey) {
-            initialCityKey = countriesData[initialCountryKey].cities.find(cityKey => t(`js-city-${cityKey}`) === savedCityText) || '';
-        }
+        initialCountryKey = Object.keys(countriesData).find(key => t(countriesData[key].nameKey) === savedCountryText);
     }
 
     Object.keys(countriesData).forEach(countryKey => {
@@ -229,7 +221,7 @@ function initCountryCityDropdowns(currentLocation) {
         countrySelect.appendChild(option);
     });
 
-    const populateCities = (countryKey, selectedCityKey) => {
+    const populateCities = (countryKey, selectedCityText) => {
         citySelect.innerHTML = `<option value="">${t('settings-city-select')}</option>`;
         citySelect.disabled = true;
 
@@ -238,9 +230,9 @@ function initCountryCityDropdowns(currentLocation) {
             countriesData[countryKey].cities.forEach(cityKey => {
                 const option = document.createElement("option");
                 const cityText = t(`js-city-${cityKey}`);
-                option.value = cityKey;     // <-- FIXED: قيمة الخيار هي مفتاح المدينة (مثال: 'rabat')
+                option.value = cityText;
                 option.textContent = cityText;
-                if (cityKey === selectedCityKey) {
+                if (cityText === selectedCityText) {
                     option.selected = true;
                 }
                 citySelect.appendChild(option);
@@ -249,7 +241,7 @@ function initCountryCityDropdowns(currentLocation) {
     };
 
     if (initialCountryKey) {
-        populateCities(initialCountryKey, initialCityKey);
+        populateCities(initialCountryKey, initialCityText);
     }
 
     countrySelect.addEventListener("change", function () {
