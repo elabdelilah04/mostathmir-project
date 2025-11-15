@@ -685,14 +685,37 @@ function updateStats() {
     const unreadMessages = allConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
     const unreadNotifications = allNotifications.filter(n => !n.read).length;
 
+    // Page-local badges (in messages.html)
     const messagesBadge = document.getElementById('messagesBadge');
     const notificationsBadge = document.getElementById('notificationsBadge');
 
-    messagesBadge.textContent = unreadMessages;
-    messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
+    if (messagesBadge) {
+        messagesBadge.textContent = unreadMessages;
+        messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
+    }
 
-    notificationsBadge.textContent = unreadNotifications;
-    notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    if (notificationsBadge) {
+        notificationsBadge.textContent = unreadNotifications;
+        notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    }
+
+    // Header badges (global, in header.html) — ensure header shows correct counts too
+    const headerMsgBadge = document.getElementById('headerMessagesBadge');
+    const headerNotiBadge = document.getElementById('headerNotificationsBadge');
+
+    if (headerMsgBadge) {
+        headerMsgBadge.textContent = unreadMessages;
+        headerMsgBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
+    }
+    if (headerNotiBadge) {
+        headerNotiBadge.textContent = unreadNotifications;
+        headerNotiBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    }
+
+    // Also notify other scripts (header.js listens for this event pattern)
+    document.dispatchEvent(new CustomEvent('header:badges-updated', {
+        detail: { unreadMessages, unreadNotifications }
+    }));
 }
 
 function showSuccessMessage(message) {
