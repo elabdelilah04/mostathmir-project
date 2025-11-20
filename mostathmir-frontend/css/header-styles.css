@@ -355,7 +355,7 @@
 /* ----- Responsive Styles for Header ----- */
 @media (max-width: 992px) {
     .header-content {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
     }
 
     .main-nav {

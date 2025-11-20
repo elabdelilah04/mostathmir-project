@@ -308,8 +308,14 @@ async function openNotificationDetails(notificationId, event) {
             const initial = notification.sender.fullName ? notification.sender.fullName.charAt(0) : '?';
             avatarHTML = `<div class="sender-avatar-initials">${initial}</div>`;
         }
-
-        const senderRole = notification.sender.profileTitle || (notification.sender.accountType === 'investor' ? t('js-messages-role-investor') : t('js-messages-role-ideaholder'));
+        let senderRole;
+        if (notification.sender.profileTitle && notification.sender.profileTitle.trim() !== '') {
+            senderRole = notification.sender.profileTitle;
+        } else {
+            senderRole = notification.sender.accountType === 'investor'
+                ? t('js-messages-role-investor')
+                : t('js-messages-role-ideaholder');
+        }
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const senderProfileLink = `./public-profile.html?id=${notification.sender._id}`;
 
@@ -360,7 +366,7 @@ async function openNotificationDetails(notificationId, event) {
         document.getElementById('acceptProposalBtn').onclick = () => handleProposalResponse(proposalId, 'accepted');
         document.getElementById('rejectProposalBtn').onclick = () => handleProposalResponse(proposalId, 'rejected');
         document.getElementById('responseForm').onsubmit = (e) => { e.preventDefault(); handleProposalResponse(proposalId, 'rejected'); };
-        
+
         const typeMap = {
             'strategic': t('js-investor-profile-proposal-type-strategic'),
             'expertise': t('js-investor-profile-proposal-type-expertise'),
@@ -368,7 +374,7 @@ async function openNotificationDetails(notificationId, event) {
             'hybrid': t('js-investor-profile-proposal-type-hybrid'),
             'unspecified': t('js-investor-profile-proposal-type-custom')
         };
-        
+
         detailsHTML += `
             <div class="mt-4 border-t pt-4 space-y-4">
                 <h4 class="font-bold text-gray-800">${t('proposal-details-title')}</h4>
@@ -393,7 +399,7 @@ async function openNotificationDetails(notificationId, event) {
                 </div>
             </div>
         `;
-        
+
     } else if (notification.type === 'PROPOSAL_RESPONSE') {
         detailsHTML += `<div class="border-t pt-4">`;
 
