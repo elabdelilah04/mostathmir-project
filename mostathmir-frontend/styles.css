@@ -2970,10 +2970,10 @@ h6 {
     font-family: 'Tajawal', 'Cairo', sans-serif;
 } */
 
-.profile-trigger:hover {
+/* .profile-trigger:hover {
     background-color: var(--background-color, #F8F7F4);
     border-color: var(--border-color, #E5E7EB);
-}
+} */
 
 /* .profile-trigger.active {
     background-color: var(--primary-color, #1E3A8A);
@@ -3042,12 +3042,12 @@ h6 {
 }
 
 /* User Info Section */
-.dropdown-user-info {
+/* .dropdown-user-info {
     padding: 1.5rem;
     background: linear-gradient(135deg, var(--primary-color, #1E3A8A), #152b6a);
     color: var(--light-text, #FFFFFF);
     border-bottom: 1px solid var(--border-color, #E5E7EB);
-}
+} */
 
 .user-avatar-large {
     width: 60px;
