@@ -48,39 +48,53 @@
         if (toggleButton && mainNav) {
             toggleButton.addEventListener('click', function () {
                 mainNav.classList.toggle('is-open');
+                toggleButton.classList.toggle('is-active');
             });
         }
     }
 
     function populateHeader(user, baseUrl) {
-        var headerProfileName = document.getElementById('headerProfileName');
-        if (headerProfileName) headerProfileName.textContent = user.fullName || '';
+        var hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png' && user.profilePicture.startsWith('http');
+        var parts = user.fullName ? user.fullName.trim().split(' ') : [];
+        var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : (user.fullName || '').trim().substring(0, 2).toUpperCase();
+        var profileUrl = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
 
+        // Populate Desktop Dropdown
         var headerAvatarImage = document.getElementById('headerAvatarImage');
         var headerAvatarInitials = document.getElementById('headerAvatarInitials');
         if (headerAvatarImage && headerAvatarInitials) {
-            var hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png';
-            var parts = user.fullName ? user.fullName.trim().split(' ') : [];
-            var initials = parts.length > 1
-                ? (parts[0][0] + parts[1][0]).toUpperCase()
-                : (user.fullName || '').trim().substring(0, 2).toUpperCase();
-
             headerAvatarImage.src = hasProfilePic ? user.profilePicture : '';
             headerAvatarImage.style.display = hasProfilePic ? 'block' : 'none';
             headerAvatarInitials.textContent = initials;
             headerAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
         }
-
         var dropdown = document.getElementById('profileDropdown');
         if (dropdown) {
-            var dropdownUserName = dropdown.querySelector('.user-name');
-            if (dropdownUserName) dropdownUserName.textContent = user.fullName || '';
-            var dropdownUserRole = dropdown.querySelector('.user-role');
-            if (dropdownUserRole) {
-                dropdownUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
-            }
-            var viewProfileAnchor = dropdown.querySelector('.btn-view-profile .Myprofil') || dropdown.querySelector('.btn-view-profile');
-            if (viewProfileAnchor) viewProfileAnchor.href = user.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+            dropdown.querySelector('.user-name').textContent = user.fullName || '';
+            dropdown.querySelector('.user-role').textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
+            dropdown.querySelector('.btn-view-profile').href = profileUrl;
+        }
+
+        // Populate Mobile Menu
+        var mobileAvatarImage = document.getElementById('mobile-header-avatar-image');
+        var mobileAvatarInitials = document.getElementById('mobile-header-avatar-initials');
+        if(mobileAvatarImage && mobileAvatarInitials) {
+            mobileAvatarImage.src = hasProfilePic ? user.profilePicture : '';
+            mobileAvatarImage.style.display = hasProfilePic ? 'block' : 'none';
+            mobileAvatarInitials.textContent = initials;
+            mobileAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
+        }
+        var mobileUserName = document.getElementById('mobile-user-name');
+        if(mobileUserName) mobileUserName.textContent = user.fullName || '';
+        var mobileUserRole = document.getElementById('mobile-user-role');
+        if(mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
+        
+        var mobileSignoutLink = document.getElementById('mobile-signout-link');
+        if (mobileSignoutLink) {
+            mobileSignoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.logoutUser();
+            });
         }
     }
 
@@ -90,7 +104,7 @@
             if (!token) {
                 var protectedPages = ['page-title-profile', 'page-title-investor-profile', 'page-title-settings'];
                 if (protectedPages.includes(document.body.dataset.pageKey)) {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login.html';
                 }
                 return null;
             }
@@ -99,13 +113,18 @@
                 if (!response.ok) {
                     localStorage.removeItem('user_token');
                     localStorage.removeItem('user_data');
-                    window.location.href = 'login.html';
+                    localStorage.removeItem('user_id');
+                    window.location.href = '/login.html';
                     return null;
                 }
                 var user = await response.json();
+                if (user._id) {
+                    localStorage.setItem('user_id', user._id);
+                }
                 localStorage.setItem('user_data', JSON.stringify(user));
                 return user;
             } catch (e) {
+                console.error("Fetch current user failed:", e);
                 return null;
             }
         };
@@ -115,247 +134,193 @@
         window.logoutUser = function () {
             localStorage.removeItem('user_token');
             localStorage.removeItem('user_data');
+            localStorage.removeItem('user_id');
             alert(t('js-header-logout-success'));
-            window.location.href = 'login.html';
+            window.location.href = '/login.html';
         };
     }
 
     function setupHeaderIcons() {
-        var msgBtn = document.getElementById('headerMessagesBtn');
-        var notiBtn = document.getElementById('headerNotificationsBtn');
+        function setupListeners(containerId) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            
+            var msgBtn = container.querySelector('#headerMessagesBtn') || container.querySelector('.messages-btn');
+            var notiBtn = container.querySelector('#headerNotificationsBtn') || container.querySelector('.notifications-btn');
 
-        if (msgBtn) {
-            msgBtn.addEventListener('click', function () {
-                window.location.href = 'messages.html#messages';
-            });
+            if (msgBtn) {
+                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
+            }
+            if (notiBtn) {
+                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
+            }
         }
-        if (notiBtn) {
-            notiBtn.addEventListener('click', function () {
-                window.location.href = 'messages.html#notifications';
-            });
-        }
+        setupListeners('header-icons');
+        setupListeners('header-icons-mobile');
     }
 
     async function refreshHeaderBadges() {
-        var token = localStorage.getItem('user_token');
-        var baseUrl = 'https://mostathmir-api.onrender.com';
+        const token = localStorage.getItem('user_token');
+        const baseUrl = 'https://mostathmir-api.onrender.com';
 
-        var msgBadge = document.getElementById('headerMessagesBadge');
-        var notiBadge = document.getElementById('headerNotificationsBadge');
-        if (!msgBadge && !notiBadge) return;
+        const msgBadges = document.querySelectorAll('#headerMessagesBadge');
+        const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
+        if (msgBadges.length === 0 && notiBadges.length === 0) return;
 
         if (!token) {
-            if (msgBadge) { msgBadge.style.display = 'none'; msgBadge.textContent = '0'; }
-            if (notiBadge) { notiBadge.style.display = 'none'; notiBadge.textContent = '0'; }
+            msgBadges.forEach(badge => { badge.style.display = 'none'; });
+            notiBadges.forEach(badge => { badge.style.display = 'none'; });
             return;
         }
 
         try {
-            var unreadMessages = 0;
+            let unreadMessages = 0;
             try {
-                var resMsg = await fetch(baseUrl + '/api/messages', { headers: { 'Authorization': 'Bearer ' + token } });
+                const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (resMsg.ok) {
-                    var conversations = await resMsg.json();
-                    console.log("Raw Data from /api/messages:", conversations);
-                    unreadMessages = (conversations || []).reduce(function (sum, c) { return sum + (c.unreadCount || 0); }, 0);
+                    const conversations = await resMsg.json();
+                    if (Array.isArray(conversations)) {
+                        unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+                    }
                 }
-            } catch (_) { }
+            } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
 
-            var unreadNotifications = 0;
+            let unreadNotifications = 0;
             try {
-                var resNoti = await fetch(baseUrl + '/api/notifications', { headers: { 'Authorization': 'Bearer ' + token } });
+                const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (resNoti.ok) {
-                    var notifications = await resNoti.json();
-                    unreadNotifications = (notifications || []).filter(function (n) { return !n.read; }).length;
+                    const notifications = await resNoti.json();
+                    if (Array.isArray(notifications)) {
+                        unreadNotifications = notifications.filter(n => !n.read).length;
+                    }
                 }
-            } catch (_) { }
-
-            if (msgBadge) {
+            } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
+            
+            msgBadges.forEach(badge => {
                 if (unreadMessages > 0) {
-                    msgBadge.textContent = unreadMessages;
-                    msgBadge.style.display = 'block';
+                    badge.textContent = unreadMessages;
+                    badge.style.display = 'flex';
                 } else {
-                    msgBadge.style.display = 'none';
+                    badge.style.display = 'none';
                 }
-            }
-            if (notiBadge) {
-                if (unreadNotifications > 0) {
-                    notiBadge.textContent = unreadNotifications;
-                    notiBadge.style.display = 'block';
-                } else {
-                    notiBadge.style.display = 'none';
-                }
-            }
+            });
 
-            document.dispatchEvent(new CustomEvent('header:badges-updated', {
-                detail: { unreadMessages: unreadMessages, unreadNotifications: unreadNotifications }
-            }));
-        } catch (_) { }
+            notiBadges.forEach(badge => {
+                if (unreadNotifications > 0) {
+                    badge.textContent = unreadNotifications;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+
+            document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
+        } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
 
     function relocateLanguageForMobile() {
-        var switcher = document.getElementById('languageSwitcher');
-        if (!switcher) return;
+        const switcher = document.getElementById('languageSwitcher');
+        const mobileContainer = document.getElementById('language-switcher-mobile-container');
+        const desktopContainer = document.querySelector('.header-content > .flex');
 
-        var mainNav = document.querySelector('.main-nav');
-        var navList = mainNav ? (mainNav.querySelector('ul, .nav-list, nav') || mainNav) : null;
+        if (!switcher || !desktopContainer) return;
+        
+        const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
-        var topBarContainer =
-            document.getElementById('header-icons') ||
-            document.querySelector('.header-icons') ||
-            document.querySelector('.header-actions') ||
-            document.querySelector('.topbar-actions') ||
-            document.getElementById('header-actions') ||
-            (document.getElementById('header-placeholder') ? document.getElementById('header-placeholder').parentElement : null);
-
-        var existingLi = document.getElementById('languageSwitcherNavItem');
-        var mobile = window.matchMedia('(max-width: 1024px)').matches;
-
-        if (mobile && navList) {
-            if (!existingLi) {
-                existingLi = document.createElement('li');
-                existingLi.id = 'languageSwitcherNavItem';
-                existingLi.className = 'nav-item language-item';
+        if (isMobile && mobileContainer) {
+            if (!mobileContainer.contains(switcher)) {
+                mobileContainer.appendChild(switcher);
             }
-            existingLi.innerHTML = '';
-            existingLi.appendChild(switcher);
-            if (!existingLi.parentElement) {
-                navList.appendChild(existingLi);
-            }
-        } else {
-            if (topBarContainer && !topBarContainer.contains(switcher)) {
-                topBarContainer.appendChild(switcher);
-            }
-            if (existingLi && existingLi.parentElement) {
-                existingLi.parentElement.removeChild(existingLi);
+        } else if (!isMobile) {
+            if (!desktopContainer.contains(switcher)) {
+                desktopContainer.insertBefore(switcher, desktopContainer.querySelector('.mobile-menu-toggle'));
             }
         }
     }
 
     function bindRelocateOnResize() {
-        var handler = function () { relocateLanguageForMobile(); };
-        window.addEventListener('resize', handler);
-        var toggleButton = document.querySelector('.mobile-menu-toggle');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', handler);
-        }
+        window.addEventListener('resize', relocateLanguageForMobile);
     }
 
     async function loadAndSetupHeader() {
-        var placeholder = document.getElementById('header-placeholder');
+        const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
         try {
-            var res = await fetch('header.html');
-            if (!res.ok) throw new Error();
-            var html = await res.text();
+            const res = await fetch('/header.html');
+            if (!res.ok) throw new Error('Failed to fetch header');
+            const html = await res.text();
             placeholder.innerHTML = html;
 
             initMobileMenu();
 
-            var languageOptions = document.querySelectorAll('.language-option');
-            languageOptions.forEach(function (option) {
+            document.querySelectorAll('.language-option').forEach(option => {
                 option.addEventListener('click', function () {
                     if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
                 });
             });
 
-            relocateLanguageForMobile();
-            bindRelocateOnResize();
-
-            var user = await window.fetchCurrentUser();
+            const user = await window.fetchCurrentUser();
 
             if (user) {
-                var vBtns = document.getElementById('auth-buttons-visitor');
-                var pCont = document.getElementById('profile-dropdown-container');
-                if (vBtns) vBtns.style.display = 'none';
-                if (pCont) pCont.style.display = 'inline-block';
+                document.getElementById('auth-buttons-visitor').style.display = 'none';
+                document.getElementById('profile-dropdown-container').style.display = 'flex';
+                document.getElementById('nav-about').style.display = 'none';
+                document.getElementById('nav-how').style.display = 'none';
 
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
 
-                var a = document.getElementById('nav-about');
-                var h = document.getElementById('nav-how');
-                if (a) a.style.display = 'none';
-                if (h) h.style.display = 'none';
-
-                if (user.accountType === 'ideaHolder') {
-                    var mp = document.getElementById('nav-my-projects');
-                    var mi = document.getElementById('nav-my-investments');
-                    if (mp) mp.style.display = 'list-item';
-                    if (mi) mi.style.display = 'none';
-
-                    var vp1 = document.querySelector('.btn-view-profile');
-                    var vp2 = document.querySelector('.Myprofil');
-                    if (vp1) vp1.href = 'profile.html';
-                    if (vp2) vp2.href = 'profile.html';
-
-                } else if (user.accountType === 'investor') {
-                    var mp2 = document.getElementById('nav-my-projects');
-                    var mi2 = document.getElementById('nav-my-investments');
-                    if (mp2) mp2.style.display = 'none';
-                    if (mi2) mi2.style.display = 'list-item';
-
-                    var vp3 = document.querySelector('.btn-view-profile');
-                    var vp4 = document.querySelector('.Myprofil');
-                    if (vp3) vp3.href = 'investor-profile.html';
-                    if (vp4) vp4.href = 'investor-profile.html';
+                document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
+                document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
+                
+                const myProfileLink = document.getElementById('Myprofile');
+                if (myProfileLink) {
+                    myProfileLink.style.display = 'list-item';
+                    myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
 
-                var logoutButton = document.querySelector('.dropdown-link.sign-out');
-                if (logoutButton) {
-                    logoutButton.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        window.logoutUser();
-                    });
+                document.querySelector('.dropdown-link.sign-out').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.logoutUser();
+                });
+                
+                const headerIcons = document.getElementById('header-icons');
+                const mobileIconsContainer = document.getElementById('header-icons-mobile');
+                if (headerIcons && mobileIconsContainer) {
+                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
                 }
 
                 setupHeaderIcons();
                 refreshHeaderBadges();
-
             } else {
-                var vBtns2 = document.getElementById('auth-buttons-visitor');
-                var pCont2 = document.getElementById('profile-dropdown-container');
-                if (vBtns2) vBtns2.style.display = 'flex';
-                if (pCont2) pCont2.style.display = 'none';
-
-                var b = document.getElementById('nav-browse-projects');
-                var mp3 = document.getElementById('nav-my-projects');
-                var mi3 = document.getElementById('nav-my-investments');
-                if (b) b.style.display = 'none';
-                if (mp3) mp3.style.display = 'none';
-                if (mi3) mi3.style.display = 'none';
-
-                var msgBtn = document.getElementById('headerMessagesBtn');
-                var notiBtn = document.getElementById('headerNotificationsBtn');
-                if (msgBtn) msgBtn.style.display = 'none';
-                if (notiBtn) notiBtn.style.display = 'none';
-                const myProfileLink = document.getElementById('Myprofile');
-                if (myProfileLink) myProfileLink.style.display = 'none';
-
-                var langSwitcher = document.getElementById('languageSwitcher');
-                if (langSwitcher) langSwitcher.style.display = 'flex';
+                document.getElementById('auth-buttons-visitor').style.display = 'flex';
+                document.getElementById('profile-dropdown-container').style.display = 'none';
+                document.getElementById('nav-browse-projects').style.display = 'none';
+                document.getElementById('nav-my-projects').style.display = 'none';
+                document.getElementById('nav-my-investments').style.display = 'none';
+                document.getElementById('Myprofile').style.display = 'none';
+                document.getElementById('header-icons').style.display = 'none';
             }
 
-            var currentLang = localStorage.getItem('preferred_language') || 'ar';
+            relocateLanguageForMobile();
+            bindRelocateOnResize();
+            
+            const currentLang = localStorage.getItem('preferred_language') || 'ar';
             if (window.updateLanguage) window.updateLanguage(currentLang);
 
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
-
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
         }
     }
-
-    window.initHeader = async function () { await loadAndSetupHeader(); };
-    window.loadAndSetupHeader = window.initHeader;
-
-    window.populateHeader = populateHeader;
-    window.ProfileDropdown = ProfileDropdown;
-    window.initMobileMenu = initMobileMenu;
-
+    
+    window.initHeader = loadAndSetupHeader;
+    
     window.addEventListener('storage', function (e) {
         if (e.key === 'user_token' || e.key === 'user_data') {
             refreshHeaderBadges();
         }
     });
+
+    document.addEventListener('DOMContentLoaded', window.initHeader);
 })();
