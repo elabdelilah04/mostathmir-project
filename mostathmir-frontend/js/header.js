@@ -65,7 +65,7 @@
                 ? (parts[0][0] + parts[1][0]).toUpperCase()
                 : (user.fullName || '').trim().substring(0, 2).toUpperCase();
 
-            headerAvatarImage.src = hasProfilePic ? user.profilePicture : ''; 
+            headerAvatarImage.src = hasProfilePic ? user.profilePicture : '';
             headerAvatarImage.style.display = hasProfilePic ? 'block' : 'none';
             headerAvatarInitials.textContent = initials;
             headerAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
@@ -156,6 +156,7 @@
                 var resMsg = await fetch(baseUrl + '/api/messages', { headers: { 'Authorization': 'Bearer ' + token } });
                 if (resMsg.ok) {
                     var conversations = await resMsg.json();
+                    console.log("Raw Data from /api/messages:", conversations);
                     unreadMessages = (conversations || []).reduce(function (sum, c) { return sum + (c.unreadCount || 0); }, 0);
                 }
             } catch (_) { }
