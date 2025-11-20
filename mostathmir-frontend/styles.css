@@ -2956,7 +2956,7 @@ h6 {
 }
 
 /* Profile Trigger */
-.profile-trigger {
+/* .profile-trigger {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -2968,7 +2968,7 @@ h6 {
     border: 1px solid transparent;
     color: var(--text-color, #333333);
     font-family: 'Tajawal', 'Cairo', sans-serif;
-}
+} */
 
 .profile-trigger:hover {
     background-color: var(--background-color, #F8F7F4);
