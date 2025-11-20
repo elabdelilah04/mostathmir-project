@@ -305,7 +305,7 @@ h6 {
     color: var(--light-text);
 }
 
-.mobile-menu-toggle {
+/* .mobile-menu-toggle {
     display: none;
     flex-direction: column;
     justify-content: space-between;
@@ -314,7 +314,7 @@ h6 {
     background: transparent;
     border: none;
     cursor: pointer;
-}
+} */
 
 .mobile-menu-toggle span {
     width: 100%;
