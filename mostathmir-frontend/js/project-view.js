@@ -181,8 +181,8 @@ function populatePage(project, baseUrl) {
         setTimeout(() => { progressBar.style.width = `${progressPercent}%`; }, 300);
     }
 
-    const heroReturn = document.getElementById('hero-expected-return');
-    if (heroReturn) heroReturn.textContent = `${project.expectedReturn || 0}%`;
+    // const heroReturn = document.getElementById('hero-expected-return');
+    // if (heroReturn) heroReturn.textContent = `${project.expectedReturn || 0}%`;
 
     const mainDesc = document.querySelector('.prose p:first-of-type');
     if (mainDesc) mainDesc.textContent = project.detailedDescription || project.projectDescription;
@@ -316,7 +316,6 @@ function populatePage(project, baseUrl) {
     }
 
     document.getElementById('minInvestment').textContent = `${(project.minInvestment || 0).toLocaleString()} ${currency}`;
-    document.getElementById('investmentPeriod').textContent = `${project.investmentPeriod || 12} ${t('js-project-view-months')}`;
     if (project.equityOffered != null) {
         document.getElementById('equityOffered').textContent = `${project.equityOffered}%`;
     } else {

@@ -64,8 +64,6 @@ const projectSchema = new mongoose.Schema({
         default: { amount: 0, currency: 'SAR' }
     },
     minInvestment: { type: Number, default: 0 },
-    expectedReturn: { type: Number, default: 0 },
-    investmentPeriod: { type: Number, default: 12 },
 
     fundingDetails: [expenseItemSchema],
     financialProjections: [financialProjectionSchema],

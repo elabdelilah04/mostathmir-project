@@ -308,6 +308,8 @@
       "js-modal-entrepreneur": "رائد أعمال",
       "js-modal-role-investor": "مستثمر",
       "js-modal-role-ideaholder": "حامل فكرة",
+      "equivalent_to": "يعادل تقريباً",
+
       // messages.js
       "js-messages-loading-messages": "جاري تحميل الرسائل...",
       "js-messages-error-fetch-messages": "فشل جلب الرسائل.",
@@ -1793,6 +1795,7 @@
     },
 
     en: {
+      "equivalent_to": "approx. equivalent to",
       "new-password-page-title": "Reset Password - Mostathmir",
       "new-password-title": "Reset Password",
       "new-password-subtitle": "Enter your new password.",

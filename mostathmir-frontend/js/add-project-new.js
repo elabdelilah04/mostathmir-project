@@ -108,8 +108,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("previewCategory").textContent = selectedCategoryOption.text || t('js-addproject-preview-default-category'); const fundingGoal = document.getElementById("fundingGoal").value || "0";
         const currencySymbol = currencyInfo[document.getElementById("currency").value].symbol;
         document.getElementById("previewGoal").textContent = `${parseInt(fundingGoal).toLocaleString()} ${currencySymbol}`;
-        document.getElementById("previewReturn").textContent = `${document.getElementById("expectedReturn").value || "0"}%`;
-        document.getElementById("previewDuration").textContent = document.getElementById("investmentDuration").value || "0";
         updateProgress();
     };
 
@@ -119,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const basicPercent = Math.round((basicCompleted / basicFields.length) * 100);
         document.getElementById("basicProgress").textContent = `${basicPercent}%`;
         document.getElementById("basicProgressBar").style.width = `${basicPercent}%`;
-        const financialFields = ["fundingGoal", "minInvestment", "expectedReturn", "investmentDuration"];
+        const financialFields = ["fundingGoal", "minInvestment",];
         const financialCompleted = financialFields.filter(id => document.getElementById(id).value.trim()).length;
         const financialPercent = Math.round((financialCompleted / financialFields.length) * 100);
         document.getElementById("financialProgress").textContent = `${financialPercent}%`;
@@ -325,8 +323,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("videoLink", document.getElementById("projectVideo").value);
         formData.append("fundingGoal", JSON.stringify({ amount: document.getElementById("fundingGoal").value, currency: document.getElementById("currency").value }));
         formData.append("minInvestment", document.getElementById("minInvestment").value);
-        formData.append("expectedReturn", document.getElementById("expectedReturn").value);
-        formData.append("investmentPeriod", document.getElementById("investmentDuration").value);
         formData.append("fundingDetails", JSON.stringify(expenseItems.map(item => ({ item: item.name, percentage: item.percent }))));
 
         const financialProjections = [
@@ -400,7 +396,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.saveDraft = (buttonElement) => submitProject("draft", buttonElement);
     window.submitForReview = (buttonElement) => {
-        const requiredFields = ["projectName", "projectDescription", "projectCategory", "projectCountry", "projectCity", "fundingGoal", "minInvestment", "expectedReturn", "investmentDuration", "equityOffered"];
+        const requiredFields = ["projectName", "projectDescription", "projectCategory", "projectCountry", "projectCity", "fundingGoal", "minInvestment", , "equityOffered"];
         let isValid = true;
         requiredFields.forEach(id => {
             const field = document.getElementById(id);
@@ -507,8 +503,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("currency").value = project.fundingGoal.currency || "SAR";
         }
         document.getElementById("minInvestment").value = project.minInvestment || "0";
-        document.getElementById("expectedReturn").value = project.expectedReturn || "0";
-        document.getElementById("investmentDuration").value = project.investmentPeriod || "12";
 
         if (project.fundingDetails && project.fundingDetails.length > 0) {
             expenseItems = project.fundingDetails.map(d => ({ name: d.item, percent: d.percentage }));
