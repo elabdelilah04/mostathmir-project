@@ -78,20 +78,20 @@
         // Populate Mobile Menu
         var mobileAvatarImage = document.getElementById('mobile-header-avatar-image');
         var mobileAvatarInitials = document.getElementById('mobile-header-avatar-initials');
-        if(mobileAvatarImage && mobileAvatarInitials) {
+        if (mobileAvatarImage && mobileAvatarInitials) {
             mobileAvatarImage.src = hasProfilePic ? user.profilePicture : '';
             mobileAvatarImage.style.display = hasProfilePic ? 'block' : 'none';
             mobileAvatarInitials.textContent = initials;
             mobileAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
         }
         var mobileUserName = document.getElementById('mobile-user-name');
-        if(mobileUserName) mobileUserName.textContent = user.fullName || '';
+        if (mobileUserName) mobileUserName.textContent = user.fullName || '';
         var mobileUserRole = document.getElementById('mobile-user-role');
-        if(mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
-        
+        if (mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
+
         var mobileSignoutLink = document.getElementById('mobile-signout-link');
         if (mobileSignoutLink) {
-            mobileSignoutLink.addEventListener('click', function(e) {
+            mobileSignoutLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 window.logoutUser();
             });
@@ -144,9 +144,9 @@
         function setupListeners(containerId) {
             var container = document.getElementById(containerId);
             if (!container) return;
-            
-            var msgBtn = container.querySelector('#headerMessagesBtn') || container.querySelector('.messages-btn');
-            var notiBtn = container.querySelector('#headerNotificationsBtn') || container.querySelector('.notifications-btn');
+
+            var msgBtn = container.querySelector('#headerMessagesBtn');
+            var notiBtn = container.querySelector('#headerNotificationsBtn');
 
             if (msgBtn) {
                 msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
@@ -195,7 +195,7 @@
                     }
                 }
             } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
-            
+
             msgBadges.forEach(badge => {
                 if (unreadMessages > 0) {
                     badge.textContent = unreadMessages;
@@ -224,7 +224,7 @@
         const desktopContainer = document.querySelector('.header-content > .flex');
 
         if (!switcher || !desktopContainer) return;
-        
+
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
         if (isMobile && mobileContainer) {
@@ -251,6 +251,8 @@
             const html = await res.text();
             placeholder.innerHTML = html;
 
+            const headerElement = document.querySelector('.header');
+
             initMobileMenu();
 
             document.querySelectorAll('.language-option').forEach(option => {
@@ -272,7 +274,7 @@
 
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
                 document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
-                
+
                 const myProfileLink = document.getElementById('Myprofile');
                 if (myProfileLink) {
                     myProfileLink.style.display = 'list-item';
@@ -283,7 +285,7 @@
                     e.preventDefault();
                     window.logoutUser();
                 });
-                
+
                 const headerIcons = document.getElementById('header-icons');
                 const mobileIconsContainer = document.getElementById('header-icons-mobile');
                 if (headerIcons && mobileIconsContainer) {
@@ -304,18 +306,22 @@
 
             relocateLanguageForMobile();
             bindRelocateOnResize();
-            
+
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
             if (window.updateLanguage) window.updateLanguage(currentLang);
+
+            if (headerElement) {
+                headerElement.classList.add('header-ready');
+            }
 
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
         }
     }
-    
+
     window.initHeader = loadAndSetupHeader;
-    
+
     window.addEventListener('storage', function (e) {
         if (e.key === 'user_token' || e.key === 'user_data') {
             refreshHeaderBadges();
@@ -323,4 +329,5 @@
     });
 
     document.addEventListener('DOMContentLoaded', window.initHeader);
+
 })();

@@ -497,3 +497,32 @@
 }
 
 /* --- END: New Mobile Menu Styles --- */
+/* --- START: Fix Header Flicker --- */
+
+/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
+#auth-buttons-visitor,
+#profile-dropdown-container,
+#header-icons,
+#Myprofile,
+#nav-browse-projects,
+#nav-my-projects,
+#nav-my-investments {
+    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
+.header-ready #auth-buttons-visitor,
+.header-ready #profile-dropdown-container,
+.header-ready #header-icons,
+.header-ready #Myprofile,
+.header-ready #nav-browse-projects,
+.header-ready #nav-my-projects,
+.header-ready #nav-my-investments {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* --- END: Fix Header Flicker --- */
