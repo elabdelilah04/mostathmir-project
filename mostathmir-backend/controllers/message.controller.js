@@ -6,9 +6,13 @@ const getUserMessages = async (req, res, next) => {
     try {
         const userId = req.user._id;
 
-        // الخطوة 1: جلب آخر رسالة من كل محادثة باستخدام Aggregate
         const lastMessages = await Message.aggregate([
-            { $match: { $or: [{ sender: userId }, { recipient: userId }] } },
+            {
+                $match: {
+                    $or: [{ sender: userId }, { recipient: userId }],
+                    deletedBy: { $ne: userId }
+                }
+            },
             { $sort: { createdAt: -1 } },
             {
                 $group: {
@@ -26,18 +30,17 @@ const getUserMessages = async (req, res, next) => {
             { $sort: { createdAt: -1 } }
         ]);
 
-        // الخطوة 2: إرفاق بيانات المستخدمين (sender و recipient)
         await User.populate(lastMessages, { path: "sender recipient", select: "fullName profilePicture accountType profileTitle" });
 
         const conversations = [];
-        // الخطوة 3: لكل محادثة، قم بحساب الرسائل غير المقروءة بشكل منفصل وموثوق
         for (const message of lastMessages) {
             const otherUser = message.sender._id.toString() === userId.toString() ? message.recipient : message.sender;
 
             const unreadCount = await Message.countDocuments({
                 sender: otherUser._id,
                 recipient: userId,
-                read: false
+                read: false,
+                deletedBy: { $ne: userId }
             });
 
             conversations.push({
@@ -64,7 +67,8 @@ const getConversation = async (req, res, next) => {
             $or: [
                 { sender: userId, recipient: otherUserId },
                 { sender: otherUserId, recipient: userId }
-            ]
+            ],
+            deletedBy: { $ne: userId }
         })
             .populate('sender', 'fullName profilePicture accountType profileTitle')
             .populate('recipient', 'fullName profilePicture accountType profileTitle')
@@ -135,12 +139,20 @@ const deleteConversation = async (req, res, next) => {
     try {
         const userId = req.user._id;
         const otherUserId = req.params.otherUserId;
-        await Message.deleteMany({
-            $or: [
-                { sender: userId, recipient: otherUserId },
-                { sender: otherUserId, recipient: userId }
-            ]
-        });
+
+        await Message.updateMany(
+            {
+                $or: [
+                    { sender: userId, recipient: otherUserId },
+                    { sender: otherUserId, recipient: userId }
+                ],
+                deletedBy: { $ne: userId }
+            },
+            {
+                $addToSet: { deletedBy: userId }
+            }
+        );
+
         res.json({ message: 'Conversation deleted successfully.' });
     } catch (error) {
         next(error);
@@ -150,9 +162,17 @@ const deleteConversation = async (req, res, next) => {
 const deleteAllConversations = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        await Message.deleteMany({
-            $or: [{ sender: userId }, { recipient: userId }]
-        });
+
+        await Message.updateMany(
+            {
+                $or: [{ sender: userId }, { recipient: userId }],
+                deletedBy: { $ne: userId }
+            },
+            {
+                $addToSet: { deletedBy: userId }
+            }
+        );
+
         res.json({ message: 'All conversations deleted successfully.' });
     } catch (error) {
         next(error);
