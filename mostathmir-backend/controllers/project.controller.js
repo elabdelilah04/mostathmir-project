@@ -4,12 +4,17 @@ const User = require('../models/user.model');
 const Investment = require('../models/investment.model');
 const { createNotification } = require('./notification.controller.js');
 const cloudinary = require('cloudinary').v2;
-
+const exchangeRatesToUSD = {
+    "SAR": 0.27, "AED": 0.27, "QAR": 0.27, "OMR": 2.60,
+    "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
+    "MAD": 0.10, "USD": 1, "EUR": 1.08,
+};
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
 
 const parseProjectData = (body) => {
     const data = { ...body };
@@ -184,16 +189,28 @@ const getProjectById = async (req, res, next) => {
         const projectObject = project.toObject();
         const investments = await Investment.find({ project: project._id })
             .populate('investor', 'fullName profilePicture profileTitle accountType');
+
         projectObject.investorsCount = investments.length;
+
         if (isOwner) {
-            projectObject.investorDetails = investments;
+            const projectCurrency = project.fundingGoal?.currency || 'USD';
+            const projectRate = exchangeRatesToUSD[projectCurrency] || 1;
+
+            projectObject.investorDetails = investments.map(inv => {
+                const invObj = inv.toObject();
+                if (invObj.currency !== projectCurrency) {
+                    const investmentRate = exchangeRatesToUSD[invObj.currency] || 1;
+                    const amountInUSD = invObj.amount * investmentRate;
+                    invObj.equivalentAmount = amountInUSD / projectRate;
+                }
+                return invObj;
+            });
         }
         res.json(projectObject);
     } catch (error) {
         next(error);
     }
 };
-
 const deleteProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);

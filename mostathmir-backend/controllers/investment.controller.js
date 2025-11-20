@@ -1,7 +1,11 @@
 const Investment = require('../models/investment.model');
 const Project = require('../models/project.model');
 const { createNotification } = require('./notification.controller.js');
-
+const exchangeRatesToUSD = {
+    "SAR": 0.27, "AED": 0.27, "QAR": 0.27, "OMR": 2.60,
+    "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
+    "MAD": 0.10, "USD": 1, "EUR": 1.08,
+};
 async function generateInvestmentId() {
     const year = new Date().getFullYear();
     const prefix = `INV-${year}-`;
@@ -14,6 +18,7 @@ async function generateInvestmentId() {
     }
     return `${prefix}${sequenceNumber.toString().padStart(4, '0')}`;
 }
+
 
 const registerInvestment = async (req, res, next) => {
     try {
@@ -41,9 +46,25 @@ const registerInvestment = async (req, res, next) => {
             isReservation: isReservation,
             paymentStatus: 'paid'
         });
+
         let fundingGoalReached = false;
         if (investmentType === 'full' || investmentType === 'reservation') {
-            project.fundingAmountRaised = (project.fundingAmountRaised || 0) + Number(investmentAmount);
+            const projectCurrency = project.fundingGoal.currency;
+            let amountToAdd = Number(investmentAmount);
+
+            // التحقق مما إذا كانت عملة الاستثمار مختلفة وتحويلها إلى عملة المشروع
+            if (currency && currency !== projectCurrency) {
+                const investmentRate = exchangeRatesToUSD[currency] || 1;
+                const amountInUSD = Number(investmentAmount) * investmentRate;
+                const projectRate = exchangeRatesToUSD[projectCurrency] || 1;
+                // تأكد من أن projectRate ليس صفراً لتجنب القسمة على صفر
+                if (projectRate > 0) {
+                    amountToAdd = amountInUSD / projectRate;
+                }
+            }
+
+            project.fundingAmountRaised = (project.fundingAmountRaised || 0) + amountToAdd;
+
             const investorId = req.user._id.toString();
             if (!project.investors.some(id => id.toString() === investorId)) {
                 project.investors.push(req.user._id);
