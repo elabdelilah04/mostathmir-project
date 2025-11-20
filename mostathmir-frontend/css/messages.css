@@ -448,25 +448,19 @@ body {
     text-decoration: underline;
 }
 
-/* --- START: Modal Scrollbar Fix --- */
 
-/* تحديد أقصى ارتفاع للنافذة المنبثقة */
-.modal-content {
+/* --- START: Notification Modal Scrollbar Fix --- */
+
+#notificationDetailsModal .modal-content {
     max-height: 90vh;
-    /* 90% of the viewport height */
     display: flex;
     flex-direction: column;
 }
 
-/* الجزء الأهم: جعل محتوى المودال قابلاً للتمرير */
-#modalBody,
-#notificationDetailContent {
+#notificationDetailsModal .p-6 {
+    /* This targets the main content area inside the modal */
     overflow-y: auto;
-    /* Add vertical scrollbar when needed */
-    flex-grow: 1;
-    /* Allow this section to grow and fill available space */
-    padding: 1.5rem;
-    /* p-6 */
+    /* Add scrollbar only when content overflows */
 }
 
-/* --- END: Modal Scrollbar Fix --- */
+/* --- END: Notification Modal Scrollbar Fix --- */
