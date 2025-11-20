@@ -775,6 +775,11 @@
       "investor-profile-followers-tab": "يتابعونني",
       "investor-profile-partners-list-title": "قائمة الشركاء (أصحاب المشاريع)",
       // messages
+      "proposal-details-title": "تفاصيل الاقتراح",
+      "proposal-details-type": "نوع الشراكة المقترحة",
+      "proposal-details-expertise": "مجالات الخبرة المقدمة",
+      "proposal-details-terms": "الاقتراح التفصيلي",
+      "proposal-details-no-terms": "لم يتم تقديم تفاصيل.",
       "messages-page-title": "الرسائل والإشعارات",
       "messages-tab-messages": "الرسائل",
       "messages-tab-notifications": "الإشعارات",
@@ -2603,6 +2608,11 @@
       "investor-profile-followers-tab": "Followers",
       "investor-profile-partners-list-title": "Partners List (Project Owners)",
       // messages
+      "proposal-details-title": "Proposal Details",
+      "proposal-details-type": "Proposed Partnership Type",
+      "proposal-details-expertise": "Offered Areas of Expertise",
+      "proposal-details-terms": "Detailed Proposal",
+      "proposal-details-no-terms": "No details provided.",
       "messages-page-title": "Messages & Notifications",
       "messages-tab-messages": "Messages",
       "messages-tab-notifications": "Notifications",

@@ -3,6 +3,7 @@ let currentFilter = 'all';
 const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 let allConversations = [];
 let allNotifications = [];
+
 (function () {
     function applyInitialTabFromHash() {
         const h = (location.hash || '').replace('#', '');
@@ -15,7 +16,6 @@ let allNotifications = [];
     window.addEventListener('hashchange', applyInitialTabFromHash);
     document.addEventListener('DOMContentLoaded', applyInitialTabFromHash);
 })();
-
 
 function switchTab(tab) {
     currentTab = tab;
@@ -172,7 +172,7 @@ function createNotificationCard(notification) {
             });
         }
     } else {
-        messageText = notification.message; // Fallback for old notifications
+        messageText = notification.message;
     }
 
     let messageHTML = messageText;
@@ -214,18 +214,6 @@ function createNotificationCard(notification) {
                 </div>
             </div>
         </div>`;
-}
-
-async function handleNotificationAction(event, notificationId, action) {
-    event.stopPropagation();
-    const notification = allNotifications.find(n => n._id === notificationId);
-    if (!notification) return;
-
-    if (action === 'show_note') {
-        showAdminNoteModal(notification.note);
-    } else if (action === 'show_details') {
-        openNotificationDetails(notificationId, event);
-    }
 }
 
 async function handleNotificationClick(event) {
@@ -296,7 +284,6 @@ async function openNotificationDetails(notificationId, event) {
     responseSection.style.display = 'none';
 
     let messageText;
-    // Fallback for old notifications that only have a direct `message`
     if (!notification.messageKey) {
         messageText = notification.message;
     } else {
@@ -305,13 +292,9 @@ async function openNotificationDetails(notificationId, event) {
             Object.keys(notification.messageParams).forEach(key => {
                 const regex = new RegExp(`{${key}}`, 'g');
                 let paramValue = notification.messageParams[key];
-
-                // *** التعديل المهم هنا ***
-                // إذا كان اسم المتغير هو 'statusKey'، قم بترجمة قيمته أولاً
                 if (key === 'statusKey' && typeof paramValue === 'string') {
                     paramValue = t(paramValue);
                 }
-
                 messageText = messageText.replace(regex, paramValue);
             });
         }
@@ -377,7 +360,40 @@ async function openNotificationDetails(notificationId, event) {
         document.getElementById('acceptProposalBtn').onclick = () => handleProposalResponse(proposalId, 'accepted');
         document.getElementById('rejectProposalBtn').onclick = () => handleProposalResponse(proposalId, 'rejected');
         document.getElementById('responseForm').onsubmit = (e) => { e.preventDefault(); handleProposalResponse(proposalId, 'rejected'); };
-
+        
+        const typeMap = {
+            'strategic': t('js-investor-profile-proposal-type-strategic'),
+            'expertise': t('js-investor-profile-proposal-type-expertise'),
+            'advisory': t('js-investor-profile-proposal-type-advisory'),
+            'hybrid': t('js-investor-profile-proposal-type-hybrid'),
+            'unspecified': t('js-investor-profile-proposal-type-custom')
+        };
+        
+        detailsHTML += `
+            <div class="mt-4 border-t pt-4 space-y-4">
+                <h4 class="font-bold text-gray-800">${t('proposal-details-title')}</h4>
+                
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-type')}</div>
+                    <div class="p-2 bg-gray-100 rounded font-medium text-purple-800">${typeMap[notification.partnershipType] || t('js-investor-profile-proposal-type-custom')}</div>
+                </div>
+                
+                ${notification.expertiseAreas && notification.expertiseAreas.length > 0 ? `
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-expertise')}</div>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        ${notification.expertiseAreas.map(area => `<span class="text-xs font-semibold px-2 py-1 bg-slate-200 text-slate-700 rounded-full">${area}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-terms')}</div>
+                    <p class="p-3 bg-gray-100 border rounded text-gray-700 whitespace-pre-wrap">${notification.proposedTerms || t('proposal-details-no-terms')}</p>
+                </div>
+            </div>
+        `;
+        
     } else if (notification.type === 'PROPOSAL_RESPONSE') {
         detailsHTML += `<div class="border-t pt-4">`;
 
