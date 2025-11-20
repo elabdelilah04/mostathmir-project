@@ -107,6 +107,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('stat-closed-projects').textContent = stats.projectsByStatus.closed || 0;
         document.getElementById('stat-total-views').textContent = stats.totalViews || 0;
         document.getElementById('stat-total-followers').textContent = stats.totalFollowers || 0;
+        document.getElementById('stat-total-funding-goal').textContent = (stats.totalFundingGoal || 0).toLocaleString();
+        document.getElementById('stat-total-funding-raised').textContent = (stats.totalFundingRaised || 0).toLocaleString();
+
+        const currency = stats.dashboardCurrency || 'MAD';
+        const currencyRaisedEl = document.getElementById('currency-raised');
+        const currencyGoalEl = document.getElementById('currency-goal');
+
+        if (currencyRaisedEl) currencyRaisedEl.textContent = currency;
+        if (currencyGoalEl) currencyGoalEl.textContent = currency;
         const investorsCountEl = document.getElementById('stat-investors-count');
         if (investorsCountEl) {
             const uniqueInvestors = new Set(participatingInvestorsData.map(inv => inv.investor._id));
@@ -462,16 +471,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const initial = investorId.fullName ? investorId.fullName.charAt(0) : '?';
             avatarHTML = `<div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">${initial}</div>`;
         }
-        
+
         const date = new Date(createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'long' });
-        
-        const typeMap = { 
-            'strategic': t('js-dashboard-proposal-type-strategic'), 
-            'expertise': t('js-dashboard-proposal-type-expertise'), 
-            'advisory': t('js-dashboard-proposal-type-advisory'), 
-            'hybrid': t('js-dashboard-proposal-type-hybrid') 
+
+        const typeMap = {
+            'strategic': t('js-dashboard-proposal-type-strategic'),
+            'expertise': t('js-dashboard-proposal-type-expertise'),
+            'advisory': t('js-dashboard-proposal-type-advisory'),
+            'hybrid': t('js-dashboard-proposal-type-hybrid')
         };
-        
+
         const statusMap = {
             pending: { text: t('js-dashboard-proposal-status-pending'), class: 'status-pending' },
             accepted: { text: t('js-dashboard-proposal-status-accepted'), class: 'status-accepted' },
@@ -557,7 +566,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const modalTitle = document.getElementById('statsModalTitle');
         modalTitle.textContent = t('js-dashboard-modal-proposals-title');
-        
+
         const proposalFilterSelect = document.getElementById('modalProposalsSortFilter');
         if (proposalFilterSelect) {
             proposalFilterSelect.onchange = renderFilteredProposals;
@@ -566,11 +575,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderFilteredProposals();
     }
 
-    window.toggleResponseForm = function(proposalId, event) {
+    window.toggleResponseForm = function (proposalId, event) {
         event.stopPropagation();
         const responseSection = document.getElementById(`response-section-${proposalId}`);
         const actionButton = document.getElementById(`action-btn-${proposalId}`);
-        
+
         if (responseSection.style.display === 'none') {
             responseSection.style.display = 'block';
             actionButton.style.display = 'none';
@@ -580,7 +589,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    window.submitProposalResponse = async function(proposalId, status, event) {
+    window.submitProposalResponse = async function (proposalId, status, event) {
         event.stopPropagation();
         const responseMessage = document.getElementById(`response-text-${proposalId}`).value;
         const token = localStorage.getItem('user_token');
@@ -588,7 +597,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const button = event.target;
         button.disabled = true;
         button.textContent = t('js-messages-sending-text');
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/proposals/${proposalId}/respond`, {
                 method: 'PUT',
@@ -602,7 +611,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             alert(t('js-messages-success-response-sent'));
-            window.location.reload(); 
+            window.location.reload();
 
         } catch (error) {
             alert(`${t('js-messages-error-prefix')}: ${error.message}`);

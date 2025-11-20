@@ -13,12 +13,11 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const exchangeRatesToUSD = {
-    "SAR": 0.27, "AED": 0.27, "QAR": 0.27, "OMR": 2.60,
-    "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
-    "MAD": 0.10, "USD": 1, "EUR": 1.08,
+const exchangeRatesToMAD = {
+    "SAR": 2.65, "AED": 2.71, "QAR": 2.73, "OMR": 25.84,
+    "KWD": 32.32, "BHD": 26.38, "EGP": 0.21, "JOD": 14.03,
+    "USD": 9.95, "EUR": 10.75, "MAD": 1,
 };
-
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
@@ -158,78 +157,50 @@ const updateUserProfilePicture = async (req, res, next) => {
 const getIdeaHolderDashboard = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        const interactionStatsPromise = Project.aggregate([
-            { $match: { owner: userId } },
-            {
-                $group: {
-                    _id: null,
-                    totalViews: { $sum: "$views" },
-                    totalFollowers: { $sum: { $size: "$followers" } }
-                }
-            }
-        ]);
-        const projectStatsPromise = Project.aggregate([
-            { $match: { owner: userId } },
-            {
-                $group: {
-                    _id: null,
-                    totalProjects: { $sum: 1 },
-                    totalFundingGoal: { $sum: "$fundingGoal.amount" },
-                    totalFundingRaised: { $sum: "$fundingAmountRaised" },
-                    countDraft: { $sum: { $cond: [{ $eq: ["$status", "draft"] }, 1, 0] } },
-                    countUnderReview: { $sum: { $cond: [{ $eq: ["$status", "under-review"] }, 1, 0] } },
-                    countClosed: { $sum: { $cond: [{ $eq: ["$status", "closed"] }, 1, 0] } },
-                    countPublishedUnfunded: {
-                        $sum: {
-                            $cond: [{
-                                $and: [
-                                    { $eq: ["$status", "published"] },
-                                    { $eq: ["$fundingAmountRaised", 0] }
-                                ]
-                            }, 1, 0]
-                        }
-                    },
-                    countFundingInProgress: {
-                        $sum: {
-                            $cond: [{
-                                $and: [
-                                    { $eq: ["$status", "published"] },
-                                    { $gt: ["$fundingAmountRaised", 0] }
-                                ]
-                            }, 1, 0]
-                        }
-                    },
-                    countFundedOrCompleted: {
-                        $sum: {
-                            $cond: [{ $in: ["$status", ["funded", "completed"]] }, 1, 0]
-                        }
-                    }
-                }
-            }
-        ]);
-        const [interactionStats, projectStatsArr] = await Promise.all([
-            interactionStatsPromise,
-            projectStatsPromise
-        ]);
-        const projectStats = projectStatsArr[0] || {};
-        const dashboardData = {
-            totalProjects: projectStats.totalProjects || 0,
-            totalFundingGoal: projectStats.totalFundingGoal || 0,
-            totalFundingRaised: projectStats.totalFundingRaised || 0,
-            totalViews: (interactionStats[0] || {}).totalViews || 0,
-            totalFollowers: (interactionStats[0] || {}).totalFollowers || 0,
-            projectsByStatus: {
-                draft: projectStats.countDraft || 0,
-                'under-review': projectStats.countUnderReview || 0,
-                closed: projectStats.countClosed || 0,
-                publishedUnfunded: projectStats.countPublishedUnfunded || 0,
-                fundingInProgress: projectStats.countFundingInProgress || 0,
-                fundedOrCompleted: projectStats.countFundedOrCompleted || 0,
-                active: (projectStats.countPublishedUnfunded || 0) + (projectStats.countFundingInProgress || 0) + (projectStats.countFundedOrCompleted || 0)
-            }
+        
+        const projects = await Project.find({ owner: userId }).select('views followers fundingGoal fundingAmountRaised status');
+
+        let totalFundingGoalMAD = 0;
+        let totalFundingRaisedMAD = 0;
+        const projectsByStatus = {
+            draft: 0, 'under-review': 0, closed: 0,
+            publishedUnfunded: 0, fundingInProgress: 0, fundedOrCompleted: 0, active: 0
         };
+        let totalViews = 0;
+        let totalFollowers = 0;
+
+        projects.forEach(p => {
+            const goalRate = exchangeRatesToMAD[p.fundingGoal.currency] || 1; // الافتراضي هو 1 إذا كانت العملة هي الدرهم
+            totalFundingGoalMAD += (p.fundingGoal.amount || 0) * goalRate;
+            totalFundingRaisedMAD += (p.fundingAmountRaised || 0) * goalRate;
+
+            totalViews += p.views || 0;
+            totalFollowers += p.followers ? p.followers.length : 0;
+            
+            if (p.status) {
+                if (projectsByStatus.hasOwnProperty(p.status)) { projectsByStatus[p.status]++; }
+                if (p.status === 'published' && (p.fundingAmountRaised || 0) === 0) { projectsByStatus.publishedUnfunded++; }
+                if (p.status === 'published' && (p.fundingAmountRaised || 0) > 0) { projectsByStatus.fundingInProgress++; }
+                if (p.status === 'funded' || p.status === 'completed') { projectsByStatus.fundedOrCompleted++; }
+            }
+        });
+
+        projectsByStatus.active = projectsByStatus.publishedUnfunded + projectsByStatus.fundingInProgress + projectsByStatus.fundedOrCompleted;
+
+        const dashboardData = {
+            totalProjects: projects.length,
+            totalFundingGoal: totalFundingGoalMAD,
+            totalFundingRaised: totalFundingRaisedMAD,
+            dashboardCurrency: 'MAD', // <== إرسال العملة الموحدة (درهم)
+            totalViews: totalViews,
+            totalFollowers: totalFollowers,
+            projectsByStatus: projectsByStatus
+        };
+
         res.json(dashboardData);
+
     } catch (error) {
+        console.error("Error in getIdeaHolderDashboard:", error);
         next(error);
     }
 };
