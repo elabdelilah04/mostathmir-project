@@ -11,7 +11,7 @@ const createNotification = async (notificationData) => {
 const getUserNotifications = async (req, res, next) => {
     try {
         const notifications = await Notification.find({ recipient: req.user._id })
-            .populate('sender', 'fullName profilePicture _id')
+            .populate('sender', 'fullName profilePicture profileTitle accountType')
             .populate('projectId', 'projectName _id')
             .sort({ createdAt: -1 });
         res.json(notifications);
