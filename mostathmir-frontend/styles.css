@@ -2975,11 +2975,11 @@ h6 {
     border-color: var(--border-color, #E5E7EB);
 }
 
-.profile-trigger.active {
+/* .profile-trigger.active {
     background-color: var(--primary-color, #1E3A8A);
     color: var(--light-text, #FFFFFF);
     border-color: var(--primary-color, #1E3A8A);
-}
+} */
 
 .profile-avatar1 {
     width: 32px;
