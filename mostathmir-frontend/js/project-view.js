@@ -10,6 +10,11 @@ const categoryTranslationKeys = {
     "تعليم": "addproject-category-education",
     "أخرى": "addproject-category-other"
 };
+const exchangeRatesFromUSD = {
+    "SAR": 3.75, "AED": 3.67, "QAR": 3.64, "OMR": 0.38,
+    "KWD": 0.31, "BHD": 0.38, "EGP": 47.6, "JOD": 0.71,
+    "MAD": 9.95, "USD": 1, "EUR": 0.92
+};
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get('id');
@@ -536,35 +541,41 @@ function closeModal() {
 }
 
 function createInvestorCard(investment, baseUrl) {
-    const { investor, project, amount, createdAt, investmentType, amountPaidNow, amountRemaining } = investment;
+    const { investor, project, amount, createdAt, investmentType, currency } = investment;
     if (!investor || !project) return '';
+
     let avatarHTML = '';
-    if (investor.profilePicture && investor.profilePicture !== 'default-avatar.png' && investor.profilePicture.startsWith('http')) {
+    if (investor.profilePicture && investor.profilePicture.startsWith('http')) {
         avatarHTML = `<img src="${investor.profilePicture}" alt="${investor.fullName}" class="w-12 h-12 rounded-full object-cover">`;
     } else {
         const initial = investor.fullName ? investor.fullName.charAt(0) : '?';
         avatarHTML = `<div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">${initial}</div>`;
     }
-    const currency = project.fundingGoal?.currency || 'USD';
+
     const date = new Date(createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'long', year: 'numeric' });
     const accountType = investor.accountType === 'investor' ? t('js-public-profile-role-investor') : t('js-public-profile-role-ideaholder');
-    let financialDetailsHTML = '';
-    if (investmentType === 'reservation') {
-        financialDetailsHTML = `
-            <div class="text-xs text-blue-700 font-semibold mb-2">${t('js-project-view-investor-card-type-reservation')}</div>
-            <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                <div class="bg-gray-100 p-2 rounded"><div class="text-gray-600">${t('js-project-view-investor-card-total')}</div><div class="font-bold text-gray-800">${amount.toLocaleString()} ${currency}</div></div>
-                <div class="bg-green-100 p-2 rounded"><div class="text-green-800">${t('js-project-view-investor-card-paid')}</div><div class="font-bold text-green-800">${(amountPaidNow || 0).toLocaleString()} ${currency}</div></div>
-                <div class="bg-red-100 p-2 rounded"><div class="text-red-800">${t('js-project-view-investor-card-remaining')}</div><div class="font-bold text-red-800">${(amountRemaining || 0).toLocaleString()} ${currency}</div></div>
-            </div>`;
-    } else {
-        financialDetailsHTML = `
-            <div class="text-xs text-green-700 font-semibold mb-2">${t('js-project-view-investor-card-type-full')}</div>
-            <div class="bg-gray-100 p-3 rounded-lg text-center">
-                <div class="text-xs text-gray-600">${t('js-project-view-investor-card-amount')}</div>
-                <div class="font-bold text-lg text-green-700">${amount.toLocaleString()} ${currency}</div>
-            </div>`;
+
+    // --- بداية منطق تحويل العملة ---
+    const projectCurrency = project.fundingGoal?.currency || 'MAD';
+    let financialDetailsHTML = `
+        <div class="font-bold text-lg text-green-700">${amount.toLocaleString()} ${currency}</div>
+    `;
+
+    // إذا كانت عملة الاستثمار مختلفة عن عملة المشروع، قم بالتحويل والعرض
+    if (currency !== projectCurrency) {
+        // 1. تحويل مبلغ الاستثمار إلى الدولار أولاً
+        const amountInUSD = amount / (exchangeRatesFromUSD[currency] || 1);
+        // 2. تحويل المبلغ بالدولار إلى عملة المشروع
+        const equivalentAmount = amountInUSD * (exchangeRatesFromUSD[projectCurrency] || 1);
+
+        financialDetailsHTML += `
+            <div class="text-xs text-gray-500 mt-1">
+                (*يعادل تقريباً ${Math.round(equivalentAmount).toLocaleString()} ${projectCurrency}*)
+            </div>
+        `;
     }
+    // --- نهاية منطق تحويل العملة ---
+
     return `
         <div class="modal-project-card" style="border-left-color: #16a34a;">
             <div class="flex items-start gap-4">
@@ -576,8 +587,11 @@ function createInvestorCard(investment, baseUrl) {
                 <span class="text-xs text-gray-500">${date}</span>
             </div>
              <div class="mt-4 border-t pt-3">
-                <p class="text-xs text-gray-500 mb-2">${t('js-project-view-investor-card-invested-in')}: <a href="project-view.html?id=${project._id}" target="_blank" class="font-semibold text-blue-600">${escapeHTML(project.projectName)}</a></p>
-                ${financialDetailsHTML}
+                <p class="text-xs text-gray-500 mb-2">${t('js-project-view-investor-card-invested-in')}: <span class="font-semibold text-blue-600">${escapeHTML(project.projectName)}</span></p>
+                <div class="bg-gray-100 p-3 rounded-lg text-center">
+                    <div class="text-xs text-gray-600">${t('js-project-view-investor-card-amount')}</div>
+                    ${financialDetailsHTML}
+                </div>
              </div>
         </div>`;
 }
