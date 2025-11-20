@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             bindProjectStatusCards();
             bindInteractionCards();
 
-            // Force re-translation after dynamic content is added
             if (window.translatePage) {
                 window.translatePage();
             }
@@ -453,8 +452,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function createProposalCard(proposal) {
-        const { _id, investorId, projectId, partnershipType, proposedTerms, createdAt, status } = proposal;
+        const { _id, investorId, projectId, partnershipType, proposedTerms, createdAt, status, expertiseAreas } = proposal;
         if (!investorId || !projectId) return '';
+
         let avatarHTML = '';
         if (investorId.profilePicture && investorId.profilePicture !== 'default-avatar.png' && investorId.profilePicture.startsWith('http')) {
             avatarHTML = `<img src="${investorId.profilePicture}" alt="${investorId.fullName}" class="w-12 h-12 rounded-full object-cover">`;
@@ -462,9 +462,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const initial = investorId.fullName ? investorId.fullName.charAt(0) : '?';
             avatarHTML = `<div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">${initial}</div>`;
         }
+        
         const date = new Date(createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'long' });
-        const typeMap = { 'strategic': t('js-dashboard-proposal-type-strategic'), 'expertise': t('js-dashboard-proposal-type-expertise'), 'advisory': t('js-dashboard-proposal-type-advisory'), 'hybrid': t('js-dashboard-proposal-type-hybrid') };
-
+        
+        const typeMap = { 
+            'strategic': t('js-dashboard-proposal-type-strategic'), 
+            'expertise': t('js-dashboard-proposal-type-expertise'), 
+            'advisory': t('js-dashboard-proposal-type-advisory'), 
+            'hybrid': t('js-dashboard-proposal-type-hybrid') 
+        };
+        
         const statusMap = {
             pending: { text: t('js-dashboard-proposal-status-pending'), class: 'status-pending' },
             accepted: { text: t('js-dashboard-proposal-status-accepted'), class: 'status-accepted' },
@@ -472,9 +479,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         const statusInfo = statusMap[status] || { text: status, class: '' };
 
-        let actionButton = '';
+        const expertiseHTML = (expertiseAreas && expertiseAreas.length > 0) ? `
+            <div class="mt-2">
+                <h5 class="text-xs font-semibold text-gray-500 mb-1">${t('proposal-details-expertise')}</h5>
+                <div class="flex flex-wrap gap-2">
+                    ${expertiseAreas.map(area => `<span class="expertise-tag">${area}</span>`).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        const responseSectionHTML = `
+            <div id="response-section-${_id}" class="response-section" style="display: none;">
+                <textarea id="response-text-${_id}" class="response-textarea" placeholder="${t('messages-response-placeholder')}"></textarea>
+                <div class="response-actions">
+                    <button class="cancel-btn" onclick="toggleResponseForm('${_id}', event)">${t('js-public-profile-cancel-btn')}</button>
+                    <button class="send-btn" onclick="submitProposalResponse('${_id}', 'rejected', event)">${t('messages-reject-proposal-btn')}</button>
+                    <button class="send-btn accept" onclick="submitProposalResponse('${_id}', 'accepted', event)">${t('messages-accept-proposal-btn')}</button>
+                </div>
+            </div>
+        `;
+
+        let actionButtonHTML = '';
         if (status === 'pending') {
-            actionButton = `<button class="respond-btn" onclick="openProposalResponseModal('${_id}', '${investorId._id}')">${t('js-dashboard-proposal-respond-btn')}</button>`;
+            actionButtonHTML = `<button id="action-btn-${_id}" class="respond-btn" onclick="toggleResponseForm('${_id}', event)">${t('js-dashboard-proposal-respond-btn')}</button>`;
         }
 
         return `
@@ -497,9 +524,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="p-3 bg-slate-50 border rounded-lg">
                         <div class="text-sm font-semibold text-purple-800 mb-1">${t('js-dashboard-proposal-type-label')}: ${typeMap[partnershipType] || t('js-dashboard-proposal-type-custom')}</div>
                         <p class="text-xs text-gray-700">${escapeHTML(proposedTerms)}</p>
+                        ${expertiseHTML}
                     </div>
                     <div class="proposal-actions">
-                        ${actionButton}
+                        ${actionButtonHTML}
+                        ${responseSectionHTML}
                     </div>
                 </div>
             </div>`;
@@ -507,7 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderFilteredProposals() {
         const modalBody = document.getElementById('statsModalBody');
-        const filterValue = document.querySelector('#proposalFilterContainer .filter-btn.active').dataset.filter;
+        const filterValue = document.getElementById('modalProposalsSortFilter').value;
 
         let filteredProposals = receivedProposalsData;
         if (filterValue !== 'all') {
@@ -528,53 +557,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const modalTitle = document.getElementById('statsModalTitle');
         modalTitle.textContent = t('js-dashboard-modal-proposals-title');
-
-        document.querySelectorAll('#proposalFilterContainer .filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.filter === 'all') {
-                btn.classList.add('active');
-            }
-            btn.onclick = () => {
-                document.querySelectorAll('#proposalFilterContainer .filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderFilteredProposals();
-            };
-        });
+        
+        const proposalFilterSelect = document.getElementById('modalProposalsSortFilter');
+        if (proposalFilterSelect) {
+            proposalFilterSelect.onchange = renderFilteredProposals;
+        }
 
         renderFilteredProposals();
     }
 
-    window.openProposalResponseModal = (proposalId, investorId) => {
-        if (!proposalResponseModal) return;
+    window.toggleResponseForm = function(proposalId, event) {
+        event.stopPropagation();
+        const responseSection = document.getElementById(`response-section-${proposalId}`);
+        const actionButton = document.getElementById(`action-btn-${proposalId}`);
+        
+        if (responseSection.style.display === 'none') {
+            responseSection.style.display = 'block';
+            actionButton.style.display = 'none';
+        } else {
+            responseSection.style.display = 'none';
+            actionButton.style.display = 'block';
+        }
+    }
 
-        document.getElementById('acceptProposalBtn').onclick = () => handleProposalResponse(proposalId, 'accepted');
-        document.getElementById('rejectProposalBtn').onclick = () => handleProposalResponse(proposalId, 'rejected');
-        document.getElementById('requestInfoBtn').onclick = () => {
-            window.location.href = `messages.html?userId=${investorId}`;
-        };
-        const responseForm = document.getElementById('responseForm');
-        responseForm.onsubmit = (e) => e.preventDefault();
+    window.submitProposalResponse = async function(proposalId, status, event) {
+        event.stopPropagation();
+        const responseMessage = document.getElementById(`response-text-${proposalId}`).value;
+        const token = localStorage.getItem('user_token');
 
-        closeModal();
-        setTimeout(() => {
-            proposalResponseModal.style.display = 'flex';
-        }, 300);
-    };
-
-    async function handleProposalResponse(proposalId, status) {
-        const responseMessage = document.getElementById('responseMessageText').value;
-        const acceptBtn = document.getElementById('acceptProposalBtn');
-        const rejectBtn = document.getElementById('rejectProposalBtn');
-        const requestBtn = document.getElementById('requestInfoBtn');
-
-        const clickedButton = status === 'accepted' ? acceptBtn : rejectBtn;
-        const originalText = clickedButton.innerHTML;
-
-        acceptBtn.disabled = true;
-        rejectBtn.disabled = true;
-        if (requestBtn) requestBtn.disabled = true;
-        clickedButton.innerHTML = t('js-dashboard-sending-text');
-
+        const button = event.target;
+        button.disabled = true;
+        button.textContent = t('js-messages-sending-text');
+        
         try {
             const response = await fetch(`${API_BASE_URL}/api/proposals/${proposalId}/respond`, {
                 method: 'PUT',
@@ -584,16 +598,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!response.ok) {
                 const err = await response.json();
-                throw new Error(err.message || t('js-dashboard-error-response-failed'));
+                throw new Error(err.message || t('js-messages-error-response-failed'));
             }
-            alert(t('js-dashboard-success-response'));
-            window.location.reload();
+
+            alert(t('js-messages-success-response-sent'));
+            window.location.reload(); 
+
         } catch (error) {
-            alert(`${t('js-dashboard-error-prefix')}: ${error.message}`);
-            acceptBtn.disabled = false;
-            rejectBtn.disabled = false;
-            if (requestBtn) requestBtn.disabled = false;
-            clickedButton.innerHTML = originalText;
+            alert(`${t('js-messages-error-prefix')}: ${error.message}`);
+            button.disabled = false;
         }
     }
 

@@ -335,14 +335,15 @@
                     </div>
                 </div>
                 <div id="proposalFilterContainer" class="modal-sort-filter" style="display: none;">
-                    <button data-filter="all" class="filter-btn active"
-                        data-i18n-key="profile-modal-proposals-filter-all">الكل</button>
-                    <button data-filter="pending" class="filter-btn"
-                        data-i18n-key="profile-modal-proposals-filter-pending">في الانتظار</button>
-                    <button data-filter="accepted" class="filter-btn"
-                        data-i18n-key="profile-modal-proposals-filter-accepted">مقبول</button>
-                    <button data-filter="rejected" class="filter-btn"
-                        data-i18n-key="profile-modal-proposals-filter-rejected">مرفوض</button>
+                    <label for="modalProposalsSortFilter" class="text-sm text-gray-600"
+                        data-i18n-key="profile-modal-filter-by-status">فلترة حسب الحالة:</label>
+                    <select id="modalProposalsSortFilter" class="text-sm border-gray-300 rounded p-1">
+                        <option value="all" data-i18n-key="profile-modal-proposals-filter-all">الكل</option>
+                        <option value="pending" data-i18n-key="profile-modal-proposals-filter-pending">في الانتظار
+                        </option>
+                        <option value="accepted" data-i18n-key="profile-modal-proposals-filter-accepted">مقبول</option>
+                        <option value="rejected" data-i18n-key="profile-modal-proposals-filter-rejected">مرفوض</option>
+                    </select>
                 </div>
                 <button class="close-modal-btn" id="closeStatsModalBtn" aria-label="إغلاق" data-i18n-key="">×</button>
             </div>
@@ -373,7 +374,7 @@
                 <button id="closeResponseModalBtn" class="close-modal-btn" aria-label="إغلاق"
                     data-i18n-key="">&times;</button>
             </div>
-            <div class="modal-body">
+            <!-- <div class="modal-body">
                 <form id="responseForm">
                     <p class="mb-4 text-sm text-gray-600" data-i18n-key="profile-modal-response-helper">أنت على
                         وشك الرد على اقتراح شراكة. اختر قبولاً أو رفضاً وأضف
@@ -396,7 +397,7 @@
                             data-i18n-key="profile-modal-response-request-info-btn"></button>
                     </div>
                 </form>
-            </div>
+            </div> -->
         </div>
     </div>
 
