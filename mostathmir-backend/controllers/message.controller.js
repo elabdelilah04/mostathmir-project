@@ -6,38 +6,48 @@ const getUserMessages = async (req, res, next) => {
     try {
         const userId = req.user._id;
 
-        const messages = await Message.find({
-            $or: [{ sender: userId }, { recipient: userId }]
-        })
-            .populate('sender', 'fullName profilePicture accountType profileTitle')
-            .populate('recipient', 'fullName profilePicture accountType profileTitle')
-            .sort({ createdAt: -1 });
-
-        const conversations = {};
-        messages.forEach(message => {
-            const otherUser = message.sender._id.toString() === userId.toString() ? message.recipient : message.sender;
-            const otherUserId = otherUser._id.toString();
-
-            if (!conversations[otherUserId]) {
-                conversations[otherUserId] = {
-                    otherUser: {
-                        _id: otherUser._id,
-                        fullName: otherUser.fullName,
-                        profilePicture: otherUser.profilePicture,
-                        accountType: otherUser.accountType,
-                        profileTitle: otherUser.profileTitle
+        // الخطوة 1: جلب آخر رسالة من كل محادثة باستخدام Aggregate
+        const lastMessages = await Message.aggregate([
+            { $match: { $or: [{ sender: userId }, { recipient: userId }] } },
+            { $sort: { createdAt: -1 } },
+            {
+                $group: {
+                    _id: {
+                        $cond: [
+                            { $gt: ["$sender", "$recipient"] },
+                            { $concat: [{ "$toString": "$sender" }, "-", { "$toString": "$recipient" }] },
+                            { $concat: [{ "$toString": "$recipient" }, "-", { "$toString": "$sender" }] }
+                        ]
                     },
-                    lastMessage: message,
-                    unreadCount: 0
-                };
-            }
-            if (!message.read && message.recipient.toString() === userId.toString()) {
-                conversations[otherUserId].unreadCount += 1;
-            }
-        });
+                    lastMessage: { $first: "$$ROOT" }
+                }
+            },
+            { $replaceRoot: { newRoot: "$lastMessage" } },
+            { $sort: { createdAt: -1 } }
+        ]);
 
-        const conversationsArray = Object.values(conversations);
-        res.json(conversationsArray);
+        // الخطوة 2: إرفاق بيانات المستخدمين (sender و recipient)
+        await User.populate(lastMessages, { path: "sender recipient", select: "fullName profilePicture accountType profileTitle" });
+
+        const conversations = [];
+        // الخطوة 3: لكل محادثة، قم بحساب الرسائل غير المقروءة بشكل منفصل وموثوق
+        for (const message of lastMessages) {
+            const otherUser = message.sender._id.toString() === userId.toString() ? message.recipient : message.sender;
+
+            const unreadCount = await Message.countDocuments({
+                sender: otherUser._id,
+                recipient: userId,
+                read: false
+            });
+
+            conversations.push({
+                otherUser: otherUser,
+                lastMessage: message,
+                unreadCount: unreadCount
+            });
+        }
+
+        res.json(conversations);
 
     } catch (error) {
         console.error("Error fetching user messages:", error);
@@ -58,7 +68,7 @@ const getConversation = async (req, res, next) => {
         })
             .populate('sender', 'fullName profilePicture accountType profileTitle')
             .populate('recipient', 'fullName profilePicture accountType profileTitle')
-            .populate('relatedProject', 'projectName') // جلب اسم المشروع
+            .populate('relatedProject', 'projectName')
             .sort({ createdAt: 'asc' });
 
         await Message.updateMany(
