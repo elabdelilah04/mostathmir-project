@@ -1,3 +1,8 @@
+/* ================================================================
+   HEADER STYLES (header-styles.css)
+   ================================================================ */
+
+/* ----- Main Header Container ----- */
 .header {
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -12,6 +17,7 @@
     justify-content: space-between;
 }
 
+/* ----- Logo ----- */
 .logo-container {
     display: flex;
     align-items: center;
@@ -31,6 +37,7 @@
     margin-left: 0.5rem;
 }
 
+/* ----- Main Navigation ----- */
 .main-nav {
     flex: 1;
 }
@@ -75,6 +82,7 @@
     width: 100%;
 }
 
+/* ----- User Actions & Icons ----- */
 .auth-buttons {
     display: flex;
     gap: 0.5rem;
@@ -117,6 +125,7 @@
     border: 2px solid white;
 }
 
+/* ----- Profile Dropdown ----- */
 .profile-dropdown-container {
     position: relative;
     display: flex;
@@ -268,6 +277,7 @@
     background-color: rgba(244, 67, 54, 0.05);
 }
 
+/* ----- Language Switcher & Mobile Menu ----- */
 .language-switcher {
     display: flex;
     align-items: center;
@@ -298,8 +308,9 @@
     border-color: #1E3A8A;
 }
 
+/* ================== MODIFICATION START ================== */
 .mobile-menu-toggle {
-    display: none;
+    display: none; /* Hide by default on desktop */
     flex-direction: column;
     justify-content: space-around;
     width: 24px;
@@ -309,6 +320,7 @@
     cursor: pointer;
     padding: 0;
 }
+/* =================== MODIFICATION END =================== */
 
 .mobile-menu-toggle span {
     width: 100%;
@@ -390,10 +402,12 @@
     .nav-link::after {
         display: none;
     }
-
+    
+    /* ================== MODIFICATION START ================== */
     .mobile-menu-toggle {
-        display: flex;
+        display: flex; /* Show only on mobile */
     }
+    /* =================== MODIFICATION END =================== */
 
     .profile-dropdown-container {
         display: none !important;
@@ -403,7 +417,6 @@
 .mobile-user-section {
     display: none;
 }
-
 .mobile-actions-section {
     display: none;
 }
@@ -425,7 +438,7 @@
         align-items: center;
         gap: 1.5rem;
     }
-
+    
     .main-nav.is-open #mobile-auth-section {
         display: flex;
         flex-direction: column;
@@ -434,7 +447,7 @@
         margin-top: auto;
         border-top: 1px solid #e5e7eb;
     }
-
+    
     .main-nav.is-open #mobile-auth-section .btn {
         width: 100%;
         text-align: center;
@@ -488,7 +501,7 @@
         width: 100%;
         text-align: center;
     }
-
+    
     #language-switcher-mobile-container {
         display: none;
     }
@@ -499,13 +512,13 @@
         margin-top: 1rem;
         border-top: 1px solid #e5e7eb;
     }
-
+    
     .main-nav.is-open #language-switcher-mobile-container .language-switcher {
         justify-content: center;
         width: 100%;
     }
 
-    .header-content>.flex>.language-switcher {
+    .header-content > .flex > .language-switcher {
         display: none;
     }
 }
