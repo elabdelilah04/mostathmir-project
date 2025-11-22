@@ -1,7 +1,4 @@
 (function () {
-    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, setupHeaderIcons, refreshHeaderBadges
-    // تبقى كما هي بالضبط بدون أي تغيير.
-
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -62,6 +59,7 @@
         var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : (user.fullName || '').trim().substring(0, 2).toUpperCase();
         var profileUrl = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
 
+        // Populate Desktop Dropdown
         var headerAvatarImage = document.getElementById('headerAvatarImage');
         var headerAvatarInitials = document.getElementById('headerAvatarInitials');
         if (headerAvatarImage && headerAvatarInitials) {
@@ -77,6 +75,7 @@
             dropdown.querySelector('.btn-view-profile').href = profileUrl;
         }
 
+        // Populate Mobile Menu
         var mobileAvatarImage = document.getElementById('mobile-header-avatar-image');
         var mobileAvatarInitials = document.getElementById('mobile-header-avatar-initials');
         if (mobileAvatarImage && mobileAvatarInitials) {
@@ -89,6 +88,14 @@
         if (mobileUserName) mobileUserName.textContent = user.fullName || '';
         var mobileUserRole = document.getElementById('mobile-user-role');
         if (mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
+
+        var mobileSignoutLink = document.getElementById('mobile-signout-link');
+        if (mobileSignoutLink) {
+            mobileSignoutLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.logoutUser();
+            });
+        }
     }
 
     if (!window.fetchCurrentUser) {
@@ -134,25 +141,38 @@
     }
 
     function setupHeaderIcons() {
-        document.querySelectorAll('#headerMessagesBtn').forEach(btn =>
-            btn.addEventListener('click', () => window.location.href = '/messages.html#messages')
-        );
-        document.querySelectorAll('#headerNotificationsBtn').forEach(btn =>
-            btn.addEventListener('click', () => window.location.href = '/messages.html#notifications')
-        );
+        function setupListeners(containerId) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+
+            var msgBtn = container.querySelector('#headerMessagesBtn');
+            var notiBtn = container.querySelector('#headerNotificationsBtn');
+
+            if (msgBtn) {
+                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
+            }
+            if (notiBtn) {
+                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
+            }
+        }
+        setupListeners('header-icons');
+        setupListeners('header-icons-mobile');
     }
 
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
+
         const msgBadges = document.querySelectorAll('#headerMessagesBadge');
         const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
         if (msgBadges.length === 0 && notiBadges.length === 0) return;
+
         if (!token) {
             msgBadges.forEach(badge => { badge.style.display = 'none'; });
             notiBadges.forEach(badge => { badge.style.display = 'none'; });
             return;
         }
+
         try {
             let unreadMessages = 0;
             try {
@@ -164,6 +184,7 @@
                     }
                 }
             } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
+
             let unreadNotifications = 0;
             try {
                 const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -174,6 +195,7 @@
                     }
                 }
             } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
+
             msgBadges.forEach(badge => {
                 if (unreadMessages > 0) {
                     badge.textContent = unreadMessages;
@@ -182,6 +204,7 @@
                     badge.style.display = 'none';
                 }
             });
+
             notiBadges.forEach(badge => {
                 if (unreadNotifications > 0) {
                     badge.textContent = unreadNotifications;
@@ -190,38 +213,34 @@
                     badge.style.display = 'none';
                 }
             });
+
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
 
-    // ==================== START: MODIFICATION ====================
-    function handleResponsiveHeader() {
-        const langSwitcher = document.getElementById('languageSwitcher');
-        const authButtons = document.getElementById('auth-buttons-visitor');
-        const icons = document.getElementById('header-icons');
-        const dropdown = document.getElementById('profile-dropdown-container');
+    function relocateLanguageForMobile() {
+        const switcher = document.getElementById('languageSwitcher');
+        const mobileContainer = document.getElementById('language-switcher-mobile-container');
+        const desktopContainer = document.querySelector('.header-content > .flex');
 
-        const mobileContainer = document.getElementById('mobile-actions-container');
-        const desktopContainer = document.querySelector('.header-content > .flex.items-center');
-        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-
-        if (!langSwitcher || !authButtons || !icons || !dropdown || !mobileContainer || !desktopContainer || !mobileMenuToggle) return;
+        if (!switcher || !desktopContainer) return;
 
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
-        if (isMobile) {
-            // Move to mobile nav
-            mobileContainer.appendChild(icons);
-            mobileContainer.appendChild(authButtons);
-            mobileContainer.appendChild(langSwitcher);
-        } else {
-            // Move back to desktop header
-            desktopContainer.insertBefore(authButtons, mobileMenuToggle);
-            desktopContainer.insertBefore(icons, dropdown);
-            desktopContainer.insertBefore(langSwitcher, mobileMenuToggle);
+        if (isMobile && mobileContainer) {
+            if (!mobileContainer.contains(switcher)) {
+                mobileContainer.appendChild(switcher);
+            }
+        } else if (!isMobile) {
+            if (!desktopContainer.contains(switcher)) {
+                desktopContainer.insertBefore(switcher, desktopContainer.querySelector('.mobile-menu-toggle'));
+            }
         }
     }
-    // ===================== END: MODIFICATION =====================
+
+    function bindRelocateOnResize() {
+        window.addEventListener('resize', relocateLanguageForMobile);
+    }
 
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
@@ -231,75 +250,70 @@
             if (!res.ok) throw new Error('Failed to fetch header');
             const html = await res.text();
             placeholder.innerHTML = html;
+
             const headerElement = document.querySelector('.header');
+
             initMobileMenu();
+
             document.querySelectorAll('.language-option').forEach(option => {
                 option.addEventListener('click', function () {
                     if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
                 });
             });
+
             const user = await window.fetchCurrentUser();
 
-            const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsContainer = document.getElementById('mobile-actions-container');
-            const authButtons = document.getElementById('auth-buttons-visitor');
-            const profileDropdown = document.getElementById('profile-dropdown-container');
-            const headerIcons = document.getElementById('header-icons');
-            const signOutLink = document.createElement('a');
-            signOutLink.href = '#';
-            signOutLink.className = 'nav-link sign-out-link';
-            signOutLink.dataset.i18nKey = 'profile-signout';
-            signOutLink.textContent = t('profile-signout');
-            signOutLink.onclick = (e) => { e.preventDefault(); window.logoutUser(); };
-
             if (user) {
-                if (mobileUserSection) mobileUserSection.style.display = 'block';
-                if (authButtons) authButtons.style.display = 'none';
-                if (profileDropdown) profileDropdown.style.display = 'flex';
-                if (headerIcons) headerIcons.style.display = 'flex';
-                if (mobileActionsContainer) {
-                    mobileActionsContainer.innerHTML = ''; // Clear container
-                    mobileActionsContainer.appendChild(signOutLink);
-                }
-
+                document.getElementById('auth-buttons-visitor').style.display = 'none';
+                document.getElementById('profile-dropdown-container').style.display = 'flex';
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
+
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
+
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
                 document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
+
                 const myProfileLink = document.getElementById('Myprofile');
                 if (myProfileLink) {
                     myProfileLink.style.display = 'list-item';
                     myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
+
                 document.querySelector('.dropdown-link.sign-out').addEventListener('click', function (e) {
                     e.preventDefault();
                     window.logoutUser();
                 });
+
+                const headerIcons = document.getElementById('header-icons');
+                const mobileIconsContainer = document.getElementById('header-icons-mobile');
+                if (headerIcons && mobileIconsContainer) {
+                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
+                }
+
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else { // Visitor
-                if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (authButtons) authButtons.style.display = 'flex';
-                if (profileDropdown) profileDropdown.style.display = 'none';
-                if (headerIcons) headerIcons.style.display = 'none';
-                if (mobileActionsContainer) mobileActionsContainer.innerHTML = '';
-
+            } else {
+                document.getElementById('auth-buttons-visitor').style.display = 'flex';
+                document.getElementById('profile-dropdown-container').style.display = 'none';
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
+                document.getElementById('header-icons').style.display = 'none';
             }
 
-            handleResponsiveHeader();
-            window.addEventListener('resize', handleResponsiveHeader);
+            relocateLanguageForMobile();
+            bindRelocateOnResize();
 
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
             if (window.updateLanguage) window.updateLanguage(currentLang);
+
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
+
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
@@ -307,10 +321,13 @@
     }
 
     window.initHeader = loadAndSetupHeader;
+
     window.addEventListener('storage', function (e) {
         if (e.key === 'user_token' || e.key === 'user_data') {
             refreshHeaderBadges();
         }
     });
+
     document.addEventListener('DOMContentLoaded', window.initHeader);
+
 })();
