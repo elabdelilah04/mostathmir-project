@@ -352,17 +352,15 @@
     align-items: center;
 }
 
-/* ----- Responsive Styles for Header ----- */
 @media (max-width: 992px) {
     .header-content {
         flex-wrap: wrap;
     }
 
     .main-nav {
-        display: block;
+        display: none;
         position: fixed;
         top: 71px;
-        /* Height of header */
         left: 0;
         right: 0;
         bottom: 0;
@@ -378,6 +376,8 @@
     }
 
     .main-nav.is-open {
+        display: flex;
+        flex-direction: column;
         transform: translateX(0);
     }
 
@@ -385,7 +385,8 @@
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem;
-        height: 100%;
+        width: 100%;
+        height: auto;
     }
 
     .nav-item {
@@ -410,13 +411,38 @@
     .profile-dropdown-container {
         display: none !important;
     }
+
+    .main-nav .auth-buttons {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem 1rem;
+        margin-top: auto;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .main-nav .auth-buttons .btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    .main-nav .language-switcher {
+        justify-content: center;
+        width: 100%;
+        padding: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .main-nav .mobile-actions-section {
+        margin-top: auto;
+    }
 }
 
-/* --- START: New Mobile Menu Styles --- */
-.mobile-user-section,
+.mobile-user-section {
+    display: none;
+}
 .mobile-actions-section {
     display: none;
-    /* Hidden by default on all screen sizes */
 }
 
 @media (max-width: 992px) {
@@ -432,11 +458,12 @@
         flex-direction: column;
         padding: 1.5rem 1rem;
         margin-top: auto;
-        /* Pushes this section to the bottom */
         border-top: 1px solid #e5e7eb;
         width: 100%;
+        align-items: center;
+        gap: 1.5rem;
     }
-
+    
     .user-info-mobile {
         display: flex;
         align-items: center;
@@ -452,11 +479,6 @@
         color: #4b5563;
         font-size: 0.9rem;
         margin: 0;
-    }
-
-    .mobile-actions-section {
-        align-items: center;
-        gap: 1.5rem;
     }
 
     .header-icons-mobile {
@@ -489,17 +511,8 @@
         width: 100%;
         text-align: center;
     }
-
-    #language-switcher-mobile-container .language-switcher {
-        justify-content: center;
-        width: 100%;
-    }
 }
 
-/* --- END: New Mobile Menu Styles --- */
-/* --- START: Fix Header Flicker --- */
-
-/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
 #auth-buttons-visitor,
 #profile-dropdown-container,
 #header-icons,
@@ -507,13 +520,11 @@
 #nav-browse-projects,
 #nav-my-projects,
 #nav-my-investments {
-    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
 .header-ready #auth-buttons-visitor,
 .header-ready #profile-dropdown-container,
 .header-ready #header-icons,
@@ -523,4 +534,27 @@
 .header-ready #nav-my-investments {
     visibility: visible;
     opacity: 1;
+}
+
+@media (min-width: 993px) {
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+    
+    .main-nav {
+        display: flex !important;
+        position: static;
+        transform: none;
+        background-color: transparent;
+        height: auto;
+        overflow: visible;
+        flex-direction: row;
+    }
+
+    .nav-list {
+        flex-direction: row;
+        height: auto;
+        padding: 0;
+        width: auto;
+    }
 }
