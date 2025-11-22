@@ -352,16 +352,17 @@
     align-items: center;
 }
 
-
+/* ----- Responsive Styles for Header ----- */
 @media (max-width: 992px) {
     .header-content {
         flex-wrap: wrap;
     }
 
     .main-nav {
-        display: none;
+        display: block;
         position: fixed;
         top: 71px;
+        /* Height of header */
         left: 0;
         right: 0;
         bottom: 0;
@@ -377,10 +378,6 @@
     }
 
     .main-nav.is-open {
-        display: flex;
-        /* Changed from block to flex */
-        flex-direction: column;
-        /* To stack nav-list and other sections */
         transform: translateX(0);
     }
 
@@ -388,10 +385,7 @@
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem;
-        width: 100%;
-        /* Ensure it takes full width */
-        height: auto;
-        /* Allow it to grow */
+        height: 100%;
     }
 
     .nav-item {
@@ -418,16 +412,16 @@
     }
 }
 
-.mobile-user-section {
-    display: none;
-}
-
+/* --- START: New Mobile Menu Styles --- */
+.mobile-user-section,
 .mobile-actions-section {
     display: none;
+    /* Hidden by default on all screen sizes */
 }
 
 @media (max-width: 992px) {
     .main-nav.is-open .mobile-user-section {
+        display: block;
         padding: 1rem;
         border-bottom: 1px solid #e5e7eb;
         width: 100%;
@@ -438,25 +432,9 @@
         flex-direction: column;
         padding: 1.5rem 1rem;
         margin-top: auto;
+        /* Pushes this section to the bottom */
         border-top: 1px solid #e5e7eb;
         width: 100%;
-        align-items: center;
-        gap: 1.5rem;
-    }
-
-    .main-nav.is-open #mobile-auth-section {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.5rem 1rem;
-        margin-top: auto;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .main-nav.is-open #mobile-auth-section .btn {
-        width: 100%;
-        text-align: center;
-        padding: 0.75rem;
     }
 
     .user-info-mobile {
@@ -474,6 +452,11 @@
         color: #4b5563;
         font-size: 0.9rem;
         margin: 0;
+    }
+
+    .mobile-actions-section {
+        align-items: center;
+        gap: 1.5rem;
     }
 
     .header-icons-mobile {
@@ -507,27 +490,16 @@
         text-align: center;
     }
 
-    #language-switcher-mobile-container {
-        display: none;
-    }
-
-    .main-nav.is-open #language-switcher-mobile-container {
-        display: block;
-        padding: 1rem;
-        margin-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .main-nav.is-open #language-switcher-mobile-container .language-switcher {
+    #language-switcher-mobile-container .language-switcher {
         justify-content: center;
         width: 100%;
     }
-
-    .header-content>.flex>.language-switcher {
-        display: none;
-    }
 }
 
+/* --- END: New Mobile Menu Styles --- */
+/* --- START: Fix Header Flicker --- */
+
+/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
 #auth-buttons-visitor,
 #profile-dropdown-container,
 #header-icons,
@@ -535,11 +507,13 @@
 #nav-browse-projects,
 #nav-my-projects,
 #nav-my-investments {
+    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
+/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
 .header-ready #auth-buttons-visitor,
 .header-ready #profile-dropdown-container,
 .header-ready #header-icons,
@@ -551,27 +525,4 @@
     opacity: 1;
 }
 
-/* ================== FINAL FIX START ================== */
-@media (min-width: 993px) {
-    .mobile-menu-toggle {
-        display: none !important;
-    }
-
-    .main-nav {
-        display: flex !important;
-        /* Ensure main nav is visible on desktop */
-        position: static;
-        transform: none;
-        background-color: transparent;
-        height: auto;
-        overflow: visible;
-    }
-
-    .nav-list {
-        flex-direction: row;
-        height: auto;
-        padding: 0;
-    }
-}
-
-/* =================== FINAL FIX END =================== */
+/* --- END: Fix Header Flicker --- */
