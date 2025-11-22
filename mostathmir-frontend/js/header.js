@@ -142,10 +142,8 @@
         function setupListeners(containerId) {
             var container = document.getElementById(containerId);
             if (!container) return;
-
             var msgBtn = container.querySelector('#headerMessagesBtn');
             var notiBtn = container.querySelector('#headerNotificationsBtn');
-
             if (msgBtn) {
                 msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
             }
@@ -160,17 +158,14 @@
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
-
         const msgBadges = document.querySelectorAll('#headerMessagesBadge');
         const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
         if (msgBadges.length === 0 && notiBadges.length === 0) return;
-
         if (!token) {
             msgBadges.forEach(badge => { badge.style.display = 'none'; });
             notiBadges.forEach(badge => { badge.style.display = 'none'; });
             return;
         }
-
         try {
             let unreadMessages = 0;
             try {
@@ -182,7 +177,6 @@
                     }
                 }
             } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
-
             let unreadNotifications = 0;
             try {
                 const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
@@ -193,7 +187,6 @@
                     }
                 }
             } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
-
             msgBadges.forEach(badge => {
                 if (unreadMessages > 0) {
                     badge.textContent = unreadMessages;
@@ -202,7 +195,6 @@
                     badge.style.display = 'none';
                 }
             });
-
             notiBadges.forEach(badge => {
                 if (unreadNotifications > 0) {
                     badge.textContent = unreadNotifications;
@@ -211,34 +203,36 @@
                     badge.style.display = 'none';
                 }
             });
-
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
-    
-    function relocateLanguageForMobile() {
-        const switcher = document.getElementById('languageSwitcher');
-        const mobileContainer = document.getElementById('language-switcher-mobile-container');
-        const desktopContainer = document.querySelector('.header-content > .flex.items-center.gap-4.just1');
 
-        if (!switcher || !desktopContainer || !mobileContainer) return;
+    function handleResponsiveHeader() {
+        const langSwitcher = document.getElementById('languageSwitcher');
+        const authButtons = document.getElementById('auth-buttons-visitor');
+        const mobileNav = document.querySelector('.main-nav');
+        const desktopRightContainer = document.querySelector('.header-content > .flex.items-center');
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+
+        if (!langSwitcher || !authButtons || !mobileNav || !desktopRightContainer || !mobileMenuToggle) return;
 
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
         if (isMobile) {
-            if (!mobileContainer.contains(switcher)) {
-                mobileContainer.appendChild(switcher);
+            if (!mobileNav.contains(authButtons)) {
+                mobileNav.appendChild(authButtons);
+            }
+            if (!mobileNav.contains(langSwitcher)) {
+                mobileNav.appendChild(langSwitcher);
             }
         } else {
-            if (!desktopContainer.contains(switcher)) {
-                desktopContainer.insertBefore(switcher, desktopContainer.querySelector('.mobile-menu-toggle'));
+            if (!desktopRightContainer.contains(authButtons)) {
+                desktopRightContainer.insertBefore(authButtons, mobileMenuToggle);
+            }
+            if (!desktopRightContainer.contains(langSwitcher)) {
+                desktopRightContainer.insertBefore(langSwitcher, mobileMenuToggle);
             }
         }
-    }
-
-
-    function bindRelocateOnResize() {
-        window.addEventListener('resize', relocateLanguageForMobile);
     }
 
     async function loadAndSetupHeader() {
@@ -249,91 +243,68 @@
             if (!res.ok) throw new Error('Failed to fetch header');
             const html = await res.text();
             placeholder.innerHTML = html;
-            
             const headerElement = document.querySelector('.header');
-
             initMobileMenu();
-
             document.querySelectorAll('.language-option').forEach(option => {
                 option.addEventListener('click', function () {
                     if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
                 });
             });
-
             const user = await window.fetchCurrentUser();
-
+            
             const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileSignoutLink = document.getElementById('mobile-signout-link');
-            const authButtonsMobilePlaceholder = document.getElementById('auth-buttons-mobile-placeholder');
+            const mobileActionsSection = document.getElementById('mobile-actions-section');
+            const authButtons = document.getElementById('auth-buttons-visitor');
 
             if (user) {
-                document.getElementById('auth-buttons-visitor').style.display = 'none';
+                if (mobileUserSection) mobileUserSection.style.display = 'block';
+                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
+                if (authButtons) authButtons.style.display = 'none';
+
                 document.getElementById('profile-dropdown-container').style.display = 'flex';
-                
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
-
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
-
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
                 document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
-                
                 const myProfileLink = document.getElementById('Myprofile');
                 if (myProfileLink) {
                     myProfileLink.style.display = 'list-item';
                     myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
-
                 document.querySelector('.dropdown-link.sign-out').addEventListener('click', function (e) {
                     e.preventDefault();
                     window.logoutUser();
                 });
-                
-                if(mobileUserSection) mobileUserSection.style.display = 'block';
-                if(mobileSignoutLink) mobileSignoutLink.style.display = 'block';
-                if(authButtonsMobilePlaceholder) authButtonsMobilePlaceholder.innerHTML = '';
-                
                 const headerIcons = document.getElementById('header-icons');
                 const mobileIconsContainer = document.getElementById('header-icons-mobile');
                 if (headerIcons && mobileIconsContainer) {
                     mobileIconsContainer.innerHTML = headerIcons.innerHTML;
                 }
-
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else {
-                document.getElementById('auth-buttons-visitor').style.display = 'flex';
-                document.getElementById('profile-dropdown-container').style.display = 'none';
+            } else { // Visitor
+                if (mobileUserSection) mobileUserSection.style.display = 'none';
+                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
+                if (authButtons) authButtons.style.display = 'flex';
                 
+                document.getElementById('profile-dropdown-container').style.display = 'none';
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
                 document.getElementById('header-icons').style.display = 'none';
-
-                if(mobileUserSection) mobileUserSection.style.display = 'none';
-                if(mobileSignoutLink) mobileSignoutLink.style.display = 'none';
-                
-                const authButtonsVisitor = document.getElementById('auth-buttons-visitor');
-                if (authButtonsMobilePlaceholder && authButtonsVisitor) {
-                    const clonedButtons = authButtonsVisitor.cloneNode(true);
-                    clonedButtons.id = '';
-                    clonedButtons.classList.add('auth-buttons-mobile');
-                    authButtonsMobilePlaceholder.appendChild(clonedButtons);
-                }
             }
-
-            relocateLanguageForMobile();
-            bindRelocateOnResize();
+            
+            handleResponsiveHeader();
+            window.addEventListener('resize', handleResponsiveHeader);
 
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
             if (window.updateLanguage) window.updateLanguage(currentLang);
-
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
-
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
@@ -341,17 +312,10 @@
     }
 
     window.initHeader = loadAndSetupHeader;
-
     window.addEventListener('storage', function (e) {
         if (e.key === 'user_token' || e.key === 'user_data') {
             refreshHeaderBadges();
         }
     });
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', window.initHeader);
-    } else {
-        window.initHeader();
-    }
-
+    document.addEventListener('DOMContentLoaded', window.initHeader);
 })();
