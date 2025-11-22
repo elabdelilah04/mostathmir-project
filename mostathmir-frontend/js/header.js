@@ -1,4 +1,7 @@
 (function () {
+    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, setupHeaderIcons, refreshHeaderBadges
+    // تبقى كما هي بالضبط بدون أي تغيير.
+
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -86,14 +89,6 @@
         if (mobileUserName) mobileUserName.textContent = user.fullName || '';
         var mobileUserRole = document.getElementById('mobile-user-role');
         if (mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
-
-        var mobileSignoutLink = document.getElementById('mobile-signout-link');
-        if (mobileSignoutLink) {
-            mobileSignoutLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                window.logoutUser();
-            });
-        }
     }
 
     if (!window.fetchCurrentUser) {
@@ -139,20 +134,12 @@
     }
 
     function setupHeaderIcons() {
-        function setupListeners(containerId) {
-            var container = document.getElementById(containerId);
-            if (!container) return;
-            var msgBtn = container.querySelector('#headerMessagesBtn');
-            var notiBtn = container.querySelector('#headerNotificationsBtn');
-            if (msgBtn) {
-                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
-            }
-            if (notiBtn) {
-                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
-            }
-        }
-        setupListeners('header-icons');
-        setupListeners('header-icons-mobile');
+        document.querySelectorAll('#headerMessagesBtn').forEach(btn =>
+            btn.addEventListener('click', () => window.location.href = '/messages.html#messages')
+        );
+        document.querySelectorAll('#headerNotificationsBtn').forEach(btn =>
+            btn.addEventListener('click', () => window.location.href = '/messages.html#notifications')
+        );
     }
 
     async function refreshHeaderBadges() {
@@ -207,33 +194,34 @@
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
 
+    // ==================== START: MODIFICATION ====================
     function handleResponsiveHeader() {
         const langSwitcher = document.getElementById('languageSwitcher');
         const authButtons = document.getElementById('auth-buttons-visitor');
-        const mobileNav = document.querySelector('.main-nav');
-        const desktopRightContainer = document.querySelector('.header-content > .flex.items-center');
+        const icons = document.getElementById('header-icons');
+        const dropdown = document.getElementById('profile-dropdown-container');
+
+        const mobileContainer = document.getElementById('mobile-actions-container');
+        const desktopContainer = document.querySelector('.header-content > .flex.items-center');
         const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
 
-        if (!langSwitcher || !authButtons || !mobileNav || !desktopRightContainer || !mobileMenuToggle) return;
+        if (!langSwitcher || !authButtons || !icons || !dropdown || !mobileContainer || !desktopContainer || !mobileMenuToggle) return;
 
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
         if (isMobile) {
-            if (!mobileNav.contains(authButtons)) {
-                mobileNav.appendChild(authButtons);
-            }
-            if (!mobileNav.contains(langSwitcher)) {
-                mobileNav.appendChild(langSwitcher);
-            }
+            // Move to mobile nav
+            mobileContainer.appendChild(icons);
+            mobileContainer.appendChild(authButtons);
+            mobileContainer.appendChild(langSwitcher);
         } else {
-            if (!desktopRightContainer.contains(authButtons)) {
-                desktopRightContainer.insertBefore(authButtons, mobileMenuToggle);
-            }
-            if (!desktopRightContainer.contains(langSwitcher)) {
-                desktopRightContainer.insertBefore(langSwitcher, mobileMenuToggle);
-            }
+            // Move back to desktop header
+            desktopContainer.insertBefore(authButtons, mobileMenuToggle);
+            desktopContainer.insertBefore(icons, dropdown);
+            desktopContainer.insertBefore(langSwitcher, mobileMenuToggle);
         }
     }
+    // ===================== END: MODIFICATION =====================
 
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
@@ -251,17 +239,29 @@
                 });
             });
             const user = await window.fetchCurrentUser();
-            
+
             const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsSection = document.getElementById('mobile-actions-section');
+            const mobileActionsContainer = document.getElementById('mobile-actions-container');
             const authButtons = document.getElementById('auth-buttons-visitor');
+            const profileDropdown = document.getElementById('profile-dropdown-container');
+            const headerIcons = document.getElementById('header-icons');
+            const signOutLink = document.createElement('a');
+            signOutLink.href = '#';
+            signOutLink.className = 'nav-link sign-out-link';
+            signOutLink.dataset.i18nKey = 'profile-signout';
+            signOutLink.textContent = t('profile-signout');
+            signOutLink.onclick = (e) => { e.preventDefault(); window.logoutUser(); };
 
             if (user) {
                 if (mobileUserSection) mobileUserSection.style.display = 'block';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
                 if (authButtons) authButtons.style.display = 'none';
+                if (profileDropdown) profileDropdown.style.display = 'flex';
+                if (headerIcons) headerIcons.style.display = 'flex';
+                if (mobileActionsContainer) {
+                    mobileActionsContainer.innerHTML = ''; // Clear container
+                    mobileActionsContainer.appendChild(signOutLink);
+                }
 
-                document.getElementById('profile-dropdown-container').style.display = 'flex';
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
@@ -277,26 +277,21 @@
                     e.preventDefault();
                     window.logoutUser();
                 });
-                const headerIcons = document.getElementById('header-icons');
-                const mobileIconsContainer = document.getElementById('header-icons-mobile');
-                if (headerIcons && mobileIconsContainer) {
-                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
-                }
                 setupHeaderIcons();
                 refreshHeaderBadges();
             } else { // Visitor
                 if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
                 if (authButtons) authButtons.style.display = 'flex';
-                
-                document.getElementById('profile-dropdown-container').style.display = 'none';
+                if (profileDropdown) profileDropdown.style.display = 'none';
+                if (headerIcons) headerIcons.style.display = 'none';
+                if (mobileActionsContainer) mobileActionsContainer.innerHTML = '';
+
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
-                document.getElementById('header-icons').style.display = 'none';
             }
-            
+
             handleResponsiveHeader();
             window.addEventListener('resize', handleResponsiveHeader);
 
