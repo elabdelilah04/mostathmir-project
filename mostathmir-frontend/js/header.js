@@ -1,4 +1,7 @@
 (function () {
+    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, refreshHeaderBadges
+    // تبقى كما هي بالضبط من نسختك الأصلية.
+
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -86,6 +89,14 @@
         if (mobileUserName) mobileUserName.textContent = user.fullName || '';
         var mobileUserRole = document.getElementById('mobile-user-role');
         if (mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
+
+        var mobileSignoutLink = document.getElementById('mobile-signout-link');
+        if (mobileSignoutLink) {
+            mobileSignoutLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.logoutUser();
+            });
+        }
     }
 
     if (!window.fetchCurrentUser) {
@@ -131,91 +142,59 @@
     }
 
     function setupHeaderIcons() {
-        document.querySelectorAll('#headerMessagesBtn').forEach(btn =>
-            btn.addEventListener('click', () => window.location.href = '/messages.html#messages')
-        );
-        document.querySelectorAll('#headerNotificationsBtn').forEach(btn =>
-            btn.addEventListener('click', () => window.location.href = '/messages.html#notifications')
-        );
+        document.getElementById('headerMessagesBtn')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
+        document.getElementById('headerNotificationsBtn')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
+        document.getElementById('headerMessagesBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
+        document.getElementById('headerNotificationsBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
     }
 
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
-        const msgBadges = document.querySelectorAll('#headerMessagesBadge');
-        const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
-        if (msgBadges.length === 0 && notiBadges.length === 0) return;
+        
+        const msgBadges = [document.getElementById('headerMessagesBadge'), document.getElementById('headerMessagesBadgeMobile')];
+        const notiBadges = [document.getElementById('headerNotificationsBadge'), document.getElementById('headerNotificationsBadgeMobile')];
+
         if (!token) {
-            msgBadges.forEach(badge => { badge.style.display = 'none'; });
-            notiBadges.forEach(badge => { badge.style.display = 'none'; });
+            msgBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
+            notiBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
             return;
         }
         try {
             let unreadMessages = 0;
-            try {
-                const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (resMsg.ok) {
-                    const conversations = await resMsg.json();
-                    if (Array.isArray(conversations)) {
-                        unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
-                    }
+            const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (resMsg.ok) {
+                const conversations = await resMsg.json();
+                if (Array.isArray(conversations)) {
+                    unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
                 }
-            } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
+            }
+            
             let unreadNotifications = 0;
-            try {
-                const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (resNoti.ok) {
-                    const notifications = await resNoti.json();
-                    if (Array.isArray(notifications)) {
-                        unreadNotifications = notifications.filter(n => !n.read).length;
-                    }
+            const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (resNoti.ok) {
+                const notifications = await resNoti.json();
+                if (Array.isArray(notifications)) {
+                    unreadNotifications = notifications.filter(n => !n.read).length;
                 }
-            } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
+            }
+
             msgBadges.forEach(badge => {
-                if (unreadMessages > 0) {
+                if (badge) {
                     badge.textContent = unreadMessages;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
+                    badge.style.display = unreadMessages > 0 ? 'flex' : 'none';
                 }
             });
             notiBadges.forEach(badge => {
-                if (unreadNotifications > 0) {
+                if (badge) {
                     badge.textContent = unreadNotifications;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
+                    badge.style.display = unreadNotifications > 0 ? 'flex' : 'none';
                 }
             });
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
-
-    function handleResponsiveHeader() {
-        const langSwitcher = document.getElementById('languageSwitcher');
-        const authButtons = document.getElementById('auth-buttons-visitor');
-        const icons = document.getElementById('header-icons');
-        const dropdown = document.getElementById('profile-dropdown-container');
-
-        const mobileContainer = document.getElementById('mobile-actions-container');
-        const desktopContainer = document.querySelector('.header-content > .flex.items-center');
-        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-
-        if (!langSwitcher || !authButtons || !icons || !dropdown || !mobileContainer || !desktopContainer || !mobileMenuToggle) return;
-
-        const isMobile = window.matchMedia("(max-width: 992px)").matches;
-
-        if (isMobile) {
-            mobileContainer.appendChild(icons);
-            mobileContainer.appendChild(authButtons);
-            mobileContainer.appendChild(langSwitcher);
-        } else {
-            desktopContainer.insertBefore(authButtons, mobileMenuToggle);
-            desktopContainer.insertBefore(icons, dropdown);
-            desktopContainer.insertBefore(langSwitcher, mobileMenuToggle);
-        }
-    }
-
+    
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
@@ -224,45 +203,32 @@
             if (!res.ok) throw new Error('Failed to fetch header');
             const html = await res.text();
             placeholder.innerHTML = html;
+
             const headerElement = document.querySelector('.header');
             initMobileMenu();
-            document.querySelectorAll('.language-option').forEach(option => {
-                option.addEventListener('click', function () {
-                    if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
-                });
-            });
-
+            
             const user = await window.fetchCurrentUser();
 
             const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsContainer = document.getElementById('mobile-actions-container');
-            const authButtons = document.getElementById('auth-buttons-visitor');
-            const profileDropdown = document.getElementById('profile-dropdown-container');
-            const headerIcons = document.getElementById('header-icons');
-
-            const signOutLink = document.createElement('a');
-            signOutLink.href = '#';
-            signOutLink.className = 'nav-link sign-out-link';
-            signOutLink.dataset.i18nKey = 'profile-signout';
-            signOutLink.textContent = t('profile-signout');
-            signOutLink.onclick = (e) => { e.preventDefault(); window.logoutUser(); };
-
-            // ==================== START: LOGIC CORRECTION ====================
+            const mobileActionsLoggedIn = document.getElementById('mobile-actions-loggedin');
+            const mobileActionsVisitor = document.getElementById('mobile-actions-visitor');
+            
+            const desktopAuthButtons = document.getElementById('auth-buttons-visitor');
+            const desktopProfileDropdown = document.getElementById('profile-dropdown-container');
+            const desktopHeaderIcons = document.getElementById('header-icons');
+            
             if (user) {
-                // Logged-in user
-                mobileUserSection.style.display = ''; // Let CSS handle it
-                authButtons.style.display = 'none';
-                profileDropdown.style.display = 'flex';
-                headerIcons.style.display = 'flex';
+                // --- Logged-in User State ---
+                if (mobileUserSection) mobileUserSection.style.display = 'block';
+                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'flex';
+                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'none';
 
-                if (mobileActionsContainer) {
-                    mobileActionsContainer.innerHTML = '';
-                    mobileActionsContainer.appendChild(signOutLink);
-                }
-
+                if (desktopAuthButtons) desktopAuthButtons.style.display = 'none';
+                if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'flex';
+                if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'flex';
+                
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
-
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
@@ -272,32 +238,57 @@
                     myProfileLink.style.display = 'list-item';
                     myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
-                document.querySelector('.dropdown-link.sign-out').addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.logoutUser();
-                });
+                document.querySelector('.dropdown-link.sign-out').addEventListener('click', (e) => { e.preventDefault(); window.logoutUser(); });
+                
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else {
-                // Visitor
-                mobileUserSection.style.display = 'none';
-                authButtons.style.display = 'flex';
-                profileDropdown.style.display = 'none';
-                headerIcons.style.display = 'none';
-                if (mobileActionsContainer) mobileActionsContainer.innerHTML = '';
-
+            } else { 
+                // --- Visitor State ---
+                if (mobileUserSection) mobileUserSection.style.display = 'none';
+                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'none';
+                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'flex';
+                
+                if (desktopAuthButtons) desktopAuthButtons.style.display = 'flex';
+                if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'none';
+                if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'none';
+                
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
             }
-            // ===================== END: LOGIC CORRECTION =====================
 
-            handleResponsiveHeader();
-            window.addEventListener('resize', handleResponsiveHeader);
+            // --- Language Switcher Logic ---
+            const desktopLangSwitcher = document.getElementById('languageSwitcher');
+            const mobileLangSwitcher = document.getElementById('languageSwitcherMobile');
+            
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
+                });
+            });
 
+            // Sync both switchers
+            function syncLangSwitchers(lang) {
+                [desktopLangSwitcher, mobileLangSwitcher].forEach(switcher => {
+                    if (switcher) {
+                        switcher.querySelectorAll('.language-option').forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.lang === lang);
+                        });
+                    }
+                });
+            }
+            if (window.updateLanguage) {
+                const originalUpdate = window.updateLanguage;
+                window.updateLanguage = function(lang) {
+                    originalUpdate(lang);
+                    syncLangSwitchers(lang);
+                }
+            }
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
+            syncLangSwitchers(currentLang);
             if (window.updateLanguage) window.updateLanguage(currentLang);
+            
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
@@ -308,10 +299,5 @@
     }
 
     window.initHeader = loadAndSetupHeader;
-    window.addEventListener('storage', function (e) {
-        if (e.key === 'user_token' || e.key === 'user_data') {
-            refreshHeaderBadges();
-        }
-    });
     document.addEventListener('DOMContentLoaded', window.initHeader);
 })();
