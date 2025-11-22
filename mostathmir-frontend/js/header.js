@@ -217,26 +217,27 @@
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
-
+    
     function relocateLanguageForMobile() {
         const switcher = document.getElementById('languageSwitcher');
         const mobileContainer = document.getElementById('language-switcher-mobile-container');
-        const desktopContainer = document.querySelector('.header-content > .flex');
+        const desktopContainer = document.querySelector('.header-content > .flex.items-center.gap-4.just1');
 
-        if (!switcher || !desktopContainer) return;
+        if (!switcher || !desktopContainer || !mobileContainer) return;
 
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
 
-        if (isMobile && mobileContainer) {
+        if (isMobile) {
             if (!mobileContainer.contains(switcher)) {
                 mobileContainer.appendChild(switcher);
             }
-        } else if (!isMobile) {
+        } else {
             if (!desktopContainer.contains(switcher)) {
                 desktopContainer.insertBefore(switcher, desktopContainer.querySelector('.mobile-menu-toggle'));
             }
         }
     }
+
 
     function bindRelocateOnResize() {
         window.addEventListener('resize', relocateLanguageForMobile);
@@ -263,18 +264,29 @@
 
             const user = await window.fetchCurrentUser();
 
+            // Mobile menu placeholders
+            const mobileUserSection = document.getElementById('mobile-user-section');
+            const mobileSignoutLink = document.getElementById('mobile-signout-link');
+            const authButtonsMobilePlaceholder = document.getElementById('auth-buttons-mobile-placeholder');
+
             if (user) {
+                // --- LOGGED-IN USER ---
+                // Desktop view
                 document.getElementById('auth-buttons-visitor').style.display = 'none';
                 document.getElementById('profile-dropdown-container').style.display = 'flex';
+                
+                // Common nav links
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
 
+                // Populate data
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
 
+                // Role-specific nav links
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
                 document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
-
+                
                 const myProfileLink = document.getElementById('Myprofile');
                 if (myProfileLink) {
                     myProfileLink.style.display = 'list-item';
@@ -285,7 +297,13 @@
                     e.preventDefault();
                     window.logoutUser();
                 });
-
+                
+                // Mobile view
+                if(mobileUserSection) mobileUserSection.style.display = 'block';
+                if(mobileSignoutLink) mobileSignoutLink.style.display = 'block';
+                if(authButtonsMobilePlaceholder) authButtonsMobilePlaceholder.innerHTML = ''; // Clear visitor buttons
+                
+                // Clone icons for mobile
                 const headerIcons = document.getElementById('header-icons');
                 const mobileIconsContainer = document.getElementById('header-icons-mobile');
                 if (headerIcons && mobileIconsContainer) {
@@ -295,13 +313,30 @@
                 setupHeaderIcons();
                 refreshHeaderBadges();
             } else {
+                // --- VISITOR ---
+                // Desktop view
                 document.getElementById('auth-buttons-visitor').style.display = 'flex';
                 document.getElementById('profile-dropdown-container').style.display = 'none';
+                
+                // Hide user-specific links
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
                 document.getElementById('header-icons').style.display = 'none';
+
+                // Mobile View
+                if(mobileUserSection) mobileUserSection.style.display = 'none';
+                if(mobileSignoutLink) mobileSignoutLink.style.display = 'none';
+                
+                // Clone visitor buttons for mobile menu
+                const authButtonsVisitor = document.getElementById('auth-buttons-visitor');
+                if (authButtonsMobilePlaceholder && authButtonsVisitor) {
+                    const clonedButtons = authButtonsVisitor.cloneNode(true);
+                    clonedButtons.id = ''; // Remove ID to avoid duplicates
+                    clonedButtons.classList.add('auth-buttons-mobile'); // Add class for mobile-specific styling
+                    authButtonsMobilePlaceholder.appendChild(clonedButtons);
+                }
             }
 
             relocateLanguageForMobile();

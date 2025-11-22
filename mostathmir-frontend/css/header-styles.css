@@ -410,6 +410,34 @@
     .profile-dropdown-container {
         display: none !important;
     }
+
+    /* START: New styles for mobile auth buttons and language switcher */
+    .header-content .auth-buttons {
+        display: none;
+    }
+
+    .auth-buttons-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        padding: 1rem 0;
+    }
+
+    .auth-buttons-mobile .btn {
+        width: 100%;
+        padding: 0.75rem;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    
+    #language-switcher-mobile-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+    /* END: New styles */
 }
 
 /* --- START: New Mobile Menu Styles --- */
@@ -488,11 +516,6 @@
         font-size: 1.1rem;
         width: 100%;
         text-align: center;
-    }
-
-    #language-switcher-mobile-container .language-switcher {
-        justify-content: center;
-        width: 100%;
     }
 }
 

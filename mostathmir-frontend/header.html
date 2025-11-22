@@ -12,8 +12,8 @@
             <!-- Main Navigation -->
             <nav class="main-nav">
                 <ul class="nav-list">
-                    <!-- === START: Mobile User Section (Added) === -->
-                    <li class="nav-item mobile-user-section" id="mobile-user-section">
+                    <!-- === START: Mobile User Section (Updated) === -->
+                    <li class="nav-item mobile-user-section" id="mobile-user-section" style="display: none;">
                         <div class="user-info-mobile">
                             <div class="header-avatar" id="mobile-header-avatar">
                                 <img src="" alt="الملف الشخصي" class="avatar-img" id="mobile-header-avatar-image"
@@ -54,14 +54,21 @@
                             data-i18n-key="nav-contact">الدعم</a></li>
                 </ul>
 
-                <!-- === START: Mobile Actions Section (Added) === -->
+                <!-- === START: Mobile Actions Section (Updated Structure) === -->
                 <div class="mobile-actions-section" id="mobile-actions-section">
+                    <!-- Placeholder for cloned Auth Buttons -->
+                    <div id="auth-buttons-mobile-placeholder"></div>
+
                     <div class="header-icons-mobile" id="header-icons-mobile">
                         <!-- Icons will be cloned here by JS -->
                     </div>
+
+                    <!-- New placeholder for language switcher -->
+                    <div id="language-switcher-mobile-container"></div>
+                    
                     <div class="separator-line"></div>
                     <a href="#" class="nav-link sign-out-link" id="mobile-signout-link"
-                        data-i18n-key="profile-signout">تسجيل الخروج</a>
+                        data-i18n-key="profile-signout" style="display: none;">تسجيل الخروج</a>
                 </div>
                 <!-- === END: Mobile Actions Section === -->
             </nav>
