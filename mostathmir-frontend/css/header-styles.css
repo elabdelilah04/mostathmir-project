@@ -352,6 +352,7 @@
     align-items: center;
 }
 
+
 @media (max-width: 992px) {
     .header-content {
         flex-wrap: wrap;
@@ -377,7 +378,9 @@
 
     .main-nav.is-open {
         display: flex;
+        /* Changed from block to flex */
         flex-direction: column;
+        /* To stack nav-list and other sections */
         transform: translateX(0);
     }
 
@@ -386,7 +389,9 @@
         align-items: flex-start;
         padding: 1rem;
         width: 100%;
+        /* Ensure it takes full width */
         height: auto;
+        /* Allow it to grow */
     }
 
     .nav-item {
@@ -416,6 +421,7 @@
 .mobile-user-section {
     display: none;
 }
+
 .mobile-actions-section {
     display: none;
 }
@@ -437,29 +443,20 @@
         align-items: center;
         gap: 1.5rem;
     }
-    
-    .main-nav.is-open .auth-buttons {
+
+    .main-nav.is-open #mobile-auth-section {
         display: flex;
         flex-direction: column;
         gap: 1rem;
         padding: 1.5rem 1rem;
         margin-top: auto;
         border-top: 1px solid #e5e7eb;
-        width: 100%;
     }
-    
-    .main-nav.is-open .auth-buttons .btn {
+
+    .main-nav.is-open #mobile-auth-section .btn {
         width: 100%;
         text-align: center;
         padding: 0.75rem;
-    }
-
-    .main-nav.is-open .language-switcher {
-        justify-content: center;
-        width: 100%;
-        padding: 1rem;
-        margin-top: 1rem;
-        border-top: 1px solid #e5e7eb;
     }
 
     .user-info-mobile {
@@ -509,6 +506,26 @@
         width: 100%;
         text-align: center;
     }
+
+    #language-switcher-mobile-container {
+        display: none;
+    }
+
+    .main-nav.is-open #language-switcher-mobile-container {
+        display: block;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .main-nav.is-open #language-switcher-mobile-container .language-switcher {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .header-content>.flex>.language-switcher {
+        display: none;
+    }
 }
 
 #auth-buttons-visitor,
@@ -534,25 +551,27 @@
     opacity: 1;
 }
 
+/* ================== FINAL FIX START ================== */
 @media (min-width: 993px) {
     .mobile-menu-toggle {
         display: none !important;
     }
-    
+
     .main-nav {
         display: flex !important;
+        /* Ensure main nav is visible on desktop */
         position: static;
         transform: none;
         background-color: transparent;
         height: auto;
         overflow: visible;
-        flex-direction: row; /* Ensure nav-list is horizontal */
     }
 
     .nav-list {
         flex-direction: row;
         height: auto;
         padding: 0;
-        width: auto; /* Allow nav-list to take natural width */
     }
 }
+
+/* =================== FINAL FIX END =================== */

@@ -207,31 +207,11 @@
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
 
-    function handleResponsiveHeader() {
-        const langSwitcher = document.getElementById('languageSwitcher');
-        const authButtons = document.getElementById('auth-buttons-visitor');
-        const mobileNav = document.querySelector('.main-nav');
-        const desktopRightContainer = document.querySelector('.header-content > .flex.items-center');
-        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-
-        if (!langSwitcher || !authButtons || !mobileNav || !desktopRightContainer || !mobileMenuToggle) return;
-
-        const isMobile = window.matchMedia("(max-width: 992px)").matches;
-
-        if (isMobile) {
-            if (!mobileNav.contains(authButtons)) {
-                mobileNav.appendChild(authButtons);
-            }
-            if (!mobileNav.contains(langSwitcher)) {
-                mobileNav.appendChild(langSwitcher);
-            }
-        } else {
-            if (!desktopRightContainer.contains(authButtons)) {
-                desktopRightContainer.insertBefore(authButtons, mobileMenuToggle);
-            }
-            if (!desktopRightContainer.contains(langSwitcher)) {
-                desktopRightContainer.insertBefore(langSwitcher, mobileMenuToggle);
-            }
+    function relocateLanguageForMobile() {
+        const switcher = document.getElementById('languageSwitcher');
+        const mobileContainer = document.getElementById('language-switcher-mobile-container');
+        if (mobileContainer && !mobileContainer.contains(switcher)) {
+            mobileContainer.appendChild(switcher);
         }
     }
 
@@ -251,17 +231,16 @@
                 });
             });
             const user = await window.fetchCurrentUser();
-
             const mobileUserSection = document.getElementById('mobile-user-section');
+            const mobileAuthSection = document.getElementById('mobile-auth-section');
             const mobileActionsSection = document.getElementById('mobile-actions-section');
-            const authButtons = document.getElementById('auth-buttons-visitor');
 
             if (user) {
                 if (mobileUserSection) mobileUserSection.style.display = 'block';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
-                if (authButtons) authButtons.style.display = 'none';
-
+                document.getElementById('auth-buttons-visitor').style.display = 'none';
+                if (mobileAuthSection) mobileAuthSection.style.display = 'none';
                 document.getElementById('profile-dropdown-container').style.display = 'flex';
+                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
@@ -284,22 +263,19 @@
                 }
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else { // Visitor
+            } else {
                 if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
-                if (authButtons) authButtons.style.display = 'flex';
-
+                document.getElementById('auth-buttons-visitor').style.display = 'flex';
+                if (mobileAuthSection) mobileAuthSection.style.display = 'flex';
                 document.getElementById('profile-dropdown-container').style.display = 'none';
+                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
                 document.getElementById('header-icons').style.display = 'none';
             }
-
-            handleResponsiveHeader();
-            window.addEventListener('resize', handleResponsiveHeader);
-
+            relocateLanguageForMobile();
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
             if (window.updateLanguage) window.updateLanguage(currentLang);
             if (headerElement) {
