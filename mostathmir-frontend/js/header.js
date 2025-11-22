@@ -1,7 +1,4 @@
 (function () {
-    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, refreshHeaderBadges
-    // تبقى كما هي بالضبط من نسختك الأصلية.
-
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -62,6 +59,7 @@
         var initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : (user.fullName || '').trim().substring(0, 2).toUpperCase();
         var profileUrl = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
 
+        // Populate Desktop Dropdown
         var headerAvatarImage = document.getElementById('headerAvatarImage');
         var headerAvatarInitials = document.getElementById('headerAvatarInitials');
         if (headerAvatarImage && headerAvatarInitials) {
@@ -77,6 +75,7 @@
             dropdown.querySelector('.btn-view-profile').href = profileUrl;
         }
 
+        // Populate Mobile Menu
         var mobileAvatarImage = document.getElementById('mobile-header-avatar-image');
         var mobileAvatarInitials = document.getElementById('mobile-header-avatar-initials');
         if (mobileAvatarImage && mobileAvatarInitials) {
@@ -142,59 +141,107 @@
     }
 
     function setupHeaderIcons() {
-        document.getElementById('headerMessagesBtn')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
-        document.getElementById('headerNotificationsBtn')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
-        document.getElementById('headerMessagesBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
-        document.getElementById('headerNotificationsBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
+        function setupListeners(containerId) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+
+            var msgBtn = container.querySelector('#headerMessagesBtn');
+            var notiBtn = container.querySelector('#headerNotificationsBtn');
+
+            if (msgBtn) {
+                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
+            }
+            if (notiBtn) {
+                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
+            }
+        }
+        setupListeners('header-icons');
+        setupListeners('header-icons-mobile');
     }
 
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
-        
-        const msgBadges = [document.getElementById('headerMessagesBadge'), document.getElementById('headerMessagesBadgeMobile')];
-        const notiBadges = [document.getElementById('headerNotificationsBadge'), document.getElementById('headerNotificationsBadgeMobile')];
+
+        const msgBadges = document.querySelectorAll('#headerMessagesBadge');
+        const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
+        if (msgBadges.length === 0 && notiBadges.length === 0) return;
 
         if (!token) {
-            msgBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
-            notiBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
+            msgBadges.forEach(badge => { badge.style.display = 'none'; });
+            notiBadges.forEach(badge => { badge.style.display = 'none'; });
             return;
         }
+
         try {
             let unreadMessages = 0;
-            const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (resMsg.ok) {
-                const conversations = await resMsg.json();
-                if (Array.isArray(conversations)) {
-                    unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+            try {
+                const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (resMsg.ok) {
+                    const conversations = await resMsg.json();
+                    if (Array.isArray(conversations)) {
+                        unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+                    }
                 }
-            }
-            
+            } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
+
             let unreadNotifications = 0;
-            const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (resNoti.ok) {
-                const notifications = await resNoti.json();
-                if (Array.isArray(notifications)) {
-                    unreadNotifications = notifications.filter(n => !n.read).length;
+            try {
+                const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (resNoti.ok) {
+                    const notifications = await resNoti.json();
+                    if (Array.isArray(notifications)) {
+                        unreadNotifications = notifications.filter(n => !n.read).length;
+                    }
                 }
-            }
+            } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
 
             msgBadges.forEach(badge => {
-                if (badge) {
+                if (unreadMessages > 0) {
                     badge.textContent = unreadMessages;
-                    badge.style.display = unreadMessages > 0 ? 'flex' : 'none';
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
                 }
             });
+
             notiBadges.forEach(badge => {
-                if (badge) {
+                if (unreadNotifications > 0) {
                     badge.textContent = unreadNotifications;
-                    badge.style.display = unreadNotifications > 0 ? 'flex' : 'none';
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
                 }
             });
+
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
-    
+
+    function relocateLanguageForMobile() {
+        const switcher = document.getElementById('languageSwitcher');
+        const mobileContainer = document.getElementById('language-switcher-mobile-container');
+        const desktopContainer = document.querySelector('.header-content > .flex');
+
+        if (!switcher || !desktopContainer) return;
+
+        const isMobile = window.matchMedia("(max-width: 992px)").matches;
+
+        if (isMobile && mobileContainer) {
+            if (!mobileContainer.contains(switcher)) {
+                mobileContainer.appendChild(switcher);
+            }
+        } else if (!isMobile) {
+            if (!desktopContainer.contains(switcher)) {
+                desktopContainer.insertBefore(switcher, desktopContainer.querySelector('.mobile-menu-toggle'));
+            }
+        }
+    }
+
+    function bindRelocateOnResize() {
+        window.addEventListener('resize', relocateLanguageForMobile);
+    }
+
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
@@ -205,93 +252,68 @@
             placeholder.innerHTML = html;
 
             const headerElement = document.querySelector('.header');
+
             initMobileMenu();
-            
-            const user = await window.fetchCurrentUser();
 
-            const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsLoggedIn = document.getElementById('mobile-actions-loggedin');
-            const mobileActionsVisitor = document.getElementById('mobile-actions-visitor');
-            
-            const desktopAuthButtons = document.getElementById('auth-buttons-visitor');
-            const desktopProfileDropdown = document.getElementById('profile-dropdown-container');
-            const desktopHeaderIcons = document.getElementById('header-icons');
-            
-            if (user) {
-                // --- Logged-in User State ---
-                if (mobileUserSection) mobileUserSection.style.display = 'block';
-                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'flex';
-                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'none';
-
-                if (desktopAuthButtons) desktopAuthButtons.style.display = 'none';
-                if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'flex';
-                if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'flex';
-                
-                document.getElementById('nav-about').style.display = 'none';
-                document.getElementById('nav-how').style.display = 'none';
-                populateHeader(user, 'https://mostathmir-api.onrender.com');
-                new ProfileDropdown();
-                document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
-                document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
-                const myProfileLink = document.getElementById('Myprofile');
-                if (myProfileLink) {
-                    myProfileLink.style.display = 'list-item';
-                    myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
-                }
-                document.querySelector('.dropdown-link.sign-out').addEventListener('click', (e) => { e.preventDefault(); window.logoutUser(); });
-                
-                setupHeaderIcons();
-                refreshHeaderBadges();
-            } else { 
-                // --- Visitor State ---
-                if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'none';
-                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'flex';
-                
-                if (desktopAuthButtons) desktopAuthButtons.style.display = 'flex';
-                if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'none';
-                if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'none';
-                
-                document.getElementById('nav-browse-projects').style.display = 'none';
-                document.getElementById('nav-my-projects').style.display = 'none';
-                document.getElementById('nav-my-investments').style.display = 'none';
-                document.getElementById('Myprofile').style.display = 'none';
-            }
-
-            // --- Language Switcher Logic ---
-            const desktopLangSwitcher = document.getElementById('languageSwitcher');
-            const mobileLangSwitcher = document.getElementById('languageSwitcherMobile');
-            
             document.querySelectorAll('.language-option').forEach(option => {
                 option.addEventListener('click', function () {
                     if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
                 });
             });
 
-            // Sync both switchers
-            function syncLangSwitchers(lang) {
-                [desktopLangSwitcher, mobileLangSwitcher].forEach(switcher => {
-                    if (switcher) {
-                        switcher.querySelectorAll('.language-option').forEach(btn => {
-                            btn.classList.toggle('active', btn.dataset.lang === lang);
-                        });
-                    }
-                });
-            }
-            if (window.updateLanguage) {
-                const originalUpdate = window.updateLanguage;
-                window.updateLanguage = function(lang) {
-                    originalUpdate(lang);
-                    syncLangSwitchers(lang);
+            const user = await window.fetchCurrentUser();
+
+            if (user) {
+                document.getElementById('auth-buttons-visitor').style.display = 'none';
+                document.getElementById('profile-dropdown-container').style.display = 'flex';
+                document.getElementById('nav-about').style.display = 'none';
+                document.getElementById('nav-how').style.display = 'none';
+
+                populateHeader(user, 'https://mostathmir-api.onrender.com');
+                new ProfileDropdown();
+
+                document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
+                document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
+
+                const myProfileLink = document.getElementById('Myprofile');
+                if (myProfileLink) {
+                    myProfileLink.style.display = 'list-item';
+                    myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
+
+                document.querySelector('.dropdown-link.sign-out').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.logoutUser();
+                });
+
+                const headerIcons = document.getElementById('header-icons');
+                const mobileIconsContainer = document.getElementById('header-icons-mobile');
+                if (headerIcons && mobileIconsContainer) {
+                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
+                }
+
+                setupHeaderIcons();
+                refreshHeaderBadges();
+            } else {
+                document.getElementById('auth-buttons-visitor').style.display = 'flex';
+                document.getElementById('profile-dropdown-container').style.display = 'none';
+                document.getElementById('nav-browse-projects').style.display = 'none';
+                document.getElementById('nav-my-projects').style.display = 'none';
+                document.getElementById('nav-my-investments').style.display = 'none';
+                document.getElementById('Myprofile').style.display = 'none';
+                document.getElementById('header-icons').style.display = 'none';
             }
+
+            relocateLanguageForMobile();
+            bindRelocateOnResize();
+
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
-            syncLangSwitchers(currentLang);
             if (window.updateLanguage) window.updateLanguage(currentLang);
-            
+
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
+
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
@@ -299,5 +321,13 @@
     }
 
     window.initHeader = loadAndSetupHeader;
+
+    window.addEventListener('storage', function (e) {
+        if (e.key === 'user_token' || e.key === 'user_data') {
+            refreshHeaderBadges();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', window.initHeader);
+
 })();

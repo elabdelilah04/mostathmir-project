@@ -277,6 +277,7 @@
     background-color: rgba(244, 67, 54, 0.05);
 }
 
+/* ----- Language Switcher & Mobile Menu ----- */
 .language-switcher {
     display: flex;
     align-items: center;
@@ -351,19 +352,17 @@
     align-items: center;
 }
 
-.mobile-actions-wrapper {
-    display: none;
-}
-
+/* ----- Responsive Styles for Header ----- */
 @media (max-width: 992px) {
     .header-content {
         flex-wrap: wrap;
     }
 
     .main-nav {
-        display: none;
+        display: block;
         position: fixed;
         top: 71px;
+        /* Height of header */
         left: 0;
         right: 0;
         bottom: 0;
@@ -379,8 +378,6 @@
     }
 
     .main-nav.is-open {
-        display: flex;
-        flex-direction: column;
         transform: translateX(0);
     }
 
@@ -388,9 +385,7 @@
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem;
-        width: 100%;
-        height: auto;
-        flex-grow: 1;
+        height: 100%;
     }
 
     .nav-item {
@@ -415,48 +410,13 @@
     .profile-dropdown-container {
         display: none !important;
     }
-    
-    .mobile-actions-wrapper {
-        display: block;
-        margin-top: auto;
-    }
-
-    #mobile-actions-loggedin, #mobile-actions-visitor {
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem 1rem;
-        border-top: 1px solid #e5e7eb;
-        width: 100%;
-        align-items: center;
-        gap: 1.5rem;
-    }
-
-    .auth-buttons-mobile {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 1rem;
-    }
-
-    .auth-buttons-mobile .btn {
-        width: 100%;
-        text-align: center;
-        padding: 0.75rem;
-    }
-    
-    .language-switcher-mobile {
-        padding: 1rem;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .language-switcher-mobile .language-switcher {
-        justify-content: center;
-        width: 100%;
-    }
 }
 
-.mobile-user-section {
+/* --- START: New Mobile Menu Styles --- */
+.mobile-user-section,
+.mobile-actions-section {
     display: none;
+    /* Hidden by default on all screen sizes */
 }
 
 @media (max-width: 992px) {
@@ -466,7 +426,17 @@
         border-bottom: 1px solid #e5e7eb;
         width: 100%;
     }
-    
+
+    .main-nav.is-open .mobile-actions-section {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem 1rem;
+        margin-top: auto;
+        /* Pushes this section to the bottom */
+        border-top: 1px solid #e5e7eb;
+        width: 100%;
+    }
+
     .user-info-mobile {
         display: flex;
         align-items: center;
@@ -484,6 +454,11 @@
         margin: 0;
     }
 
+    .mobile-actions-section {
+        align-items: center;
+        gap: 1.5rem;
+    }
+
     .header-icons-mobile {
         display: flex;
         gap: 2rem;
@@ -491,6 +466,14 @@
 
     .header-icons-mobile .header-icon-btn {
         font-size: 1.5rem;
+        border: none;
+        background: none;
+        box-shadow: none;
+    }
+
+    .header-icons-mobile .header-icon-btn:hover {
+        transform: none;
+        box-shadow: none;
     }
 
     .separator-line {
@@ -506,8 +489,17 @@
         width: 100%;
         text-align: center;
     }
+
+    #language-switcher-mobile-container .language-switcher {
+        justify-content: center;
+        width: 100%;
+    }
 }
 
+/* --- END: New Mobile Menu Styles --- */
+/* --- START: Fix Header Flicker --- */
+
+/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
 #auth-buttons-visitor,
 #profile-dropdown-container,
 #header-icons,
@@ -515,11 +507,13 @@
 #nav-browse-projects,
 #nav-my-projects,
 #nav-my-investments {
+    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
+/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
 .header-ready #auth-buttons-visitor,
 .header-ready #profile-dropdown-container,
 .header-ready #header-icons,
@@ -529,31 +523,4 @@
 .header-ready #nav-my-investments {
     visibility: visible;
     opacity: 1;
-}
-
-@media (min-width: 993px) {
-    .mobile-menu-toggle {
-        display: none !important;
-    }
-    
-    .main-nav {
-        display: flex !important;
-        position: static;
-        transform: none;
-        background-color: transparent;
-        height: auto;
-        overflow: visible;
-        flex-direction: row;
-    }
-
-    .nav-list {
-        flex-direction: row;
-        height: auto;
-        padding: 0;
-        width: auto;
-    }
-
-    .mobile-actions-wrapper {
-        display: none;
-    }
 }
