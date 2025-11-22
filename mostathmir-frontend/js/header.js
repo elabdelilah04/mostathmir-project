@@ -86,14 +86,6 @@
         if (mobileUserName) mobileUserName.textContent = user.fullName || '';
         var mobileUserRole = document.getElementById('mobile-user-role');
         if (mobileUserRole) mobileUserRole.textContent = user.accountType === 'investor' ? t('js-header-role-investor') : t('js-header-role-ideaholder');
-
-        var mobileSignoutLink = document.getElementById('mobile-signout-link');
-        if (mobileSignoutLink) {
-            mobileSignoutLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                window.logoutUser();
-            });
-        }
     }
 
     if (!window.fetchCurrentUser) {
@@ -139,20 +131,12 @@
     }
 
     function setupHeaderIcons() {
-        function setupListeners(containerId) {
-            var container = document.getElementById(containerId);
-            if (!container) return;
-            var msgBtn = container.querySelector('#headerMessagesBtn');
-            var notiBtn = container.querySelector('#headerNotificationsBtn');
-            if (msgBtn) {
-                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
-            }
-            if (notiBtn) {
-                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
-            }
-        }
-        setupListeners('header-icons');
-        setupListeners('header-icons-mobile');
+        document.querySelectorAll('#headerMessagesBtn').forEach(btn =>
+            btn.addEventListener('click', () => window.location.href = '/messages.html#messages')
+        );
+        document.querySelectorAll('#headerNotificationsBtn').forEach(btn =>
+            btn.addEventListener('click', () => window.location.href = '/messages.html#notifications')
+        );
     }
 
     async function refreshHeaderBadges() {
@@ -210,30 +194,25 @@
     function handleResponsiveHeader() {
         const langSwitcher = document.getElementById('languageSwitcher');
         const authButtons = document.getElementById('auth-buttons-visitor');
-        const mobileNav = document.querySelector('.main-nav');
-        const desktopRightContainer = document.querySelector('.header-content > .flex.items-center');
+        const icons = document.getElementById('header-icons');
+        const dropdown = document.getElementById('profile-dropdown-container');
+
+        const mobileContainer = document.getElementById('mobile-actions-container');
+        const desktopContainer = document.querySelector('.header-content > .flex.items-center');
         const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    
-        if (!langSwitcher || !authButtons || !mobileNav || !desktopRightContainer || !mobileMenuToggle) return;
-    
+
+        if (!langSwitcher || !authButtons || !icons || !dropdown || !mobileContainer || !desktopContainer || !mobileMenuToggle) return;
+
         const isMobile = window.matchMedia("(max-width: 992px)").matches;
-    
+
         if (isMobile) {
-            // Move visitor buttons and language switcher to mobile nav
-            if (!mobileNav.contains(authButtons)) {
-                mobileNav.appendChild(authButtons);
-            }
-            if (!mobileNav.contains(langSwitcher)) {
-                mobileNav.appendChild(langSwitcher);
-            }
+            mobileContainer.appendChild(icons);
+            mobileContainer.appendChild(authButtons);
+            mobileContainer.appendChild(langSwitcher);
         } else {
-            // Move them back to desktop header
-            if (!desktopRightContainer.contains(authButtons)) {
-                desktopRightContainer.insertBefore(authButtons, mobileMenuToggle);
-            }
-            if (!desktopRightContainer.contains(langSwitcher)) {
-                desktopRightContainer.insertBefore(langSwitcher, mobileMenuToggle);
-            }
+            desktopContainer.insertBefore(authButtons, mobileMenuToggle);
+            desktopContainer.insertBefore(icons, dropdown);
+            desktopContainer.insertBefore(langSwitcher, mobileMenuToggle);
         }
     }
 
@@ -254,24 +233,36 @@
             });
 
             const user = await window.fetchCurrentUser();
-            
+
             const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsSection = document.getElementById('mobile-actions-section');
+            const mobileActionsContainer = document.getElementById('mobile-actions-container');
             const authButtons = document.getElementById('auth-buttons-visitor');
             const profileDropdown = document.getElementById('profile-dropdown-container');
             const headerIcons = document.getElementById('header-icons');
 
+            const signOutLink = document.createElement('a');
+            signOutLink.href = '#';
+            signOutLink.className = 'nav-link sign-out-link';
+            signOutLink.dataset.i18nKey = 'profile-signout';
+            signOutLink.textContent = t('profile-signout');
+            signOutLink.onclick = (e) => { e.preventDefault(); window.logoutUser(); };
+
+            // ==================== START: LOGIC CORRECTION ====================
             if (user) {
-                // Logged-in user logic
-                if (mobileUserSection) mobileUserSection.style.display = 'block';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
-                if (authButtons) authButtons.style.display = 'none';
-                if (profileDropdown) profileDropdown.style.display = 'flex';
-                if (headerIcons) headerIcons.style.display = 'flex';
+                // Logged-in user
+                mobileUserSection.style.display = ''; // Let CSS handle it
+                authButtons.style.display = 'none';
+                profileDropdown.style.display = 'flex';
+                headerIcons.style.display = 'flex';
+
+                if (mobileActionsContainer) {
+                    mobileActionsContainer.innerHTML = '';
+                    mobileActionsContainer.appendChild(signOutLink);
+                }
 
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
-                
+
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
@@ -285,27 +276,23 @@
                     e.preventDefault();
                     window.logoutUser();
                 });
-                const mobileIconsContainer = document.getElementById('header-icons-mobile');
-                if (headerIcons && mobileIconsContainer) {
-                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
-                }
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else { 
-                // Visitor logic
-                if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
-                if (authButtons) authButtons.style.display = 'flex';
-                
-                if (profileDropdown) profileDropdown.style.display = 'none';
-                if (headerIcons) headerIcons.style.display = 'none';
-                
+            } else {
+                // Visitor
+                mobileUserSection.style.display = 'none';
+                authButtons.style.display = 'flex';
+                profileDropdown.style.display = 'none';
+                headerIcons.style.display = 'none';
+                if (mobileActionsContainer) mobileActionsContainer.innerHTML = '';
+
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
             }
-            
+            // ===================== END: LOGIC CORRECTION =====================
+
             handleResponsiveHeader();
             window.addEventListener('resize', handleResponsiveHeader);
 
