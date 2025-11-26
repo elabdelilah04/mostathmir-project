@@ -398,7 +398,7 @@
     .nav-list {
         flex-direction: column;
         align-items: flex-start;
-        padding: 1rem;
+        padding: 3rem 1rem 0rem 1rem;
         width: 100%;
         flex-grow: 1;
     }
@@ -560,7 +560,7 @@
     .nav-list {
         flex-direction: row;
         height: auto;
-        padding: 0;
+        padding: 3rem 1rem 0rem 1rem;
         width: auto;
     }
 }
