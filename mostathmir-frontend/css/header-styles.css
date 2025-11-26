@@ -4,9 +4,10 @@
 
 /* ----- Main Header Container ----- */
 .header {
+    width: 100%;
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 1000;
 }
@@ -560,7 +561,7 @@
     .nav-list {
         flex-direction: row;
         height: auto;
-        padding: 3rem 1rem 0rem 1rem;
+        padding: 0rem;
         width: auto;
     }
 }
