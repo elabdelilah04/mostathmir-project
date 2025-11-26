@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function populateSidebarStats(stats, investments, user) {
         const totalInvestmentEl = document.getElementById('stat-total-investment-amount');
-        // const avgReturnEl = document.getElementById('stat-avg-return');
+        const avgReturnEl = document.getElementById('stat-avg-return');
         const partnersEl = document.getElementById('stat-partners-count');
         const followingEl = document.getElementById('stat-following-count');
 
