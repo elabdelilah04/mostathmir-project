@@ -80,19 +80,6 @@
                                         </a>
 
                                         <div class="grid grid-cols-2 gap-4 pt-4 mt-6 border-t border-slate-200">
-                                            <!-- <div class="text-center">
-                                                <div id="stat-total-investment-amount"
-                                                    class="text-xl font-bold text-emerald-600">...</div>
-                                                <div class="text-xs text-slate-600"
-                                                    data-i18n-key="investor-profile-total-investments-stat">إجمالي
-                                                    الاستثمارات</div>
-                                            </div> -->
-                                            <div class="text-center">
-                                                <div id="stat-avg-return" class="text-xl font-bold text-emerald-600">
-                                                    ...%</div>
-                                                <div class="text-xs text-slate-600"
-                                                    data-i18n-key="investor-profile-avg-return-stat">متوسط العائد</div>
-                                            </div>
                                             <button id="partners-stat-button" class="text-center stat-card-interactive">
                                                 <div id="stat-partners-count"
                                                     class="text-xl font-bold text-emerald-600">...</div>
@@ -161,51 +148,12 @@
                                         </div>
 
                                     </div>
-                                    <!-- <div class="communication-section bg-white rounded-xl card-shadow p-6">
-                                        <h3 class="profile-activity-title" data-i18n-key="communication">التواصل</h3>
-                                        <div class="communication-grid">
-                                            <div class="communication-card investment-card p-3 rounded-lg">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                                    <h4 data-i18n-key="recent-messages">الرسائل الأخيرة</h4>
-                                                    <a href="messages.html" class="view-all-btn">
-                                                        <span data-i18n-key="investor-profile-view-all">عرض الكل</span>
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                                        </svg>
-                                                    </a>
-                                                </div>
-                                                <div class="message-list">
-                                                </div>
-                                            </div>
-                                            <div class="communication-card investment-card p-3 rounded-lg">
-                                                <div
-                                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                                    <h4 data-i18n-key="notifications">الإشعارات</h4>
-                                                    <a href="messages.html" class="view-all-btn">
-                                                        <span data-i18n-key="investor-profile-view-all">عرض الكل</span>
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                                        </svg>
-                                                    </a>
-                                                </div>
-                                                <div class="notification-list">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> -->
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- ======================================== -->
-                    <!--   Tab 2: "Dashboard" Content           -->
-                    <!-- ======================================== -->
+                    <!-- Tab 2: "Dashboard" Content -->
                     <div id="dashboardTabView" style="display: none;">
                         <main class="profile-main">
                             <div class="dynamic-content-area" id="profile-dynamic-content">
@@ -213,8 +161,21 @@
                             <div id="portfolioContent">
                                 <div>
                                     <div class="investment-portfolio">
-                                        <h3 class="profile-activity-title" data-i18n-key="investment-portfolio">محفظة
-                                            الاستثمارات</h3>
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 class="profile-activity-title" data-i18n-key="investment-portfolio">
+                                                محفظة الاستثمارات</h3>
+                                            <div class="flex items-center gap-2">
+                                                <label for="currencySelector"
+                                                    class="text-sm font-medium text-gray-600">عرض بـ:</label>
+                                                <select id="currencySelector"
+                                                    class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                                                    <option value="USD">USD</option>
+                                                    <option value="SAR">SAR</option>
+                                                    <option value="EUR">EUR</option>
+                                                    <option value="MAD">MAD</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="summary-stats">
                                             <div class="stat-card">
                                                 <div id="dashboard-total-projects" class="stat-number">0</div>

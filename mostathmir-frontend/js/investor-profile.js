@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    let originalStats = null;
+    let selectedCurrency = 'USD';
+    const exchangeRatesFromUSD = {
+        "SAR": 3.75, "AED": 3.67, "QAR": 3.64, "OMR": 0.385,
+        "KWD": 0.307, "BHD": 0.377, "EGP": 47.65, "JOD": 0.709,
+        "MAD": 9.96, "USD": 1, "EUR": 0.92,
+    };
+
     let allInvestments = [];
     let followedProjects = [];
     let allProposals = [];
@@ -40,6 +48,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const partnersModal = document.getElementById('partnersModal');
     const closePartnersModalBtn = document.getElementById('closePartnersModalBtn');
     const partnersStatBtn = document.getElementById('partners-stat-button');
+    
+    function convertFromUSD(amountInUSD, toCurrency) {
+        const rate = exchangeRatesFromUSD[toCurrency] || 1;
+        return amountInUSD * rate;
+    }
+
+    function updateAllFinancialDisplays(currency) {
+        if (!originalStats) return;
+        
+        const totalInvestmentUSD = originalStats.totalInvestment || 0;
+        const convertedTotal = convertFromUSD(totalInvestmentUSD, currency);
+        
+        const totalInvestmentEl = document.getElementById('stat-total-investment-amount');
+        if (totalInvestmentEl) {
+            if (convertedTotal >= 1000000) {
+                totalInvestmentEl.textContent = `${(convertedTotal / 1000000).toFixed(1)}M`;
+            } else if (convertedTotal >= 1000) {
+                totalInvestmentEl.textContent = `${Math.round(convertedTotal / 1000)}K`;
+            } else {
+                totalInvestmentEl.textContent = Math.round(convertedTotal).toLocaleString();
+            }
+            totalInvestmentEl.textContent += ` ${currency}`;
+        }
+
+        const dashboardTotalInvestmentEl = document.getElementById('dashboard-total-investment');
+        if (dashboardTotalInvestmentEl) {
+            dashboardTotalInvestmentEl.textContent = `${Math.round(convertedTotal).toLocaleString()} ${currency}`;
+        }
+    }
 
     function switchTab(tabToShow) {
         if (tabToShow === 'profile') {
@@ -54,28 +91,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dashboardTabButton) dashboardTabButton.classList.add('active');
         }
     }
-    
-    // ==================== START: MODIFICATION ====================
+
     function populateSidebarStats(stats, investments, user) {
-        const totalInvestmentEl = document.getElementById('stat-total-investment-amount');
         const avgReturnEl = document.getElementById('stat-avg-return');
         const partnersEl = document.getElementById('stat-partners-count');
         const followingEl = document.getElementById('stat-following-count');
-
-        if (totalInvestmentEl && stats) {
-            const amount = stats.totalInvestment || 0;
-            if (amount >= 1000000) {
-                totalInvestmentEl.textContent = `${(amount / 1000000).toFixed(1)}M`;
-            } else if (amount >= 1000) {
-                totalInvestmentEl.textContent = `${(amount / 1000).toFixed(0)}K`;
-            } else {
-                totalInvestmentEl.textContent = amount.toLocaleString();
-            }
-            totalInvestmentEl.textContent += ` ${stats.investmentCurrency || 'USD'}`;
-        }
+        
+        updateAllFinancialDisplays(selectedCurrency);
 
         if (avgReturnEl) {
-            // Hide this element as the data is no longer available
             avgReturnEl.parentElement.style.display = 'none';
         }
 
@@ -88,7 +112,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             followingEl.textContent = user.following.length;
         }
     }
-    // ===================== END: MODIFICATION =====================
 
     function openFollowModal(followers, following) {
         if (!followModal) return;
@@ -193,6 +216,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             followedProjects = await followedRes.json();
             allProposals = await proposalsRes.json();
             const stats = await statsRes.json();
+            
+            originalStats = stats;
+
             populateSidebarStats(stats, allInvestments, user);
             populateProfileView(user, API_BASE_URL);
             initializeDashboard(stats);
@@ -372,22 +398,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ==================== START: MODIFICATION ====================
     function populateDashboardStats(stats) {
         const totalProjectsEl = document.getElementById('dashboard-total-projects');
-        const totalInvestmentEl = document.getElementById('dashboard-total-investment');
         const avgCompletionEl = document.getElementById('dashboard-avg-completion');
         const avgReturnEl = document.getElementById('dashboard-avg-return');
-        if (stats && totalProjectsEl && totalInvestmentEl && avgCompletionEl && avgReturnEl) {
+        if (stats && totalProjectsEl && avgCompletionEl && avgReturnEl) {
             totalProjectsEl.textContent = stats.totalInvestedProjects || 0;
-            totalInvestmentEl.textContent = `${(stats.totalInvestment || 0).toLocaleString()} ${stats.investmentCurrency || 'USD'}`;
             avgCompletionEl.textContent = `${stats.averageProjectCompletion || 0}%`;
-            // Hide the average return element as it's no longer calculated
             avgReturnEl.parentElement.style.display = 'none';
         }
+        updateAllFinancialDisplays(selectedCurrency);
     }
-    // ===================== END: MODIFICATION =====================
-
+    
     function createInvestmentCard(investment) {
         if (!investment || !investment.project) return '';
         const { project, amount, createdAt, investmentType, currency, amountPaidNow, amountRemaining } = investment;
@@ -777,6 +799,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target.id === 'partnersModal') closePartnersModal();
     });
 
+    const currencySelector = document.getElementById('currencySelector');
+    if(currencySelector) {
+        currencySelector.addEventListener('change', (e) => {
+            selectedCurrency = e.target.value;
+            updateAllFinancialDisplays(selectedCurrency);
+        });
+    }
+    
     fetchAndPopulateData();
 });
 
