@@ -373,6 +373,14 @@
         overflow-y: auto;
     }
 
+    .language-option {
+        display: none;
+    }
+
+    .language-option active {
+        display: none;
+    }
+
     .rtl .main-nav {
         transform: translateX(-100%);
     }
