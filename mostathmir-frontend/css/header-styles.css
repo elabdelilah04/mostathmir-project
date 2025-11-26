@@ -362,6 +362,7 @@
         display: block;
         position: fixed;
         top: 71px;
+        /* Height of header */
         left: 0;
         right: 0;
         bottom: 0;
@@ -411,10 +412,11 @@
     }
 }
 
-/* ================== MODIFICATION START ================== */
+/* --- START: New Mobile Menu Styles --- */
 .mobile-user-section,
 .mobile-actions-section {
     display: none;
+    /* Hidden by default on all screen sizes */
 }
 
 @media (max-width: 992px) {
@@ -430,6 +432,7 @@
         flex-direction: column;
         padding: 1.5rem 1rem;
         margin-top: auto;
+        /* Pushes this section to the bottom */
         border-top: 1px solid #e5e7eb;
         width: 100%;
     }
@@ -493,9 +496,10 @@
     }
 }
 
-/* =================== MODIFICATION END =================== */
+/* --- END: New Mobile Menu Styles --- */
+/* --- START: Fix Header Flicker --- */
 
-
+/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
 #auth-buttons-visitor,
 #profile-dropdown-container,
 #header-icons,
@@ -503,11 +507,13 @@
 #nav-browse-projects,
 #nav-my-projects,
 #nav-my-investments {
+    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
+/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
 .header-ready #auth-buttons-visitor,
 .header-ready #profile-dropdown-container,
 .header-ready #header-icons,
