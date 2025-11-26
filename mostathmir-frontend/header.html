@@ -9,17 +9,15 @@
                 </a>
             </div>
 
-            <!-- Main Navigation -->
+            <!-- Main Navigation (Mobile Menu Structure) -->
             <nav class="main-nav">
                 <ul class="nav-list">
-                    <!-- === START: Mobile User Section (Added) === -->
+                    <!-- Mobile User Info (for logged-in users) -->
                     <li class="nav-item mobile-user-section" id="mobile-user-section">
                         <div class="user-info-mobile">
                             <div class="header-avatar" id="mobile-header-avatar">
-                                <img src="" alt="الملف الشخصي" class="avatar-img" id="mobile-header-avatar-image"
-                                    style="display: none;">
-                                <div class="avatar-initials-sm" id="mobile-header-avatar-initials"
-                                    style="display: none;"></div>
+                                <img src="" alt="الملف الشخصي" class="avatar-img" id="mobile-header-avatar-image" style="display: none;">
+                                <div class="avatar-initials-sm" id="mobile-header-avatar-initials" style="display: none;"></div>
                             </div>
                             <div class="user-details-mobile">
                                 <h3 class="user-name" id="mobile-user-name"></h3>
@@ -27,77 +25,64 @@
                             </div>
                         </div>
                     </li>
-                    <!-- === END: Mobile User Section === -->
 
-                    <!-- Visitor Links -->
-                    <li class="nav-item" id="nav-about"><a href="/index.html#about" class="nav-link"
-                            data-i18n-key="nav-about">من نحن</a></li>
-                    <li class="nav-item" id="nav-how"><a href="/index.html#how-it-works" class="nav-link"
-                            data-i18n-key="nav-how">كيف تعمل المنصة؟</a></li>
-
-                    <!-- Logged-in User Links -->
-                    <li class="nav-item" id="Myprofile"> <a href="#" class="nav-link Myprofil"
-                            data-i18n-key="profile-view">عرض الملف الشخصي</a></li>
-                    <li class="nav-item" id="nav-browse-projects"><a href="/browse-projects.html" class="nav-link"
-                            data-i18n-key="browse-projects">استعرض المشاريع</a></li>
-
-                    <!-- Idea Holder Link -->
-                    <li class="nav-item" id="nav-my-projects"><a href="/my-projects.html" class="nav-link"
-                            data-i18n-key="nav-my-projects">مشاريعي</a></li>
-
-                    <!-- Investor Link -->
-                    <li class="nav-item" id="nav-my-investments"><a href="/investor-portfolio.html" class="nav-link"
-                            data-i18n-key="nav-my-investments">استثماراتي</a></li>
-
-                    <!-- Common Link -->
-                    <li class="nav-item" id="nav-contact"><a href="/faq-support.html" class="nav-link"
-                            data-i18n-key="nav-contact">الدعم</a></li>
+                    <!-- Navigation Links -->
+                    <li class="nav-item" id="nav-about"><a href="/index.html#about" class="nav-link" data-i18n-key="nav-about">من نحن</a></li>
+                    <li class="nav-item" id="nav-how"><a href="/index.html#how-it-works" class="nav-link" data-i18n-key="nav-how">كيف تعمل المنصة؟</a></li>
+                    <li class="nav-item" id="Myprofile"><a href="#" class="nav-link Myprofil" data-i18n-key="profile-view">عرض الملف الشخصي</a></li>
+                    <li class="nav-item" id="nav-browse-projects"><a href="/browse-projects.html" class="nav-link" data-i18n-key="browse-projects">استعرض المشاريع</a></li>
+                    <li class="nav-item" id="nav-my-projects"><a href="/my-projects.html" class="nav-link" data-i18n-key="nav-my-projects">مشاريعي</a></li>
+                    <li class="nav-item" id="nav-my-investments"><a href="/investor-portfolio.html" class="nav-link" data-i18n-key="nav-my-investments">استثماراتي</a></li>
+                    <li class="nav-item" id="nav-contact"><a href="/faq-support.html" class="nav-link" data-i18n-key="nav-contact">الدعم</a></li>
                 </ul>
 
-                <!-- Mobile Actions Section for Logged-in Users -->
-                <div class="mobile-actions-section" id="mobile-actions-section">
-                    <div class="header-icons-mobile" id="header-icons-mobile">
-                        <!-- Icons will be cloned here by JS -->
+                <!-- Mobile Actions Wrapper -->
+                <div class="mobile-actions-wrapper">
+                    <!-- Section for Logged-in User (Mobile) -->
+                    <div class="mobile-actions-section" id="mobile-actions-loggedin">
+                        <div class="header-icons-mobile">
+                            <button class="header-icon-btn" id="headerMessagesBtnMobile" title="الرسائل"><i class="fa-solid fa-envelope"></i><span class="header-badge" id="headerMessagesBadgeMobile" style="display:none;">0</span></button>
+                            <button class="header-icon-btn" id="headerNotificationsBtnMobile" title="الإشعارات"><i class="fa-solid fa-bell"></i><span class="header-badge" id="headerNotificationsBadgeMobile" style="display:none;">0</span></button>
+                        </div>
+                        <div class="separator-line"></div>
+                        <a href="#" class="nav-link sign-out-link" id="mobile-signout-link" data-i18n-key="profile-signout">تسجيل الخروج</a>
                     </div>
-                    <div class="separator-line"></div>
-                    <a href="#" class="nav-link sign-out-link" id="mobile-signout-link"
-                        data-i18n-key="profile-signout">تسجيل الخروج</a>
+                    <!-- Section for Visitor (Mobile) -->
+                    <div class="mobile-actions-section" id="mobile-actions-visitor">
+                        <div class="auth-buttons-mobile">
+                            <a href="/login.html" class="btn btn-outline" data-i18n-key="nav-login">دخول</a>
+                            <a href="/signup.html" class="btn btn-primary" data-i18n-key="nav-register">تسجيل</a>
+                        </div>
+                    </div>
+                    <!-- Language Switcher for Mobile -->
+                    <div class="language-switcher-mobile">
+                        <div id="languageSwitcherMobile" class="language-switcher">
+                            <button type="button" class="language-option active" data-lang="ar">Ar</button>
+                            <button type="button" class="language-option" data-lang="en">En</button>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- ==================== START: MODIFICATION ==================== -->
-                <!-- Container for Visitor Buttons & Language Switcher on Mobile -->
-                <div class="mobile-visitor-actions" id="mobile-visitor-actions"></div>
-                <!-- ===================== END: MODIFICATION ===================== -->
             </nav>
 
-            <!-- User Actions (Right Side for Desktop) -->
-            <div class="flex items-center gap-4 just1">
-                <div id="auth-buttons-visitor" class="auth-buttons" style="display: none;">
+            <!-- Desktop Actions (Right Side) -->
+            <div class="desktop-actions">
+                <div id="auth-buttons-visitor" class="auth-buttons">
                     <a href="/login.html" class="btn btn-outline" data-i18n-key="nav-login">دخول</a>
                     <a href="/signup.html" class="btn btn-primary" data-i18n-key="nav-register">تسجيل</a>
                 </div>
 
                 <div class="header-icons" id="header-icons">
-                    <button class="header-icon-btn" id="headerMessagesBtn" title="الرسائل">
-                        <i class="fa-solid fa-envelope"></i>
-                        <span class="header-badge" id="headerMessagesBadge" style="display:none;">0</span>
-                    </button>
-
-                    <button class="header-icon-btn" id="headerNotificationsBtn" title="الإشعارات">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="header-badge" id="headerNotificationsBadge" style="display:none;">0</span>
-                    </button>
+                    <button class="header-icon-btn" id="headerMessagesBtn" title="الرسائل"><i class="fa-solid fa-envelope"></i><span class="header-badge" id="headerMessagesBadge" style="display:none;">0</span></button>
+                    <button class="header-icon-btn" id="headerNotificationsBtn" title="الإشعارات"><i class="fa-solid fa-bell"></i><span class="header-badge" id="headerNotificationsBadge" style="display:none;">0</span></button>
                 </div>
 
-                <div id="profile-dropdown-container" class="profile-dropdown-container" style="display: none;">
+                <div id="profile-dropdown-container" class="profile-dropdown-container">
                     <div class="profile-trigger" id="profileTrigger">
                         <div class="header-avatar" id="headerAvatar">
-                            <img src="" alt="الملف الشخصي" class="avatar-img" id="headerAvatarImage"
-                                style="display: none;">
+                            <img src="" alt="الملف الشخصي" class="avatar-img" id="headerAvatarImage" style="display: none;">
                             <div class="avatar-initials-sm" id="headerAvatarInitials" style="display: none;"></div>
                         </div>
-                        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </div>
@@ -107,23 +92,19 @@
                                 <h3 class="user-name"></h3>
                                 <p class="user-role"></p>
                                 <div class="user-actions">
-                                    <a href="#" class="btn-view-profile" data-i18n-key="profile-view">عرض الملف
-                                        الشخصي</a>
+                                    <a href="#" class="btn-view-profile" data-i18n-key="profile-view">عرض الملف الشخصي</a>
                                 </div>
                             </div>
                         </div>
                         <div class="dropdown-section">
                             <ul class="dropdown-links">
-                                <li><a href="/settings.html" class="dropdown-link"
-                                        data-i18n-key="profile-settings">إعدادات الحساب</a></li>
-                                <li><a href="/faq-support.html" class="dropdown-link"
-                                        data-i18n-key="profile-help">المساعدة</a></li>
+                                <li><a href="/settings.html" class="dropdown-link" data-i18n-key="profile-settings">إعدادات الحساب</a></li>
+                                <li><a href="/faq-support.html" class="dropdown-link" data-i18n-key="profile-help">المساعدة</a></li>
                             </ul>
                         </div>
                         <div class="dropdown-section">
                             <ul class="dropdown-links">
-                                <li><a href="#" class="dropdown-link sign-out" data-i18n-key="profile-signout">تسجيل
-                                        الخروج</a></li>
+                                <li><a href="#" class="dropdown-link sign-out" data-i18n-key="profile-signout">تسجيل الخروج</a></li>
                             </ul>
                         </div>
                     </div>
@@ -133,10 +114,12 @@
                     <button type="button" class="language-option active" data-lang="ar">Ar</button>
                     <button type="button" class="language-option" data-lang="en">En</button>
                 </div>
-                <button class="mobile-menu-toggle" aria-label="Toggle navigation menu">
-                    <span></span><span></span><span></span>
-                </button>
             </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button class="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </div>
 </header>

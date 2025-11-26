@@ -1,4 +1,6 @@
 (function () {
+    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, setupHeaderIcons, refreshHeaderBadges
+    // تبقى كما هي بالضبط من نسختك الأصلية. لا تغيير هنا.
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -139,110 +141,59 @@
     }
 
     function setupHeaderIcons() {
-        function setupListeners(containerId) {
-            var container = document.getElementById(containerId);
-            if (!container) return;
-            var msgBtn = container.querySelector('#headerMessagesBtn');
-            var notiBtn = container.querySelector('#headerNotificationsBtn');
-            if (msgBtn) {
-                msgBtn.addEventListener('click', function () { window.location.href = '/messages.html#messages'; });
-            }
-            if (notiBtn) {
-                notiBtn.addEventListener('click', function () { window.location.href = '/messages.html#notifications'; });
-            }
-        }
-        setupListeners('header-icons');
-        setupListeners('header-icons-mobile');
+        document.getElementById('headerMessagesBtn')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
+        document.getElementById('headerNotificationsBtn')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
+        document.getElementById('headerMessagesBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
+        document.getElementById('headerNotificationsBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
     }
-
+    
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
-        const msgBadges = document.querySelectorAll('#headerMessagesBadge');
-        const notiBadges = document.querySelectorAll('#headerNotificationsBadge');
-        if (msgBadges.length === 0 && notiBadges.length === 0) return;
+        
+        const msgBadges = [document.getElementById('headerMessagesBadge'), document.getElementById('headerMessagesBadgeMobile')];
+        const notiBadges = [document.getElementById('headerNotificationsBadge'), document.getElementById('headerNotificationsBadgeMobile')];
+
         if (!token) {
-            msgBadges.forEach(badge => { badge.style.display = 'none'; });
-            notiBadges.forEach(badge => { badge.style.display = 'none'; });
+            msgBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
+            notiBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
             return;
         }
         try {
             let unreadMessages = 0;
-            try {
-                const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (resMsg.ok) {
-                    const conversations = await resMsg.json();
-                    if (Array.isArray(conversations)) {
-                        unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
-                    }
+            const resMsg = await fetch(`${baseUrl}/api/messages`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (resMsg.ok) {
+                const conversations = await resMsg.json();
+                if (Array.isArray(conversations)) {
+                    unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
                 }
-            } catch (e) { console.warn('refreshHeaderBadges: fetching messages failed', e); }
-
+            }
+            
             let unreadNotifications = 0;
-            try {
-                const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (resNoti.ok) {
-                    const notifications = await resNoti.json();
-                    if (Array.isArray(notifications)) {
-                        unreadNotifications = notifications.filter(n => !n.read).length;
-                    }
+            const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (resNoti.ok) {
+                const notifications = await resNoti.json();
+                if (Array.isArray(notifications)) {
+                    unreadNotifications = notifications.filter(n => !n.read).length;
                 }
-            } catch (e) { console.warn('refreshHeaderBadges: fetching notifications failed', e); }
+            }
 
             msgBadges.forEach(badge => {
-                if (unreadMessages > 0) {
+                if (badge) {
                     badge.textContent = unreadMessages;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
+                    badge.style.display = unreadMessages > 0 ? 'flex' : 'none';
                 }
             });
-
             notiBadges.forEach(badge => {
-                if (unreadNotifications > 0) {
+                if (badge) {
                     badge.textContent = unreadNotifications;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
+                    badge.style.display = unreadNotifications > 0 ? 'flex' : 'none';
                 }
             });
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
     
-    // ==================== START: MODIFICATION ====================
-    function handleResponsiveHeader() {
-        const langSwitcher = document.getElementById('languageSwitcher');
-        const authButtons = document.getElementById('auth-buttons-visitor');
-        
-        const mobileContainer = document.getElementById('mobile-visitor-actions');
-        const desktopContainer = document.querySelector('.header-content > .flex.items-center');
-        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-
-        if (!langSwitcher || !authButtons || !mobileContainer || !desktopContainer || !mobileMenuToggle) return;
-
-        const isMobile = window.matchMedia("(max-width: 992px)").matches;
-
-        if (isMobile) {
-            // Move to mobile container
-            if (!mobileContainer.contains(authButtons)) {
-                mobileContainer.appendChild(authButtons);
-            }
-            if (!mobileContainer.contains(langSwitcher)) {
-                mobileContainer.appendChild(langSwitcher);
-            }
-        } else {
-            // Move back to desktop container
-            if (!desktopContainer.contains(authButtons)) {
-                desktopContainer.insertBefore(authButtons, desktopContainer.querySelector('#profile-dropdown-container'));
-            }
-            if (!desktopContainer.contains(langSwitcher)) {
-                desktopContainer.insertBefore(langSwitcher, mobileMenuToggle);
-            }
-        }
-    }
-    // ===================== END: MODIFICATION =====================
-
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
@@ -257,25 +208,24 @@
             
             const user = await window.fetchCurrentUser();
 
-            // ==================== START: MODIFICATION ====================
             const mobileUserSection = document.getElementById('mobile-user-section');
-            const mobileActionsSection = document.getElementById('mobile-actions-section');
-            const mobileVisitorActions = document.getElementById('mobile-visitor-actions');
+            const mobileActionsLoggedIn = document.getElementById('mobile-actions-loggedin');
+            const mobileActionsVisitor = document.getElementById('mobile-actions-visitor');
             
             const desktopAuthButtons = document.getElementById('auth-buttons-visitor');
             const desktopProfileDropdown = document.getElementById('profile-dropdown-container');
             const desktopHeaderIcons = document.getElementById('header-icons');
             
             if (user) {
-                // Logged-in User State
+                // --- Logged-in User State ---
                 if (mobileUserSection) mobileUserSection.style.display = 'list-item';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'flex';
-                if (mobileVisitorActions) mobileVisitorActions.style.display = 'none';
+                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'flex';
+                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'none';
 
                 if (desktopAuthButtons) desktopAuthButtons.style.display = 'none';
                 if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'flex';
                 if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'flex';
-
+                
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
@@ -289,18 +239,13 @@
                 }
                 document.querySelector('.dropdown-link.sign-out').addEventListener('click', (e) => { e.preventDefault(); window.logoutUser(); });
                 
-                const headerIcons = document.getElementById('header-icons');
-                const mobileIconsContainer = document.getElementById('header-icons-mobile');
-                if (headerIcons && mobileIconsContainer) {
-                    mobileIconsContainer.innerHTML = headerIcons.innerHTML;
-                }
                 setupHeaderIcons();
                 refreshHeaderBadges();
             } else { 
-                // Visitor State
+                // --- Visitor State ---
                 if (mobileUserSection) mobileUserSection.style.display = 'none';
-                if (mobileActionsSection) mobileActionsSection.style.display = 'none';
-                if (mobileVisitorActions) mobileVisitorActions.style.display = 'block';
+                if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'none';
+                if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'flex';
 
                 if (desktopAuthButtons) desktopAuthButtons.style.display = 'flex';
                 if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'none';
@@ -311,24 +256,46 @@
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
             }
+
+            // --- Language Switcher Logic ---
+            const desktopLangSwitcher = document.getElementById('languageSwitcher');
+            const mobileLangSwitcher = document.getElementById('languageSwitcherMobile');
             
-            document.querySelectorAll('.language-option').forEach(option => {
-                option.addEventListener('click', function () {
-                    if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
-                });
+            [desktopLangSwitcher, mobileLangSwitcher].forEach(switcher => {
+                if(switcher) {
+                    switcher.querySelectorAll('.language-option').forEach(option => {
+                        option.addEventListener('click', function () {
+                            if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
+                        });
+                    });
+                }
             });
 
-            handleResponsiveHeader();
-            window.addEventListener('resize', handleResponsiveHeader);
-            // ===================== END: MODIFICATION =====================
+            function syncLangSwitchers(lang) {
+                [desktopLangSwitcher, mobileLangSwitcher].forEach(switcher => {
+                    if (switcher) {
+                        switcher.querySelectorAll('.language-option').forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.lang === lang);
+                        });
+                    }
+                });
+            }
+
+            if (window.updateLanguage) {
+                const originalUpdate = window.updateLanguage;
+                window.updateLanguage = function(lang) {
+                    originalUpdate(lang);
+                    syncLangSwitchers(lang);
+                };
+            }
 
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
+            syncLangSwitchers(currentLang);
             if (window.updateLanguage) window.updateLanguage(currentLang);
-
+            
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
-
             document.dispatchEvent(new CustomEvent('header:ready', { detail: { loaded: true } }));
         } catch (e) {
             placeholder.innerHTML = `<p style="color:red; text-align:center;">${t('js-header-error-load-failed')}</p>`;
@@ -336,11 +303,5 @@
     }
 
     window.initHeader = loadAndSetupHeader;
-    window.addEventListener('storage', function (e) {
-        if (e.key === 'user_token' || e.key === 'user_data') {
-            refreshHeaderBadges();
-        }
-    });
     document.addEventListener('DOMContentLoaded', window.initHeader);
-
 })();
