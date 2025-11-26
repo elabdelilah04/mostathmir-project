@@ -510,11 +510,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="text-center p-3 bg-green-50 rounded-lg">
                     <div class="text-lg font-bold text-green-600">${Math.round(displayRaised).toLocaleString()}</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-amount-raised')}</div>
+                    <div class="text-xs text-gray-600">${t('js-investor-profile-amount-raised')} (${selectedCurrency})</div>
                 </div>
                 <div class="text-center p-3 bg-purple-50 rounded-lg">
                     <div class="text-lg font-bold text-purple-600">${Math.round(displayGoal).toLocaleString()}</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-funding-goal')}</div>
+                    <div class="text-xs text-gray-600">${t('js-investor-profile-funding-goal')} (${selectedCurrency})</div>
                 </div>
             </div>
             <div class="mb-4">
