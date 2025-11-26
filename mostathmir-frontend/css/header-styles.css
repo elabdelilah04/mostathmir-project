@@ -375,6 +375,16 @@
 
     .language-option {
         display: none;
+        cursor: none;
+        padding: 0;
+        border-radius: none;
+        font-size: 0;
+        transition: none;
+        background: none;
+        border: none;
+        font-family: inherit;
+        font-weight: 0;
+        color: none;
     }
 
     .language-option active {
