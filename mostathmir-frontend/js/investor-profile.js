@@ -49,6 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closePartnersModalBtn = document.getElementById('closePartnersModalBtn');
     const partnersStatBtn = document.getElementById('partners-stat-button');
     
+    function convertToUSD(amount, fromCurrency) {
+        const rate = exchangeRatesFromUSD[fromCurrency];
+        if (rate) {
+            return amount / rate;
+        }
+        return amount; // Fallback if currency not found
+    }
+
     function convertFromUSD(amountInUSD, toCurrency) {
         const rate = exchangeRatesFromUSD[toCurrency] || 1;
         return amountInUSD * rate;
@@ -76,6 +84,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (dashboardTotalInvestmentEl) {
             dashboardTotalInvestmentEl.textContent = `${Math.round(convertedTotal).toLocaleString()} ${currency}`;
         }
+        
+        // Re-render the investment cards with the new currency
+        renderAndSortInvestments();
     }
 
     function switchTab(tabToShow) {
@@ -412,13 +423,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     function createInvestmentCard(investment) {
         if (!investment || !investment.project) return '';
-        const { project, amount, createdAt, investmentType, currency, amountPaidNow, amountRemaining } = investment;
-        const goal = project.fundingGoal?.amount || 0;
-        const raised = project.fundingAmountRaised || 0;
-        const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
-        const projectStatus = project.status;
-        const categoryKey = categoryTranslationKeys[project.projectCategory] || 'js-investor-profile-category-general';
-        const projectCategory = t(categoryKey); let statusText = t('js-investor-profile-status-not-specified');
+
+        // Original values from the backend
+        const originalAmount = investment.amount;
+        const originalCurrency = investment.currency;
+        const originalGoal = investment.project.fundingGoal?.amount || 0;
+        const originalRaised = investment.project.fundingAmountRaised || 0;
+        const originalAmountPaid = investment.amountPaidNow;
+        const originalAmountRemaining = investment.amountRemaining;
+
+        // Convert all to USD first as a base
+        const myInvestmentUSD = convertToUSD(originalAmount, originalCurrency);
+        const goalUSD = convertToUSD(originalGoal, investment.project.fundingGoal?.currency);
+        const raisedUSD = convertToUSD(originalRaised, investment.project.fundingGoal?.currency);
+        const paidUSD = convertToUSD(originalAmountPaid, originalCurrency);
+        const remainingUSD = convertToUSD(originalAmountRemaining, originalCurrency);
+
+        // Convert from USD to the selected display currency
+        const displayMyInvestment = convertFromUSD(myInvestmentUSD, selectedCurrency);
+        const displayGoal = convertFromUSD(goalUSD, selectedCurrency);
+        const displayRaised = convertFromUSD(raisedUSD, selectedCurrency);
+        const displayPaid = convertFromUSD(paidUSD, selectedCurrency);
+        const displayRemaining = convertFromUSD(remainingUSD, selectedCurrency);
+        
+        const progress = displayGoal > 0 ? Math.round((displayRaised / displayGoal) * 100) : 0;
+        const projectStatus = investment.project.status;
+        const categoryKey = categoryTranslationKeys[investment.project.projectCategory] || 'js-investor-profile-category-general';
+        const projectCategory = t(categoryKey); 
+        let statusText = t('js-investor-profile-status-not-specified');
         let statusClass = 'status-pending';
         if (projectStatus === 'published') {
             statusText = t('js-investor-profile-status-funding');
@@ -429,20 +461,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         let investmentTypeText = '';
         let investmentTypeClass = '';
-        if (investmentType === 'reservation') {
+        if (investment.investmentType === 'reservation') {
             investmentTypeText = t('js-investor-profile-type-reservation');
             investmentTypeClass = 'bg-yellow-100 text-yellow-800';
-        } else if (investmentType === 'full') {
+        } else if (investment.investmentType === 'full') {
             investmentTypeText = t('js-investor-profile-type-full');
             investmentTypeClass = 'bg-green-100 text-green-800';
         }
 
         let reservationDetailsHTML = '';
-        if (investmentType === 'reservation' && (amountPaidNow || amountRemaining)) {
+        if (investment.investmentType === 'reservation' && (originalAmountPaid || originalAmountRemaining)) {
             reservationDetailsHTML = `
             <div class="mt-2 text-xs text-gray-500 flex justify-end gap-4">
-                <span>${t('js-investor-profile-reservation-paid')}: <strong class="text-gray-700">${(amountPaidNow || 0).toLocaleString()} ${currency || ''}</strong></span>
-                <span>${t('js-investor-profile-reservation-due')}: <strong class="text-red-600">${(amountRemaining || 0).toLocaleString()} ${currency || ''}</strong></span>
+                <span>${t('js-investor-profile-reservation-paid')}: <strong class="text-gray-700">${Math.round(displayPaid).toLocaleString()} ${selectedCurrency}</strong></span>
+                <span>${t('js-investor-profile-reservation-due')}: <strong class="text-red-600">${Math.round(displayRemaining).toLocaleString()} ${selectedCurrency}</strong></span>
             </div>
         `;
         }
@@ -452,36 +484,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">
-                        ${project.projectName ? project.projectName.charAt(0) : 'P'}
+                        ${investment.project.projectName ? investment.project.projectName.charAt(0) : 'P'}
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-lg font-bold text-gray-900">${escapeHTML(project.projectName)}</h3>
+                            <h3 class="text-lg font-bold text-gray-900">${escapeHTML(investment.project.projectName)}</h3>
                             <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-700 rounded-full">${escapeHTML(projectCategory)}</span>
                         </div>
-                        <p class="text-sm text-gray-600">${escapeHTML(project.projectDescription.substring(0, 50))}...</p>
+                        <p class="text-sm text-gray-600">${escapeHTML(investment.project.projectDescription.substring(0, 50))}...</p>
                         <div class="flex items-center gap-4 mt-2">
                             <span class="investment-status ${statusClass}">${statusText}</span>
                             ${investmentTypeText ? `<span class="text-xs font-semibold px-2 py-1 rounded-full ${investmentTypeClass}">${investmentTypeText}</span>` : ''}
-                            <span class="text-xs text-gray-500">| ${t('js-investor-profile-invested-on')}: ${new Date(createdAt).toLocaleDateString('en-us')}</span>
+                            <span class="text-xs text-gray-500">| ${t('js-investor-profile-invested-on')}: ${new Date(investment.createdAt).toLocaleDateString('en-us')}</span>
                         </div>
                     </div>
                 </div>
-                <a href="project-view.html?id=${project._id}" target="_blank" class="secondary-button px-4 py-2 text-sm">
+                <a href="project-view.html?id=${investment.project._id}" target="_blank" class="secondary-button px-4 py-2 text-sm">
                     ${t('js-investor-profile-view-details-btn')}
                 </a>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                 <div class="text-center p-3 bg-blue-50 rounded-lg">
-                    <div class="text-lg font-bold text-blue-600">${amount.toLocaleString()}</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-your-investment')} (${currency || 'SAR'})</div>
+                    <div class="text-lg font-bold text-blue-600">${Math.round(displayMyInvestment).toLocaleString()}</div>
+                    <div class="text-xs text-gray-600">${t('js-investor-profile-your-investment')} (${selectedCurrency})</div>
                 </div>
                 <div class="text-center p-3 bg-green-50 rounded-lg">
-                    <div class="text-lg font-bold text-green-600">${raised.toLocaleString()}</div>
+                    <div class="text-lg font-bold text-green-600">${Math.round(displayRaised).toLocaleString()}</div>
                     <div class="text-xs text-gray-600">${t('js-investor-profile-amount-raised')}</div>
                 </div>
                 <div class="text-center p-3 bg-purple-50 rounded-lg">
-                    <div class="text-lg font-bold text-purple-600">${goal.toLocaleString()}</div>
+                    <div class="text-lg font-bold text-purple-600">${Math.round(displayGoal).toLocaleString()}</div>
                     <div class="text-xs text-gray-600">${t('js-investor-profile-funding-goal')}</div>
                 </div>
             </div>
