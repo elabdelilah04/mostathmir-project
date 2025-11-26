@@ -18,6 +18,12 @@ const exchangeRatesToMAD = {
     "KWD": 32.32, "BHD": 26.38, "EGP": 0.21, "JOD": 14.03,
     "USD": 9.95, "EUR": 10.75, "MAD": 1,
 };
+const exchangeRatesToUSD = {
+    "SAR": 0.27, "AED": 0.27, "QAR": 0.27, "OMR": 2.60,
+    "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
+    "MAD": 0.10, "USD": 1, "EUR": 1.08,
+};
+
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
@@ -140,7 +146,7 @@ const updateUserProfilePicture = async (req, res, next) => {
             return res.status(404).json({ message: 'المستخدم غير موجود' });
         }
 
-        user.profilePicture = req.file.path; // req.file.path هو رابط URL من Cloudinary
+        user.profilePicture = req.file.path;
 
         const updatedUser = await user.save();
 
@@ -170,7 +176,7 @@ const getIdeaHolderDashboard = async (req, res, next) => {
         let totalFollowers = 0;
 
         projects.forEach(p => {
-            const goalRate = exchangeRatesToMAD[p.fundingGoal.currency] || 1; // الافتراضي هو 1 إذا كانت العملة هي الدرهم
+            const goalRate = exchangeRatesToMAD[p.fundingGoal.currency] || 1;
             totalFundingGoalMAD += (p.fundingGoal.amount || 0) * goalRate;
             totalFundingRaisedMAD += (p.fundingAmountRaised || 0) * goalRate;
 
@@ -191,7 +197,7 @@ const getIdeaHolderDashboard = async (req, res, next) => {
             totalProjects: projects.length,
             totalFundingGoal: totalFundingGoalMAD,
             totalFundingRaised: totalFundingRaisedMAD,
-            dashboardCurrency: 'MAD', // <== إرسال العملة الموحدة (درهم)
+            dashboardCurrency: 'MAD',
             totalViews: totalViews,
             totalFollowers: totalFollowers,
             projectsByStatus: projectsByStatus
@@ -273,7 +279,7 @@ const getInvestmentRecords = async (req, res, next) => {
         const records = await Investment.find({ investor: req.user._id })
             .populate({
                 path: 'project',
-                select: 'projectName projectDescription projectCategory status fundingGoal followers fundingAmountRaised expectedReturn investmentPeriod',
+                select: 'projectName projectDescription projectCategory status fundingGoal followers fundingAmountRaised investmentPeriod',
                 populate: {
                     path: 'owner',
                     select: 'fullName profileTitle accountType'
@@ -301,6 +307,7 @@ const getFollowedProjects = async (req, res, next) => {
     }
 };
 
+// ==================== START: MODIFICATION ====================
 const getInvestorStats = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
@@ -342,23 +349,6 @@ const getInvestorStats = async (req, res, next) => {
                             ]
                         }
                     },
-                    totalWeightedReturn: {
-                        $sum: {
-                            $multiply: [
-                                '$amount',
-                                { $ifNull: ['$projectDetails.expectedReturn', 0] },
-                                {
-                                    $switch: {
-                                        branches: Object.entries(exchangeRatesToUSD).map(([currency, rate]) => ({
-                                            case: { $eq: ['$currency', currency] },
-                                            then: rate
-                                        })),
-                                        default: 1
-                                    }
-                                }
-                            ]
-                        }
-                    },
                     totalProgressSum: { $sum: '$progressPercentage' }
                 }
             }
@@ -366,21 +356,21 @@ const getInvestorStats = async (req, res, next) => {
         const [investmentAggregation] = await Promise.all([investmentStatsPromise]);
         const stats = investmentAggregation[0] || {};
         const totalInvestmentInUSD = stats.totalInvestmentInUSD || 0;
-        const totalWeightedReturn = stats.totalWeightedReturn || 0;
         const totalInvestedProjects = stats.uniqueProjectIds ? stats.uniqueProjectIds.length : 0;
-        const averageExpectedReturn = totalInvestmentInUSD > 0 ? (totalWeightedReturn / 100) / totalInvestmentInUSD * 100 : 0;
         const averageProjectCompletion = totalInvestedProjects > 0 ? (stats.totalProgressSum || 0) / totalInvestedProjects : 0;
+        
         res.json({
             totalInvestedProjects: totalInvestedProjects,
             totalInvestment: totalInvestmentInUSD,
             investmentCurrency: 'USD',
             averageProjectCompletion: parseFloat(averageProjectCompletion.toFixed(1)),
-            averageExpectedReturn: parseFloat(averageExpectedReturn.toFixed(2)),
+            averageExpectedReturn: 0, // Return 0 as a placeholder
         });
     } catch (error) {
         next(error);
     }
 };
+// ===================== END: MODIFICATION =====================
 
 const getPendingProposals = async (req, res, next) => {
     try {

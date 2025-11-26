@@ -54,14 +54,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dashboardTabButton) dashboardTabButton.classList.add('active');
         }
     }
-
+    
+    // ==================== START: MODIFICATION ====================
     function populateSidebarStats(stats, investments, user) {
         const totalInvestmentEl = document.getElementById('stat-total-investment-amount');
         const avgReturnEl = document.getElementById('stat-avg-return');
         const partnersEl = document.getElementById('stat-partners-count');
         const followingEl = document.getElementById('stat-following-count');
 
-        if (totalInvestmentEl) {
+        if (totalInvestmentEl && stats) {
             const amount = stats.totalInvestment || 0;
             if (amount >= 1000000) {
                 totalInvestmentEl.textContent = `${(amount / 1000000).toFixed(1)}M`;
@@ -74,7 +75,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (avgReturnEl) {
-            avgReturnEl.textContent = `${(stats.averageExpectedReturn || 0).toFixed(1)}%`;
+            // Hide this element as the data is no longer available
+            avgReturnEl.parentElement.style.display = 'none';
         }
 
         if (partnersEl && investments) {
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             followingEl.textContent = user.following.length;
         }
     }
+    // ===================== END: MODIFICATION =====================
 
     function openFollowModal(followers, following) {
         if (!followModal) return;
@@ -369,6 +372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // ==================== START: MODIFICATION ====================
     function populateDashboardStats(stats) {
         const totalProjectsEl = document.getElementById('dashboard-total-projects');
         const totalInvestmentEl = document.getElementById('dashboard-total-investment');
@@ -378,9 +382,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             totalProjectsEl.textContent = stats.totalInvestedProjects || 0;
             totalInvestmentEl.textContent = `${(stats.totalInvestment || 0).toLocaleString()} ${stats.investmentCurrency || 'USD'}`;
             avgCompletionEl.textContent = `${stats.averageProjectCompletion || 0}%`;
-            avgReturnEl.textContent = `${stats.averageExpectedReturn || 0}%`;
+            // Hide the average return element as it's no longer calculated
+            avgReturnEl.parentElement.style.display = 'none';
         }
     }
+    // ===================== END: MODIFICATION =====================
 
     function createInvestmentCard(investment) {
         if (!investment || !investment.project) return '';
@@ -443,14 +449,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${t('js-investor-profile-view-details-btn')}
                 </a>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                 <div class="text-center p-3 bg-blue-50 rounded-lg">
                     <div class="text-lg font-bold text-blue-600">${amount.toLocaleString()}</div>
                     <div class="text-xs text-gray-600">${t('js-investor-profile-your-investment')} (${currency || 'SAR'})</div>
-                </div>
-                 <div class="text-center p-3 bg-gray-50 rounded-lg">
-                    <div class="text-lg font-bold text-gray-600">${(project.expectedReturn || 0)}%</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-expected-return')}</div>
                 </div>
                 <div class="text-center p-3 bg-green-50 rounded-lg">
                     <div class="text-lg font-bold text-green-600">${raised.toLocaleString()}</div>
@@ -730,7 +732,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
-                // ترجمة النص قبل إضافته
                 const translationKey = categoryTranslationKeys[category];
                 option.textContent = translationKey ? t(translationKey) : category;
                 categoryFilter.appendChild(option);
