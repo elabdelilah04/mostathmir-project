@@ -23,7 +23,6 @@ const exchangeRatesToUSD = {
     "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
     "MAD": 0.10, "USD": 1, "EUR": 1.08,
 };
-
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
@@ -307,16 +306,37 @@ const getFollowedProjects = async (req, res, next) => {
     }
 };
 
-// ==================== START: MODIFICATION ====================
 const getInvestorStats = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
             return res.status(403).json({ message: 'الوصول مقتصر على المستثمرين فقط.' });
         }
         const userId = req.user._id;
-        const investmentStatsPromise = Investment.aggregate([
+
+        const investmentAggregation = await Investment.aggregate([
             { $match: { investor: userId } },
-            { $lookup: { from: 'projects', localField: 'project', foreignField: '_id', as: 'projectDetails' } },
+            {
+                $group: {
+                    _id: "$project",
+                    totalInvestedInProject: {
+                        $sum: {
+                            $multiply: [
+                                '$amount',
+                                {
+                                    $switch: {
+                                        branches: Object.entries(exchangeRatesToUSD).map(([currency, rate]) => ({
+                                            case: { $eq: ['$currency', currency] },
+                                            then: rate
+                                        })),
+                                        default: 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            { $lookup: { from: 'projects', localField: '_id', foreignField: '_id', as: 'projectDetails' } },
             { $unwind: '$projectDetails' },
             {
                 $addFields: {
@@ -332,28 +352,13 @@ const getInvestorStats = async (req, res, next) => {
             {
                 $group: {
                     _id: null,
-                    uniqueProjectIds: { $addToSet: '$project' },
-                    totalInvestmentInUSD: {
-                        $sum: {
-                            $multiply: [
-                                '$amount',
-                                {
-                                    $switch: {
-                                        branches: Object.entries(exchangeRatesToUSD).map(([currency, rate]) => ({
-                                            case: { $eq: ['$currency', currency] },
-                                            then: rate
-                                        })),
-                                        default: 1
-                                    }
-                                }
-                            ]
-                        }
-                    },
+                    uniqueProjectIds: { $addToSet: '$_id' },
+                    totalInvestmentInUSD: { $sum: '$totalInvestedInProject' },
                     totalProgressSum: { $sum: '$progressPercentage' }
                 }
             }
         ]);
-        const [investmentAggregation] = await Promise.all([investmentStatsPromise]);
+        
         const stats = investmentAggregation[0] || {};
         const totalInvestmentInUSD = stats.totalInvestmentInUSD || 0;
         const totalInvestedProjects = stats.uniqueProjectIds ? stats.uniqueProjectIds.length : 0;
@@ -364,13 +369,12 @@ const getInvestorStats = async (req, res, next) => {
             totalInvestment: totalInvestmentInUSD,
             investmentCurrency: 'USD',
             averageProjectCompletion: parseFloat(averageProjectCompletion.toFixed(1)),
-            averageExpectedReturn: 0, // Return 0 as a placeholder
+            averageExpectedReturn: 0,
         });
     } catch (error) {
         next(error);
     }
 };
-// ===================== END: MODIFICATION =====================
 
 const getPendingProposals = async (req, res, next) => {
     try {

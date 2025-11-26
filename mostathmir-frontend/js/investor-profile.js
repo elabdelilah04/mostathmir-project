@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let originalStats = null;
-    let selectedCurrency = 'USD';
+    let selectedCurrency = localStorage.getItem('preferred_currency') || 'MAD';
+
     const exchangeRatesFromUSD = {
         "SAR": 3.75, "AED": 3.67, "QAR": 3.64, "OMR": 0.385,
         "KWD": 0.307, "BHD": 0.377, "EGP": 47.65, "JOD": 0.709,
@@ -50,11 +51,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const partnersStatBtn = document.getElementById('partners-stat-button');
     
     function convertToUSD(amount, fromCurrency) {
-        const rate = exchangeRatesFromUSD[fromCurrency];
-        if (rate) {
-            return amount / rate;
-        }
-        return amount; // Fallback if currency not found
+        const rateToUSD = 1 / (exchangeRatesFromUSD[fromCurrency] || 1);
+        return amount * rateToUSD;
     }
 
     function convertFromUSD(amountInUSD, toCurrency) {
@@ -85,8 +83,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             dashboardTotalInvestmentEl.textContent = `${Math.round(convertedTotal).toLocaleString()} ${currency}`;
         }
         
-        // Re-render the investment cards with the new currency
         renderAndSortInvestments();
+        populateFollowedProjects();
     }
 
     function switchTab(tabToShow) {
@@ -424,7 +422,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     function createInvestmentCard(investment) {
         if (!investment || !investment.project) return '';
 
-        // Original values from the backend
         const originalAmount = investment.amount;
         const originalCurrency = investment.currency;
         const originalGoal = investment.project.fundingGoal?.amount || 0;
@@ -432,14 +429,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const originalAmountPaid = investment.amountPaidNow;
         const originalAmountRemaining = investment.amountRemaining;
 
-        // Convert all to USD first as a base
         const myInvestmentUSD = convertToUSD(originalAmount, originalCurrency);
         const goalUSD = convertToUSD(originalGoal, investment.project.fundingGoal?.currency);
         const raisedUSD = convertToUSD(originalRaised, investment.project.fundingGoal?.currency);
         const paidUSD = convertToUSD(originalAmountPaid, originalCurrency);
         const remainingUSD = convertToUSD(originalAmountRemaining, originalCurrency);
 
-        // Convert from USD to the selected display currency
         const displayMyInvestment = convertFromUSD(myInvestmentUSD, selectedCurrency);
         const displayGoal = convertFromUSD(goalUSD, selectedCurrency);
         const displayRaised = convertFromUSD(raisedUSD, selectedCurrency);
@@ -510,11 +505,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="text-center p-3 bg-green-50 rounded-lg">
                     <div class="text-lg font-bold text-green-600">${Math.round(displayRaised).toLocaleString()}</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-amount-raised')} (${selectedCurrency})</div>
+                    <div class="text-xs text-gray-600">${t('js-investor-profile-amount-raised')}</div>
                 </div>
                 <div class="text-center p-3 bg-purple-50 rounded-lg">
                     <div class="text-lg font-bold text-purple-600">${Math.round(displayGoal).toLocaleString()}</div>
-                    <div class="text-xs text-gray-600">${t('js-investor-profile-funding-goal')} (${selectedCurrency})</div>
+                    <div class="text-xs text-gray-600">${t('js-investor-profile-funding-goal')}</div>
                 </div>
             </div>
             <div class="mb-4">
@@ -566,8 +561,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function createFollowedProjectCard(project) {
         if (!project) return '';
-        const goal = project.fundingGoal?.amount || 0;
-        const currency = project.fundingGoal?.currency || 'USD';
+        
+        const originalGoal = project.fundingGoal?.amount || 0;
+        const originalCurrency = project.fundingGoal?.currency || 'USD';
+        
+        const goalUSD = convertToUSD(originalGoal, originalCurrency);
+        const displayGoal = convertFromUSD(goalUSD, selectedCurrency);
+        
         const categoryKey = categoryTranslationKeys[project.projectCategory] || 'js-investor-profile-category-general';
 
         return `
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="space-y-2">
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-600">${t('js-investor-profile-funding-goal-label')}:</span>
-                        <span class="font-bold">${goal.toLocaleString()} ${currency}</span>
+                        <span class="font-bold">${Math.round(displayGoal).toLocaleString()} ${selectedCurrency}</span>
                     </div>
                 </div>
                 <div class="mt-4 text-right">
@@ -833,8 +833,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const currencySelector = document.getElementById('currencySelector');
     if(currencySelector) {
+        currencySelector.value = selectedCurrency; // Set default value
         currencySelector.addEventListener('change', (e) => {
             selectedCurrency = e.target.value;
+            localStorage.setItem('preferred_currency', selectedCurrency);
             updateAllFinancialDisplays(selectedCurrency);
         });
     }
