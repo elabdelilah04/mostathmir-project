@@ -218,7 +218,7 @@
             
             if (user) {
                 // --- Logged-in User State ---
-                if (mobileUserSection) mobileUserSection.style.display = 'list-item';
+                // if (mobileUserSection) mobileUserSection.style.display = 'list-item';
                 if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'flex';
                 if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'none';
 
