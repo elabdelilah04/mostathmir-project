@@ -378,16 +378,13 @@
 
     .main-nav.is-open {
         transform: translateX(0);
-        display: flex;
-        flex-direction: column;
     }
 
     .nav-list {
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem;
-        width: 100%;
-        flex-grow: 1; /* Allow list to take available space */
+        height: 100%;
     }
 
     .nav-item {
@@ -414,10 +411,9 @@
     }
 }
 
-/* --- Mobile-Specific Sections --- */
+/* ================== MODIFICATION START ================== */
 .mobile-user-section,
-.mobile-actions-section,
-.mobile-visitor-actions {
+.mobile-actions-section {
     display: none;
 }
 
@@ -429,35 +425,13 @@
         width: 100%;
     }
 
-    .main-nav.is-open .mobile-actions-section,
-    .main-nav.is-open .mobile-visitor-actions {
-        display: flex; /* Changed from block */
+    .main-nav.is-open .mobile-actions-section {
+        display: flex;
         flex-direction: column;
         padding: 1.5rem 1rem;
         margin-top: auto;
         border-top: 1px solid #e5e7eb;
         width: 100%;
-        align-items: center;
-        gap: 1.5rem;
-    }
-    
-    .mobile-visitor-actions .auth-buttons {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 1rem;
-    }
-
-    .mobile-visitor-actions .auth-buttons .btn {
-        width: 100%;
-        text-align: center;
-        padding: 0.75rem;
-    }
-
-    .mobile-visitor-actions .language-switcher {
-        justify-content: center;
-        width: 100%;
-        margin-top: 1rem;
     }
 
     .user-info-mobile {
@@ -475,6 +449,11 @@
         color: #4b5563;
         font-size: 0.9rem;
         margin: 0;
+    }
+
+    .mobile-actions-section {
+        align-items: center;
+        gap: 1.5rem;
     }
 
     .header-icons-mobile {
@@ -507,8 +486,14 @@
         width: 100%;
         text-align: center;
     }
+
+    #language-switcher-mobile-container .language-switcher {
+        justify-content: center;
+        width: 100%;
+    }
 }
-/* --- END: Mobile-Specific Sections --- */
+
+/* =================== MODIFICATION END =================== */
 
 
 #auth-buttons-visitor,
