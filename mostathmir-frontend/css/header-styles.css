@@ -362,7 +362,6 @@
         display: block;
         position: fixed;
         top: 71px;
-        /* Height of header */
         left: 0;
         right: 0;
         bottom: 0;
@@ -379,13 +378,16 @@
 
     .main-nav.is-open {
         transform: translateX(0);
+        display: flex;
+        flex-direction: column;
     }
 
     .nav-list {
         flex-direction: column;
         align-items: flex-start;
         padding: 1rem;
-        height: 100%;
+        width: 100%;
+        flex-grow: 1; /* Allow list to take available space */
     }
 
     .nav-item {
@@ -412,11 +414,11 @@
     }
 }
 
-/* --- START: New Mobile Menu Styles --- */
+/* --- Mobile-Specific Sections --- */
 .mobile-user-section,
-.mobile-actions-section {
+.mobile-actions-section,
+.mobile-visitor-actions {
     display: none;
-    /* Hidden by default on all screen sizes */
 }
 
 @media (max-width: 992px) {
@@ -427,14 +429,35 @@
         width: 100%;
     }
 
-    .main-nav.is-open .mobile-actions-section {
-        display: flex;
+    .main-nav.is-open .mobile-actions-section,
+    .main-nav.is-open .mobile-visitor-actions {
+        display: flex; /* Changed from block */
         flex-direction: column;
         padding: 1.5rem 1rem;
         margin-top: auto;
-        /* Pushes this section to the bottom */
         border-top: 1px solid #e5e7eb;
         width: 100%;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .mobile-visitor-actions .auth-buttons {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .mobile-visitor-actions .auth-buttons .btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    .mobile-visitor-actions .language-switcher {
+        justify-content: center;
+        width: 100%;
+        margin-top: 1rem;
     }
 
     .user-info-mobile {
@@ -452,11 +475,6 @@
         color: #4b5563;
         font-size: 0.9rem;
         margin: 0;
-    }
-
-    .mobile-actions-section {
-        align-items: center;
-        gap: 1.5rem;
     }
 
     .header-icons-mobile {
@@ -489,17 +507,10 @@
         width: 100%;
         text-align: center;
     }
-
-    #language-switcher-mobile-container .language-switcher {
-        justify-content: center;
-        width: 100%;
-    }
 }
+/* --- END: Mobile-Specific Sections --- */
 
-/* --- END: New Mobile Menu Styles --- */
-/* --- START: Fix Header Flicker --- */
 
-/* إخفاء جميع العناصر التي تعتمد على حالة المستخدم افتراضياً */
 #auth-buttons-visitor,
 #profile-dropdown-container,
 #header-icons,
@@ -507,13 +518,11 @@
 #nav-browse-projects,
 #nav-my-projects,
 #nav-my-investments {
-    /* استخدام visibility بدلاً من display لتجنب "قفز" العناصر */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-/* إظهار العناصر بعد أن يقوم JavaScript بتجهيزها */
 .header-ready #auth-buttons-visitor,
 .header-ready #profile-dropdown-container,
 .header-ready #header-icons,
