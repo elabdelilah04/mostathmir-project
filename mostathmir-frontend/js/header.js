@@ -1,6 +1,5 @@
 (function () {
-    // دوال ProfileDropdown, initMobileMenu, populateHeader, fetchCurrentUser, logoutUser, setupHeaderIcons, refreshHeaderBadges
-    // تبقى كما هي بالضبط من نسختك الأصلية. لا تغيير هنا.
+
     function ProfileDropdown() {
         this.trigger = document.getElementById('profileTrigger');
         this.dropdown = document.getElementById('profileDropdown');
@@ -51,6 +50,7 @@
             toggleButton.addEventListener('click', function () {
                 mainNav.classList.toggle('is-open');
                 toggleButton.classList.toggle('is-active');
+                document.body.classList.toggle('mobile-menu-open');
             });
         }
     }
@@ -146,17 +146,17 @@
         document.getElementById('headerMessagesBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#messages');
         document.getElementById('headerNotificationsBtnMobile')?.addEventListener('click', () => window.location.href = '/messages.html#notifications');
     }
-    
+
     async function refreshHeaderBadges() {
         const token = localStorage.getItem('user_token');
         const baseUrl = 'https://mostathmir-api.onrender.com';
-        
+
         const msgBadges = [document.getElementById('headerMessagesBadge'), document.getElementById('headerMessagesBadgeMobile')];
         const notiBadges = [document.getElementById('headerNotificationsBadge'), document.getElementById('headerNotificationsBadgeMobile')];
 
         if (!token) {
-            msgBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
-            notiBadges.forEach(badge => { if(badge) badge.style.display = 'none'; });
+            msgBadges.forEach(badge => { if (badge) badge.style.display = 'none'; });
+            notiBadges.forEach(badge => { if (badge) badge.style.display = 'none'; });
             return;
         }
         try {
@@ -168,7 +168,7 @@
                     unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
                 }
             }
-            
+
             let unreadNotifications = 0;
             const resNoti = await fetch(`${baseUrl}/api/notifications`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (resNoti.ok) {
@@ -193,7 +193,7 @@
             document.dispatchEvent(new CustomEvent('header:badges-updated', { detail: { unreadMessages, unreadNotifications } }));
         } catch (ex) { console.warn('refreshHeaderBadges: unexpected error', ex); }
     }
-    
+
     async function loadAndSetupHeader() {
         const placeholder = document.getElementById('header-placeholder');
         if (!placeholder) return;
@@ -205,17 +205,17 @@
 
             const headerElement = document.querySelector('.header');
             initMobileMenu();
-            
+
             const user = await window.fetchCurrentUser();
 
             const mobileUserSection = document.getElementById('mobile-user-section');
             const mobileActionsLoggedIn = document.getElementById('mobile-actions-loggedin');
             const mobileActionsVisitor = document.getElementById('mobile-actions-visitor');
-            
+
             const desktopAuthButtons = document.getElementById('auth-buttons-visitor');
             const desktopProfileDropdown = document.getElementById('profile-dropdown-container');
             const desktopHeaderIcons = document.getElementById('header-icons');
-            
+
             if (user) {
                 // --- Logged-in User State ---
                 // if (mobileUserSection) mobileUserSection.style.display = 'list-item';
@@ -225,7 +225,7 @@
                 if (desktopAuthButtons) desktopAuthButtons.style.display = 'none';
                 if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'flex';
                 if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'flex';
-                
+
                 document.getElementById('nav-about').style.display = 'none';
                 document.getElementById('nav-how').style.display = 'none';
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
@@ -238,10 +238,10 @@
                     myProfileLink.querySelector('a').href = user.accountType === 'investor' ? '/investor-profile.html' : '/profile.html';
                 }
                 document.querySelector('.dropdown-link.sign-out').addEventListener('click', (e) => { e.preventDefault(); window.logoutUser(); });
-                
+
                 setupHeaderIcons();
                 refreshHeaderBadges();
-            } else { 
+            } else {
                 // --- Visitor State ---
                 if (mobileUserSection) mobileUserSection.style.display = 'none';
                 if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'none';
@@ -250,7 +250,7 @@
                 if (desktopAuthButtons) desktopAuthButtons.style.display = 'flex';
                 if (desktopProfileDropdown) desktopProfileDropdown.style.display = 'none';
                 if (desktopHeaderIcons) desktopHeaderIcons.style.display = 'none';
-                
+
                 document.getElementById('nav-browse-projects').style.display = 'none';
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
@@ -260,9 +260,9 @@
             // --- Language Switcher Logic ---
             const desktopLangSwitcher = document.getElementById('languageSwitcher');
             const mobileLangSwitcher = document.getElementById('languageSwitcherMobile');
-            
+
             [desktopLangSwitcher, mobileLangSwitcher].forEach(switcher => {
-                if(switcher) {
+                if (switcher) {
                     switcher.querySelectorAll('.language-option').forEach(option => {
                         option.addEventListener('click', function () {
                             if (window.updateLanguage) window.updateLanguage(this.dataset.lang);
@@ -283,7 +283,7 @@
 
             if (window.updateLanguage) {
                 const originalUpdate = window.updateLanguage;
-                window.updateLanguage = function(lang) {
+                window.updateLanguage = function (lang) {
                     originalUpdate(lang);
                     syncLangSwitchers(lang);
                 };
@@ -292,7 +292,7 @@
             const currentLang = localStorage.getItem('preferred_language') || 'ar';
             syncLangSwitchers(currentLang);
             if (window.updateLanguage) window.updateLanguage(currentLang);
-            
+
             if (headerElement) {
                 headerElement.classList.add('header-ready');
             }
