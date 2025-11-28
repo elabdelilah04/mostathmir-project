@@ -5411,7 +5411,7 @@ h6 {
 
 .tab-button {
     padding: 1rem 1.5rem;
-    border: none;
+    border-radius: 13px;
     background: white;
     cursor: pointer;
     font-size: 1.1rem;
@@ -5601,6 +5601,9 @@ h6 {
 
 /* --- END: Proposal Card Enhancements --- */
 @media (max-width: 992px) {
+    .top-header{
+        padding: 1rem;
+    }
     .profile-main {
         padding: 1rem;
     }
@@ -5615,13 +5618,13 @@ h6 {
 
     .projects-portfolio {
         background: none;
-        padding: none;
+        padding: 0;
         border: none;
     }
 
     .interaction-metrics {
         background: none;
-        padding: none;
+        padding: 0;
         border: none;
     }
 }
