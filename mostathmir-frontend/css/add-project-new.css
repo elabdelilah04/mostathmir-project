@@ -121,6 +121,13 @@ body {
     background-color: white;
 }
 
+.phonenone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+}
+
 @media (max-width: 992px) {
     .phonewidth {
         flex-direction: column;
@@ -130,5 +137,5 @@ body {
     .phonenone {
         display: none;
     }
-    
+
 }
