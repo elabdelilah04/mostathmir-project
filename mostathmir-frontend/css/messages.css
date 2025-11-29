@@ -464,3 +464,9 @@ body {
 }
 
 /* --- END: Notification Modal Scrollbar Fix --- */
+@media (max-width: 992px) {
+    .phonewidth {
+        flex-direction: column;
+        
+    }
+}
