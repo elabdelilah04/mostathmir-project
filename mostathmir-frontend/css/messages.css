@@ -463,10 +463,15 @@ body {
     /* Add scrollbar only when content overflows */
 }
 
+.success-message {
+    position: relative;
+    z-index: 9999;
+}
+
 /* --- END: Notification Modal Scrollbar Fix --- */
 @media (max-width: 992px) {
     .phonewidth {
         flex-direction: column;
-        
+
     }
 }
