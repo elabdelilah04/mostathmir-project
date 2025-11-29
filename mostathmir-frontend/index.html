@@ -117,9 +117,15 @@
 
                 <!-- العنوان والوصف -->
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl font-bold text-[#1E3A8A] mb-4" data-i18n-key="how-title">كيف تعمل المنصة؟</h2>
-                    <p class="text-gray-600 text-lg max-w-2xl mx-auto" data-i18n-key="how-desc">خطوات بسيطة وشفافة تفصلك
-                        عن تحقيق طموحاتك المالية والمهنية</p>
+                    <!-- أضفنا ID للعنوان لنتحكم بلونه -->
+                    <h2 id="section-title"
+                        class="text-4xl font-bold text-yellow-500 mb-4 transition-colors duration-300"
+                        data-i18n-key="how-title">
+                        كيف تعمل المنصة؟
+                    </h2>
+                    <p class="text-gray-600 text-lg max-w-2xl mx-auto" data-i18n-key="how-desc">
+                        خطوات بسيطة وشفافة تفصلك عن تحقيق طموحاتك المالية والمهنية
+                    </p>
                 </div>
 
                 <!-- أزرار التبديل (Toggle) -->
@@ -136,14 +142,14 @@
                     </div>
                 </div>
 
-                <!-- محتوى رواد الأعمال (الأصفر) -->
+                <!-- محتوى رواد الأعمال (تأثير الهوفر أصفر) -->
                 <div id="content-entrepreneur"
                     class="grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
                     <!-- Step 1 -->
                     <div
-                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
                             <i class="fas fa-user-plus text-3xl text-yellow-500"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">1. أنشئ حسابك</h3>
@@ -153,10 +159,10 @@
 
                     <!-- Step 2 -->
                     <div
-                        class="bg-white border-2 border-yellow-400 rounded-2xl p-8 text-center shadow-lg transform md:-translate-y-4 relative z-10">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
                         <div
-                            class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white shadow-md">
-                            <i class="fas fa-chalkboard-teacher text-3xl"></i>
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
+                            <i class="fas fa-chalkboard-teacher text-3xl text-yellow-500"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">2. اعرض مشروعك</h3>
                         <p class="text-gray-500 leading-relaxed">قدم تفاصيل المشروع، دراسة الجدوى، والفريق المؤسس بطريقة
@@ -165,9 +171,9 @@
 
                     <!-- Step 3 -->
                     <div
-                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
                             <i class="fas fa-rocket text-3xl text-yellow-500"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">3. احصل على التمويل</h3>
@@ -176,15 +182,15 @@
                     </div>
                 </div>
 
-                <!-- محتوى المستثمرين (الأخضر) - مخفي افتراضياً -->
+                <!-- محتوى المستثمرين (تأثير الهوفر أخضر) - مخفي افتراضياً -->
                 <div id="content-investor"
                     class="hidden grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
                     <!-- Step 1 -->
                     <div
-                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-search-dollar text-3xl text-green-500"></i>
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
+                            <i class="fas fa-search-dollar text-3xl text-green-600"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">1. تصفح الفرص</h3>
                         <p class="text-gray-500 leading-relaxed">استعرض مئات المشاريع الواعدة المفلترة حسب القطاع وحجم
@@ -193,10 +199,10 @@
 
                     <!-- Step 2 -->
                     <div
-                        class="bg-white border-2 border-green-500 rounded-2xl p-8 text-center shadow-lg transform md:-translate-y-4 relative z-10">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
                         <div
-                            class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white shadow-md">
-                            <i class="fas fa-handshake text-3xl"></i>
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
+                            <i class="fas fa-handshake text-3xl text-green-600"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">2. ناقش المؤسسين</h3>
                         <p class="text-gray-500 leading-relaxed">تواصل مباشرة مع أصحاب المشاريع، اطلب البيانات المالية،
@@ -205,10 +211,10 @@
 
                     <!-- Step 3 -->
                     <div
-                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
+                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-chart-pie text-3xl text-green-500"></i>
+                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
+                            <i class="fas fa-chart-pie text-3xl text-green-600"></i>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-3">3. قم بتنويع محفظتك</h3>
                         <p class="text-gray-500 leading-relaxed">أتمم الصفقات بأمان عبر المنصة وتابع نمو استثماراتك من

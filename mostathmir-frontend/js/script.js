@@ -494,31 +494,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// دالة التبديل بين رواد الأعمال والمستثمرين في الصفحة الرئيسية
+// دالة التبديل بين رواد الأعمال والمستثمرين
 function switchHowItWorks(type) {
     const btnEntrepreneur = document.getElementById('btn-entrepreneur');
     const btnInvestor = document.getElementById('btn-investor');
     const contentEntrepreneur = document.getElementById('content-entrepreneur');
     const contentInvestor = document.getElementById('content-investor');
+    
+    // العنوان الرئيسي الذي سيتغير لونه
+    const sectionTitle = document.getElementById('section-title');
 
     if (type === 'entrepreneur') {
-        // تفعيل زر رواد الأعمال (تصميم أصفر)
+        // 1. تفعيل زر رواد الأعمال (أصفر)
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
+        // تعطيل زر المستثمرين
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
 
-        // إظهار محتوى رواد الأعمال وإخفاء المستثمرين
+        // 2. تغيير لون العنوان إلى الأصفر
+        sectionTitle.classList.remove('text-green-600');
+        sectionTitle.classList.add('text-yellow-500');
+
+        // 3. تبديل المحتوى
         contentEntrepreneur.classList.remove('hidden');
-        contentEntrepreneur.classList.add('grid'); // إعادة Grid
+        contentEntrepreneur.classList.add('grid');
         contentInvestor.classList.add('hidden');
         contentInvestor.classList.remove('grid');
+
     } else {
-        // تفعيل زر المستثمرين (تصميم أخضر)
+        // 1. تفعيل زر المستثمرين (أخضر)
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
+        // تعطيل زر رواد الأعمال
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
 
-        // إظهار محتوى المستثمرين وإخفاء رواد الأعمال
+        // 2. تغيير لون العنوان إلى الأخضر
+        sectionTitle.classList.remove('text-yellow-500');
+        sectionTitle.classList.add('text-green-600');
+
+        // 3. تبديل المحتوى
         contentInvestor.classList.remove('hidden');
-        contentInvestor.classList.add('grid'); // إعادة Grid
+        contentInvestor.classList.add('grid');
         contentEntrepreneur.classList.add('hidden');
         contentEntrepreneur.classList.remove('grid');
     }
