@@ -319,7 +319,95 @@ function initInvestorProfilePage(user, baseUrl) {
     populateCommonProfileFields(user, baseUrl);
     setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
 }
+async function loadFeaturedProjects() {
+    const grid = document.getElementById('featuredProjectsGrid');
+    if (!grid) return;
 
+    const baseUrl = (window.API_BASE_URL) ? window.API_BASE_URL : 'https://mostathmir-api.onrender.com';
+
+    try {
+        const response = await fetch(`${baseUrl}/api/projects/public`);
+        if (!response.ok) throw new Error('فشل جلب المشاريع');
+
+        let projects = await response.json();
+
+        projects = projects.filter(p => p.status === 'published' || p.status === 'funded' || p.status === 'funding');
+
+        projects.sort((a, b) => {
+            const followersA = a.followers ? a.followers.length : 0;
+            const followersB = b.followers ? b.followers.length : 0;
+            return followersB - followersA;
+        });
+
+        const featuredProjects = projects.slice(0, 3);
+
+        if (featuredProjects.length === 0) {
+            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">لا توجد مشاريع مميزة حالياً.</p>`;
+            return;
+        }
+
+        grid.innerHTML = featuredProjects.map(project => {
+            const goal = project.fundingGoal?.amount || 0;
+            const raised = project.fundingAmountRaised || 0;
+            const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
+            const clampedProgress = Math.min(progress, 100);
+
+            let imageSrc = 'https://via.placeholder.com/400x250?text=No+Image';
+            if (project.mainImage) {
+                imageSrc = project.mainImage.startsWith('http') ? project.mainImage : `${baseUrl}/${project.mainImage}`;
+            }
+
+            const category = project.projectCategory || 'عام';
+            const description = project.projectDescription ? project.projectDescription.substring(0, 100) + '...' : '';
+            const investorsCount = project.followers ? project.followers.length : 0;
+            const viewsCount = project.views || 0;
+
+            return `
+                <div class="project-card">
+                    <div class="project-image" style="background-image: url('${imageSrc}');">
+                        <div class="project-category">${category}</div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">${project.projectName}</h3>
+                        <p class="project-description">${description}</p>
+                        
+                        <!-- الإحصائيات: مشاهدات + مهتمين -->
+                        <div class="project-stats">
+                            <div class="stat" title="عدد المشاهدات">
+                                <i class="far fa-eye"></i>
+                                <span>${viewsCount}</span>
+                            </div>
+                            <div class="stat" title="مستثمرون مهتمون">
+                                <i class="fas fa-user-tie"></i>
+                                <span>${investorsCount} مهتم</span>
+                            </div>
+                        </div>
+
+                        <!-- شريط التقدم (بديل التقييم) -->
+                        <div class="project-progress-section mb-4">
+                            <div class="flex justify-between text-sm mb-1 text-gray-600">
+                                <span>نسبة التمويل</span>
+                                <span class="font-bold text-primary-color">${progress}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-green-500 h-2.5 rounded-full transition-all duration-500" style="width: ${clampedProgress}%"></div>
+                            </div>
+                        </div>
+
+                        <a href="project-view.html?id=${project._id}" class="btn btn-primary btn-block">عرض التفاصيل</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("Error loading featured projects:", error);
+        grid.innerHTML = `<p class="text-center text-red-500 col-span-full">حدث خطأ أثناء تحميل المشاريع.</p>`;
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    loadFeaturedProjects();
+});
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (window.initHeader) await window.initHeader();

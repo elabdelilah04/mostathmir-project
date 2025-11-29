@@ -5601,9 +5601,10 @@ h6 {
 
 /* --- END: Proposal Card Enhancements --- */
 @media (max-width: 992px) {
-    .top-header{
+    .top-header {
         padding: 1rem;
     }
+
     .profile-main {
         padding: 1rem;
     }
@@ -5627,7 +5628,22 @@ h6 {
         padding: 0;
         border: none;
     }
-    .modal-header{
+
+    .modal-header {
         flex-direction: column-reverse;
     }
+}
+
+.project-progress-section {
+    margin-top: 1rem;
+}
+
+.text-primary-color {
+    color: var(--primary-color);
+}
+
+.project-image {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
