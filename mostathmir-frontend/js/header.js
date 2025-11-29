@@ -218,7 +218,6 @@
 
             if (user) {
                 // --- Logged-in User State ---
-                // if (mobileUserSection) mobileUserSection.style.display = 'list-item';
                 if (mobileActionsLoggedIn) mobileActionsLoggedIn.style.display = 'flex';
                 if (mobileActionsVisitor) mobileActionsVisitor.style.display = 'none';
 
@@ -231,7 +230,11 @@
                 populateHeader(user, 'https://mostathmir-api.onrender.com');
                 new ProfileDropdown();
                 document.getElementById('nav-my-projects').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
+                document.getElementById('nav-add-project').style.display = user.accountType === 'ideaHolder' ? 'list-item' : 'none';
+
                 document.getElementById('nav-my-investments').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
+                document.getElementById('nav-browse-projects').style.display = user.accountType === 'investor' ? 'list-item' : 'none';
+
                 const myProfileLink = document.getElementById('Myprofile');
                 if (myProfileLink) {
                     myProfileLink.style.display = 'list-item';
