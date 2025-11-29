@@ -493,3 +493,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+// دالة التبديل في قسم "كيف تعمل المنصة"
+function switchHowItWorks(type) {
+    const btnEntrepreneur = document.getElementById('btn-entrepreneur');
+    const btnInvestor = document.getElementById('btn-investor');
+    const contentEntrepreneur = document.getElementById('content-entrepreneur');
+    const contentInvestor = document.getElementById('content-investor');
+
+    if (type === 'entrepreneur') {
+        // تفعيل زر رواد الأعمال (أصفر)
+        btnEntrepreneur.classList.add('bg-yellow-500', 'text-white', 'shadow-md');
+        btnEntrepreneur.classList.remove('text-gray-500', 'hover:bg-gray-50');
+        
+        // إلغاء تفعيل زر المستثمرين
+        btnInvestor.classList.remove('bg-green-500', 'text-white', 'shadow-md');
+        btnInvestor.classList.add('text-gray-500', 'hover:bg-gray-50');
+
+        // عرض محتوى رواد الأعمال
+        contentEntrepreneur.classList.remove('hidden');
+        contentInvestor.classList.add('hidden');
+    } else {
+        // تفعيل زر المستثمرين (أخضر)
+        btnInvestor.classList.add('bg-green-500', 'text-white', 'shadow-md');
+        btnInvestor.classList.remove('text-gray-500', 'hover:bg-gray-50');
+
+        // إلغاء تفعيل زر رواد الأعمال
+        btnEntrepreneur.classList.remove('bg-yellow-500', 'text-white', 'shadow-md');
+        btnEntrepreneur.classList.add('text-gray-500', 'hover:bg-gray-50');
+
+        // عرض محتوى المستثمرين
+        contentInvestor.classList.remove('hidden');
+        contentEntrepreneur.classList.add('hidden');
+    }
+}

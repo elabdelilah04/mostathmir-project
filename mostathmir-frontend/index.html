@@ -98,54 +98,116 @@
         </section>
 
         <!-- How It Works Section -->
-        <section class="how-it-works" id="how-it-works">
-            <div class="container">
-                <h2 class="section-title" data-i18n-key="how-title">كيف تعمل المنصة؟</h2>
-                <p class="section-description" data-i18n-key="how-desc">عملية بسيطة وفعالة تربط أصحاب الأفكار
-                    بالمستثمرين المناسبين في ثلاث خطوات سهلة</p>
+        <!-- How It Works Section -->
+        <section class="how-it-works py-16 bg-white" id="how-it-works">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4" data-i18n-key="how-title">كيف تعمل المنصة؟</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto" data-i18n-key="how-desc">خطوات بسيطة وشفافة تفصلك عن
+                        تحقيق طموحاتك المالية والمهنية</p>
+                </div>
 
-                <div class="steps-container">
-                    <div class="connecting-line"></div>
-                    <div class="step-card">
-                        <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                <path d="M12 17h.01" />
-                            </svg></div>
-                        <h3 class="step-title" data-i18n-key="step1-title">تقديم الفكرة</h3>
-                        <p class="step-description" data-i18n-key="step1-desc">قم بتسجيل حساب وإضافة تفاصيل مشروعك أو
-                            فكرتك مع خطة العمل والميزانية المطلوبة</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            </svg></div>
-                        <h3 class="step-title" data-i18n-key="step2-title">تواصل مع المستثمرين</h3>
-                        <p class="step-description" data-i18n-key="step2-desc">سيتمكن المستثمرون المهتمون من الاطلاع على
-                            مشروعك والتواصل معك مباشرة عبر المنصة</p>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path
-                                    d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                                <path d="M9 18c-4.51 2-5-2-7-2" />
-                            </svg></div>
-                        <h3 class="step-title" data-i18n-key="step3-title">إتمام الصفقة</h3>
-                        <p class="step-description" data-i18n-key="step3-desc">بعد الاتفاق على الشروط، يمكنكم إتمام
-                            الصفقة وبدء رحلة النجاح المشتركة</p>
+                <!-- Toggle Buttons -->
+                <div class="flex justify-center mb-12">
+                    <div class="bg-white border border-gray-200 rounded-full p-1 flex shadow-sm"
+                        style="min-width: 300px;">
+                        <button id="btn-entrepreneur"
+                            class="flex-1 py-2 px-6 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md"
+                            onclick="switchHowItWorks('entrepreneur')">
+                            رواد الأعمال
+                        </button>
+                        <button id="btn-investor"
+                            class="flex-1 py-2 px-6 rounded-full text-sm font-bold text-gray-500 transition-all duration-300 hover:bg-gray-50"
+                            onclick="switchHowItWorks('investor')">
+                            للمستثمرين
+                        </button>
                     </div>
                 </div>
-                <div class="text-center">
-                    <button class="btn btn-primary" data-i18n-key="how-btn">تعرف على المزيد</button>
+
+                <!-- Content: Entrepreneurs (Yellow Theme) -->
+                <div id="content-entrepreneur"
+                    class="grid grid-cols-1 md:grid-cols-3 gap-8 transition-all duration-500">
+                    <!-- Step 1 -->
+                    <div
+                        class="border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                        <div
+                            class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-6 text-yellow-600 text-2xl">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">1. أنشئ حسابك</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">سجل بياناتك الشخصية ومعلومات شركتك أو فكرتك
+                            الناشئة في دقائق معدودة.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div
+                        class="border border-yellow-400 rounded-2xl p-8 text-center shadow-md transform md:-translate-y-2 bg-white relative z-10">
+                        <div
+                            class="w-14 h-14 bg-yellow-500 rounded-xl flex items-center justify-center mx-auto mb-6 text-white text-2xl shadow-lg">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">2. اعرض مشروعك</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">قدم تفاصيل المشروع، دراسة الجدوى، والفريق
+                            المؤسس بطريقة احترافية لجذب الانتباه.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div
+                        class="border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                        <div
+                            class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-6 text-yellow-600 text-2xl">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">3. احصل على التمويل</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">تواصل مع المستثمرين المهتمين، وقع العقود، وابدأ
+                            رحلة النجاح بالتمويل اللازم.</p>
+                    </div>
+                </div>
+
+                <!-- Content: Investors (Green Theme) -->
+                <div id="content-investor"
+                    class="grid grid-cols-1 md:grid-cols-3 gap-8 hidden transition-all duration-500">
+                    <!-- Step 1 -->
+                    <div
+                        class="border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                        <div
+                            class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-6 text-green-600 text-2xl">
+                            <i class="fas fa-search-dollar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">1. تصفح الفرص</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">استعرض مئات المشاريع الواعدة المفلترة حسب
+                            القطاع وحجم الاستثمار والمخاطرة.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div
+                        class="border border-green-400 rounded-2xl p-8 text-center shadow-md transform md:-translate-y-2 bg-white relative z-10">
+                        <div
+                            class="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-6 text-white text-2xl shadow-lg">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">2. ناقش المؤسسين</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">تواصل مباشرة مع أصحاب المشاريع، اطلب البيانات
+                            المالية، وناقش شروط الاستثمار.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div
+                        class="border border-gray-100 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow duration-300">
+                        <div
+                            class="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-6 text-green-600 text-2xl">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">3. قم بتنويع محفظتك</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">أتمم الصفقات بأمان عبر المنصة وتابع نمو
+                            استثماراتك من خلال لوحة تحكم متطورة.</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <a href="signup.html"
+                        class="inline-block bg-gray-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors">ابـدأ
+                        الآن مجانـاً</a>
                 </div>
             </div>
         </section>
