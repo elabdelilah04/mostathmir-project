@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// دالة التبديل في قسم "كيف تعمل المنصة"
+// دالة التبديل بين رواد الأعمال والمستثمرين في الصفحة الرئيسية
 function switchHowItWorks(type) {
     const btnEntrepreneur = document.getElementById('btn-entrepreneur');
     const btnInvestor = document.getElementById('btn-investor');
@@ -502,28 +502,24 @@ function switchHowItWorks(type) {
     const contentInvestor = document.getElementById('content-investor');
 
     if (type === 'entrepreneur') {
-        // تفعيل زر رواد الأعمال (أصفر)
-        btnEntrepreneur.classList.add('bg-yellow-500', 'text-white', 'shadow-md');
-        btnEntrepreneur.classList.remove('text-gray-500', 'hover:bg-gray-50');
-        
-        // إلغاء تفعيل زر المستثمرين
-        btnInvestor.classList.remove('bg-green-500', 'text-white', 'shadow-md');
-        btnInvestor.classList.add('text-gray-500', 'hover:bg-gray-50');
+        // تفعيل زر رواد الأعمال (تصميم أصفر)
+        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
+        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
 
-        // عرض محتوى رواد الأعمال
+        // إظهار محتوى رواد الأعمال وإخفاء المستثمرين
         contentEntrepreneur.classList.remove('hidden');
+        contentEntrepreneur.classList.add('grid'); // إعادة Grid
         contentInvestor.classList.add('hidden');
+        contentInvestor.classList.remove('grid');
     } else {
-        // تفعيل زر المستثمرين (أخضر)
-        btnInvestor.classList.add('bg-green-500', 'text-white', 'shadow-md');
-        btnInvestor.classList.remove('text-gray-500', 'hover:bg-gray-50');
+        // تفعيل زر المستثمرين (تصميم أخضر)
+        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
+        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
 
-        // إلغاء تفعيل زر رواد الأعمال
-        btnEntrepreneur.classList.remove('bg-yellow-500', 'text-white', 'shadow-md');
-        btnEntrepreneur.classList.add('text-gray-500', 'hover:bg-gray-50');
-
-        // عرض محتوى المستثمرين
+        // إظهار محتوى المستثمرين وإخفاء رواد الأعمال
         contentInvestor.classList.remove('hidden');
+        contentInvestor.classList.add('grid'); // إعادة Grid
         contentEntrepreneur.classList.add('hidden');
+        contentEntrepreneur.classList.remove('grid');
     }
 }
