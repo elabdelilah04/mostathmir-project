@@ -126,4 +126,8 @@ body {
         flex-direction: column;
         gap: 1rem;
     }
+
+    .phonenone {
+        display: none;
+    }
 }
