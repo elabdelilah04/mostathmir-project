@@ -431,12 +431,12 @@ h6 {
 }
 
 /* ===== HOW IT WORKS SECTION ===== */
-/* .how-it-works {
+.how-it-works {
     padding: 5rem 0;
     background-color: #fff;
-} */
+}
 
-/* .steps-container {
+.steps-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
@@ -489,7 +489,7 @@ h6 {
 
 .step-description {
     color: var(--secondary-color);
-} */
+}
 
 /* ===== PROJECT RATING SECTION ===== */
 .project-rating {
