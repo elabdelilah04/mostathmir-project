@@ -38,7 +38,7 @@
                             المستثمرين</p>
                     </div>
                 </div>
-                <div class="phonenone  ">
+                <div class="phonenone">
                     <button onclick="saveDraft()" class="text-gray-600 hover:text-gray-800 px-3 py-2 border rounded-lg"
                         data-i18n-key="addproject-draft-btn">
                         حفظ كمسودة
@@ -380,10 +380,14 @@
                                         <input type="text" id="expenseItemName" class="flex-1 p-3 border rounded-lg"
                                             placeholder="اسم البند (مثل: التسويق)"
                                             data-i18n-key="addproject-budget-item-placeholder">
-                                        <input type="number" id="expenseItemPercent" class="w-24 p-3 border rounded-lg"
-                                            placeholder="50" data-i18n-key="addproject-budget-percent-placeholder"
-                                            min="0" max="100">
-                                        <span class="flex items-center text-gray-500">%</span>
+                                        <div>
+                                            <input type="number" id="expenseItemPercent"
+                                                class="w-24 p-3 border rounded-lg" placeholder="50"
+                                                data-i18n-key="addproject-budget-percent-placeholder" min="0" max="100">
+                                            <span required=""
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                                        </div>
+                                        <!-- <span class="flex items-center text-gray-500">%</span> -->
                                         <button type="button" onclick="addExpenseItem()"
                                             class="bg-green-500 text-white px-4 py-3 rounded-lg hover:bg-green-600"
                                             data-i18n-key="addproject-budget-add-btn">إضافة</button>
