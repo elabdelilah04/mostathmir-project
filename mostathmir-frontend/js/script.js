@@ -183,112 +183,95 @@ function switchHowItWorks(type) {
     }
 }
 
-// 3.2. تحميل المشاريع المميزة (تحديث: التركيز على البيانات المالية)
+// 3.2. تحميل المشاريع المميزة (تصميم مدمج + إحصائيات)
 async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
     try {
-        // عرض مؤشر التحميل
         grid.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center py-12">
-                <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-                <p class="text-gray-500 font-medium animate-pulse">${t('featured-loading')}</p>
+            <div class="col-span-full flex flex-col items-center justify-center py-10">
+                <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
             </div>`;
-
+        
         const response = await fetch(`${API_BASE_URL}/api/projects/public`);
         if (!response.ok) throw new Error('Failed to fetch projects');
-
+        
         let projects = await response.json();
-
-        // التصفية والترتيب
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
+        
+        // الترتيب حسب نسبة التمويل
         projects.sort((a, b) => {
             const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
             const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
             return progressB - progressA;
         });
-
+        
         const featuredProjects = projects.slice(0, 3);
 
         if (featuredProjects.length === 0) {
-            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">${t('featured-no-projects')}</p>`;
+            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">${t('featured-no-projects')}</p>`;
             return;
         }
 
         grid.innerHTML = featuredProjects.map(project => {
-            // الحسابات والبيانات
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
             const currency = project.fundingGoal?.currency || 'USD';
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
-
-            let imageSrc = project.mainImage && project.mainImage.startsWith('http')
-                ? project.mainImage
-                : 'https://via.placeholder.com/800x600?text=Mostathmir+Project';
+            
+            let imageSrc = project.mainImage && project.mainImage.startsWith('http') 
+                ? project.mainImage 
+                : 'https://via.placeholder.com/600x400?text=Project';
 
             const category = project.projectCategory || t('js-browse-category-general');
-            const description = project.projectDescription ? project.projectDescription.substring(0, 90) + '...' : '';
+            const description = project.projectDescription ? project.projectDescription.substring(0, 70) + '...' : '';
             const investorsCount = project.followers ? project.followers.length : 0;
             const viewsCount = project.views || 0;
-
-            // بيانات المالك
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
-            let ownerAvatar = '';
-            if (project.owner?.profilePicture && project.owner.profilePicture.startsWith('http')) {
-                ownerAvatar = `<img src="${project.owner.profilePicture}" class="w-full h-full object-cover" alt="${ownerName}">`;
-            } else {
-                const initial = ownerName.charAt(0).toUpperCase();
-                ownerAvatar = `<div class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">${initial}</div>`;
-            }
+
+            // --- HTML البطاقة (المعدل والمضغوط) ---
             return `
-                <div class="group bg-white rounded-[18px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[340px] mx-auto w-full">
+                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[320px] mx-auto w-full">
                     
-                    <!-- 1. Image Header (ارتفاع أقل h-48 -> h-44) -->
-                    <div class="relative h-44 overflow-hidden">
+                    <!-- صورة (ارتفاع أقل h-40) -->
+                    <div class="relative h-40 overflow-hidden">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                         
                         <div class="absolute top-3 right-3">
-                            <span class="bg-white/90 backdrop-blur text-[#1E3A8A] text-[10px] font-bold px-2 py-1 rounded shadow-sm">
+                            <span class="bg-white/90 backdrop-blur text-[#1E3A8A] text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">
                                 ${t(category) || category}
                             </span>
                         </div>
-
-                        <div class="absolute bottom-3 left-3 right-3 flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full border border-white/60 shadow-sm overflow-hidden bg-gray-200">
-                                ${ownerAvatar}
-                            </div>
-                            <div class="text-white truncate">
-                                <p class="text-[10px] text-gray-200 font-light leading-tight">${t('project_owner')}</p>
-                                <p class="text-xs font-bold leading-tight text-white truncate">${ownerName}</p>
-                            </div>
+                        <div class="absolute bottom-2 left-3 text-white text-xs font-medium drop-shadow-md">
+                            <i class="fas fa-user-circle text-sm mr-1"></i> ${ownerName}
                         </div>
                     </div>
 
-                    <!-- 2. Body Content (padding أقل) -->
-                    <div class="p-5 flex-1 flex flex-col">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight group-hover:text-[#1E3A8A] transition-colors line-clamp-1" title="${project.projectName}">
+                    <!-- المحتوى (padding أقل p-4) -->
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="text-base font-bold text-gray-900 mb-1.5 leading-tight line-clamp-1 group-hover:text-[#1E3A8A] transition-colors">
                             ${escapeHTML(project.projectName)}
                         </h3>
-                        <p class="text-gray-500 text-xs mb-4 line-clamp-2 leading-relaxed flex-grow h-8">
+                        <p class="text-gray-500 text-[11px] mb-3 line-clamp-2 leading-relaxed h-8">
                             ${escapeHTML(description)}
                         </p>
                         
-                        <!-- Financial Grid -->
+                        <!-- الشبكة المالية -->
                         <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="bg-green-50 rounded-lg p-2 text-center border border-green-100">
-                                <div class="text-[10px] text-gray-500 mb-0.5">${t('featured-raised')}</div>
+                            <div class="bg-green-50/80 rounded-lg p-1.5 text-center border border-green-100">
+                                <div class="text-[10px] text-gray-500">${t('featured-raised')}</div>
                                 <div class="text-green-700 font-bold text-xs">${raised.toLocaleString()}</div>
                             </div>
-                            <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
-                                <div class="text-[10px] text-gray-500 mb-0.5">${t('featured-goal')}</div>
+                            <div class="bg-gray-50 rounded-lg p-1.5 text-center border border-gray-100">
+                                <div class="text-[10px] text-gray-500">${t('featured-goal')}</div>
                                 <div class="text-gray-700 font-bold text-xs">${goal.toLocaleString()}</div>
                             </div>
                         </div>
 
-                        <!-- Progress Bar -->
+                        <!-- شريط التقدم -->
                         <div class="mb-3">
                             <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-gray-400">${t('featured-funding-progress')}</span>
@@ -299,8 +282,20 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- Button -->
-                        <a href="project-view.html?id=${project._id}" class="block w-full py-2.5 text-center rounded-lg font-bold text-xs transition-all duration-300 bg-[#1E3A8A] text-white shadow hover:bg-blue-800 hover:shadow-md">
+                        <!-- صف الإحصائيات (جديد: مشاهدات ومهتمين) -->
+                        <div class="flex justify-between items-center mb-4 pt-2 border-t border-gray-50 px-1">
+                            <div class="flex items-center gap-1 text-[11px] text-gray-500" title="${t('featured-views')}">
+                                <i class="far fa-eye text-blue-400"></i>
+                                <span>${viewsCount}</span>
+                            </div>
+                            <div class="flex items-center gap-1 text-[11px] text-gray-500" title="${t('featured-investors-interested')}">
+                                <i class="fas fa-heart text-pink-400"></i>
+                                <span>${investorsCount} ${t('featured-investors-interested')}</span>
+                            </div>
+                        </div>
+
+                        <!-- الزر -->
+                        <a href="project-view.html?id=${project._id}" class="block w-full py-2.5 text-center rounded-lg font-bold text-xs transition-all duration-300 bg-gray-900 text-white hover:bg-[#1E3A8A] hover:shadow-lg">
                             ${t('featured-view-details')} 
                         </a>
                     </div>
@@ -310,7 +305,7 @@ async function loadFeaturedProjects() {
 
     } catch (error) {
         console.error("Error loading featured projects:", error);
-        grid.innerHTML = `<p class="text-center text-red-500 col-span-full">حدث خطأ أثناء تحميل البيانات.</p>`;
+        grid.innerHTML = `<p class="text-center text-red-500 col-span-full">خطأ في التحميل</p>`;
     }
 }
 
