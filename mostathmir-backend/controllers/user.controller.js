@@ -162,7 +162,7 @@ const updateUserProfilePicture = async (req, res, next) => {
 const getIdeaHolderDashboard = async (req, res, next) => {
     try {
         const userId = req.user._id;
-        
+
         const projects = await Project.find({ owner: userId }).select('views followers fundingGoal fundingAmountRaised status');
 
         let totalFundingGoalMAD = 0;
@@ -181,7 +181,7 @@ const getIdeaHolderDashboard = async (req, res, next) => {
 
             totalViews += p.views || 0;
             totalFollowers += p.followers ? p.followers.length : 0;
-            
+
             if (p.status) {
                 if (projectsByStatus.hasOwnProperty(p.status)) { projectsByStatus[p.status]++; }
                 if (p.status === 'published' && (p.fundingAmountRaised || 0) === 0) { projectsByStatus.publishedUnfunded++; }
@@ -358,12 +358,12 @@ const getInvestorStats = async (req, res, next) => {
                 }
             }
         ]);
-        
+
         const stats = investmentAggregation[0] || {};
         const totalInvestmentInUSD = stats.totalInvestmentInUSD || 0;
         const totalInvestedProjects = stats.uniqueProjectIds ? stats.uniqueProjectIds.length : 0;
         const averageProjectCompletion = totalInvestedProjects > 0 ? (stats.totalProgressSum || 0) / totalInvestedProjects : 0;
-        
+
         res.json({
             totalInvestedProjects: totalInvestedProjects,
             totalInvestment: totalInvestmentInUSD,
@@ -484,12 +484,27 @@ const updateTestimonial = async (req, res, next) => {
 
 const getPublicPlatformStats = async (req, res, next) => {
     try {
-        const investorCount = await User.countDocuments({ accountType: 'investor' });        
+        const investorCount = await User.countDocuments({ accountType: 'investor' });
         res.json({
             investorCount: investorCount
         });
     } catch (error) {
         console.error("Error fetching public stats:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+const getEliteMembers = async (req, res) => {
+    try {
+
+        const users = await User.find({})
+            .select('fullName profilePicture accountType profileTitle isVerified')
+            .sort({ createdAt: -1 })
+            .limit(20);
+
+        res.json(users);
+    } catch (error) {
+        console.error("Error fetching elite members:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
@@ -509,4 +524,5 @@ module.exports = {
     deleteTestimonial,
     updateTestimonial,
     getPublicPlatformStats,
+    getEliteMembers,
 };

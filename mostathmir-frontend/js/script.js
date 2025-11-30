@@ -659,89 +659,83 @@ function setupChatModal() {
     }
 }
 
-
-// 3.5. تحميل وعرض نخبة المجتمع
+// 3.5. تحميل وعرض نخبة المجتمع (كل المستخدمين)
 async function loadEliteCommunity() {
     const container = document.getElementById('elite-container');
     if (!container) return;
 
     try {
-        // بما أننا لا نملك API عام للمستخدمين، سنجلب المشاريع ونستخرج منها الملاك
-        // هذا حل ذكي للواجهة الأمامية لعرض مستخدمين حقيقيين لديهم نشاط
-        const response = await fetch(`${API_BASE_URL}/api/projects/public`);
-        if (!response.ok) throw new Error('Failed to fetch data');
+        // طلب القائمة من الرابط الجديد
+        const response = await fetch(`${API_BASE_URL}/api/users/elite`);
+        if (!response.ok) throw new Error('Failed to fetch elite members');
 
-        const projects = await response.json();
-
-        // استخراج المستخدمين الفريدين (أصحاب المشاريع)
-        const uniqueUsers = new Map();
-
-        projects.forEach(p => {
-            if (p.owner && !uniqueUsers.has(p.owner._id)) {
-                uniqueUsers.set(p.owner._id, p.owner);
-            }
-        });
-
-        // تحويل Map إلى Array وأخذ عينة (مثلاً أول 8)
-        const eliteUsers = Array.from(uniqueUsers.values()).slice(0, 10);
+        const eliteUsers = await response.json();
 
         if (eliteUsers.length === 0) {
-            container.innerHTML = `<p class="text-center w-full text-gray-400">جاري بناء المجتمع...</p>`;
+            container.innerHTML = `<div class="text-center w-full py-8 text-gray-400">مجتمعنا ينمو... كن أول المنضمين!</div>`;
             return;
         }
 
         container.innerHTML = eliteUsers.map((user, index) => {
-            // تحديد الصورة (أو الحرف الأول)
+            // 1. معالجة الصورة
             let avatarHTML = '';
             if (user.profilePicture && user.profilePicture.startsWith('http')) {
-                avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${user.fullName}">`;
+                avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${user.fullName}">`;
             } else {
                 const initial = (user.fullName || 'U').charAt(0).toUpperCase();
-                // ألوان عشوائية للخلفية
-                const colors = ['bg-blue-600', 'bg-purple-600', 'bg-indigo-600', 'bg-teal-600'];
+                const colors = ['bg-[#1E3A8A]', 'bg-[#D4AF37]', 'bg-slate-800', 'bg-indigo-900'];
                 const bg = colors[index % colors.length];
-                avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-4xl font-bold">${initial}</div>`;
+                avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-3xl font-serif font-bold">${initial}</div>`;
             }
 
-            // تحديد الرتبة والتسميات
+            // 2. تحديد النصوص والترجمة
             const roleKey = user.accountType === 'investor' ? 'elite-role-investor' : 'elite-role-entrepreneur';
-            const tagKey = index % 2 === 0 ? 'elite-tag-top' : 'elite-tag-innovator'; // تنويع عشوائي للتاقات
+            const roleColor = user.accountType === 'investor' ? 'text-[#D4AF37]' : 'text-blue-600'; // ذهبي للمستثمر، أزرق للرائد
+            const roleIcon = user.accountType === 'investor' ? 'fa-hand-holding-usd' : 'fa-lightbulb';
+
+            // شارة التوثيق (إذا كان verified)
+            const verifiedBadge = user.isVerified
+                ? `<i class="fas fa-check-circle text-blue-500 absolute bottom-0 right-0 bg-white rounded-full border-2 border-white text-xl shadow-sm z-20" title="${t('elite-tag-verified')}"></i>`
+                : '';
+
+            // التاج السفلي (عشوائي للتجميل حالياً، أو بناءً على بيانات حقيقية)
+            const tagKey = user.accountType === 'investor' ? 'elite-tag-active' : 'elite-tag-innovator';
 
             return `
-                <div class="min-w-[250px] snap-center flex flex-col items-center group cursor-pointer" onclick="window.location.href='public-profile.html?id=${user._id}'">
+                <div class="min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'">
                     
-                    <!-- Avatar Circle with Gold Border & Effect -->
-                    <div class="relative w-32 h-32 mb-6">
-                        <div class="absolute inset-0 rounded-full border-4 border-[#D4AF37] shadow-lg overflow-hidden z-10 bg-white">
-                            ${avatarHTML}
-                        </div>
+                    <div class="relative bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-blue-100">
                         
-                        <!-- Decorative Ring (Spinning on hover) -->
-                        <div class="absolute -inset-2 rounded-full border border-[#D4AF37]/30 border-dashed animate-[spin_10s_linear_infinite] group-hover:animate-[spin_3s_linear_infinite]"></div>
-                        
-                        <!-- Verified Badge -->
-                        <div class="absolute bottom-1 right-1 z-20 bg-white rounded-full p-1 shadow-md">
-                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                        <!-- Avatar Section (Floating) -->
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
+                            <div class="w-full h-full rounded-full p-1 bg-white shadow-md relative z-10 group-hover:shadow-lg transition-shadow">
+                                <div class="w-full h-full rounded-full overflow-hidden border-[3px] ${user.accountType === 'investor' ? 'border-[#D4AF37]' : 'border-blue-500'}">
+                                    ${avatarHTML}
+                                </div>
+                            </div>
+                            ${verifiedBadge}
                         </div>
-                    </div>
 
-                    <!-- Info -->
-                    <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-[#1E3A8A] transition-colors text-center">
-                        ${escapeHTML(user.fullName)}
-                    </h3>
-                    
-                    <p class="text-[#D4AF37] font-medium text-sm mb-4 text-center">
-                        ${t(roleKey)}
-                    </p>
+                        <!-- User Info -->
+                        <h3 class="mt-4 text-lg font-bold text-gray-800 truncate group-hover:text-[#1E3A8A] transition-colors">
+                            ${escapeHTML(user.fullName)}
+                        </h3>
 
-                    <!-- Tags -->
-                    <div class="flex gap-2 justify-center">
-                        <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg border border-gray-200 font-medium">
-                            ${t(tagKey)}
-                        </span>
-                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs rounded-lg border border-blue-100 font-medium">
-                            ${t('elite-tag-verified')}
-                        </span>
+                        <div class="flex items-center justify-center gap-2 mt-1 mb-3">
+                            <i class="fas ${roleIcon} ${roleColor} text-xs"></i>
+                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">${t(roleKey)}</span>
+                        </div>
+
+                        <p class="text-xs text-gray-400 mb-4 line-clamp-1 h-4">
+                            ${escapeHTML(user.profileTitle || '')}
+                        </p>
+
+                        <!-- Footer Tag -->
+                        <div class="border-t border-gray-50 pt-3">
+                            <span class="inline-block px-3 py-1 bg-gray-50 text-gray-600 text-[10px] font-bold rounded-full border border-gray-100 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:border-[#1E3A8A] transition-all duration-300">
+                                ${t(tagKey)}
+                            </span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -749,10 +743,9 @@ async function loadEliteCommunity() {
 
     } catch (error) {
         console.error("Error loading elite:", error);
-        container.innerHTML = '';
+        container.innerHTML = `<div class="text-center w-full py-8 text-red-400">حدث خطأ في تحميل البيانات</div>`;
     }
 }
-
 // 3.6. دالة التمرير للأزرار (Left/Right)
 window.scrollElite = function (direction) {
     const container = document.getElementById('elite-container');

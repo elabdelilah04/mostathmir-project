@@ -18,8 +18,8 @@ const {
     addTestimonial,
     deleteTestimonial,
     updateTestimonial,
-    getPublicPlatformStats
-
+    getPublicPlatformStats,
+    getEliteMembers,
 } = require('../controllers/user.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 
@@ -46,7 +46,7 @@ const upload = multer({
     storage: userStorage,
     limits: { fileSize: 1024 * 1024 * 5 } // 5MB limit
 });
-
+router.get('/elite', getEliteMembers);
 router.get('/platform-stats', getPublicPlatformStats);
 router.get('/dashboard', protect, getIdeaHolderDashboard);
 router.get('/dashboard/proposals', protect, getReceivedProposals);
