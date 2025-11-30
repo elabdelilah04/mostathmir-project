@@ -114,114 +114,94 @@
         <!-- How It Works Section -->
         <section id="how-it-works" class="py-20 bg-white">
             <div class="max-w-7xl mx-auto px-6">
-
-                <!-- العنوان والوصف -->
                 <div class="text-center mb-12">
-                    <!-- أضفنا ID للعنوان لنتحكم بلونه -->
                     <h2 id="section-title"
                         class="text-4xl font-bold text-yellow-500 mb-4 transition-colors duration-300"
-                        data-i18n-key="how-title">
-                        كيف تعمل المنصة؟
-                    </h2>
-                    <p class="text-gray-600 text-lg max-w-2xl mx-auto" data-i18n-key="how-desc">
-                        خطوات بسيطة وشفافة تفصلك عن تحقيق طموحاتك المالية والمهنية
-                    </p>
+                        data-i18n-key="how-title"></h2>
+                    <p class="text-gray-600 text-lg max-w-2xl mx-auto" data-i18n-key="how-desc"></p>
                 </div>
 
-                <!-- أزرار التبديل (Toggle) -->
+                <!-- Toggle Buttons -->
                 <div class="flex justify-center mb-16">
                     <div class="bg-gray-100 p-1 rounded-full inline-flex shadow-inner">
                         <button id="btn-entrepreneur" onclick="switchHowItWorks('entrepreneur')"
-                            class="px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md">
-                            رواد الأعمال
-                        </button>
+                            class="px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md"
+                            data-i18n-key="how-btn-entrepreneur"></button>
                         <button id="btn-investor" onclick="switchHowItWorks('investor')"
-                            class="px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300">
-                            للمستثمرين
-                        </button>
+                            class="px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300"
+                            data-i18n-key="how-btn-investor"></button>
                     </div>
                 </div>
 
-                <!-- محتوى رواد الأعمال (تأثير الهوفر أصفر) -->
+                <!-- Content: Entrepreneur -->
                 <div id="content-entrepreneur"
                     class="grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
-                    <!-- Step 1 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
+                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
                         <div
                             class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
                             <i class="fas fa-user-plus text-3xl text-yellow-500"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">1. أنشئ حسابك</h3>
-                        <p class="text-gray-500 leading-relaxed">سجل بياناتك الشخصية ومعلومات شركتك أو فكرتك الناشئة في
-                            دقائق معدودة.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-ent-step1-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-ent-step1-desc"></p>
                     </div>
-
-                    <!-- Step 2 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
+                        class="bg-white border-2 border-yellow-400 rounded-2xl p-8 text-center shadow-lg transform md:-translate-y-4 relative z-10">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
-                            <i class="fas fa-chalkboard-teacher text-3xl text-yellow-500"></i>
+                            class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white shadow-md">
+                            <i class="fas fa-chalkboard-teacher text-3xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">2. اعرض مشروعك</h3>
-                        <p class="text-gray-500 leading-relaxed">قدم تفاصيل المشروع، دراسة الجدوى، والفريق المؤسس بطريقة
-                            احترافية لجذب الانتباه.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-ent-step2-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-ent-step2-desc"></p>
                     </div>
-
-                    <!-- Step 3 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group">
+                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
                         <div
                             class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-50 transition-colors duration-300">
                             <i class="fas fa-rocket text-3xl text-yellow-500"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">3. احصل على التمويل</h3>
-                        <p class="text-gray-500 leading-relaxed">تواصل مع المستثمرين المهتمين، وقع العقود، وابدأ رحلة
-                            النجاح بالتمويل اللازم.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-ent-step3-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-ent-step3-desc"></p>
                     </div>
                 </div>
 
-                <!-- محتوى المستثمرين (تأثير الهوفر أخضر) - مخفي افتراضياً -->
+                <!-- Content: Investor -->
                 <div id="content-investor"
                     class="hidden grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
-                    <!-- Step 1 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
+                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
                         <div
                             class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
                             <i class="fas fa-search-dollar text-3xl text-green-600"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">1. تصفح الفرص</h3>
-                        <p class="text-gray-500 leading-relaxed">استعرض مئات المشاريع الواعدة المفلترة حسب القطاع وحجم
-                            الاستثمار والمخاطرة.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-inv-step1-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-inv-step1-desc"></p>
                     </div>
-
-                    <!-- Step 2 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
+                        class="bg-white border-2 border-green-500 rounded-2xl p-8 text-center shadow-lg transform md:-translate-y-4 relative z-10">
                         <div
-                            class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
-                            <i class="fas fa-handshake text-3xl text-green-600"></i>
+                            class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white shadow-md">
+                            <i class="fas fa-handshake text-3xl"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">2. ناقش المؤسسين</h3>
-                        <p class="text-gray-500 leading-relaxed">تواصل مباشرة مع أصحاب المشاريع، اطلب البيانات المالية،
-                            وناقش شروط الاستثمار.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-inv-step2-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-inv-step2-desc"></p>
                     </div>
-
-                    <!-- Step 3 -->
                     <div
-                        class="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group">
+                        class="bg-white border border-gray-200 rounded-2xl p-8 text-center hover:shadow-xl transition-shadow duration-300 group">
                         <div
                             class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-50 transition-colors duration-300">
                             <i class="fas fa-chart-pie text-3xl text-green-600"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-3">3. قم بتنويع محفظتك</h3>
-                        <p class="text-gray-500 leading-relaxed">أتمم الصفقات بأمان عبر المنصة وتابع نمو استثماراتك من
-                            خلال لوحة تحكم متطورة.</p>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-i18n-key="how-inv-step3-title"></h3>
+                        <p class="text-gray-500 leading-relaxed" data-i18n-key="how-inv-step3-desc"></p>
                     </div>
                 </div>
 
+                <div class="text-center mt-12">
+                    <a href="signup.html"
+                        class="inline-block bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-transform hover:-translate-y-1 shadow-lg"
+                        data-i18n-key="how-cta-start"></a>
+                </div>
             </div>
         </section>
 

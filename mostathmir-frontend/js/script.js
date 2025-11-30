@@ -363,41 +363,46 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
 
             return `
-                <div class="project-card">
-                    <div class="project-image" style="background-image: url('${imageSrc}');">
-                        <div class="project-category">${category}</div>
-                    </div>
-                    <div class="project-content">
-                        <h3 class="project-title">${project.projectName}</h3>
-                        <p class="project-description">${description}</p>
-                        
-                        <!-- الإحصائيات: مشاهدات + مهتمين -->
-                        <div class="project-stats">
-                            <div class="stat" title="عدد المشاهدات">
-                                <i class="far fa-eye"></i>
-                                <span>${viewsCount}</span>
-                            </div>
-                            <div class="stat" title="مستثمرون مهتمون">
-                                <i class="fas fa-user-tie"></i>
-                                <span>${investorsCount} مهتم</span>
-                            </div>
-                        </div>
-
-                        <!-- شريط التقدم (بديل التقييم) -->
-                        <div class="project-progress-section mb-4">
-                            <div class="flex justify-between text-sm mb-1 text-gray-600">
-                                <span>نسبة التمويل</span>
-                                <span class="font-bold text-primary-color">${progress}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-green-500 h-2.5 rounded-full transition-all duration-500" style="width: ${clampedProgress}%"></div>
-                            </div>
-                        </div>
-
-                        <a href="project-view.html?id=${project._id}" class="btn btn-primary btn-block">عرض التفاصيل</a>
-                    </div>
+    <div class="project-card relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+        <div class="project-image h-48 bg-cover bg-center relative" style="background-image: url('${imageSrc}');">
+            <div class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                ${category}
+            </div>
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
+        </div>
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-1" title="${project.projectName}">${project.projectName}</h3>
+            <p class="text-gray-500 text-sm mb-4 line-clamp-2 h-10">${description}</p>
+            
+            <!-- Stats Row -->
+            <div class="flex justify-between items-center mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <div class="flex items-center gap-1" title="${t('featured-views')}">
+                    <i class="far fa-eye text-blue-500"></i>
+                    <span>${viewsCount}</span>
                 </div>
-            `;
+                <div class="flex items-center gap-1" title="${t('featured-investors-interested')}">
+                    <i class="fas fa-user-tie text-purple-500"></i>
+                    <span>${investorsCount} ${t('featured-investors-interested')}</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-5">
+                <div class="flex justify-between text-xs mb-1 font-semibold">
+                    <span class="text-gray-500">${t('featured-funding-progress')}</span>
+                    <span class="text-green-600">${progress}%</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
+                </div>
+            </div>
+
+            <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center bg-[#1E3A8A] text-white rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg">
+                ${t('featured-view-details')}
+            </a>
+        </div>
+    </div>
+`;
         }).join('');
 
     } catch (error) {
@@ -500,7 +505,7 @@ function switchHowItWorks(type) {
     const btnInvestor = document.getElementById('btn-investor');
     const contentEntrepreneur = document.getElementById('content-entrepreneur');
     const contentInvestor = document.getElementById('content-investor');
-    
+
     // العنوان الرئيسي الذي سيتغير لونه
     const sectionTitle = document.getElementById('section-title');
 
@@ -537,3 +542,41 @@ function switchHowItWorks(type) {
         contentEntrepreneur.classList.remove('grid');
     }
 }
+// دالة تحريك العدادات (Animated Counters)
+function startStatsCounter() {
+    const statsSection = document.getElementById('stats-section');
+    if (!statsSection) return;
+
+    const counters = document.querySelectorAll('.stat-item [data-target]');
+    let started = false; // لضمان تشغيل العداد مرة واحدة فقط
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !started) {
+            started = true;
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000; // مدة الحركة بالميلي ثانية
+                const increment = target / (duration / 16); // حساب الخطوة (60fps)
+
+                let current = 0;
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCounter();
+            });
+        }
+    }, { threshold: 0.5 }); // يبدأ عندما يظهر 50% من القسم
+
+    observer.observe(statsSection);
+}
+
+// إضافة استدعاء الدالة عند التحميل
+document.addEventListener('DOMContentLoaded', () => {
+    startStatsCounter();
+});

@@ -4,6 +4,46 @@
   // =========================
   const dict = {
     ar: {
+      // indexpage
+      // --- Featured Projects Section ---
+      "featured-loading": "جاري تحميل المشاريع المميزة...",
+      "featured-no-projects": "لا توجد مشاريع مميزة حالياً.",
+      "featured-funding-progress": "نسبة التمويل",
+      "featured-investors-interested": "مهتم",
+      "featured-views": "مشاهدة",
+      "featured-view-details": "عرض التفاصيل",
+
+      // --- How It Works Section ---
+      "how-btn-entrepreneur": "رواد الأعمال",
+      "how-btn-investor": "للمستثمرين",
+
+      // Entrepreneur Steps
+      "how-ent-step1-title": "1. أنشئ حسابك",
+      "how-ent-step1-desc": "سجل بياناتك الشخصية ومعلومات شركتك أو فكرتك الناشئة في دقائق معدودة.",
+      "how-ent-step2-title": "2. اعرض مشروعك",
+      "how-ent-step2-desc": "قدم تفاصيل المشروع، دراسة الجدوى، والفريق المؤسس بطريقة احترافية لجذب الانتباه.",
+      "how-ent-step3-title": "3. احصل على التمويل",
+      "how-ent-step3-desc": "تواصل مع المستثمرين المهتمين، وقع العقود، وابدأ رحلة النجاح بالتمويل اللازم.",
+
+      // Investor Steps
+      "how-inv-step1-title": "1. تصفح الفرص",
+      "how-inv-step1-desc": "استعرض مئات المشاريع الواعدة المفلترة حسب القطاع وحجم الاستثمار والمخاطرة.",
+      "how-inv-step2-title": "2. ناقش المؤسسين",
+      "how-inv-step2-desc": "تواصل مباشرة مع أصحاب المشاريع، اطلب البيانات المالية، وناقش شروط الاستثمار.",
+      "how-inv-step3-title": "3. قم بتنويع محفظتك",
+      "how-inv-step3-desc": "أتمم الصفقات بأمان عبر المنصة وتابع نمو استثماراتك من خلال لوحة تحكم متطورة.",
+
+      "how-cta-start": "ابـدأ الآن مجانـاً",
+
+      // --- Statistics Section (New) ---
+      "stats-title": "أرقام تتحدث عن نجاحنا",
+      "stats-subtitle": "نفخر بمجتمعنا المتنامي والثقة التي منحنا إياها المستثمرون ورواد الأعمال",
+      "stats-projects": "مشروع مسجل",
+      "stats-investors": "مستثمر نشط",
+      "stats-funded": "مشروع ممول",
+      "stats-capital": "حجم الاستثمارات",
+      "stats-currency": "مليون ر.س",
+
       "new-password-page-title": "إعادة تعيين كلمة السر - مستثمر",
       "new-password-title": "إعادة تعيين كلمة السر",
       "new-password-subtitle": "أدخل كلمة السر الجديدة.",
@@ -1795,6 +1835,45 @@
     },
 
     en: {
+      // indexpage
+// --- Featured Projects Section ---
+      "featured-loading": "Loading featured projects...",
+      "featured-no-projects": "No featured projects available.",
+      "featured-funding-progress": "Funding Progress",
+      "featured-investors-interested": "Interested",
+      "featured-views": "Views",
+      "featured-view-details": "View Details",
+
+      // --- How It Works Section ---
+      "how-btn-entrepreneur": "Entrepreneurs",
+      "how-btn-investor": "Investors",
+
+      // Entrepreneur Steps
+      "how-ent-step1-title": "1. Create Account",
+      "how-ent-step1-desc": "Register your personal data and company information in minutes.",
+      "how-ent-step2-title": "2. Pitch Project",
+      "how-ent-step2-desc": "Present project details, feasibility study, and team professionally.",
+      "how-ent-step3-title": "3. Get Funded",
+      "how-ent-step3-desc": "Connect with investors, sign contracts, and start your success journey.",
+
+      // Investor Steps
+      "how-inv-step1-title": "1. Browse Opportunities",
+      "how-inv-step1-desc": "Explore hundreds of promising projects filtered by sector and risk.",
+      "how-inv-step2-title": "2. Discuss with Founders",
+      "how-inv-step2-desc": "Communicate directly with owners, request financials, and discuss terms.",
+      "how-inv-step3-title": "3. Diversify Portfolio",
+      "how-inv-step3-desc": "Close deals securely and track your investment growth via the dashboard.",
+
+      "how-cta-start": "Start Now for Free",
+
+      // --- Statistics Section (New) ---
+      "stats-title": "Our Numbers Speak",
+      "stats-subtitle": "Proud of our growing community and the trust placed in us",
+      "stats-projects": "Projects Registered",
+      "stats-investors": "Active Investors",
+      "stats-funded": "Projects Funded",
+      "stats-capital": "Total Investments",
+      "stats-currency": "M SAR",
       "equivalent_to": "approx. equivalent to",
       "new-password-page-title": "Reset Password - Mostathmir",
       "new-password-title": "Reset Password",
