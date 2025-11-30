@@ -5,6 +5,11 @@
   const dict = {
     ar: {
       // indexpage
+      // --- Footer CTA Section ---
+      "cta-footer-title": "جاهز لبدء رحلتك الاستثمارية؟",
+      "cta-footer-subtitle": "سواء كنت تبحث عن تمويل لمشروع أحلامك أو تبحث عن الفرصة الذهبية القادمة، مكانك هنا.",
+      "cta-footer-btn-investor": "انضم كمستثمر",
+      "cta-footer-btn-entrepreneur": "انضم كرائد أعمال",
       // --- Elite Community Section ---
       "elite-title": "نخبة المجتمع",
       "elite-subtitle": "انضم إلى شبكة من أبرز العقول ورؤوس الأموال في المنطقة",
@@ -1847,6 +1852,11 @@
 
     en: {
       // indexpage
+      // --- Footer CTA Section ---
+      "cta-footer-title": "Ready to start your investment journey?",
+      "cta-footer-subtitle": "Whether you are looking for funding for your dream project or searching for the next golden opportunity, your place is here.",
+      "cta-footer-btn-investor": "Join as Investor",
+      "cta-footer-btn-entrepreneur": "Join as Entrepreneur",
       // --- Elite Community Section ---
       "elite-title": "Community Elite",
       "elite-subtitle": "Join a network of the region's brightest minds and capital",

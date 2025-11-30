@@ -225,7 +225,7 @@ async function loadFeaturedProjects() {
 
             // HTML البطاقة
             return `
-                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[320px] mx-auto w-full">
+                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[400px] mx-auto w-full">
                     
                     <!-- صورة (ارتفاع أقل h-40) -->
                     <div class="relative h-40 overflow-hidden">
@@ -738,7 +738,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 2. التحقق من تسجيل الدخول
     redirectIfLoggedIn();
-
     // 3. جلب المستخدم الحالي
     const user = await fetchCurrentUser();
 
@@ -768,6 +767,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initMobileScrollEffects();
     }
 
+
     // 6. تهيئة نموذج تسجيل الدخول
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -792,6 +792,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Error handled by wrapper
             }
         });
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const accountTypeParam = urlParams.get('type');
+    const accountTypeSelect = document.getElementById('accountType');
+
+    if (accountTypeParam && accountTypeSelect) {
+        accountTypeSelect.value = accountTypeParam;
     }
 
     // 7. تهيئة نافذة الدردشة
