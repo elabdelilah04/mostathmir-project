@@ -1,6 +1,53 @@
+/**
+ * ============================================================================
+ * 1. GLOBAL CONFIGURATION & UTILITIES
+ * إعدادات عامة وأدوات مساعدة
+ * ============================================================================
+ */
+
+const API_BASE_URL = (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_BASE_URL) 
+    ? window.CONFIG.API_BASE_URL 
+    : 'https://mostathmir-api.onrender.com';
+
+// أسعار صرف تقريبية للتحويل إلى الدرهم المغربي
+const EXCHANGE_RATES_TO_MAD = {
+    'MAD': 1,
+    'USD': 10.0,
+    'SAR': 2.66,
+    'EUR': 10.8,
+    'AED': 2.72,
+    'QAR': 2.74,
+    'KWD': 32.5,
+    'BHD': 26.5,
+    'OMR': 26.0
+};
+
+// دالة لمنع هجمات XSS عند عرض النصوص
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, match => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[match]));
+}
+
+// دالة مساعدة للتحويل المالي
+function convertToMAD(amount, currency) {
+    const rate = EXCHANGE_RATES_TO_MAD[currency] || 1; // الافتراضي 1 إذا لم توجد العملة
+    return amount * rate;
+}
+
+/**
+ * ============================================================================
+ * 2. AUTHENTICATION & USER MANAGEMENT
+ * إدارة المصادقة والمستخدمين
+ * ============================================================================
+ */
+
+// جلب بيانات المستخدم الحالي
 async function fetchCurrentUser() {
     const token = localStorage.getItem('user_token');
     if (!token) {
+        // الصفحات التي تتطلب تسجيل دخول
         const protectedPages = ['page-title-profile', 'page-title-investor-profile', 'page-title-settings'];
         if (protectedPages.includes(document.body.dataset.pageKey)) {
             window.location.href = 'login.html';
@@ -8,34 +55,42 @@ async function fetchCurrentUser() {
         return null;
     }
     try {
-        const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) {
-            localStorage.removeItem('user_token');
-            localStorage.removeItem('user_data');
-            window.location.href = 'login.html';
+        
+        if (response.status === 401) {
+            logoutUser(); // التوكن منتهي الصلاحية
             return null;
         }
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch profile');
+        }
+
         const user = await response.json();
         localStorage.setItem('user_data', JSON.stringify(user));
+        if(user._id) localStorage.setItem('user_id', user._id);
         return user;
-    } catch {
+    } catch (error) {
+        console.error("Auth Error:", error);
         return null;
     }
 }
 
+// معالجة طلبات API مع إدارة حالة الزر
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton ? submitButton.textContent : '';
+    
     if (submitButton) {
         submitButton.disabled = true;
         submitButton.textContent = t('js-script-please-wait');
     }
+
     try {
         const response = await fetch(url, options);
         const data = await response.json();
-
         const messageToDisplay = data.messageKey ? t(data.messageKey) : data.message;
 
         if (!response.ok) {
@@ -60,13 +115,16 @@ async function handleApiRequest(url, options, form) {
     }
 }
 
+// تسجيل الخروج
 function logoutUser() {
     localStorage.removeItem('user_token');
     localStorage.removeItem('user_data');
+    localStorage.removeItem('user_id');
     alert(t('js-header-logout-success'));
     window.location.href = 'login.html';
 }
 
+// التوجيه إذا كان المستخدم مسجلاً
 function redirectIfLoggedIn() {
     const pageKey = document.body.dataset.pageKey;
     if (pageKey === 'page-title-login' || pageKey === 'page-title-signup') {
@@ -83,6 +141,234 @@ function redirectIfLoggedIn() {
     }
 }
 
+/**
+ * ============================================================================
+ * 3. HOME PAGE LOGIC (Landing Page)
+ * منطق الصفحة الرئيسية
+ * ============================================================================
+ */
+
+// 3.1. تبديل قسم "كيف تعمل المنصة"
+function switchHowItWorks(type) {
+    const btnEntrepreneur = document.getElementById('btn-entrepreneur');
+    const btnInvestor = document.getElementById('btn-investor');
+    const contentEntrepreneur = document.getElementById('content-entrepreneur');
+    const contentInvestor = document.getElementById('content-investor');
+    const sectionTitle = document.getElementById('section-title');
+
+    if (type === 'entrepreneur') {
+        // تفعيل رواد الأعمال (أصفر)
+        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
+        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
+        
+        sectionTitle.classList.remove('text-green-600');
+        sectionTitle.classList.add('text-yellow-500');
+
+        contentEntrepreneur.classList.remove('hidden');
+        contentEntrepreneur.classList.add('grid');
+        contentInvestor.classList.add('hidden');
+        contentInvestor.classList.remove('grid');
+    } else {
+        // تفعيل المستثمرين (أخضر)
+        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
+        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
+        
+        sectionTitle.classList.remove('text-yellow-500');
+        sectionTitle.classList.add('text-green-600');
+
+        contentInvestor.classList.remove('hidden');
+        contentInvestor.classList.add('grid');
+        contentEntrepreneur.classList.add('hidden');
+        contentEntrepreneur.classList.remove('grid');
+    }
+}
+
+// 3.2. تحميل المشاريع المميزة
+async function loadFeaturedProjects() {
+    const grid = document.getElementById('featuredProjectsGrid');
+    if (!grid) return;
+
+    try {
+        grid.innerHTML = `<div class="text-center col-span-full"><i class="fas fa-circle-notch fa-spin text-blue-600 text-2xl"></i><p>${t('featured-loading')}</p></div>`;
+        
+        const response = await fetch(`${API_BASE_URL}/api/projects/public`);
+        if (!response.ok) throw new Error('Failed to fetch projects');
+        
+        let projects = await response.json();
+        // تصفية المشاريع النشطة فقط
+        projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
+        
+        // الترتيب حسب الأكثر متابعة
+        projects.sort((a, b) => (b.followers?.length || 0) - (a.followers?.length || 0));
+        
+        const featuredProjects = projects.slice(0, 3);
+
+        if (featuredProjects.length === 0) {
+            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">${t('featured-no-projects')}</p>`;
+            return;
+        }
+
+        grid.innerHTML = featuredProjects.map(project => {
+            const goal = project.fundingGoal?.amount || 0;
+            const raised = project.fundingAmountRaised || 0;
+            const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
+            const clampedProgress = Math.min(progress, 100);
+            
+            let imageSrc = project.mainImage && project.mainImage.startsWith('http') 
+                ? project.mainImage 
+                : 'https://via.placeholder.com/400x250?text=Mostathmir+Project';
+
+            const category = project.projectCategory || t('js-browse-category-general');
+            const description = project.projectDescription ? project.projectDescription.substring(0, 100) + '...' : '';
+            const investorsCount = project.followers ? project.followers.length : 0;
+            const viewsCount = project.views || 0;
+
+            return `
+                <div class="project-card relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                    <div class="project-image h-48 bg-cover bg-center relative" style="background-image: url('${imageSrc}');">
+                        <div class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                            ${t(category) || category}
+                        </div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-1">${escapeHTML(project.projectName)}</h3>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2 h-10">${escapeHTML(description)}</p>
+                        
+                        <div class="flex justify-between items-center mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                            <div class="flex items-center gap-1" title="${t('featured-views')}">
+                                <i class="far fa-eye text-blue-500"></i>
+                                <span>${viewsCount}</span>
+                            </div>
+                            <div class="flex items-center gap-1" title="${t('featured-investors-interested')}">
+                                <i class="fas fa-user-tie text-purple-500"></i>
+                                <span>${investorsCount}</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <div class="flex justify-between text-xs mb-1 font-semibold">
+                                <span class="text-gray-500">${t('featured-funding-progress')}</span>
+                                <span class="text-green-600">${progress}%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
+                            </div>
+                        </div>
+
+                        <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center bg-[#1E3A8A] text-white rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg">
+                            ${t('featured-view-details')}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("Error loading featured projects:", error);
+        grid.innerHTML = `<p class="text-center text-red-500 col-span-full">حدث خطأ أثناء تحميل البيانات.</p>`;
+    }
+}
+
+// 3.3. جلب الإحصائيات الحقيقية
+async function fetchPlatformStats() {
+    const statsSection = document.getElementById('stats-section');
+    if (!statsSection) return;
+
+    try {
+        // جلب البيانات بالتوازي (المشاريع + عدد المستثمرين الكلي)
+        const [projectsRes, statsRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/projects/public`),
+            fetch(`${API_BASE_URL}/api/users/platform-stats`) // Endpoint الجديد
+        ]);
+
+        if (!projectsRes.ok) throw new Error('Failed to fetch projects');
+        
+        const projects = await projectsRes.json();
+        const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
+
+        // 1. المشاريع المسجلة
+        const totalProjects = projects.length;
+        
+        // 2. الفرص النشطة (قيد التمويل + المكتملة)
+        const activeOpportunities = projects.filter(p => 
+            ['funded', 'completed', 'published'].includes(p.status)
+        ).length;
+
+        // 3. حجم الاستثمار (بالدرهم المغربي)
+        let totalCapitalMAD = 0;
+        projects.forEach(p => {
+            const amount = p.fundingAmountRaised || 0;
+            const currency = p.fundingGoal?.currency || 'USD'; 
+            totalCapitalMAD += convertToMAD(amount, currency);
+        });
+        const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
+
+        // 4. عدد المستثمرين (الكلي)
+        const totalInvestors = statsData.investorCount || 0;
+
+        // تحديث العدادات في HTML
+        const statElements = document.querySelectorAll('.stat-item .font-mono');
+        if(statElements.length >= 4) {
+            statElements[0].setAttribute('data-target', totalProjects);
+            statElements[1].setAttribute('data-target', totalInvestors);
+            statElements[2].setAttribute('data-target', activeOpportunities);
+            statElements[3].setAttribute('data-target', capitalInMillions);
+        }
+
+        startStatsCounter();
+
+    } catch (error) {
+        console.error("Error fetching stats:", error);
+        startStatsCounter(); // تشغيل حتى مع الأصفار
+    }
+}
+
+// 3.4. تحريك العدادات
+function startStatsCounter() {
+    const statsSection = document.getElementById('stats-section');
+    if (!statsSection) return;
+
+    const counters = document.querySelectorAll('.stat-item [data-target]');
+    let started = false;
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !started) {
+            started = true;
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const isFloat = target % 1 !== 0;
+                if (target === 0) { counter.innerText = "0"; return; }
+
+                const duration = 2000; 
+                const increment = target / (duration / 16);
+                
+                let current = 0;
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = isFloat ? current.toFixed(1) : Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCounter();
+            });
+        }
+    }, { threshold: 0.5 });
+
+    observer.observe(statsSection);
+}
+
+/**
+ * ============================================================================
+ * 4. PROFILE & UI LOGIC
+ * منطق الصفحات الشخصية والواجهة
+ * ============================================================================
+ */
+
+// رفع صورة الملف الشخصي
 async function uploadProfilePicture(file) {
     const token = localStorage.getItem('user_token');
     if (!token) return;
@@ -90,7 +376,7 @@ async function uploadProfilePicture(file) {
     formData.append('profilePicture', file);
     alert(t('js-script-uploading-image'));
     try {
-        const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile/picture', {
+        const response = await fetch(`${API_BASE_URL}/api/users/profile/picture`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -104,18 +390,15 @@ async function uploadProfilePicture(file) {
     }
 }
 
+// تعبئة البيانات المشتركة للملف الشخصي
 function populateCommonProfileFields(user, baseUrl) {
     document.querySelectorAll('.profile-name, .user-name').forEach(el => { el.textContent = user.fullName || ''; });
-
+    
     const profileBio = document.querySelector('.profile-bio');
     if (profileBio) profileBio.textContent = user.bio || t('js-script-add-bio');
-
+    
     const profileLocation = document.querySelector('.profile-location span');
-    if (profileLocation && user.location) {
-        profileLocation.textContent = user.location;
-    } else if (profileLocation) {
-        profileLocation.textContent = t('js-script-location-not-set');
-    }
+    if (profileLocation) profileLocation.textContent = user.location || t('js-script-location-not-set');
 
     const contactEmail = document.querySelector('.profile-contact .contact-item:nth-child(1) span');
     if (contactEmail) contactEmail.textContent = user.email || '';
@@ -123,12 +406,14 @@ function populateCommonProfileFields(user, baseUrl) {
     const contactPhone = document.querySelector('.profile-contact .contact-item:nth-child(2) span');
     if (contactPhone) contactPhone.textContent = user.phone || t('js-script-no-phone');
 
+    // معالجة الصورة الرمزية
     const mainAvatarImage = document.getElementById('avatarImage');
     const mainAvatarInitials = document.getElementById('avatarInitials');
     const hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png';
+    
     const parts = user.fullName ? user.fullName.trim().split(' ') : [];
-    const initials = parts.length > 1
-        ? (parts[0][0] + parts[1][0]).toUpperCase()
+    const initials = parts.length > 1 
+        ? (parts[0][0] + parts[1][0]).toUpperCase() 
         : (user.fullName || '').trim().substring(0, 2).toUpperCase();
 
     if (mainAvatarImage) {
@@ -140,6 +425,7 @@ function populateCommonProfileFields(user, baseUrl) {
         mainAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
     }
 
+    // زر رفع الصورة
     const avatarAddButton = document.getElementById('avatarAddButton');
     const avatarUploadInput = document.getElementById('avatarUploadInput');
     if (avatarAddButton && avatarUploadInput) {
@@ -151,38 +437,43 @@ function populateCommonProfileFields(user, baseUrl) {
         });
     }
 
+    // روابط التواصل الاجتماعي
     const iconsContainer = document.getElementById('profileSocialIconsContainer');
-    const linkDisplayContainer = document.getElementById('profileSocialLinkDisplay');
-    const linkDisplayText = document.getElementById('socialLinkText');
-    const linkDisplayIcon = document.getElementById('socialLinkIcon');
-
-    if (iconsContainer && linkDisplayContainer && linkDisplayText && linkDisplayIcon) {
+    if (iconsContainer && user.socialLinks && user.socialLinks.length > 0) {
+        const linkDisplayContainer = document.getElementById('profileSocialLinkDisplay');
+        const linkDisplayText = document.getElementById('socialLinkText');
+        const linkDisplayIcon = document.getElementById('socialLinkIcon');
+        
         iconsContainer.innerHTML = '';
-        linkDisplayContainer.style.display = 'none';
+        if(linkDisplayContainer) linkDisplayContainer.style.display = 'none';
+
         const svgIcons = {
-            linkedin: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>',
-            instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>',
-            twitter: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>',
-            facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>',
-            youtube: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>',
-            github: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>',
-            website: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>'
+            linkedin: '<i class="fab fa-linkedin-in"></i>',
+            twitter: '<i class="fab fa-twitter"></i>',
+            facebook: '<i class="fab fa-facebook-f"></i>',
+            instagram: '<i class="fab fa-instagram"></i>',
+            github: '<i class="fab fa-github"></i>',
+            website: '<i class="fas fa-globe"></i>',
+            youtube: '<i class="fab fa-youtube"></i>'
         };
-        if (user.socialLinks && user.socialLinks.length > 0) {
-            user.socialLinks.forEach(link => {
-                const iconButton = document.createElement('button');
-                iconButton.type = 'button';
-                iconButton.className = 'social-icon-button';
-                iconButton.innerHTML = svgIcons[link.platform] || svgIcons.website;
-                iconButton.addEventListener('click', () => {
-                    const isAlreadyActive = iconButton.classList.contains('active');
-                    iconsContainer.querySelectorAll('.social-icon-button').forEach(btn => btn.classList.remove('active'));
-                    if (isAlreadyActive) {
-                        linkDisplayContainer.style.display = 'none';
-                    } else {
-                        iconButton.classList.add('active');
-                        linkDisplayText.textContent = link.url;
-                        linkDisplayIcon.innerHTML = svgIcons[link.platform] || svgIcons.website;
+
+        user.socialLinks.forEach(link => {
+            const iconButton = document.createElement('button');
+            iconButton.type = 'button';
+            iconButton.className = 'social-icon-button';
+            iconButton.innerHTML = svgIcons[link.platform] || svgIcons.website;
+            
+            iconButton.addEventListener('click', () => {
+                const isAlreadyActive = iconButton.classList.contains('active');
+                iconsContainer.querySelectorAll('.social-icon-button').forEach(btn => btn.classList.remove('active'));
+                
+                if (isAlreadyActive) {
+                    if(linkDisplayContainer) linkDisplayContainer.style.display = 'none';
+                } else {
+                    iconButton.classList.add('active');
+                    if(linkDisplayText) linkDisplayText.textContent = link.url;
+                    if(linkDisplayIcon) linkDisplayIcon.innerHTML = svgIcons[link.platform] || svgIcons.website;
+                    if(linkDisplayContainer) {
                         linkDisplayContainer.style.display = 'flex';
                         linkDisplayContainer.onclick = () => {
                             const fullUrl = link.url.startsWith('http') ? link.url : `https://${link.platform}.com/${link.url}`;
@@ -190,12 +481,13 @@ function populateCommonProfileFields(user, baseUrl) {
                         };
                         linkDisplayContainer.style.cursor = 'pointer';
                     }
-                });
-                iconsContainer.appendChild(iconButton);
+                }
             });
-        }
+            iconsContainer.appendChild(iconButton);
+        });
     }
 
+    // الاهتمامات
     const interestsContainer = document.getElementById('profileInterestsContainer');
     if (interestsContainer) {
         interestsContainer.innerHTML = '';
@@ -207,30 +499,60 @@ function populateCommonProfileFields(user, baseUrl) {
                 interestsContainer.appendChild(tagElement);
             });
         } else {
-            interestsContainer.innerHTML = `<p style="font-size:13px;color:#6b7280;" data-i18n-key="interest">${t('js-script-define-interests')}</p>`;
+            interestsContainer.innerHTML = `<p style="font-size:13px;color:#6b7280;">${t('js-script-define-interests')}</p>`;
         }
     }
 }
 
-function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+// تهيئة صفحة صاحب المشروع
+function initProfilePage(user, baseUrl) {
+    if (user.accountType !== 'ideaHolder') {
+        window.location.href = 'investor-profile.html';
+        return;
+    }
+    populateCommonProfileFields(user, baseUrl);
+    setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
+    initProjectsPortfolio();
+    
+    const token = localStorage.getItem('user_token');
+    fetch(`${baseUrl}/api/projects/myprojects`, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(projects => {
+            const totalProjectsStat = document.getElementById('stat-total-projects');
+            if (totalProjectsStat) totalProjectsStat.textContent = projects.length;
+        })
+        .catch(console.error);
 }
 
+// تهيئة صفحة المستثمر
+function initInvestorProfilePage(user, baseUrl) {
+    if (user.accountType !== 'investor') {
+        window.location.href = 'profile.html';
+        return;
+    }
+    populateCommonProfileFields(user, baseUrl);
+    setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
+}
+
+// إعداد الإحصائيات التفاعلية (للتبديل بين التبويبات)
 function setupInteractiveStats(gridId, contentAreaId) {
     const statsGrid = document.getElementById(gridId);
-    if (!statsGrid) return;
     const dynamicContentArea = document.getElementById(contentAreaId);
-    if (!dynamicContentArea) return;
+    if (!statsGrid || !dynamicContentArea) return;
+    
     const statButtons = statsGrid.querySelectorAll('[data-target]');
     const contentPanels = dynamicContentArea.querySelectorAll('.content-panel');
+    
     statsGrid.addEventListener('click', (e) => {
         const clickedButton = e.target.closest('[data-target]');
         if (!clickedButton) return;
+        
         const targetId = clickedButton.dataset.target;
         const targetPanel = document.getElementById(targetId);
+        
         statButtons.forEach(btn => btn.classList.remove('active'));
         contentPanels.forEach(panel => panel.classList.remove('visible'));
+        
         clickedButton.classList.add('active');
         if (targetPanel) {
             targetPanel.classList.add('visible');
@@ -240,188 +562,77 @@ function setupInteractiveStats(gridId, contentAreaId) {
 }
 
 function initProjectsPortfolio() {
-    const canvas = document.getElementById('projectsChart');
-    if (canvas && canvas.getContext) {
-        const ctx = canvas.getContext('2d');
-        const data = [{ value: 3, color: '#3b82f6' }, { value: 2, color: '#f59e0b' }, { value: 4, color: '#10b981' }, { value: 2, color: '#8b5cf6' }, { value: 1, color: '#06b6d4' }];
-        const total = data.reduce((sum, item) => sum + item.value, 0);
-        let currentAngle = -Math.PI / 2;
-        data.forEach(item => {
-            const sliceAngle = (item.value / total) * 2 * Math.PI;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, canvas.height / 2);
-            ctx.arc(canvas.width / 2, canvas.height / 2, 80, currentAngle, currentAngle + sliceAngle);
-            ctx.closePath();
-            ctx.fillStyle = item.color;
-            ctx.fill();
-            currentAngle += sliceAngle;
-        });
-    }
-    const filterButtons = document.querySelectorAll('.projects-filter .filter-btn');
-    const projectCards = document.querySelectorAll('.projects-cards .project-card');
-    if (filterButtons.length > 0) {
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.dataset.filter;
-                projectCards.forEach(card => {
-                    card.style.display = (filter === 'all' || card.dataset.status === filter) ? 'block' : 'none';
-                });
-            });
-        });
-    }
+    // يمكن إضافة كود رسم الـ Canvas هنا إذا لزم الأمر
 }
 
-function initProfilePage(user, baseUrl) {
-    if (user.accountType !== 'ideaHolder') {
-        window.location.href = 'investor-profile.html';
-        return;
-    }
-    populateCommonProfileFields(user, baseUrl);
-    setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
-    initProjectsPortfolio();
-    const token = localStorage.getItem('user_token');
-    fetch(`${baseUrl}/api/projects/myprojects`, { headers: { 'Authorization': `Bearer ${token}` } })
-        .then(res => {
-            if (!res.ok) throw new Error(t('js-script-fetch-projects-failed'));
-            return res.json();
-        })
-        .then(projects => {
-            const totalProjectsStat = document.getElementById('stat-total-projects');
-            if (totalProjectsStat) totalProjectsStat.textContent = projects.length;
-            const recentProjectsList = document.getElementById('recent-projects-list');
-            if (recentProjectsList) {
-                recentProjectsList.innerHTML = '';
-                const projectsToShow = projects.slice(0, 2);
-                if (projectsToShow.length > 0) {
-                    projectsToShow.forEach(project => {
-                        const listItem = document.createElement('li');
-                        listItem.innerHTML = `<a href="project-details.html?id=${project._id}">${escapeHTML(project.projectName || t('js-script-untitled-project'))}</a>`;
-                        recentProjectsList.appendChild(listItem);
-                    });
-                } else {
-                    recentProjectsList.innerHTML = `<li>${t('js-script-no-projects-yet')}</li>`;
-                }
-            }
-        })
-        .catch(() => {
-            const recentProjectsList = document.getElementById('recent-projects-list');
-            if (recentProjectsList) recentProjectsList.innerHTML = `<li>${t('js-script-error-loading-projects')}</li>`;
-        });
-}
+/**
+ * ============================================================================
+ * 5. CHAT MODAL & MISC
+ * نافذة الدردشة والمحفوظات
+ * ============================================================================
+ */
 
-function initInvestorProfilePage(user, baseUrl) {
-    if (user.accountType !== 'investor') {
-        window.location.href = 'profile.html';
-        return;
-    }
-    populateCommonProfileFields(user, baseUrl);
-    setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
-}
-async function loadFeaturedProjects() {
-    const grid = document.getElementById('featuredProjectsGrid');
-    if (!grid) return;
+function setupChatModal() {
+    const openChatBtn = document.getElementById('openChatBtn');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const chatModal = document.getElementById('chatModal');
+    const chatModalOverlay = document.getElementById('chatModalOverlay');
+    const chatForm = document.getElementById('chatForm');
 
-    const baseUrl = (window.API_BASE_URL) ? window.API_BASE_URL : 'https://mostathmir-api.onrender.com';
-
-    try {
-        const response = await fetch(`${baseUrl}/api/projects/public`);
-        if (!response.ok) throw new Error('فشل جلب المشاريع');
-
-        let projects = await response.json();
-
-        projects = projects.filter(p => p.status === 'published' || p.status === 'funded' || p.status === 'funding');
-
-        projects.sort((a, b) => {
-            const followersA = a.followers ? a.followers.length : 0;
-            const followersB = b.followers ? b.followers.length : 0;
-            return followersB - followersA;
-        });
-
-        const featuredProjects = projects.slice(0, 3);
-
-        if (featuredProjects.length === 0) {
-            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">لا توجد مشاريع مميزة حالياً.</p>`;
-            return;
+    function openChat() {
+        if (chatModal && chatModalOverlay) {
+            chatModal.classList.add('is-visible');
+            chatModalOverlay.classList.add('is-visible');
         }
+    }
+    function closeChat() {
+        if (chatModal && chatModalOverlay) {
+            chatModal.classList.remove('is-visible');
+            chatModalOverlay.classList.remove('is-visible');
+        }
+    }
 
-        grid.innerHTML = featuredProjects.map(project => {
-            const goal = project.fundingGoal?.amount || 0;
-            const raised = project.fundingAmountRaised || 0;
-            const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
-            const clampedProgress = Math.min(progress, 100);
-
-            let imageSrc = 'https://via.placeholder.com/400x250?text=No+Image';
-            if (project.mainImage) {
-                imageSrc = project.mainImage.startsWith('http') ? project.mainImage : `${baseUrl}/${project.mainImage}`;
-            }
-
-            const category = project.projectCategory || 'عام';
-            const description = project.projectDescription ? project.projectDescription.substring(0, 100) + '...' : '';
-            const investorsCount = project.followers ? project.followers.length : 0;
-            const viewsCount = project.views || 0;
-
-            return `
-    <div class="project-card relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-        <div class="project-image h-48 bg-cover bg-center relative" style="background-image: url('${imageSrc}');">
-            <div class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                ${category}
-            </div>
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
-        </div>
-        <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-1" title="${project.projectName}">${project.projectName}</h3>
-            <p class="text-gray-500 text-sm mb-4 line-clamp-2 h-10">${description}</p>
+    if (openChatBtn) openChatBtn.addEventListener('click', openChat);
+    if (closeChatBtn) closeChatBtn.addEventListener('click', closeChat);
+    if (chatModalOverlay) chatModalOverlay.addEventListener('click', closeChat);
+    
+    if (chatForm) {
+        chatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (!input || input.value.trim() === '') return;
             
-            <!-- Stats Row -->
-            <div class="flex justify-between items-center mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                <div class="flex items-center gap-1" title="${t('featured-views')}">
-                    <i class="far fa-eye text-blue-500"></i>
-                    <span>${viewsCount}</span>
-                </div>
-                <div class="flex items-center gap-1" title="${t('featured-investors-interested')}">
-                    <i class="fas fa-user-tie text-purple-500"></i>
-                    <span>${investorsCount} ${t('featured-investors-interested')}</span>
-                </div>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="mb-5">
-                <div class="flex justify-between text-xs mb-1 font-semibold">
-                    <span class="text-gray-500">${t('featured-funding-progress')}</span>
-                    <span class="text-green-600">${progress}%</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
-                </div>
-            </div>
-
-            <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center bg-[#1E3A8A] text-white rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg">
-                ${t('featured-view-details')}
-            </a>
-        </div>
-    </div>
-`;
-        }).join('');
-
-    } catch (error) {
-        console.error("Error loading featured projects:", error);
-        grid.innerHTML = `<p class="text-center text-red-500 col-span-full">حدث خطأ أثناء تحميل المشاريع.</p>`;
+            const messagesContainer = document.querySelector('.chat-messages');
+            if (messagesContainer) {
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('message', 'sent');
+                newMessage.innerHTML = `<p>${escapeHTML(input.value.trim())}</p>`;
+                messagesContainer.appendChild(newMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            input.value = '';
+        });
     }
 }
-document.addEventListener('DOMContentLoaded', () => {
-    loadFeaturedProjects();
-});
+
+/**
+ * ============================================================================
+ * 6. MAIN INITIALIZATION
+ * التهيئة الرئيسية عند تحميل الصفحة
+ * ============================================================================
+ */
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. تهيئة الهيدر
     if (window.initHeader) await window.initHeader();
 
+    // 2. التحقق من تسجيل الدخول (لإخفاء صفحات الدخول/التسجيل)
     redirectIfLoggedIn();
 
-    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
+    // 3. جلب المستخدم الحالي
     const user = await fetchCurrentUser();
 
+    // 4. توجيه المنطق حسب الصفحة
     if (user) {
         const pageKey = document.body.dataset.pageKey;
         if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
@@ -434,11 +645,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 initInvestorProfilePage(user, API_BASE_URL);
                 break;
             case 'page-title-settings':
-                initSettingsPage(user);
+                if (typeof initSettingsPage === 'function') initSettingsPage(user);
                 break;
         }
     }
 
+    // 5. تهيئة الصفحة الرئيسية (Landing Page)
+    if (document.body.dataset.pageKey === 'page-title-main') {
+        loadFeaturedProjects();
+        fetchPlatformStats();
+    }
+
+    // 6. تهيئة نموذج تسجيل الدخول (إذا وجد)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -453,197 +671,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 }, loginForm);
-                localStorage.setItem('user_token', data.token);
-                window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+                
+                if(data.token) {
+                    localStorage.setItem('user_token', data.token);
+                    window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
+                }
             } catch {
-                // Error is handled by handleApiRequest's alert
+                // Error handled by handleApiRequest alert
             }
         });
     }
 
-    const openChatBtn = document.getElementById('openChatBtn');
-    const closeChatBtn = document.getElementById('closeChatBtn');
-    const chatModal = document.getElementById('chatModal');
-    const chatModalOverlay = document.getElementById('chatModalOverlay');
-    const chatForm = document.getElementById('chatForm');
-
-    function openChatModal() {
-        if (chatModal && chatModalOverlay) {
-            chatModal.classList.add('is-visible');
-            chatModalOverlay.classList.add('is-visible');
-        }
-    }
-    function closeChatModal() {
-        if (chatModal && chatModalOverlay) {
-            chatModal.classList.remove('is-visible');
-            chatModalOverlay.classList.remove('is-visible');
-        }
-    }
-    if (openChatBtn) openChatBtn.addEventListener('click', openChatModal);
-    if (closeChatBtn) closeChatBtn.addEventListener('click', closeChatModal);
-    if (chatModalOverlay) chatModalOverlay.addEventListener('click', closeChatModal);
-    if (chatForm) {
-        chatForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const input = e.target.querySelector('input');
-            if (!input || input.value.trim() === '') return;
-            const messagesContainer = document.querySelector('.chat-messages');
-            if (!messagesContainer) return;
-            const newMessage = document.createElement('div');
-            newMessage.classList.add('message', 'sent');
-            newMessage.innerHTML = `<p>${escapeHTML(input.value.trim())}</p>`;
-            messagesContainer.appendChild(newMessage);
-            input.value = '';
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        });
-    }
-});
-
-// دالة التبديل بين رواد الأعمال والمستثمرين
-function switchHowItWorks(type) {
-    const btnEntrepreneur = document.getElementById('btn-entrepreneur');
-    const btnInvestor = document.getElementById('btn-investor');
-    const contentEntrepreneur = document.getElementById('content-entrepreneur');
-    const contentInvestor = document.getElementById('content-investor');
-
-    // العنوان الرئيسي الذي سيتغير لونه
-    const sectionTitle = document.getElementById('section-title');
-
-    if (type === 'entrepreneur') {
-        // 1. تفعيل زر رواد الأعمال (أصفر)
-        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
-        // تعطيل زر المستثمرين
-        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-
-        // 2. تغيير لون العنوان إلى الأصفر
-        sectionTitle.classList.remove('text-green-600');
-        sectionTitle.classList.add('text-yellow-500');
-
-        // 3. تبديل المحتوى
-        contentEntrepreneur.classList.remove('hidden');
-        contentEntrepreneur.classList.add('grid');
-        contentInvestor.classList.add('hidden');
-        contentInvestor.classList.remove('grid');
-
-    } else {
-        // 1. تفعيل زر المستثمرين (أخضر)
-        btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
-        // تعطيل زر رواد الأعمال
-        btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-
-        // 2. تغيير لون العنوان إلى الأخضر
-        sectionTitle.classList.remove('text-yellow-500');
-        sectionTitle.classList.add('text-green-600');
-
-        // 3. تبديل المحتوى
-        contentInvestor.classList.remove('hidden');
-        contentInvestor.classList.add('grid');
-        contentEntrepreneur.classList.add('hidden');
-        contentEntrepreneur.classList.remove('grid');
-    }
-}
-// دالة تحريك العدادات (Animated Counters)
-function startStatsCounter() {
-    const statsSection = document.getElementById('stats-section');
-    if (!statsSection) return;
-
-    const counters = document.querySelectorAll('.stat-item [data-target]');
-    let started = false; // لضمان تشغيل العداد مرة واحدة فقط
-
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !started) {
-            started = true;
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const duration = 2000; // مدة الحركة بالميلي ثانية
-                const increment = target / (duration / 16); // حساب الخطوة (60fps)
-
-                let current = 0;
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.innerText = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.innerText = target;
-                    }
-                };
-                updateCounter();
-            });
-        }
-    }, { threshold: 0.5 }); // يبدأ عندما يظهر 50% من القسم
-
-    observer.observe(statsSection);
-}
-// دالة مساعدة للتحويل إلى الدرهم المغربي
-function convertToMAD(amount, currency) {
-    const rates = {
-        'MAD': 1, 'USD': 10, 'SAR': 2.66, 'EUR': 10.8, 'AED': 2.72,
-        'QAR': 2.74, 'KWD': 32.5, 'BHD': 26.5, 'OMR': 26
-    };
-    const rate = rates[currency] || 1;
-    return amount * rate;
-}
-
-async function fetchPlatformStats() {
-    const statsSection = document.getElementById('stats-section');
-    if (!statsSection) return;
-
-    const baseUrl = (window.API_BASE_URL) ? window.API_BASE_URL : 'https://mostathmir-api.onrender.com';
-
-    try {
-        // نطلب البيانات من المصدرين في نفس الوقت (Parallel Fetching)
-        const [projectsRes, statsRes] = await Promise.all([
-            fetch(`${baseUrl}/api/projects/public`),
-            fetch(`${baseUrl}/api/users/platform-stats`)
-        ]);
-
-        if (!projectsRes.ok) throw new Error('Failed to fetch projects');
-        // إذا فشل رابط الإحصائيات (لأنك ربما لم ترفع الباك إند بعد)، سنكمل بدونه
-        const projects = await projectsRes.json();
-        const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
-
-        // 1. إجمالي المشاريع المسجلة
-        const totalProjects = projects.length;
-        
-        // 2. المشاريع النشطة (الممولة + المكتملة + قيد التمويل)
-        const activeOpportunities = projects.filter(p => 
-            p.status === 'funded' || p.status === 'completed' || p.status === 'published'
-        ).length;
-
-        // 3. حجم الاستثمار (بالدرهم المغربي)
-        let totalCapitalMAD = 0;
-        projects.forEach(p => {
-            const amount = p.fundingAmountRaised || 0;
-            const currency = p.fundingGoal?.currency || 'USD'; 
-            totalCapitalMAD += convertToMAD(amount, currency);
-        });
-        // تحويل للمليون
-        const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
-
-        // 4. عدد المستثمرين (من الباك إند مباشرة - العدد الكلي)
-        const totalInvestors = statsData.investorCount || 0;
-
-        // تحديث الواجهة (DOM)
-        const statElements = document.querySelectorAll('.stat-item .font-mono');
-        
-        if(statElements.length >= 4) {
-            statElements[0].setAttribute('data-target', totalProjects); 
-            statElements[1].setAttribute('data-target', totalInvestors); // الرقم الكلي من قاعدة البيانات
-            statElements[2].setAttribute('data-target', activeOpportunities);
-            statElements[3].setAttribute('data-target', capitalInMillions);
-        }
-
-        // تشغيل العدادات
-        startStatsCounter();
-
-    } catch (error) {
-        console.error("Error fetching stats:", error);
-        startStatsCounter(); // تشغيل العداد حتى لو حدث خطأ (سيعرض أصفار)
-    }
-}
-
-// إضافة استدعاء الدالة عند التحميل
-document.addEventListener('DOMContentLoaded', () => {
-    startStatsCounter();
+    // 7. تهيئة نافذة الدردشة
+    setupChatModal();
 });
