@@ -242,80 +242,65 @@ async function loadFeaturedProjects() {
                 const initial = ownerName.charAt(0).toUpperCase();
                 ownerAvatar = `<div class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">${initial}</div>`;
             }
-
             return `
-                <div class="group bg-white rounded-[20px] overflow-hidden border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
+                <div class="group bg-white rounded-[18px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[340px] mx-auto w-full">
                     
-                    <!-- Header Image -->
-                    <div class="relative h-52 overflow-hidden">
+                    <!-- 1. Image Header (ارتفاع أقل h-48 -> h-44) -->
+                    <div class="relative h-44 overflow-hidden">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
                         
-                        <div class="absolute top-4 right-4">
-                            <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
+                        <div class="absolute top-3 right-3">
+                            <span class="bg-white/90 backdrop-blur text-[#1E3A8A] text-[10px] font-bold px-2 py-1 rounded shadow-sm">
                                 ${t(category) || category}
                             </span>
                         </div>
 
-                        <div class="absolute bottom-3 left-4 right-4 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full border border-white/80 shadow-sm overflow-hidden bg-gray-100">
+                        <div class="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full border border-white/60 shadow-sm overflow-hidden bg-gray-200">
                                 ${ownerAvatar}
                             </div>
-                            <div class="text-white">
-                                <p class="text-[10px] text-gray-300 font-light mb-0.5">${t('project_owner')}</p>
-                                <p class="text-xs font-bold leading-none text-white drop-shadow-sm">${ownerName}</p>
+                            <div class="text-white truncate">
+                                <p class="text-[10px] text-gray-200 font-light leading-tight">${t('project_owner')}</p>
+                                <p class="text-xs font-bold leading-tight text-white truncate">${ownerName}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Body -->
+                    <!-- 2. Body Content (padding أقل) -->
                     <div class="p-5 flex-1 flex flex-col">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-[#1E3A8A] transition-colors duration-300 line-clamp-1" title="${project.projectName}">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-tight group-hover:text-[#1E3A8A] transition-colors line-clamp-1" title="${project.projectName}">
                             ${escapeHTML(project.projectName)}
                         </h3>
-                        <p class="text-gray-500 text-xs mb-5 line-clamp-2 leading-relaxed flex-grow">
+                        <p class="text-gray-500 text-xs mb-4 line-clamp-2 leading-relaxed flex-grow h-8">
                             ${escapeHTML(description)}
                         </p>
                         
-                        <!-- Financial Grid (التمويل) -->
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="bg-green-50 rounded-xl p-2.5 text-center border border-green-100">
-                                <div class="text-[10px] text-gray-500 font-medium mb-1">${t('featured-raised')}</div>
-                                <div class="text-green-700 font-bold text-sm">${raised.toLocaleString()} <span class="text-[10px] text-green-600">${currency}</span></div>
+                        <!-- Financial Grid -->
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="bg-green-50 rounded-lg p-2 text-center border border-green-100">
+                                <div class="text-[10px] text-gray-500 mb-0.5">${t('featured-raised')}</div>
+                                <div class="text-green-700 font-bold text-xs">${raised.toLocaleString()}</div>
                             </div>
-                            <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                <div class="text-[10px] text-gray-500 font-medium mb-1">${t('featured-goal')}</div>
-                                <div class="text-gray-700 font-bold text-sm">${goal.toLocaleString()} <span class="text-[10px] text-gray-500">${currency}</span></div>
+                            <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
+                                <div class="text-[10px] text-gray-500 mb-0.5">${t('featured-goal')}</div>
+                                <div class="text-gray-700 font-bold text-xs">${goal.toLocaleString()}</div>
                             </div>
                         </div>
 
                         <!-- Progress Bar -->
-                        <div class="mb-2">
-                            <div class="flex justify-between text-[10px] font-bold mb-1.5">
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-gray-400">${t('featured-funding-progress')}</span>
                                 <span class="text-[#1E3A8A]">${progress}%</span>
                             </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" style="width: ${clampedProgress}%">
-                                    <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[shimmer_2s_infinite]"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Secondary Stats (مشاهدات ومهتمين) -->
-                        <div class="flex justify-between items-center mb-5 px-1">
-                             <div class="flex items-center gap-1.5 text-[10px] text-gray-400" title="${t('featured-views')}">
-                                <i class="far fa-eye text-blue-400"></i>
-                                <span>${viewsCount}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5 text-[10px] text-gray-400" title="${t('featured-investors-interested')}">
-                                <i class="fas fa-heart text-pink-400"></i>
-                                <span>${investorsCount} ${t('featured-investors-interested')}</span>
+                            <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
                             </div>
                         </div>
 
                         <!-- Button -->
-                        <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center rounded-lg font-bold text-sm transition-all duration-300 bg-[#1E3A8A] text-white shadow-md hover:bg-blue-800 hover:shadow-lg active:scale-[0.98]">
+                        <a href="project-view.html?id=${project._id}" class="block w-full py-2.5 text-center rounded-lg font-bold text-xs transition-all duration-300 bg-[#1E3A8A] text-white shadow hover:bg-blue-800 hover:shadow-md">
                             ${t('featured-view-details')} 
                         </a>
                     </div>
