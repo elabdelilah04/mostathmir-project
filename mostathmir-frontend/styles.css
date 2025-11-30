@@ -5680,3 +5680,40 @@ h6 {
         transform: rotate(360deg);
     }
 }
+
+/* ===== Mobile Scroll Effects ===== */
+@media (max-width: 768px) {
+    /* تأثير البطاقة النشطة لرواد الأعمال (أصفر) */
+    .mobile-active-yellow {
+        border-color: #facc15 !important; /* yellow-400 */
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    /* تلوين الأيقونة داخل البطاقة الصفراء */
+    .mobile-active-yellow i {
+        color: #eab308 !important; /* yellow-500 */
+    }
+    .mobile-active-yellow .w-16 {
+        background-color: #fefce8 !important; /* yellow-50 */
+    }
+
+    /* تأثير البطاقة النشطة للمستثمرين (أخضر) */
+    .mobile-active-green {
+        border-color: #22c55e !important; /* green-500 */
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    /* تلوين الأيقونة داخل البطاقة الخضراء */
+    .mobile-active-green i {
+        color: #16a34a !important; /* green-600 */
+    }
+    .mobile-active-green .w-16 {
+        background-color: #f0fdf4 !important; /* green-50 */
+    }
+
+    /* إظهار أزرار التمرير في قسم النخبة */
+    .mobile-nav-visible {
+        opacity: 1 !important;
+        transform: translateY(-50%) translateX(0) !important;
+    }
+}

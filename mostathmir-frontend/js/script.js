@@ -1,15 +1,13 @@
-/**
- * ============================================================================
- * 1. GLOBAL CONFIGURATION & UTILITIES
- * إعدادات عامة وأدوات مساعدة
- * ============================================================================
- */
+/* ============================================================================
+   1. GLOBAL CONFIGURATION & UTILITIES
+   ============================================================================ */
 
+// رابط الـ API (يستخدم التكوين العام إذا وجد)
 const API_BASE_URL = (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_BASE_URL)
     ? window.CONFIG.API_BASE_URL
     : 'https://mostathmir-api.onrender.com';
 
-// أسعار صرف تقريبية للتحويل إلى الدرهم المغربي
+// أسعار صرف تقريبية للتحويل إلى الدرهم المغربي (MAD)
 const EXCHANGE_RATES_TO_MAD = {
     'MAD': 1,
     'USD': 10.0,
@@ -22,7 +20,7 @@ const EXCHANGE_RATES_TO_MAD = {
     'OMR': 26.0
 };
 
-// دالة لمنع هجمات XSS عند عرض النصوص
+// دالة لتنظيف النصوص ومنع هجمات XSS
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, match => ({
@@ -30,43 +28,41 @@ function escapeHTML(str) {
     }[match]));
 }
 
-// دالة مساعدة للتحويل المالي
+// دالة تحويل العملات للدرهم المغربي
 function convertToMAD(amount, currency) {
-    const rate = EXCHANGE_RATES_TO_MAD[currency] || 1; // الافتراضي 1 إذا لم توجد العملة
+    const rate = EXCHANGE_RATES_TO_MAD[currency] || 1;
     return amount * rate;
 }
 
-/**
- * ============================================================================
- * 2. AUTHENTICATION & USER MANAGEMENT
- * إدارة المصادقة والمستخدمين
- * ============================================================================
- */
+/* ============================================================================
+   2. AUTHENTICATION & USER MANAGEMENT
+   ============================================================================ */
 
 // جلب بيانات المستخدم الحالي
 async function fetchCurrentUser() {
     const token = localStorage.getItem('user_token');
+    // الصفحات المحمية التي تتطلب تسجيل دخول
+    const protectedPages = ['page-title-profile', 'page-title-investor-profile', 'page-title-settings'];
+
     if (!token) {
-        // الصفحات التي تتطلب تسجيل دخول
-        const protectedPages = ['page-title-profile', 'page-title-investor-profile', 'page-title-settings'];
         if (protectedPages.includes(document.body.dataset.pageKey)) {
             window.location.href = 'login.html';
         }
         return null;
     }
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        // إذا انتهت صلاحية التوكن
         if (response.status === 401) {
-            logoutUser(); // التوكن منتهي الصلاحية
+            logoutUser();
             return null;
         }
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile');
-        }
+        if (!response.ok) throw new Error('Failed to fetch profile');
 
         const user = await response.json();
         localStorage.setItem('user_data', JSON.stringify(user));
@@ -78,7 +74,7 @@ async function fetchCurrentUser() {
     }
 }
 
-// معالجة طلبات API مع إدارة حالة الزر
+// معالجة طلبات API (Wrapper)
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton ? submitButton.textContent : '';
@@ -99,9 +95,7 @@ async function handleApiRequest(url, options, form) {
             throw error;
         }
 
-        if (messageToDisplay) {
-            alert(messageToDisplay);
-        }
+        if (messageToDisplay) alert(messageToDisplay);
         return data;
 
     } catch (error) {
@@ -124,7 +118,7 @@ function logoutUser() {
     window.location.href = 'login.html';
 }
 
-// التوجيه إذا كان المستخدم مسجلاً
+// التوجيه التلقائي إذا كان مسجلاً
 function redirectIfLoggedIn() {
     const pageKey = document.body.dataset.pageKey;
     if (pageKey === 'page-title-login' || pageKey === 'page-title-signup') {
@@ -132,8 +126,7 @@ function redirectIfLoggedIn() {
         if (token) {
             const userData = JSON.parse(localStorage.getItem('user_data') || 'null');
             if (userData && userData.accountType) {
-                const destination = userData.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
-                window.location.href = destination;
+                window.location.href = userData.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
             } else {
                 window.location.href = 'index.html';
             }
@@ -141,14 +134,11 @@ function redirectIfLoggedIn() {
     }
 }
 
-/**
- * ============================================================================
- * 3. HOME PAGE LOGIC (Landing Page)
- * منطق الصفحة الرئيسية
- * ============================================================================
- */
+/* ============================================================================
+   3. HOME PAGE LOGIC (LANDING PAGE)
+   ============================================================================ */
 
-// 3.1. تبديل قسم "كيف تعمل المنصة"
+/* --- 3.1. تبديل قسم "كيف تعمل المنصة" --- */
 function switchHowItWorks(type) {
     const btnEntrepreneur = document.getElementById('btn-entrepreneur');
     const btnInvestor = document.getElementById('btn-investor');
@@ -183,30 +173,32 @@ function switchHowItWorks(type) {
     }
 }
 
-// 3.2. تحميل المشاريع المميزة (تصميم مدمج + إحصائيات)
+/* --- 3.2. تحميل المشاريع المميزة (التصميم الجديد المدمج) --- */
 async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
     try {
+        // مؤشر التحميل
         grid.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center py-10">
                 <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
             </div>`;
-        
+
         const response = await fetch(`${API_BASE_URL}/api/projects/public`);
         if (!response.ok) throw new Error('Failed to fetch projects');
-        
+
         let projects = await response.json();
+        // تصفية المشاريع النشطة
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
-        
+
         // الترتيب حسب نسبة التمويل
         projects.sort((a, b) => {
             const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
             const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
             return progressB - progressA;
         });
-        
+
         const featuredProjects = projects.slice(0, 3);
 
         if (featuredProjects.length === 0) {
@@ -220,9 +212,9 @@ async function loadFeaturedProjects() {
             const currency = project.fundingGoal?.currency || 'USD';
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
-            
-            let imageSrc = project.mainImage && project.mainImage.startsWith('http') 
-                ? project.mainImage 
+
+            let imageSrc = project.mainImage && project.mainImage.startsWith('http')
+                ? project.mainImage
                 : 'https://via.placeholder.com/600x400?text=Project';
 
             const category = project.projectCategory || t('js-browse-category-general');
@@ -231,7 +223,7 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
-            // --- HTML البطاقة (المعدل والمضغوط) ---
+            // HTML البطاقة
             return `
                 <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[320px] mx-auto w-full">
                     
@@ -282,7 +274,7 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- صف الإحصائيات (جديد: مشاهدات ومهتمين) -->
+                        <!-- صف الإحصائيات (مشاهدات ومهتمين) -->
                         <div class="flex justify-between items-center mb-4 pt-2 border-t border-gray-50 px-1">
                             <div class="flex items-center gap-1 text-[11px] text-gray-500" title="${t('featured-views')}">
                                 <i class="far fa-eye text-blue-400"></i>
@@ -309,32 +301,108 @@ async function loadFeaturedProjects() {
     }
 }
 
-// 3.3. جلب الإحصائيات الحقيقية
+/* --- 3.3. تحميل نخبة المجتمع (للكل: مستثمرون ورواد) --- */
+async function loadEliteCommunity() {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
+
+    try {
+        // طلب القائمة من الرابط العام (يجب أن يكون لديك هذا الرابط في الباك إند)
+        const response = await fetch(`${API_BASE_URL}/api/users/elite`);
+        if (!response.ok) throw new Error('Failed to fetch elite members');
+
+        const eliteUsers = await response.json();
+
+        if (eliteUsers.length === 0) {
+            container.innerHTML = `<div class="text-center w-full py-8 text-gray-400">مجتمعنا ينمو...</div>`;
+            return;
+        }
+
+        container.innerHTML = eliteUsers.map((user, index) => {
+            let avatarHTML = '';
+            if (user.profilePicture && user.profilePicture.startsWith('http')) {
+                avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${user.fullName}">`;
+            } else {
+                const initial = (user.fullName || 'U').charAt(0).toUpperCase();
+                const colors = ['bg-[#1E3A8A]', 'bg-[#D4AF37]', 'bg-slate-800', 'bg-indigo-900'];
+                const bg = colors[index % colors.length];
+                avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-3xl font-serif font-bold">${initial}</div>`;
+            }
+
+            const roleKey = user.accountType === 'investor' ? 'elite-role-investor' : 'elite-role-entrepreneur';
+            const roleColor = user.accountType === 'investor' ? 'text-[#D4AF37]' : 'text-blue-600';
+            const roleIcon = user.accountType === 'investor' ? 'fa-hand-holding-usd' : 'fa-lightbulb';
+
+            const verifiedBadge = user.isVerified
+                ? `<i class="fas fa-check-circle text-blue-500 absolute bottom-0 right-0 bg-white rounded-full border-2 border-white text-xl shadow-sm z-20" title="${t('elite-tag-verified')}"></i>`
+                : '';
+            const tagKey = user.accountType === 'investor' ? 'elite-tag-active' : 'elite-tag-innovator';
+
+            return `
+                <div class="min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'">
+                    <div class="relative bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-blue-100">
+                        
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
+                            <div class="w-full h-full rounded-full p-1 bg-white shadow-md relative z-10 group-hover:shadow-lg transition-shadow">
+                                <div class="w-full h-full rounded-full overflow-hidden border-[3px] ${user.accountType === 'investor' ? 'border-[#D4AF37]' : 'border-blue-500'}">
+                                    ${avatarHTML}
+                                </div>
+                            </div>
+                            ${verifiedBadge}
+                        </div>
+
+                        <h3 class="mt-4 text-lg font-bold text-gray-800 truncate group-hover:text-[#1E3A8A] transition-colors">${escapeHTML(user.fullName)}</h3>
+                        <div class="flex items-center justify-center gap-2 mt-1 mb-3">
+                            <i class="fas ${roleIcon} ${roleColor} text-xs"></i>
+                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">${t(roleKey)}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-4 line-clamp-1 h-4">${escapeHTML(user.profileTitle || '')}</p>
+
+                        <div class="border-t border-gray-50 pt-3">
+                            <span class="inline-block px-3 py-1 bg-gray-50 text-gray-600 text-[10px] font-bold rounded-full border border-gray-100 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:border-[#1E3A8A] transition-all duration-300">${t(tagKey)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error("Error loading elite:", error);
+    }
+}
+
+/* --- 3.4. تمرير قسم النخبة --- */
+window.scrollElite = function (direction) {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
+    const scrollAmount = 300;
+    if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+};
+
+/* --- 3.5. إحصائيات المنصة (حقيقية) --- */
 async function fetchPlatformStats() {
     const statsSection = document.getElementById('stats-section');
     if (!statsSection) return;
 
     try {
-        // جلب البيانات بالتوازي (المشاريع + عدد المستثمرين الكلي)
+        // طلب البيانات بالتوازي
         const [projectsRes, statsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/projects/public`),
-            fetch(`${API_BASE_URL}/api/users/platform-stats`) // Endpoint الجديد
+            fetch(`${API_BASE_URL}/api/users/platform-stats`) // يحتاج هذا الرابط في الباك إند
         ]);
 
-        if (!projectsRes.ok) throw new Error('Failed to fetch projects');
+        if (!projectsRes.ok) throw new Error('Failed to fetch data');
 
         const projects = await projectsRes.json();
         const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
 
-        // 1. المشاريع المسجلة
+        // الحسابات
         const totalProjects = projects.length;
+        const activeOpportunities = projects.filter(p => ['funded', 'completed', 'published'].includes(p.status)).length;
 
-        // 2. الفرص النشطة (قيد التمويل + المكتملة)
-        const activeOpportunities = projects.filter(p =>
-            ['funded', 'completed', 'published'].includes(p.status)
-        ).length;
-
-        // 3. حجم الاستثمار (بالدرهم المغربي)
         let totalCapitalMAD = 0;
         projects.forEach(p => {
             const amount = p.fundingAmountRaised || 0;
@@ -342,11 +410,9 @@ async function fetchPlatformStats() {
             totalCapitalMAD += convertToMAD(amount, currency);
         });
         const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
-
-        // 4. عدد المستثمرين (الكلي)
         const totalInvestors = statsData.investorCount || 0;
 
-        // تحديث العدادات في HTML
+        // تحديث العدادات
         const statElements = document.querySelectorAll('.stat-item .font-mono');
         if (statElements.length >= 4) {
             statElements[0].setAttribute('data-target', totalProjects);
@@ -356,18 +422,15 @@ async function fetchPlatformStats() {
         }
 
         startStatsCounter();
-
     } catch (error) {
-        console.error("Error fetching stats:", error);
-        startStatsCounter(); // تشغيل حتى مع الأصفار
+        console.error("Stats Error:", error);
+        startStatsCounter(); // تشغيل بالأصفار في حال الخطأ
     }
 }
 
-// 3.4. تحريك العدادات
 function startStatsCounter() {
     const statsSection = document.getElementById('stats-section');
     if (!statsSection) return;
-
     const counters = document.querySelectorAll('.stat-item [data-target]');
     let started = false;
 
@@ -396,18 +459,52 @@ function startStatsCounter() {
             });
         }
     }, { threshold: 0.5 });
-
     observer.observe(statsSection);
 }
 
-/**
- * ============================================================================
- * 4. PROFILE & UI LOGIC
- * منطق الصفحات الشخصية والواجهة
- * ============================================================================
- */
+/* --- 3.6. تأثيرات الموبايل --- */
+function initMobileScrollEffects() {
+    if (window.innerWidth >= 1024) return;
 
-// رفع صورة الملف الشخصي
+    const cardObserverOptions = { root: null, rootMargin: '-15% 0px -15% 0px', threshold: 0.6 };
+
+    const howCardsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const card = entry.target;
+            const isEntrepreneur = card.closest('#content-entrepreneur');
+            if (entry.isIntersecting) {
+                if (isEntrepreneur) card.classList.add('mobile-active-yellow');
+                else card.classList.add('mobile-active-green');
+            } else {
+                card.classList.remove('mobile-active-yellow', 'mobile-active-green');
+            }
+        });
+    }, cardObserverOptions);
+
+    document.querySelectorAll('#how-it-works .grid > div').forEach(card => {
+        howCardsObserver.observe(card);
+    });
+
+    const eliteObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const navButtons = entry.target.querySelectorAll('button');
+            if (entry.isIntersecting) {
+                navButtons.forEach(btn => btn.classList.add('mobile-nav-visible'));
+            } else {
+                navButtons.forEach(btn => btn.classList.remove('mobile-nav-visible'));
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const eliteSection = document.getElementById('elite-section');
+    if (eliteSection) eliteObserver.observe(eliteSection);
+}
+
+
+/* ============================================================================
+   4. PROFILE & UI LOGIC
+   ============================================================================ */
+
 async function uploadProfilePicture(file) {
     const token = localStorage.getItem('user_token');
     if (!token) return;
@@ -429,10 +526,8 @@ async function uploadProfilePicture(file) {
     }
 }
 
-// تعبئة البيانات المشتركة للملف الشخصي
 function populateCommonProfileFields(user, baseUrl) {
     document.querySelectorAll('.profile-name, .user-name').forEach(el => { el.textContent = user.fullName || ''; });
-
     const profileBio = document.querySelector('.profile-bio');
     if (profileBio) profileBio.textContent = user.bio || t('js-script-add-bio');
 
@@ -445,7 +540,6 @@ function populateCommonProfileFields(user, baseUrl) {
     const contactPhone = document.querySelector('.profile-contact .contact-item:nth-child(2) span');
     if (contactPhone) contactPhone.textContent = user.phone || t('js-script-no-phone');
 
-    // معالجة الصورة الرمزية
     const mainAvatarImage = document.getElementById('avatarImage');
     const mainAvatarInitials = document.getElementById('avatarInitials');
     const hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png';
@@ -464,7 +558,6 @@ function populateCommonProfileFields(user, baseUrl) {
         mainAvatarInitials.style.display = hasProfilePic ? 'none' : 'block';
     }
 
-    // زر رفع الصورة
     const avatarAddButton = document.getElementById('avatarAddButton');
     const avatarUploadInput = document.getElementById('avatarUploadInput');
     if (avatarAddButton && avatarUploadInput) {
@@ -476,7 +569,6 @@ function populateCommonProfileFields(user, baseUrl) {
         });
     }
 
-    // روابط التواصل الاجتماعي
     const iconsContainer = document.getElementById('profileSocialIconsContainer');
     if (iconsContainer && user.socialLinks && user.socialLinks.length > 0) {
         const linkDisplayContainer = document.getElementById('profileSocialLinkDisplay');
@@ -505,7 +597,6 @@ function populateCommonProfileFields(user, baseUrl) {
             iconButton.addEventListener('click', () => {
                 const isAlreadyActive = iconButton.classList.contains('active');
                 iconsContainer.querySelectorAll('.social-icon-button').forEach(btn => btn.classList.remove('active'));
-
                 if (isAlreadyActive) {
                     if (linkDisplayContainer) linkDisplayContainer.style.display = 'none';
                 } else {
@@ -526,7 +617,6 @@ function populateCommonProfileFields(user, baseUrl) {
         });
     }
 
-    // الاهتمامات
     const interestsContainer = document.getElementById('profileInterestsContainer');
     if (interestsContainer) {
         interestsContainer.innerHTML = '';
@@ -543,7 +633,6 @@ function populateCommonProfileFields(user, baseUrl) {
     }
 }
 
-// تهيئة صفحة صاحب المشروع
 function initProfilePage(user, baseUrl) {
     if (user.accountType !== 'ideaHolder') {
         window.location.href = 'investor-profile.html';
@@ -551,7 +640,6 @@ function initProfilePage(user, baseUrl) {
     }
     populateCommonProfileFields(user, baseUrl);
     setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
-    initProjectsPortfolio();
 
     const token = localStorage.getItem('user_token');
     fetch(`${baseUrl}/api/projects/myprojects`, { headers: { 'Authorization': `Bearer ${token}` } })
@@ -563,7 +651,6 @@ function initProfilePage(user, baseUrl) {
         .catch(console.error);
 }
 
-// تهيئة صفحة المستثمر
 function initInvestorProfilePage(user, baseUrl) {
     if (user.accountType !== 'investor') {
         window.location.href = 'profile.html';
@@ -573,7 +660,6 @@ function initInvestorProfilePage(user, baseUrl) {
     setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
 }
 
-// إعداد الإحصائيات التفاعلية (للتبديل بين التبويبات)
 function setupInteractiveStats(gridId, contentAreaId) {
     const statsGrid = document.getElementById(gridId);
     const dynamicContentArea = document.getElementById(contentAreaId);
@@ -585,7 +671,6 @@ function setupInteractiveStats(gridId, contentAreaId) {
     statsGrid.addEventListener('click', (e) => {
         const clickedButton = e.target.closest('[data-target]');
         if (!clickedButton) return;
-
         const targetId = clickedButton.dataset.target;
         const targetPanel = document.getElementById(targetId);
 
@@ -599,17 +684,6 @@ function setupInteractiveStats(gridId, contentAreaId) {
         }
     });
 }
-
-function initProjectsPortfolio() {
-    // يمكن إضافة كود رسم الـ Canvas هنا إذا لزم الأمر
-}
-
-/**
- * ============================================================================
- * 5. CHAT MODAL & MISC
- * نافذة الدردشة والمحفوظات
- * ============================================================================
- */
 
 function setupChatModal() {
     const openChatBtn = document.getElementById('openChatBtn');
@@ -654,130 +728,21 @@ function setupChatModal() {
     }
 }
 
-// 3.5. تحميل وعرض نخبة المجتمع (كل المستخدمين)
-async function loadEliteCommunity() {
-    const container = document.getElementById('elite-container');
-    if (!container) return;
-
-    try {
-        // طلب القائمة من الرابط الجديد
-        const response = await fetch(`${API_BASE_URL}/api/users/elite`);
-        if (!response.ok) throw new Error('Failed to fetch elite members');
-
-        const eliteUsers = await response.json();
-
-        if (eliteUsers.length === 0) {
-            container.innerHTML = `<div class="text-center w-full py-8 text-gray-400">مجتمعنا ينمو... كن أول المنضمين!</div>`;
-            return;
-        }
-
-        container.innerHTML = eliteUsers.map((user, index) => {
-            // 1. معالجة الصورة
-            let avatarHTML = '';
-            if (user.profilePicture && user.profilePicture.startsWith('http')) {
-                avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${user.fullName}">`;
-            } else {
-                const initial = (user.fullName || 'U').charAt(0).toUpperCase();
-                const colors = ['bg-[#1E3A8A]', 'bg-[#D4AF37]', 'bg-slate-800', 'bg-indigo-900'];
-                const bg = colors[index % colors.length];
-                avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-3xl font-serif font-bold">${initial}</div>`;
-            }
-
-            // 2. تحديد النصوص والترجمة
-            const roleKey = user.accountType === 'investor' ? 'elite-role-investor' : 'elite-role-entrepreneur';
-            const roleColor = user.accountType === 'investor' ? 'text-[#D4AF37]' : 'text-blue-600'; // ذهبي للمستثمر، أزرق للرائد
-            const roleIcon = user.accountType === 'investor' ? 'fa-hand-holding-usd' : 'fa-lightbulb';
-
-            // شارة التوثيق (إذا كان verified)
-            const verifiedBadge = user.isVerified
-                ? `<i class="fas fa-check-circle text-blue-500 absolute bottom-0 right-0 bg-white rounded-full border-2 border-white text-xl shadow-sm z-20" title="${t('elite-tag-verified')}"></i>`
-                : '';
-
-            // التاج السفلي (عشوائي للتجميل حالياً، أو بناءً على بيانات حقيقية)
-            const tagKey = user.accountType === 'investor' ? 'elite-tag-active' : 'elite-tag-innovator';
-
-            return `
-                <div class="min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'">
-                    
-                    <div class="relative bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-blue-100">
-                        
-                        <!-- Avatar Section (Floating) -->
-                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
-                            <div class="w-full h-full rounded-full p-1 bg-white shadow-md relative z-10 group-hover:shadow-lg transition-shadow">
-                                <div class="w-full h-full rounded-full overflow-hidden border-[3px] ${user.accountType === 'investor' ? 'border-[#D4AF37]' : 'border-blue-500'}">
-                                    ${avatarHTML}
-                                </div>
-                            </div>
-                            ${verifiedBadge}
-                        </div>
-
-                        <!-- User Info -->
-                        <h3 class="mt-4 text-lg font-bold text-gray-800 truncate group-hover:text-[#1E3A8A] transition-colors">
-                            ${escapeHTML(user.fullName)}
-                        </h3>
-
-                        <div class="flex items-center justify-center gap-2 mt-1 mb-3">
-                            <i class="fas ${roleIcon} ${roleColor} text-xs"></i>
-                            <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">${t(roleKey)}</span>
-                        </div>
-
-                        <p class="text-xs text-gray-400 mb-4 line-clamp-1 h-4">
-                            ${escapeHTML(user.profileTitle || '')}
-                        </p>
-
-                        <!-- Footer Tag -->
-                        <div class="border-t border-gray-50 pt-3">
-                            <span class="inline-block px-3 py-1 bg-gray-50 text-gray-600 text-[10px] font-bold rounded-full border border-gray-100 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:border-[#1E3A8A] transition-all duration-300">
-                                ${t(tagKey)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-    } catch (error) {
-        console.error("Error loading elite:", error);
-        container.innerHTML = `<div class="text-center w-full py-8 text-red-400">حدث خطأ في تحميل البيانات</div>`;
-    }
-}
-// 3.6. دالة التمرير للأزرار (Left/Right)
-window.scrollElite = function (direction) {
-    const container = document.getElementById('elite-container');
-    if (!container) return;
-
-    // حساب مسافة التمرير (عرض البطاقة + المسافة)
-    const scrollAmount = 300;
-    const currentScroll = container.scrollLeft;
-
-    // في وضع RTL (العربية)، الاتجاهات تكون معكوسة منطقياً في بعض المتصفحات
-    // لكن scrollBy with negative value يذهب لليسار دائماً
-
-    if (direction === 'left') {
-        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    } else {
-        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-};
-
-/**
- * ============================================================================
- * 6. MAIN INITIALIZATION
- * التهيئة الرئيسية عند تحميل الصفحة
- * ============================================================================
- */
+/* ============================================================================
+   5. MAIN INITIALIZATION
+   ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. تهيئة الهيدر
     if (window.initHeader) await window.initHeader();
 
-    // 2. التحقق من تسجيل الدخول (لإخفاء صفحات الدخول/التسجيل)
+    // 2. التحقق من تسجيل الدخول
     redirectIfLoggedIn();
 
     // 3. جلب المستخدم الحالي
     const user = await fetchCurrentUser();
 
-    // 4. توجيه المنطق حسب الصفحة
+    // 4. توجيه منطق الصفحة
     if (user) {
         const pageKey = document.body.dataset.pageKey;
         if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
@@ -795,13 +760,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 5. تهيئة الصفحة الرئيسية (Landing Page)
+    // 5. منطق الصفحة الرئيسية (Landing Page)
     if (document.body.dataset.pageKey === 'page-title-main') {
         loadFeaturedProjects();
+        loadEliteCommunity(); // النخبة (المستثمرين والرواد)
         fetchPlatformStats();
+        initMobileScrollEffects();
     }
 
-    // 6. تهيئة نموذج تسجيل الدخول (إذا وجد)
+    // 6. تهيئة نموذج تسجيل الدخول
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -822,13 +789,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
                 }
             } catch {
-                // Error handled by handleApiRequest alert
+                // Error handled by wrapper
             }
         });
     }
 
     // 7. تهيئة نافذة الدردشة
     setupChatModal();
-    loadEliteCommunity();
-
 });
