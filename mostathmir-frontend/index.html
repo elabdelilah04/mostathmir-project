@@ -33,35 +33,136 @@
     <div class="app rtl" id="app">
         <div id="header-placeholder"></div>
 
-        <!-- Hero Section -->
-        <section class="hero bg-pattern" id="hero">
-            <div class="container">
-                <h1 class="hero-title" data-i18n-key="hero-title">مرحباً بك في مستثمر – حيث تلتقي الأفكار بالتمويل</h1>
-                <p class="hero-subtitle" data-i18n-key="hero-subtitle">منصة رائدة تربط أصحاب الأفكار والمشاريع الواعدة
-                    بالمستثمرين المهتمين، لخلق فرص نجاح مشتركة وتحويل الأفكار المبتكرة إلى مشاريع ناجحة.</p>
-
-                <div class="main-cta">
-                    <a href="signup.html" class="btn btn-accent btn-large" data-i18n-key="cta-start">ابدأ الآن</a>
+        <!-- Modern Hero Section -->
+        <section class="relative bg-[#1E3A8A] overflow-hidden min-h-[85vh] flex items-center" id="hero">
+            <!-- Animated Background Shapes -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+                <div
+                    class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse">
                 </div>
+                <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-3xl animate-pulse"
+                    style="animation-duration: 4s;"></div>
+            </div>
 
-                <div class="cta-buttons">
-                    <a href="browse-projects.html" class="btn btn-primary" data-i18n-key="cta-browse">استعرض
-                        المشاريع</a>
-                    <a href="add-project-new.html" class="btn btn-secondary" data-i18n-key="cta-submit">قدّم فكرتك</a>
-                    <a href="signup.html" class="btn btn-primary" data-i18n-key="cta-join">انضم كمستثمر</a>
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="flex flex-col lg:flex-row items-center gap-12">
+
+                    <!-- Text Content -->
+                    <div class="lg:w-1/2 text-center lg:text-right">
+                        <span
+                            class="inline-block py-1 px-3 rounded-full bg-blue-800/50 border border-blue-700 text-blue-200 text-sm font-medium mb-6 animate-fade-in-up">
+                            🚀 المنصة الأولى للاستثمار الجريء
+                        </span>
+                        <h1 class="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6"
+                            data-i18n-key="hero-title"></h1>
+                        <p class="text-lg text-blue-100 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0"
+                            data-i18n-key="hero-subtitle"></p>
+
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <a href="signup.html"
+                                class="px-8 py-4 bg-[#D4AF37] text-white rounded-xl font-bold shadow-lg hover:shadow-yellow-500/20 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                                data-i18n-key="cta-start">
+                                <i class="fas fa-rocket"></i>
+                            </a>
+                            <a href="browse-projects.html"
+                                class="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl font-bold hover:bg-white/20 transition-all duration-300"
+                                data-i18n-key="cta-browse"></a>
+                        </div>
+
+                        <!-- Trust Indicators -->
+                        <div
+                            class="mt-10 pt-8 border-t border-white/10 flex items-center justify-center lg:justify-start gap-6 text-blue-200 text-sm">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-shield-alt text-green-400"></i> موثوق وآمن
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-users text-blue-400"></i> +1000 مستخدم
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Image / Visual -->
+                    <div class="lg:w-1/2 relative hidden lg:block">
+                        <div class="relative z-10 animate-float">
+                            <!-- يمكنك استبدال هذا بصورة حقيقية -->
+                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/investment-growth-4268487-3551736.png"
+                                alt="Investment Growth"
+                                class="w-full max-w-lg mx-auto drop-shadow-2xl filter brightness-110">
+                        </div>
+                        <!-- Decorative Elements -->
+                        <div
+                            class="absolute top-10 right-10 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-xl animate-float-delayed">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">
+                                    <i class="fas fa-arrow-up"></i></div>
+                                <div>
+                                    <div class="text-xs text-blue-200">عائد الاستثمار</div>
+                                    <div class="text-white font-bold">+125%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- About Section -->
-        <section class="about" id="about">
-            <div class="container">
-                <h2 class="section-title" data-i18n-key="about-title">عن منصة مستثمر</h2>
-                <p class="section-description" data-i18n-key="about-desc">منصة مستثمر هي جسر يربط بين أصحاب الأفكار
-                    الإبداعية والمشاريع الواعدة وبين المستثمرين الباحثين عن فرص استثمارية مميزة. نهدف إلى تسهيل رحلة
-                    ريادة الأعمال وتوفير بيئة آمنة وشفافة للتواصل والاستثمار.</p>
-                <div class="text-center">
-                    <button class="btn btn-primary" data-i18n-key="about-btn">تعرف علينا أكثر</button>
+        <!-- Modern About Section -->
+        <section class="py-24 bg-white" id="about">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-3xl font-bold text-[#1E3A8A] mb-6 relative inline-block">
+                        <span class="relative z-10" data-i18n-key="about-title"></span>
+                        <div class="absolute bottom-1 left-0 w-full h-3 bg-yellow-200/50 -z-0 transform -rotate-1">
+                        </div>
+                    </h2>
+                    <p class="text-gray-600 text-lg leading-relaxed" data-i18n-key="about-desc"></p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <!-- Card 1 -->
+                    <div
+                        class="group p-8 rounded-3xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-2xl transition-all duration-500 text-center">
+                        <div
+                            class="w-16 h-16 mx-auto mb-6 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">ابتكار بلا حدود</h3>
+                        <p class="text-gray-500 leading-relaxed text-sm">نجمع ألمع العقول مع أجرأ المستثمرين لتحويل
+                            الأفكار الورقية إلى مشاريع تغير الواقع.</p>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div
+                        class="group p-8 rounded-3xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-2xl transition-all duration-500 text-center">
+                        <div
+                            class="w-16 h-16 mx-auto mb-6 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">أمان وشفافية</h3>
+                        <p class="text-gray-500 leading-relaxed text-sm">بيئة استثمارية آمنة تضمن حقوق جميع الأطراف، مع
+                            إجراءات تحقق صارمة وواضحة.</p>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div
+                        class="group p-8 rounded-3xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-2xl transition-all duration-500 text-center">
+                        <div
+                            class="w-16 h-16 mx-auto mb-6 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-500">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">نمو مستدام</h3>
+                        <p class="text-gray-500 leading-relaxed text-sm">لا نقدم التمويل فحسب، بل نبني شراكات استراتيجية
+                            تضمن استمرارية وتوسع المشاريع.</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button
+                        class="group text-[#1E3A8A] font-bold hover:text-blue-700 transition-colors flex items-center justify-center gap-2 mx-auto"
+                        data-i18n-key="about-btn">
+                        <i class="fas fa-arrow-left transform group-hover:-translate-x-1 transition-transform"></i>
+                    </button>
                 </div>
             </div>
         </section>
