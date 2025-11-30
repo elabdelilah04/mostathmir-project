@@ -5,7 +5,15 @@
   const dict = {
     ar: {
       // indexpage
-
+      // --- Elite Community Section ---
+      "elite-title": "نخبة المجتمع",
+      "elite-subtitle": "انضم إلى شبكة من أبرز العقول ورؤوس الأموال في المنطقة",
+      "elite-role-investor": "مستثمر",
+      "elite-role-entrepreneur": "رائد أعمال",
+      "elite-tag-verified": "موثق",
+      "elite-tag-active": "نشط",
+      "elite-tag-top": "نخبة",
+      "elite-tag-innovator": "مبتكر",
       // --- قسم الإحصائيات ---
       "stats-title": "أرقام تتحدث عن نجاحنا",
       "stats-subtitle": "نفخر بمجتمعنا المتنامي والثقة التي منحنا إياها المستثمرون ورواد الأعمال",
@@ -21,7 +29,8 @@
       "featured-investors-interested": "مهتم",
       "featured-views": "مشاهدة",
       "featured-view-details": "عرض التفاصيل",
-
+      "featured-goal": "الهدف",
+      "featured-raised": "المحقق",
       // --- How It Works Section ---
       "how-btn-entrepreneur": "رواد الأعمال",
       "how-btn-investor": "للمستثمرين",
@@ -1838,6 +1847,15 @@
 
     en: {
       // indexpage
+      // --- Elite Community Section ---
+      "elite-title": "Community Elite",
+      "elite-subtitle": "Join a network of the region's brightest minds and capital",
+      "elite-role-investor": "Investor",
+      "elite-role-entrepreneur": "Entrepreneur",
+      "elite-tag-verified": "Verified",
+      "elite-tag-active": "Active",
+      "elite-tag-top": "Top Tier",
+      "elite-tag-innovator": "Innovator",
       // --- Statistics Section ---
       "stats-title": "Platform Statistics",
       "stats-subtitle": "Proud of our growing community and the trust placed in us",
@@ -1853,7 +1871,8 @@
       "featured-investors-interested": "Interested",
       "featured-views": "Views",
       "featured-view-details": "View Details",
-
+      "featured-goal": "Goal",
+      "featured-raised": "Raised",
       // --- How It Works Section ---
       "how-btn-entrepreneur": "Entrepreneurs",
       "how-btn-investor": "Investors",

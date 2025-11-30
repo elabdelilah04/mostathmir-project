@@ -183,13 +183,13 @@ function switchHowItWorks(type) {
     }
 }
 
-// 3.2. تحميل المشاريع المميزة
+// 3.2. تحميل المشاريع المميزة (تحديث: التركيز على البيانات المالية)
 async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
     try {
-        // عرض مؤشر التحميل بتصميم عصري
+        // عرض مؤشر التحميل
         grid.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center py-12">
                 <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
@@ -201,10 +201,8 @@ async function loadFeaturedProjects() {
 
         let projects = await response.json();
 
-        // التصفية: فقط المشاريع التي لها حالة نشطة
+        // التصفية والترتيب
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
-
-        // الترتيب: الأكثر اكتمالاً للتمويل، ثم الأكثر مشاهدة
         projects.sort((a, b) => {
             const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
             const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
@@ -219,24 +217,23 @@ async function loadFeaturedProjects() {
         }
 
         grid.innerHTML = featuredProjects.map(project => {
-            // الحسابات
+            // الحسابات والبيانات
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
+            const currency = project.fundingGoal?.currency || 'USD';
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
 
-            // الصورة
             let imageSrc = project.mainImage && project.mainImage.startsWith('http')
                 ? project.mainImage
                 : 'https://via.placeholder.com/800x600?text=Mostathmir+Project';
 
-            // النصوص
             const category = project.projectCategory || t('js-browse-category-general');
             const description = project.projectDescription ? project.projectDescription.substring(0, 90) + '...' : '';
             const investorsCount = project.followers ? project.followers.length : 0;
             const viewsCount = project.views || 0;
 
-            // بيانات المالك (الجديدة)
+            // بيانات المالك
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
             let ownerAvatar = '';
             if (project.owner?.profilePicture && project.owner.profilePicture.startsWith('http')) {
@@ -246,74 +243,80 @@ async function loadFeaturedProjects() {
                 ownerAvatar = `<div class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">${initial}</div>`;
             }
 
-            // --- HTML البطاقة الإبداعية ---
             return `
                 <div class="group bg-white rounded-[20px] overflow-hidden border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
                     
-                    <!-- 1. Image Header with Owner Badge -->
-                    <div class="relative h-56 overflow-hidden">
+                    <!-- Header Image -->
+                    <div class="relative h-52 overflow-hidden">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80"></div>
                         
-                        <!-- Category Badge -->
                         <div class="absolute top-4 right-4">
-                            <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                            <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
                                 ${t(category) || category}
                             </span>
                         </div>
 
-                        <!-- Owner Info (Floating at bottom) -->
-                        <div class="absolute bottom-4 left-4 right-4 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full border-2 border-white/80 shadow-md overflow-hidden bg-gray-100">
+                        <div class="absolute bottom-3 left-4 right-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full border border-white/80 shadow-sm overflow-hidden bg-gray-100">
                                 ${ownerAvatar}
                             </div>
                             <div class="text-white">
-                                <p class="text-xs text-gray-300 font-medium mb-0.5">${t('project_owner')}</p>
-                                <p class="text-sm font-bold leading-none text-white drop-shadow-sm">${ownerName}</p>
+                                <p class="text-[10px] text-gray-300 font-light mb-0.5">${t('project_owner')}</p>
+                                <p class="text-xs font-bold leading-none text-white drop-shadow-sm">${ownerName}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. Body Content -->
-                    <div class="p-6 flex-1 flex flex-col">
-                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#1E3A8A] transition-colors duration-300">
+                    <!-- Body -->
+                    <div class="p-5 flex-1 flex flex-col">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-[#1E3A8A] transition-colors duration-300 line-clamp-1" title="${project.projectName}">
                             ${escapeHTML(project.projectName)}
                         </h3>
-                        <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
+                        <p class="text-gray-500 text-xs mb-5 line-clamp-2 leading-relaxed flex-grow">
                             ${escapeHTML(description)}
                         </p>
                         
-                        <!-- Stats Grid -->
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 group-hover:border-blue-100 transition-colors">
-                                <div class="text-blue-600 text-lg mb-1"><i class="far fa-eye"></i></div>
-                                <div class="text-xs text-gray-500 font-medium">${t('featured-views')}</div>
-                                <div class="text-gray-900 font-bold">${viewsCount}</div>
+                        <!-- Financial Grid (التمويل) -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-green-50 rounded-xl p-2.5 text-center border border-green-100">
+                                <div class="text-[10px] text-gray-500 font-medium mb-1">${t('featured-raised')}</div>
+                                <div class="text-green-700 font-bold text-sm">${raised.toLocaleString()} <span class="text-[10px] text-green-600">${currency}</span></div>
                             </div>
-                            <div class="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 group-hover:border-purple-100 transition-colors">
-                                <div class="text-purple-600 text-lg mb-1"><i class="fas fa-user-tie"></i></div>
-                                <div class="text-xs text-gray-500 font-medium">${t('featured-investors-interested')}</div>
-                                <div class="text-gray-900 font-bold">${investorsCount}</div>
+                            <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
+                                <div class="text-[10px] text-gray-500 font-medium mb-1">${t('featured-goal')}</div>
+                                <div class="text-gray-700 font-bold text-sm">${goal.toLocaleString()} <span class="text-[10px] text-gray-500">${currency}</span></div>
                             </div>
                         </div>
 
-                        <!-- Funding Progress -->
-                        <div class="mb-6">
-                            <div class="flex justify-between text-xs font-bold mb-2">
-                                <span class="text-gray-400 uppercase tracking-wider">${t('featured-funding-progress')}</span>
+                        <!-- Progress Bar -->
+                        <div class="mb-2">
+                            <div class="flex justify-between text-[10px] font-bold mb-1.5">
+                                <span class="text-gray-400">${t('featured-funding-progress')}</span>
                                 <span class="text-[#1E3A8A]">${progress}%</span>
                             </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                                 <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" style="width: ${clampedProgress}%">
                                     <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[shimmer_2s_infinite]"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Action Button -->
-                        <a href="project-view.html?id=${project._id}" class="block w-full py-3.5 text-center rounded-xl font-bold text-sm transition-all duration-300 border border-gray-200 text-gray-700 hover:bg-[#1E3A8A] hover:text-white hover:border-[#1E3A8A] hover:shadow-lg hover:shadow-blue-900/20 group/btn">
+                        <!-- Secondary Stats (مشاهدات ومهتمين) -->
+                        <div class="flex justify-between items-center mb-5 px-1">
+                             <div class="flex items-center gap-1.5 text-[10px] text-gray-400" title="${t('featured-views')}">
+                                <i class="far fa-eye text-blue-400"></i>
+                                <span>${viewsCount}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[10px] text-gray-400" title="${t('featured-investors-interested')}">
+                                <i class="fas fa-heart text-pink-400"></i>
+                                <span>${investorsCount} ${t('featured-investors-interested')}</span>
+                            </div>
+                        </div>
+
+                        <!-- Button -->
+                        <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center rounded-lg font-bold text-sm transition-all duration-300 bg-[#1E3A8A] text-white shadow-md hover:bg-blue-800 hover:shadow-lg active:scale-[0.98]">
                             ${t('featured-view-details')} 
-                            <i class="fas fa-arrow-right mx-1 transition-transform duration-300 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1"></i>
                         </a>
                     </div>
                 </div>
@@ -671,6 +674,119 @@ function setupChatModal() {
     }
 }
 
+
+// 3.5. تحميل وعرض نخبة المجتمع
+async function loadEliteCommunity() {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
+
+    try {
+        // بما أننا لا نملك API عام للمستخدمين، سنجلب المشاريع ونستخرج منها الملاك
+        // هذا حل ذكي للواجهة الأمامية لعرض مستخدمين حقيقيين لديهم نشاط
+        const response = await fetch(`${API_BASE_URL}/api/projects/public`);
+        if (!response.ok) throw new Error('Failed to fetch data');
+
+        const projects = await response.json();
+
+        // استخراج المستخدمين الفريدين (أصحاب المشاريع)
+        const uniqueUsers = new Map();
+
+        projects.forEach(p => {
+            if (p.owner && !uniqueUsers.has(p.owner._id)) {
+                uniqueUsers.set(p.owner._id, p.owner);
+            }
+        });
+
+        // تحويل Map إلى Array وأخذ عينة (مثلاً أول 8)
+        const eliteUsers = Array.from(uniqueUsers.values()).slice(0, 10);
+
+        if (eliteUsers.length === 0) {
+            container.innerHTML = `<p class="text-center w-full text-gray-400">جاري بناء المجتمع...</p>`;
+            return;
+        }
+
+        container.innerHTML = eliteUsers.map((user, index) => {
+            // تحديد الصورة (أو الحرف الأول)
+            let avatarHTML = '';
+            if (user.profilePicture && user.profilePicture.startsWith('http')) {
+                avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${user.fullName}">`;
+            } else {
+                const initial = (user.fullName || 'U').charAt(0).toUpperCase();
+                // ألوان عشوائية للخلفية
+                const colors = ['bg-blue-600', 'bg-purple-600', 'bg-indigo-600', 'bg-teal-600'];
+                const bg = colors[index % colors.length];
+                avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-4xl font-bold">${initial}</div>`;
+            }
+
+            // تحديد الرتبة والتسميات
+            const roleKey = user.accountType === 'investor' ? 'elite-role-investor' : 'elite-role-entrepreneur';
+            const tagKey = index % 2 === 0 ? 'elite-tag-top' : 'elite-tag-innovator'; // تنويع عشوائي للتاقات
+
+            return `
+                <div class="min-w-[250px] snap-center flex flex-col items-center group cursor-pointer" onclick="window.location.href='public-profile.html?id=${user._id}'">
+                    
+                    <!-- Avatar Circle with Gold Border & Effect -->
+                    <div class="relative w-32 h-32 mb-6">
+                        <div class="absolute inset-0 rounded-full border-4 border-[#D4AF37] shadow-lg overflow-hidden z-10 bg-white">
+                            ${avatarHTML}
+                        </div>
+                        
+                        <!-- Decorative Ring (Spinning on hover) -->
+                        <div class="absolute -inset-2 rounded-full border border-[#D4AF37]/30 border-dashed animate-[spin_10s_linear_infinite] group-hover:animate-[spin_3s_linear_infinite]"></div>
+                        
+                        <!-- Verified Badge -->
+                        <div class="absolute bottom-1 right-1 z-20 bg-white rounded-full p-1 shadow-md">
+                            <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-[#1E3A8A] transition-colors text-center">
+                        ${escapeHTML(user.fullName)}
+                    </h3>
+                    
+                    <p class="text-[#D4AF37] font-medium text-sm mb-4 text-center">
+                        ${t(roleKey)}
+                    </p>
+
+                    <!-- Tags -->
+                    <div class="flex gap-2 justify-center">
+                        <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg border border-gray-200 font-medium">
+                            ${t(tagKey)}
+                        </span>
+                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs rounded-lg border border-blue-100 font-medium">
+                            ${t('elite-tag-verified')}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("Error loading elite:", error);
+        container.innerHTML = '';
+    }
+}
+
+// 3.6. دالة التمرير للأزرار (Left/Right)
+window.scrollElite = function (direction) {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
+
+    // حساب مسافة التمرير (عرض البطاقة + المسافة)
+    const scrollAmount = 300;
+    const currentScroll = container.scrollLeft;
+
+    // في وضع RTL (العربية)، الاتجاهات تكون معكوسة منطقياً في بعض المتصفحات
+    // لكن scrollBy with negative value يذهب لليسار دائماً
+
+    if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+};
+
 /**
  * ============================================================================
  * 6. MAIN INITIALIZATION
@@ -740,4 +856,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 7. تهيئة نافذة الدردشة
     setupChatModal();
+    loadEliteCommunity();
+
 });

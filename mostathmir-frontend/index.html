@@ -254,6 +254,47 @@
                 </div>
             </div>
         </section>
+        
+        <!-- Elite Community Section -->
+        <section class="py-20 bg-white relative overflow-hidden" id="elite-section">
+            <div class="max-w-7xl mx-auto px-6">
+                <!-- Header -->
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-[#1E3A8A] mb-4" data-i18n-key="elite-title"></h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto" data-i18n-key="elite-subtitle"></p>
+                </div>
+
+                <!-- Carousel Wrapper -->
+                <div class="relative group px-4 md:px-12">
+
+                    <!-- Navigation Button Left -->
+                    <button onclick="scrollElite('left')"
+                        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white border border-gray-200 text-[#1E3A8A] rounded-full shadow-lg flex items-center justify-center hover:bg-[#1E3A8A] hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 disabled:opacity-30 cursor-pointer">
+                        <i class="fas fa-chevron-left text-lg rtl:hidden"></i>
+                        <i class="fas fa-chevron-right text-lg ltr:hidden"></i>
+                    </button>
+
+                    <!-- Scroll Container -->
+                    <div id="elite-container"
+                        class="flex gap-8 overflow-x-auto pb-12 pt-4 px-4 scroll-smooth hide-scrollbar snap-x snap-mandatory">
+                        <!-- Cards will be injected here via JS -->
+
+                        <!-- Loading Placeholder -->
+                        <div class="flex gap-8 w-full justify-center">
+                            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Button Right -->
+                    <button onclick="scrollElite('right')"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white border border-gray-200 text-[#1E3A8A] rounded-full shadow-lg flex items-center justify-center hover:bg-[#1E3A8A] hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 transform -translate-x-4 group-hover:translate-x-0 cursor-pointer">
+                        <i class="fas fa-chevron-right text-lg rtl:hidden"></i>
+                        <i class="fas fa-chevron-left text-lg ltr:hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <!-- Testimonials Section -->
         <section class="testimonials">
