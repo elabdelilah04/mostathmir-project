@@ -482,6 +482,17 @@ const updateTestimonial = async (req, res, next) => {
     }
 };
 
+const getPublicPlatformStats = async (req, res, next) => {
+    try {
+        const investorCount = await User.countDocuments({ accountType: 'investor' });        
+        res.json({
+            investorCount: investorCount
+        });
+    } catch (error) {
+        console.error("Error fetching public stats:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
 module.exports = {
     getUserProfile,
     updateUserProfile,
@@ -496,5 +507,6 @@ module.exports = {
     toggleFollowUser,
     addTestimonial,
     deleteTestimonial,
-    updateTestimonial
+    updateTestimonial,
+    getPublicPlatformStats,
 };

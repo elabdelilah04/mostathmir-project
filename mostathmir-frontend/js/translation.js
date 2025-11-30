@@ -5,6 +5,8 @@
   const dict = {
     ar: {
       // indexpage
+      "stats-funded": "فرصة استثمارية نشطة",
+      "stats-currency": "مليون د.م",
       // --- Featured Projects Section ---
       "featured-loading": "جاري تحميل المشاريع المميزة...",
       "featured-no-projects": "لا توجد مشاريع مميزة حالياً.",
@@ -1836,7 +1838,9 @@
 
     en: {
       // indexpage
-// --- Featured Projects Section ---
+      "stats-funded": "Active Opportunities",
+      "stats-currency": "M MAD",
+      // --- Featured Projects Section ---
       "featured-loading": "Loading featured projects...",
       "featured-no-projects": "No featured projects available.",
       "featured-funding-progress": "Funding Progress",

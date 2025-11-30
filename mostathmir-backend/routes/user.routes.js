@@ -17,7 +17,9 @@ const {
     toggleFollowUser,
     addTestimonial,
     deleteTestimonial,
-    updateTestimonial
+    updateTestimonial,
+    getPublicPlatformStats
+
 } = require('../controllers/user.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 
@@ -45,6 +47,7 @@ const upload = multer({
     limits: { fileSize: 1024 * 1024 * 5 } // 5MB limit
 });
 
+router.get('/platform-stats', getPublicPlatformStats);
 router.get('/dashboard', protect, getIdeaHolderDashboard);
 router.get('/dashboard/proposals', protect, getReceivedProposals);
 router.route('/profile').get(protect, getUserProfile).put(protect, updateUserProfile);

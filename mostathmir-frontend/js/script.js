@@ -575,6 +575,73 @@ function startStatsCounter() {
 
     observer.observe(statsSection);
 }
+// دالة مساعدة للتحويل إلى الدرهم المغربي
+function convertToMAD(amount, currency) {
+    const rates = {
+        'MAD': 1, 'USD': 10, 'SAR': 2.66, 'EUR': 10.8, 'AED': 2.72,
+        'QAR': 2.74, 'KWD': 32.5, 'BHD': 26.5, 'OMR': 26
+    };
+    const rate = rates[currency] || 1;
+    return amount * rate;
+}
+
+async function fetchPlatformStats() {
+    const statsSection = document.getElementById('stats-section');
+    if (!statsSection) return;
+
+    const baseUrl = (window.API_BASE_URL) ? window.API_BASE_URL : 'https://mostathmir-api.onrender.com';
+
+    try {
+        // نطلب البيانات من المصدرين في نفس الوقت (Parallel Fetching)
+        const [projectsRes, statsRes] = await Promise.all([
+            fetch(`${baseUrl}/api/projects/public`),
+            fetch(`${baseUrl}/api/users/platform-stats`)
+        ]);
+
+        if (!projectsRes.ok) throw new Error('Failed to fetch projects');
+        // إذا فشل رابط الإحصائيات (لأنك ربما لم ترفع الباك إند بعد)، سنكمل بدونه
+        const projects = await projectsRes.json();
+        const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
+
+        // 1. إجمالي المشاريع المسجلة
+        const totalProjects = projects.length;
+        
+        // 2. المشاريع النشطة (الممولة + المكتملة + قيد التمويل)
+        const activeOpportunities = projects.filter(p => 
+            p.status === 'funded' || p.status === 'completed' || p.status === 'published'
+        ).length;
+
+        // 3. حجم الاستثمار (بالدرهم المغربي)
+        let totalCapitalMAD = 0;
+        projects.forEach(p => {
+            const amount = p.fundingAmountRaised || 0;
+            const currency = p.fundingGoal?.currency || 'USD'; 
+            totalCapitalMAD += convertToMAD(amount, currency);
+        });
+        // تحويل للمليون
+        const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
+
+        // 4. عدد المستثمرين (من الباك إند مباشرة - العدد الكلي)
+        const totalInvestors = statsData.investorCount || 0;
+
+        // تحديث الواجهة (DOM)
+        const statElements = document.querySelectorAll('.stat-item .font-mono');
+        
+        if(statElements.length >= 4) {
+            statElements[0].setAttribute('data-target', totalProjects); 
+            statElements[1].setAttribute('data-target', totalInvestors); // الرقم الكلي من قاعدة البيانات
+            statElements[2].setAttribute('data-target', activeOpportunities);
+            statElements[3].setAttribute('data-target', capitalInMillions);
+        }
+
+        // تشغيل العدادات
+        startStatsCounter();
+
+    } catch (error) {
+        console.error("Error fetching stats:", error);
+        startStatsCounter(); // تشغيل العداد حتى لو حدث خطأ (سيعرض أصفار)
+    }
+}
 
 // إضافة استدعاء الدالة عند التحميل
 document.addEventListener('DOMContentLoaded', () => {
