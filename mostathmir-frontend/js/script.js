@@ -5,8 +5,8 @@
  * ============================================================================
  */
 
-const API_BASE_URL = (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_BASE_URL) 
-    ? window.CONFIG.API_BASE_URL 
+const API_BASE_URL = (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_BASE_URL)
+    ? window.CONFIG.API_BASE_URL
     : 'https://mostathmir-api.onrender.com';
 
 // أسعار صرف تقريبية للتحويل إلى الدرهم المغربي
@@ -58,7 +58,7 @@ async function fetchCurrentUser() {
         const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (response.status === 401) {
             logoutUser(); // التوكن منتهي الصلاحية
             return null;
@@ -70,7 +70,7 @@ async function fetchCurrentUser() {
 
         const user = await response.json();
         localStorage.setItem('user_data', JSON.stringify(user));
-        if(user._id) localStorage.setItem('user_id', user._id);
+        if (user._id) localStorage.setItem('user_id', user._id);
         return user;
     } catch (error) {
         console.error("Auth Error:", error);
@@ -82,7 +82,7 @@ async function fetchCurrentUser() {
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton ? submitButton.textContent : '';
-    
+
     if (submitButton) {
         submitButton.disabled = true;
         submitButton.textContent = t('js-script-please-wait');
@@ -160,7 +160,7 @@ function switchHowItWorks(type) {
         // تفعيل رواد الأعمال (أصفر)
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-        
+
         sectionTitle.classList.remove('text-green-600');
         sectionTitle.classList.add('text-yellow-500');
 
@@ -172,7 +172,7 @@ function switchHowItWorks(type) {
         // تفعيل المستثمرين (أخضر)
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-        
+
         sectionTitle.classList.remove('text-yellow-500');
         sectionTitle.classList.add('text-green-600');
 
@@ -189,75 +189,131 @@ async function loadFeaturedProjects() {
     if (!grid) return;
 
     try {
-        grid.innerHTML = `<div class="text-center col-span-full"><i class="fas fa-circle-notch fa-spin text-blue-600 text-2xl"></i><p>${t('featured-loading')}</p></div>`;
-        
+        // عرض مؤشر التحميل بتصميم عصري
+        grid.innerHTML = `
+            <div class="col-span-full flex flex-col items-center justify-center py-12">
+                <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <p class="text-gray-500 font-medium animate-pulse">${t('featured-loading')}</p>
+            </div>`;
+
         const response = await fetch(`${API_BASE_URL}/api/projects/public`);
         if (!response.ok) throw new Error('Failed to fetch projects');
-        
+
         let projects = await response.json();
-        // تصفية المشاريع النشطة فقط
+
+        // التصفية: فقط المشاريع التي لها حالة نشطة
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
-        
-        // الترتيب حسب الأكثر متابعة
-        projects.sort((a, b) => (b.followers?.length || 0) - (a.followers?.length || 0));
-        
+
+        // الترتيب: الأكثر اكتمالاً للتمويل، ثم الأكثر مشاهدة
+        projects.sort((a, b) => {
+            const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
+            const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
+            return progressB - progressA;
+        });
+
         const featuredProjects = projects.slice(0, 3);
 
         if (featuredProjects.length === 0) {
-            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">${t('featured-no-projects')}</p>`;
+            grid.innerHTML = `<p class="text-center text-gray-500 col-span-full py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-300">${t('featured-no-projects')}</p>`;
             return;
         }
 
         grid.innerHTML = featuredProjects.map(project => {
+            // الحسابات
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
-            
-            let imageSrc = project.mainImage && project.mainImage.startsWith('http') 
-                ? project.mainImage 
-                : 'https://via.placeholder.com/400x250?text=Mostathmir+Project';
 
+            // الصورة
+            let imageSrc = project.mainImage && project.mainImage.startsWith('http')
+                ? project.mainImage
+                : 'https://via.placeholder.com/800x600?text=Mostathmir+Project';
+
+            // النصوص
             const category = project.projectCategory || t('js-browse-category-general');
-            const description = project.projectDescription ? project.projectDescription.substring(0, 100) + '...' : '';
+            const description = project.projectDescription ? project.projectDescription.substring(0, 90) + '...' : '';
             const investorsCount = project.followers ? project.followers.length : 0;
             const viewsCount = project.views || 0;
 
+            // بيانات المالك (الجديدة)
+            const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
+            let ownerAvatar = '';
+            if (project.owner?.profilePicture && project.owner.profilePicture.startsWith('http')) {
+                ownerAvatar = `<img src="${project.owner.profilePicture}" class="w-full h-full object-cover" alt="${ownerName}">`;
+            } else {
+                const initial = ownerName.charAt(0).toUpperCase();
+                ownerAvatar = `<div class="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">${initial}</div>`;
+            }
+
+            // --- HTML البطاقة الإبداعية ---
             return `
-                <div class="project-card relative bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                    <div class="project-image h-48 bg-cover bg-center relative" style="background-image: url('${imageSrc}');">
-                        <div class="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                            ${t(category) || category}
-                        </div>
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-1">${escapeHTML(project.projectName)}</h3>
-                        <p class="text-gray-500 text-sm mb-4 line-clamp-2 h-10">${escapeHTML(description)}</p>
+                <div class="group bg-white rounded-[20px] overflow-hidden border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
+                    
+                    <!-- 1. Image Header with Owner Badge -->
+                    <div class="relative h-56 overflow-hidden">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90"></div>
                         
-                        <div class="flex justify-between items-center mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                            <div class="flex items-center gap-1" title="${t('featured-views')}">
-                                <i class="far fa-eye text-blue-500"></i>
-                                <span>${viewsCount}</span>
+                        <!-- Category Badge -->
+                        <div class="absolute top-4 right-4">
+                            <span class="bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                                ${t(category) || category}
+                            </span>
+                        </div>
+
+                        <!-- Owner Info (Floating at bottom) -->
+                        <div class="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white/80 shadow-md overflow-hidden bg-gray-100">
+                                ${ownerAvatar}
                             </div>
-                            <div class="flex items-center gap-1" title="${t('featured-investors-interested')}">
-                                <i class="fas fa-user-tie text-purple-500"></i>
-                                <span>${investorsCount}</span>
+                            <div class="text-white">
+                                <p class="text-xs text-gray-300 font-medium mb-0.5">${t('project_owner')}</p>
+                                <p class="text-sm font-bold leading-none text-white drop-shadow-sm">${ownerName}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Body Content -->
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#1E3A8A] transition-colors duration-300">
+                            ${escapeHTML(project.projectName)}
+                        </h3>
+                        <p class="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
+                            ${escapeHTML(description)}
+                        </p>
+                        
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 group-hover:border-blue-100 transition-colors">
+                                <div class="text-blue-600 text-lg mb-1"><i class="far fa-eye"></i></div>
+                                <div class="text-xs text-gray-500 font-medium">${t('featured-views')}</div>
+                                <div class="text-gray-900 font-bold">${viewsCount}</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 group-hover:border-purple-100 transition-colors">
+                                <div class="text-purple-600 text-lg mb-1"><i class="fas fa-user-tie"></i></div>
+                                <div class="text-xs text-gray-500 font-medium">${t('featured-investors-interested')}</div>
+                                <div class="text-gray-900 font-bold">${investorsCount}</div>
                             </div>
                         </div>
 
-                        <div class="mb-5">
-                            <div class="flex justify-between text-xs mb-1 font-semibold">
-                                <span class="text-gray-500">${t('featured-funding-progress')}</span>
-                                <span class="text-green-600">${progress}%</span>
+                        <!-- Funding Progress -->
+                        <div class="mb-6">
+                            <div class="flex justify-between text-xs font-bold mb-2">
+                                <span class="text-gray-400 uppercase tracking-wider">${t('featured-funding-progress')}</span>
+                                <span class="text-[#1E3A8A]">${progress}%</span>
                             </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
+                            <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden" style="width: ${clampedProgress}%">
+                                    <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[shimmer_2s_infinite]"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <a href="project-view.html?id=${project._id}" class="block w-full py-3 text-center bg-[#1E3A8A] text-white rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md hover:shadow-lg">
-                            ${t('featured-view-details')}
+                        <!-- Action Button -->
+                        <a href="project-view.html?id=${project._id}" class="block w-full py-3.5 text-center rounded-xl font-bold text-sm transition-all duration-300 border border-gray-200 text-gray-700 hover:bg-[#1E3A8A] hover:text-white hover:border-[#1E3A8A] hover:shadow-lg hover:shadow-blue-900/20 group/btn">
+                            ${t('featured-view-details')} 
+                            <i class="fas fa-arrow-right mx-1 transition-transform duration-300 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1"></i>
                         </a>
                     </div>
                 </div>
@@ -283,15 +339,15 @@ async function fetchPlatformStats() {
         ]);
 
         if (!projectsRes.ok) throw new Error('Failed to fetch projects');
-        
+
         const projects = await projectsRes.json();
         const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
 
         // 1. المشاريع المسجلة
         const totalProjects = projects.length;
-        
+
         // 2. الفرص النشطة (قيد التمويل + المكتملة)
-        const activeOpportunities = projects.filter(p => 
+        const activeOpportunities = projects.filter(p =>
             ['funded', 'completed', 'published'].includes(p.status)
         ).length;
 
@@ -299,7 +355,7 @@ async function fetchPlatformStats() {
         let totalCapitalMAD = 0;
         projects.forEach(p => {
             const amount = p.fundingAmountRaised || 0;
-            const currency = p.fundingGoal?.currency || 'USD'; 
+            const currency = p.fundingGoal?.currency || 'USD';
             totalCapitalMAD += convertToMAD(amount, currency);
         });
         const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
@@ -309,7 +365,7 @@ async function fetchPlatformStats() {
 
         // تحديث العدادات في HTML
         const statElements = document.querySelectorAll('.stat-item .font-mono');
-        if(statElements.length >= 4) {
+        if (statElements.length >= 4) {
             statElements[0].setAttribute('data-target', totalProjects);
             statElements[1].setAttribute('data-target', totalInvestors);
             statElements[2].setAttribute('data-target', activeOpportunities);
@@ -340,9 +396,9 @@ function startStatsCounter() {
                 const isFloat = target % 1 !== 0;
                 if (target === 0) { counter.innerText = "0"; return; }
 
-                const duration = 2000; 
+                const duration = 2000;
                 const increment = target / (duration / 16);
-                
+
                 let current = 0;
                 const updateCounter = () => {
                     current += increment;
@@ -393,10 +449,10 @@ async function uploadProfilePicture(file) {
 // تعبئة البيانات المشتركة للملف الشخصي
 function populateCommonProfileFields(user, baseUrl) {
     document.querySelectorAll('.profile-name, .user-name').forEach(el => { el.textContent = user.fullName || ''; });
-    
+
     const profileBio = document.querySelector('.profile-bio');
     if (profileBio) profileBio.textContent = user.bio || t('js-script-add-bio');
-    
+
     const profileLocation = document.querySelector('.profile-location span');
     if (profileLocation) profileLocation.textContent = user.location || t('js-script-location-not-set');
 
@@ -410,10 +466,10 @@ function populateCommonProfileFields(user, baseUrl) {
     const mainAvatarImage = document.getElementById('avatarImage');
     const mainAvatarInitials = document.getElementById('avatarInitials');
     const hasProfilePic = user.profilePicture && user.profilePicture !== 'default-avatar.png';
-    
+
     const parts = user.fullName ? user.fullName.trim().split(' ') : [];
-    const initials = parts.length > 1 
-        ? (parts[0][0] + parts[1][0]).toUpperCase() 
+    const initials = parts.length > 1
+        ? (parts[0][0] + parts[1][0]).toUpperCase()
         : (user.fullName || '').trim().substring(0, 2).toUpperCase();
 
     if (mainAvatarImage) {
@@ -443,9 +499,9 @@ function populateCommonProfileFields(user, baseUrl) {
         const linkDisplayContainer = document.getElementById('profileSocialLinkDisplay');
         const linkDisplayText = document.getElementById('socialLinkText');
         const linkDisplayIcon = document.getElementById('socialLinkIcon');
-        
+
         iconsContainer.innerHTML = '';
-        if(linkDisplayContainer) linkDisplayContainer.style.display = 'none';
+        if (linkDisplayContainer) linkDisplayContainer.style.display = 'none';
 
         const svgIcons = {
             linkedin: '<i class="fab fa-linkedin-in"></i>',
@@ -462,18 +518,18 @@ function populateCommonProfileFields(user, baseUrl) {
             iconButton.type = 'button';
             iconButton.className = 'social-icon-button';
             iconButton.innerHTML = svgIcons[link.platform] || svgIcons.website;
-            
+
             iconButton.addEventListener('click', () => {
                 const isAlreadyActive = iconButton.classList.contains('active');
                 iconsContainer.querySelectorAll('.social-icon-button').forEach(btn => btn.classList.remove('active'));
-                
+
                 if (isAlreadyActive) {
-                    if(linkDisplayContainer) linkDisplayContainer.style.display = 'none';
+                    if (linkDisplayContainer) linkDisplayContainer.style.display = 'none';
                 } else {
                     iconButton.classList.add('active');
-                    if(linkDisplayText) linkDisplayText.textContent = link.url;
-                    if(linkDisplayIcon) linkDisplayIcon.innerHTML = svgIcons[link.platform] || svgIcons.website;
-                    if(linkDisplayContainer) {
+                    if (linkDisplayText) linkDisplayText.textContent = link.url;
+                    if (linkDisplayIcon) linkDisplayIcon.innerHTML = svgIcons[link.platform] || svgIcons.website;
+                    if (linkDisplayContainer) {
                         linkDisplayContainer.style.display = 'flex';
                         linkDisplayContainer.onclick = () => {
                             const fullUrl = link.url.startsWith('http') ? link.url : `https://${link.platform}.com/${link.url}`;
@@ -513,7 +569,7 @@ function initProfilePage(user, baseUrl) {
     populateCommonProfileFields(user, baseUrl);
     setupInteractiveStats('profile-stats-interactive', 'profile-dynamic-content');
     initProjectsPortfolio();
-    
+
     const token = localStorage.getItem('user_token');
     fetch(`${baseUrl}/api/projects/myprojects`, { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
@@ -539,20 +595,20 @@ function setupInteractiveStats(gridId, contentAreaId) {
     const statsGrid = document.getElementById(gridId);
     const dynamicContentArea = document.getElementById(contentAreaId);
     if (!statsGrid || !dynamicContentArea) return;
-    
+
     const statButtons = statsGrid.querySelectorAll('[data-target]');
     const contentPanels = dynamicContentArea.querySelectorAll('.content-panel');
-    
+
     statsGrid.addEventListener('click', (e) => {
         const clickedButton = e.target.closest('[data-target]');
         if (!clickedButton) return;
-        
+
         const targetId = clickedButton.dataset.target;
         const targetPanel = document.getElementById(targetId);
-        
+
         statButtons.forEach(btn => btn.classList.remove('active'));
         contentPanels.forEach(panel => panel.classList.remove('visible'));
-        
+
         clickedButton.classList.add('active');
         if (targetPanel) {
             targetPanel.classList.add('visible');
@@ -595,13 +651,13 @@ function setupChatModal() {
     if (openChatBtn) openChatBtn.addEventListener('click', openChat);
     if (closeChatBtn) closeChatBtn.addEventListener('click', closeChat);
     if (chatModalOverlay) chatModalOverlay.addEventListener('click', closeChat);
-    
+
     if (chatForm) {
         chatForm.addEventListener('submit', function (e) {
             e.preventDefault();
             const input = e.target.querySelector('input');
             if (!input || input.value.trim() === '') return;
-            
+
             const messagesContainer = document.querySelector('.chat-messages');
             if (messagesContainer) {
                 const newMessage = document.createElement('div');
@@ -671,8 +727,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 }, loginForm);
-                
-                if(data.token) {
+
+                if (data.token) {
                     localStorage.setItem('user_token', data.token);
                     window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
                 }
