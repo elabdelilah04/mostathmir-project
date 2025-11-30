@@ -5,8 +5,15 @@
   const dict = {
     ar: {
       // indexpage
-      "stats-funded": "فرصة استثمارية نشطة",
-      "stats-currency": "مليون د.م",
+
+      // --- قسم الإحصائيات ---
+      "stats-title": "أرقام تتحدث عن نجاحنا",
+      "stats-subtitle": "نفخر بمجتمعنا المتنامي والثقة التي منحنا إياها المستثمرون ورواد الأعمال",
+      "stats-projects": "مشروع مسجل",
+      "stats-investors": "مستثمر مسجل", // تم التعديل ليعكس العدد الكلي
+      "stats-funded": "فرصة نشطة", // التعديل: ليعكس أنها تشمل المشاريع قيد التمويل والمكتملة
+      "stats-capital": "حجم الاستثمارات",
+      "stats-currency": "مليون د.م", // العملة: درهم مغربي
       // --- Featured Projects Section ---
       "featured-loading": "جاري تحميل المشاريع المميزة...",
       "featured-no-projects": "لا توجد مشاريع مميزة حالياً.",
@@ -37,14 +44,7 @@
 
       "how-cta-start": "ابـدأ الآن مجانـاً",
 
-      // --- Statistics Section (New) ---
-      "stats-title": "أرقام تتحدث عن نجاحنا",
-      "stats-subtitle": "نفخر بمجتمعنا المتنامي والثقة التي منحنا إياها المستثمرون ورواد الأعمال",
-      "stats-projects": "مشروع مسجل",
-      "stats-investors": "مستثمر نشط",
-      "stats-funded": "مشروع ممول",
-      "stats-capital": "حجم الاستثمارات",
-      "stats-currency": "مليون ر.س",
+      // ============================================================
 
       "new-password-page-title": "إعادة تعيين كلمة السر - مستثمر",
       "new-password-title": "إعادة تعيين كلمة السر",
@@ -1461,10 +1461,10 @@
       'about-desc': 'منصة مستثمر هي جسر يربط بين أصحاب الأفكار الإبداعية والمشاريع الواعدة وبين المستثمرين الباحثين عن فرص استثمارية مميزة. نهدف إلى تسهيل رحلة ريادة الأعمال وتوفير بيئة آمنة وشفافة للتواصل والاستثمار.',
       'about-btn': 'تعرف علينا أكثر',
       // Statistics
-      'stats-title': 'إحصائيات المنصة',
-      'stats-projects': 'عدد المشاريع',
-      'stats-investors': 'عدد المستثمرين',
-      'stats-funded': 'عدد المشاريع الممولة',
+      // 'stats-title': 'إحصائيات المنصة',
+      // 'stats-projects': 'عدد المشاريع',
+      // 'stats-investors': 'عدد المستثمرين',
+      // 'stats-funded': 'عدد المشاريع الممولة',
       // How it works
       'how-title': 'كيف تعمل المنصة؟',
       'how-desc': 'عملية بسيطة وفعالة تربط أصحاب الأفكار بالمستثمرين المناسبين في ثلاث خطوات سهلة',
@@ -1838,8 +1838,14 @@
 
     en: {
       // indexpage
-      "stats-funded": "Active Opportunities",
-      "stats-currency": "M MAD",
+      // --- Statistics Section ---
+      "stats-title": "Platform Statistics",
+      "stats-subtitle": "Proud of our growing community and the trust placed in us",
+      "stats-projects": "Registered Projects",
+      "stats-investors": "Registered Investors", // تم التعديل ليعكس العدد الكلي
+      "stats-funded": "Active Opportunities", // التعديل: بدلاً من Funded Projects لتشمل المشاريع قيد التمويل
+      "stats-capital": "Total Investments",
+      "stats-currency": "M MAD", // التعديل: العملة أصبحت الدرهم المغربي
       // --- Featured Projects Section ---
       "featured-loading": "Loading featured projects...",
       "featured-no-projects": "No featured projects available.",
@@ -1867,18 +1873,10 @@
       "how-inv-step2-desc": "Communicate directly with owners, request financials, and discuss terms.",
       "how-inv-step3-title": "3. Diversify Portfolio",
       "how-inv-step3-desc": "Close deals securely and track your investment growth via the dashboard.",
-
       "how-cta-start": "Start Now for Free",
-
-      // --- Statistics Section (New) ---
-      "stats-title": "Our Numbers Speak",
-      "stats-subtitle": "Proud of our growing community and the trust placed in us",
-      "stats-projects": "Projects Registered",
-      "stats-investors": "Active Investors",
-      "stats-funded": "Projects Funded",
-      "stats-capital": "Total Investments",
-      "stats-currency": "M SAR",
       "equivalent_to": "approx. equivalent to",
+      // =========================================================================
+
       "new-password-page-title": "Reset Password - Mostathmir",
       "new-password-title": "Reset Password",
       "new-password-subtitle": "Enter your new password.",
@@ -3339,10 +3337,10 @@
       'about-desc': 'Mostathmir is a bridge connecting creative entrepreneurs and promising projects with investors seeking distinctive investment opportunities. We aim to facilitate the entrepreneurship journey and provide a safe, transparent environment for communication and investment.',
       'about-btn': 'Learn More About Us',
       // Statistics
-      'stats-title': 'Platform Statistics',
-      'stats-projects': 'Projects',
-      'stats-investors': 'Investors',
-      'stats-funded': 'Funded Projects',
+      // 'stats-title': 'Platform Statistics',
+      // 'stats-projects': 'Projects',
+      // 'stats-investors': 'Investors',
+      // 'stats-funded': 'Funded Projects',
       // How it works
       'how-title': 'How It Works',
       'how-desc': 'A simple and effective process connecting idea owners with suitable investors in three easy steps.',
