@@ -1,13 +1,25 @@
+/**
+ * ============================================================================
+ * MOSTATHMIR PLATFORM - MAIN SCRIPT
+ * ============================================================================
+ * Contains logic for:
+ * 1. Global Config & Utilities
+ * 2. Authentication (Login/Logout/User Fetch)
+ * 3. Home Page Sections (Hero, Stats, How-to, Featured, Elite)
+ * 4. Profile & UI Interactions
+ * 5. Initialization
+ */
+
 /* ============================================================================
    1. GLOBAL CONFIGURATION & UTILITIES
    ============================================================================ */
 
-// رابط الـ API (يستخدم التكوين العام إذا وجد)
+// API Base URL
 const API_BASE_URL = (typeof window.CONFIG !== 'undefined' && window.CONFIG.API_BASE_URL)
     ? window.CONFIG.API_BASE_URL
     : 'https://mostathmir-api.onrender.com';
 
-// أسعار صرف تقريبية للتحويل إلى الدرهم المغربي (MAD)
+// Exchange Rates (Approximate to MAD)
 const EXCHANGE_RATES_TO_MAD = {
     'MAD': 1,
     'USD': 10.0,
@@ -20,7 +32,9 @@ const EXCHANGE_RATES_TO_MAD = {
     'OMR': 26.0
 };
 
-// دالة لتنظيف النصوص ومنع هجمات XSS
+/**
+ * Prevent XSS attacks by escaping HTML characters.
+ */
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, match => ({
@@ -28,7 +42,9 @@ function escapeHTML(str) {
     }[match]));
 }
 
-// دالة تحويل العملات للدرهم المغربي
+/**
+ * Convert any currency amount to Moroccan Dirham (MAD).
+ */
 function convertToMAD(amount, currency) {
     const rate = EXCHANGE_RATES_TO_MAD[currency] || 1;
     return amount * rate;
@@ -38,10 +54,12 @@ function convertToMAD(amount, currency) {
    2. AUTHENTICATION & USER MANAGEMENT
    ============================================================================ */
 
-// جلب بيانات المستخدم الحالي
+/**
+ * Fetch currently logged-in user profile.
+ * Redirects to login if token is invalid on protected pages.
+ */
 async function fetchCurrentUser() {
     const token = localStorage.getItem('user_token');
-    // الصفحات المحمية التي تتطلب تسجيل دخول
     const protectedPages = ['page-title-profile', 'page-title-investor-profile', 'page-title-settings'];
 
     if (!token) {
@@ -56,9 +74,8 @@ async function fetchCurrentUser() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        // إذا انتهت صلاحية التوكن
         if (response.status === 401) {
-            logoutUser();
+            logoutUser(); // Token expired
             return null;
         }
 
@@ -68,13 +85,16 @@ async function fetchCurrentUser() {
         localStorage.setItem('user_data', JSON.stringify(user));
         if (user._id) localStorage.setItem('user_id', user._id);
         return user;
+
     } catch (error) {
         console.error("Auth Error:", error);
         return null;
     }
 }
 
-// معالجة طلبات API (Wrapper)
+/**
+ * Wrapper for API requests dealing with Forms (handles button loading state).
+ */
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton ? submitButton.textContent : '';
@@ -109,7 +129,6 @@ async function handleApiRequest(url, options, form) {
     }
 }
 
-// تسجيل الخروج
 function logoutUser() {
     localStorage.removeItem('user_token');
     localStorage.removeItem('user_data');
@@ -118,7 +137,6 @@ function logoutUser() {
     window.location.href = 'login.html';
 }
 
-// التوجيه التلقائي إذا كان مسجلاً
 function redirectIfLoggedIn() {
     const pageKey = document.body.dataset.pageKey;
     if (pageKey === 'page-title-login' || pageKey === 'page-title-signup') {
@@ -135,10 +153,10 @@ function redirectIfLoggedIn() {
 }
 
 /* ============================================================================
-   3. HOME PAGE LOGIC (LANDING PAGE)
+   3. HOME PAGE SECTIONS LOGIC
    ============================================================================ */
 
-/* --- 3.1. تبديل قسم "كيف تعمل المنصة" --- */
+// --- 3.1. How It Works Section (Toggle) ---
 function switchHowItWorks(type) {
     const btnEntrepreneur = document.getElementById('btn-entrepreneur');
     const btnInvestor = document.getElementById('btn-investor');
@@ -147,10 +165,9 @@ function switchHowItWorks(type) {
     const sectionTitle = document.getElementById('section-title');
 
     if (type === 'entrepreneur') {
-        // تفعيل رواد الأعمال (أصفر)
+        // Active: Entrepreneur (Yellow)
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md";
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-
         sectionTitle.classList.remove('text-green-600');
         sectionTitle.classList.add('text-yellow-500');
 
@@ -159,10 +176,9 @@ function switchHowItWorks(type) {
         contentInvestor.classList.add('hidden');
         contentInvestor.classList.remove('grid');
     } else {
-        // تفعيل المستثمرين (أخضر)
+        // Active: Investor (Green)
         btnInvestor.className = "px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-green-500 text-white shadow-md";
         btnEntrepreneur.className = "px-8 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-gray-700 transition-all duration-300";
-
         sectionTitle.classList.remove('text-yellow-500');
         sectionTitle.classList.add('text-green-600');
 
@@ -173,13 +189,13 @@ function switchHowItWorks(type) {
     }
 }
 
-/* --- 3.2. تحميل المشاريع المميزة (التصميم الجديد المدمج) --- */
+// --- 3.2. Featured Projects Section ---
 async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
     try {
-        // مؤشر التحميل
+        // Loader
         grid.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center py-10">
                 <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
@@ -189,16 +205,17 @@ async function loadFeaturedProjects() {
         if (!response.ok) throw new Error('Failed to fetch projects');
 
         let projects = await response.json();
-        // تصفية المشاريع النشطة
+        // Filter active projects only
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
 
-        // الترتيب حسب نسبة التمويل
+        // Sort by funding progress (highest first)
         projects.sort((a, b) => {
             const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
             const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
             return progressB - progressA;
         });
 
+        // Take top 3
         const featuredProjects = projects.slice(0, 3);
 
         if (featuredProjects.length === 0) {
@@ -209,7 +226,6 @@ async function loadFeaturedProjects() {
         grid.innerHTML = featuredProjects.map(project => {
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
-            const currency = project.fundingGoal?.currency || 'USD';
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
 
@@ -223,12 +239,11 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
-            // HTML البطاقة
             return `
-                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[400px] mx-auto w-full">
+                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full">
                     
-                    <!-- صورة (ارتفاع أقل h-40) -->
-                    <div class="relative h-40 overflow-hidden">
+                    <!-- Image Header -->
+                    <div class="relative h-44 overflow-hidden">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                         
@@ -237,12 +252,12 @@ async function loadFeaturedProjects() {
                                 ${t(category) || category}
                             </span>
                         </div>
-                        <div class="absolute bottom-2 left-3 text-white text-xs font-medium drop-shadow-md">
-                            <i class="fas fa-user-circle text-sm mr-1"></i> ${ownerName}
+                        <div class="absolute bottom-2 left-3 text-white text-xs font-medium drop-shadow-md flex items-center gap-1">
+                            <i class="fas fa-user-circle text-sm"></i> ${escapeHTML(ownerName)}
                         </div>
                     </div>
 
-                    <!-- المحتوى (padding أقل p-4) -->
+                    <!-- Body Content -->
                     <div class="p-4 flex-1 flex flex-col">
                         <h3 class="text-base font-bold text-gray-900 mb-1.5 leading-tight line-clamp-1 group-hover:text-[#1E3A8A] transition-colors">
                             ${escapeHTML(project.projectName)}
@@ -251,19 +266,19 @@ async function loadFeaturedProjects() {
                             ${escapeHTML(description)}
                         </p>
                         
-                        <!-- الشبكة المالية -->
+                        <!-- Financial Grid -->
                         <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="bg-green-50/80 rounded-lg p-1.5 text-center border border-green-100">
+                            <div class="bg-green-50/80 rounded-lg p-2 text-center border border-green-100">
                                 <div class="text-[10px] text-gray-500">${t('featured-raised')}</div>
                                 <div class="text-green-700 font-bold text-xs">${raised.toLocaleString()}</div>
                             </div>
-                            <div class="bg-gray-50 rounded-lg p-1.5 text-center border border-gray-100">
+                            <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
                                 <div class="text-[10px] text-gray-500">${t('featured-goal')}</div>
                                 <div class="text-gray-700 font-bold text-xs">${goal.toLocaleString()}</div>
                             </div>
                         </div>
 
-                        <!-- شريط التقدم -->
+                        <!-- Progress Bar -->
                         <div class="mb-3">
                             <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-gray-400">${t('featured-funding-progress')}</span>
@@ -274,7 +289,7 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- صف الإحصائيات (مشاهدات ومهتمين) -->
+                        <!-- Social Stats -->
                         <div class="flex justify-between items-center mb-4 pt-2 border-t border-gray-50 px-1">
                             <div class="flex items-center gap-1 text-[11px] text-gray-500" title="${t('featured-views')}">
                                 <i class="far fa-eye text-blue-400"></i>
@@ -286,7 +301,7 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- الزر -->
+                        <!-- Button -->
                         <a href="project-view.html?id=${project._id}" class="block w-full py-2.5 text-center rounded-lg font-bold text-xs transition-all duration-300 bg-gray-900 text-white hover:bg-[#1E3A8A] hover:shadow-lg">
                             ${t('featured-view-details')} 
                         </a>
@@ -301,13 +316,12 @@ async function loadFeaturedProjects() {
     }
 }
 
-/* --- 3.3. تحميل نخبة المجتمع (للكل: مستثمرون ورواد) --- */
+// --- 3.3. Elite Community Section ---
 async function loadEliteCommunity() {
     const container = document.getElementById('elite-container');
     if (!container) return;
 
     try {
-        // طلب القائمة من الرابط العام (يجب أن يكون لديك هذا الرابط في الباك إند)
         const response = await fetch(`${API_BASE_URL}/api/users/elite`);
         if (!response.ok) throw new Error('Failed to fetch elite members');
 
@@ -332,7 +346,6 @@ async function loadEliteCommunity() {
             const roleKey = user.accountType === 'investor' ? 'elite-role-investor' : 'elite-role-entrepreneur';
             const roleColor = user.accountType === 'investor' ? 'text-[#D4AF37]' : 'text-blue-600';
             const roleIcon = user.accountType === 'investor' ? 'fa-hand-holding-usd' : 'fa-lightbulb';
-
             const verifiedBadge = user.isVerified
                 ? `<i class="fas fa-check-circle text-blue-500 absolute bottom-0 right-0 bg-white rounded-full border-2 border-white text-xl shadow-sm z-20" title="${t('elite-tag-verified')}"></i>`
                 : '';
@@ -352,10 +365,12 @@ async function loadEliteCommunity() {
                         </div>
 
                         <h3 class="mt-4 text-lg font-bold text-gray-800 truncate group-hover:text-[#1E3A8A] transition-colors">${escapeHTML(user.fullName)}</h3>
+                        
                         <div class="flex items-center justify-center gap-2 mt-1 mb-3">
                             <i class="fas ${roleIcon} ${roleColor} text-xs"></i>
                             <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">${t(roleKey)}</span>
                         </div>
+
                         <p class="text-xs text-gray-400 mb-4 line-clamp-1 h-4">${escapeHTML(user.profileTitle || '')}</p>
 
                         <div class="border-t border-gray-50 pt-3">
@@ -370,7 +385,7 @@ async function loadEliteCommunity() {
     }
 }
 
-/* --- 3.4. تمرير قسم النخبة --- */
+// Elite Section Scrolling
 window.scrollElite = function (direction) {
     const container = document.getElementById('elite-container');
     if (!container) return;
@@ -382,16 +397,15 @@ window.scrollElite = function (direction) {
     }
 };
 
-/* --- 3.5. إحصائيات المنصة (حقيقية) --- */
+// --- 3.4. Platform Stats Section (Real Data) ---
 async function fetchPlatformStats() {
     const statsSection = document.getElementById('stats-section');
     if (!statsSection) return;
 
     try {
-        // طلب البيانات بالتوازي
         const [projectsRes, statsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/projects/public`),
-            fetch(`${API_BASE_URL}/api/users/platform-stats`) // يحتاج هذا الرابط في الباك إند
+            fetch(`${API_BASE_URL}/api/users/platform-stats`)
         ]);
 
         if (!projectsRes.ok) throw new Error('Failed to fetch data');
@@ -399,7 +413,7 @@ async function fetchPlatformStats() {
         const projects = await projectsRes.json();
         const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
 
-        // الحسابات
+        // Calculations
         const totalProjects = projects.length;
         const activeOpportunities = projects.filter(p => ['funded', 'completed', 'published'].includes(p.status)).length;
 
@@ -412,7 +426,7 @@ async function fetchPlatformStats() {
         const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
         const totalInvestors = statsData.investorCount || 0;
 
-        // تحديث العدادات
+        // Update DOM
         const statElements = document.querySelectorAll('.stat-item .font-mono');
         if (statElements.length >= 4) {
             statElements[0].setAttribute('data-target', totalProjects);
@@ -424,7 +438,7 @@ async function fetchPlatformStats() {
         startStatsCounter();
     } catch (error) {
         console.error("Stats Error:", error);
-        startStatsCounter(); // تشغيل بالأصفار في حال الخطأ
+        startStatsCounter(); // Run with zeros if error
     }
 }
 
@@ -462,7 +476,7 @@ function startStatsCounter() {
     observer.observe(statsSection);
 }
 
-/* --- 3.6. تأثيرات الموبايل --- */
+// --- 3.5. Mobile Scroll Effects ---
 function initMobileScrollEffects() {
     if (window.innerWidth >= 1024) return;
 
@@ -499,7 +513,6 @@ function initMobileScrollEffects() {
     const eliteSection = document.getElementById('elite-section');
     if (eliteSection) eliteObserver.observe(eliteSection);
 }
-
 
 /* ============================================================================
    4. PROFILE & UI LOGIC
@@ -733,15 +746,15 @@ function setupChatModal() {
    ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. تهيئة الهيدر
+    // 1. Header Init
     if (window.initHeader) await window.initHeader();
 
-    // 2. التحقق من تسجيل الدخول
+    // 2. Login Check
     redirectIfLoggedIn();
-    // 3. جلب المستخدم الحالي
+    // 3. Fetch User
     const user = await fetchCurrentUser();
 
-    // 4. توجيه منطق الصفحة
+    // 4. Route Logic
     if (user) {
         const pageKey = document.body.dataset.pageKey;
         if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
@@ -759,16 +772,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 5. منطق الصفحة الرئيسية (Landing Page)
+    // 5. Home Page Logic
     if (document.body.dataset.pageKey === 'page-title-main') {
         loadFeaturedProjects();
-        loadEliteCommunity(); // النخبة (المستثمرين والرواد)
+        loadEliteCommunity();
         fetchPlatformStats();
         initMobileScrollEffects();
     }
 
-
-    // 6. تهيئة نموذج تسجيل الدخول
+    // 6. Login Form Logic
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -793,6 +805,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+    // Helper to select account type based on URL
     const urlParams = new URLSearchParams(window.location.search);
     const accountTypeParam = urlParams.get('type');
     const accountTypeSelect = document.getElementById('accountType');
@@ -801,6 +815,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         accountTypeSelect.value = accountTypeParam;
     }
 
-    // 7. تهيئة نافذة الدردشة
+    // 7. Chat Modal
     setupChatModal();
 });

@@ -5,6 +5,13 @@
   const dict = {
     ar: {
       // indexpage
+      // about section
+      "about-card1-title": "ابتكار بلا حدود",
+      "about-card1-desc": "نجمع ألمع العقول مع أجرأ المستثمرين لتحويل الأفكار الورقية إلى مشاريع تغير الواقع.",
+      "about-card2-title": "أمان وشفافية",
+      "about-card2-desc": "بيئة استثمارية آمنة تضمن حقوق جميع الأطراف، مع إجراءات تحقق صارمة وواضحة.",
+      "about-card3-title": "نمو مستدام",
+      "about-card3-desc": "لا نقدم التمويل فحسب، بل نبني شراكات استراتيجية تضمن استمرارية وتوسع المشاريع.",
       // --- Footer CTA Section ---
       "cta-footer-title": "جاهز لبدء رحلتك الاستثمارية؟",
       "cta-footer-subtitle": "سواء كنت تبحث عن تمويل لمشروع أحلامك أو تبحث عن الفرصة الذهبية القادمة، مكانك هنا.",
@@ -1852,6 +1859,13 @@
 
     en: {
       // indexpage
+      // abot section
+      "about-card1-title": "Limitless Innovation",
+      "about-card1-desc": "We bring together the brightest minds with the boldest investors to turn paper ideas into reality-changing projects.",
+      "about-card2-title": "Security & Transparency",
+      "about-card2-desc": "A secure investment environment guaranteeing rights for all parties, with strict and clear verification procedures.",
+      "about-card3-title": "Sustainable Growth",
+      "about-card3-desc": "We don't just provide funding; we build strategic partnerships that ensure project continuity and expansion.",
       // --- Footer CTA Section ---
       "cta-footer-title": "Ready to start your investment journey?",
       "cta-footer-subtitle": "Whether you are looking for funding for your dream project or searching for the next golden opportunity, your place is here.",
