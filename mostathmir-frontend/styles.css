@@ -5683,32 +5683,43 @@ h6 {
 
 /* ===== Mobile Scroll Effects ===== */
 @media (max-width: 768px) {
+
     /* تأثير البطاقة النشطة لرواد الأعمال (أصفر) */
     .mobile-active-yellow {
-        border-color: #facc15 !important; /* yellow-400 */
+        border-color: #facc15 !important;
+        /* yellow-400 */
         transform: translateY(-8px);
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
+
     /* تلوين الأيقونة داخل البطاقة الصفراء */
     .mobile-active-yellow i {
-        color: #eab308 !important; /* yellow-500 */
+        color: #eab308 !important;
+        /* yellow-500 */
     }
+
     .mobile-active-yellow .w-16 {
-        background-color: #fefce8 !important; /* yellow-50 */
+        background-color: #fefce8 !important;
+        /* yellow-50 */
     }
 
     /* تأثير البطاقة النشطة للمستثمرين (أخضر) */
     .mobile-active-green {
-        border-color: #22c55e !important; /* green-500 */
+        border-color: #22c55e !important;
+        /* green-500 */
         transform: translateY(-8px);
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
+
     /* تلوين الأيقونة داخل البطاقة الخضراء */
     .mobile-active-green i {
-        color: #16a34a !important; /* green-600 */
+        color: #16a34a !important;
+        /* green-600 */
     }
+
     .mobile-active-green .w-16 {
-        background-color: #f0fdf4 !important; /* green-50 */
+        background-color: #f0fdf4 !important;
+        /* green-50 */
     }
 
     /* إظهار أزرار التمرير في قسم النخبة */
@@ -5721,29 +5732,53 @@ h6 {
 /* CTA Pattern Style */
 .pattern-grid {
     background-image: linear-gradient(#ffffff 1px, transparent 1px),
-                      linear-gradient(90deg, #ffffff 1px, transparent 1px);
+        linear-gradient(90deg, #ffffff 1px, transparent 1px);
     background-size: 40px 40px;
     transform: perspective(500px) rotateX(60deg) translateY(-100px) scale(1.5);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
     opacity: 0.1;
 }
+
 /* Custom Animations for Hero Section */
 @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 @keyframes float-delayed {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .animate-float {
@@ -5758,6 +5793,7 @@ h6 {
 .animate-fade-in-up {
     animation: fade-in-up 0.8s ease-out forwards;
 }
+
 /* =========================================
    SCROLL REVEAL ANIMATIONS
    ========================================= */
@@ -5797,7 +5833,26 @@ h6 {
 
 /* --- تأخير زمني للعناصر المتتالية (Staggering) --- */
 /* هذا يجعل البطاقات تظهر واحدة تلو الأخرى */
-.delay-100 { transition-delay: 0.1s; }
-.delay-200 { transition-delay: 0.2s; }
-.delay-300 { transition-delay: 0.3s; }
-.delay-400 { transition-delay: 0.4s; }
+.delay-100 {
+    transition-delay: 0.1s;
+}
+
+.delay-200 {
+    transition-delay: 0.2s;
+}
+
+.delay-300 {
+    transition-delay: 0.3s;
+}
+
+.delay-400 {
+    transition-delay: 0.4s;
+}
+
+/* حل احتياطي: إذا لم يعمل JS، اظهر العناصر بشكل طبيعي */
+@media (scripting: none) {
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

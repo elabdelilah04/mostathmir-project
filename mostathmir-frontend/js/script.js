@@ -316,6 +316,10 @@ async function loadFeaturedProjects() {
             `;
         }).join('');
 
+        setTimeout(() => {
+            observeScrollElements();
+        }, 100);
+
         // تشغيل دالة مراقبة التمرير لإظهار العناصر
         if (typeof observeScrollElements === 'function') {
             observeScrollElements();
@@ -399,6 +403,9 @@ async function loadEliteCommunity() {
             `;
         }).join('');
 
+        setTimeout(() => {
+            observeScrollElements();
+        }, 100);
         // هام: تشغيل مراقب التمرير لإظهار العناصر
         if (typeof observeScrollElements === 'function') {
             observeScrollElements();
@@ -422,6 +429,27 @@ window.scrollElite = function (direction) {
     }
 };
 
+/* --- Scroll Animation Function --- */
+function observeScrollElements() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // إيقاف المراقبة بعد الظهور لتحسين الأداء
+            }
+        });
+    }, observerOptions);
+
+    // مراقبة جميع العناصر التي تحمل كلاس reveal ولم تظهر بعد (ليس لديها active)
+    document.querySelectorAll('.reveal:not(.active)').forEach(el => {
+        observer.observe(el);
+    });
+}
 // --- 3.4. Platform Stats Section (Real Data) ---
 async function fetchPlatformStats() {
     const statsSection = document.getElementById('stats-section');
