@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'https://mostathmir-api.onrender.com';
+    // const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const projectsGrid = document.getElementById('projectsGrid');
     if (!projectsGrid) return;
 

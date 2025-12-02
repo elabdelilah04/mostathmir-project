@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let expenseItems = [];
     let currentProjectImages = [];
 
-    const API_BASE_URL = "https://mostathmir-api.onrender.com";
+    // const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get("id");
     const isEditMode = !!projectId;

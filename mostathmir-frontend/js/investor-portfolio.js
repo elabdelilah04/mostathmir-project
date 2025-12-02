@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://mostathmir-api.onrender.com';
+// const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 let allInvestments = [];
 let allProposals = [];
 let followedProjects = [];
