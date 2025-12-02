@@ -4,16 +4,16 @@ let allProjectsData = [];
 const projectsGrid = document.getElementById('projectsGrid');
 const token = localStorage.getItem('user_token');
 
-const categoryTranslationKeys = {
-    "تقنية": "addproject-category-tech",
-    "تجارة إلكترونية": "addproject-category-ecommerce",
-    "تطبيقات جوال": "addproject-category-mobile-apps",
-    "ذكاء اصطناعي": "addproject-category-ai",
-    "تقنيات مالية": "addproject-category-fintech",
-    "صحة": "addproject-category-health",
-    "تعليم": "addproject-category-education",
-    "أخرى": "addproject-category-other"
-};
+// const categoryTranslationKeys = {
+//     "تقنية": "addproject-category-tech",
+//     "تجارة إلكترونية": "addproject-category-ecommerce",
+//     "تطبيقات جوال": "addproject-category-mobile-apps",
+//     "ذكاء اصطناعي": "addproject-category-ai",
+//     "تقنيات مالية": "addproject-category-fintech",
+//     "صحة": "addproject-category-health",
+//     "تعليم": "addproject-category-education",
+//     "أخرى": "addproject-category-other"
+// };
 function getAvatarColor(initial) {
     const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-red-600', 'bg-indigo-600'];
     const charCode = initial.charCodeAt(0);

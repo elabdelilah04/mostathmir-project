@@ -31,7 +31,16 @@ const EXCHANGE_RATES_TO_MAD = {
     'BHD': 26.5,
     'OMR': 26.0
 };
-
+const categoryTranslationKeys = {
+    "تقنية": "addproject-category-tech",
+    "تجارة إلكترونية": "addproject-category-ecommerce",
+    "تطبيقات جوال": "addproject-category-mobile-apps",
+    "ذكاء اصطناعي": "addproject-category-ai",
+    "تقنيات مالية": "addproject-category-fintech",
+    "صحة": "addproject-category-health",
+    "تعليم": "addproject-category-education",
+    "أخرى": "addproject-category-other"
+};
 /**
  * Prevent XSS attacks by escaping HTML characters.
  */
