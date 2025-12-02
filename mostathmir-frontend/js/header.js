@@ -52,6 +52,16 @@
                 toggleButton.classList.toggle('is-active');
                 document.body.classList.toggle('mobile-menu-open');
             });
+            var menuLinks = mainNav.querySelectorAll('a, .btn');
+            menuLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (mainNav.classList.contains('is-open')) {
+                        mainNav.classList.remove('is-open');
+                        toggleButton.classList.remove('is-active');
+                        document.body.classList.remove('mobile-menu-open');
+                    }
+                });
+            });
         }
     }
 
