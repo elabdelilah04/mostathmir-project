@@ -194,6 +194,9 @@ async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
+    // تعيين كلاس الشبكة لتقليص المسافات (gap-5)
+    grid.className = "grid grid-cols-1 md:grid-cols-3 gap-5 transition-opacity duration-500";
+
     try {
         // Loader
         grid.innerHTML = `
@@ -223,9 +226,11 @@ async function loadFeaturedProjects() {
             return;
         }
 
-        grid.innerHTML = featuredProjects.map(project => {
+        // === التصحيح: إضافة (project, index) هنا ===
+        grid.innerHTML = featuredProjects.map((project, index) => {
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
+            const currency = project.fundingGoal?.currency || 'USD'; // للحصول على العملة
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
 
@@ -239,8 +244,9 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
+            // الآن المتغير index معرف بشكل صحيح
             return `
-                <div class=" reveal fade-up group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full" style="transition-delay: ${index * 100}ms">
+                <div class="reveal fade-up group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full" style="transition-delay: ${index * 100}ms">
                     
                     <!-- Image Header -->
                     <div class="relative h-44 overflow-hidden">
@@ -262,7 +268,7 @@ async function loadFeaturedProjects() {
                         <h3 class="text-base font-bold text-gray-900 mb-1.5 leading-tight line-clamp-1 group-hover:text-[#1E3A8A] transition-colors">
                             ${escapeHTML(project.projectName)}
                         </h3>
-                        <p class="text-gray-500 text-[11px] mb-3 line-clamp-2 leading-relaxed h-8">
+                        <p class="text-gray-500 text-[11px] mb-3 line-clamp-2 leading-relaxed h-8 overflow-hidden">
                             ${escapeHTML(description)}
                         </p>
                         
@@ -270,11 +276,11 @@ async function loadFeaturedProjects() {
                         <div class="grid grid-cols-2 gap-2 mb-3">
                             <div class="bg-green-50/80 rounded-lg p-2 text-center border border-green-100">
                                 <div class="text-[10px] text-gray-500">${t('featured-raised')}</div>
-                                <div class="text-green-700 font-bold text-xs">${raised.toLocaleString()}</div>
+                                <div class="text-green-700 font-bold text-xs">${raised.toLocaleString()} <span class="text-[9px]">${currency}</span></div>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-2 text-center border border-gray-100">
                                 <div class="text-[10px] text-gray-500">${t('featured-goal')}</div>
-                                <div class="text-gray-700 font-bold text-xs">${goal.toLocaleString()}</div>
+                                <div class="text-gray-700 font-bold text-xs">${goal.toLocaleString()} <span class="text-[9px]">${currency}</span></div>
                             </div>
                         </div>
 
@@ -285,7 +291,7 @@ async function loadFeaturedProjects() {
                                 <span class="text-[#1E3A8A]">${progress}%</span>
                             </div>
                             <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out" style="width: ${clampedProgress}%"></div>
+                                <div class="bg-gradient-to-r from-blue-500 to-[#1E3A8A] h-full rounded-full transition-all duration-1000 ease-out relative" style="width: ${clampedProgress}%"></div>
                             </div>
                         </div>
 
@@ -310,6 +316,11 @@ async function loadFeaturedProjects() {
             `;
         }).join('');
 
+        // تشغيل دالة مراقبة التمرير لإظهار العناصر
+        if (typeof observeScrollElements === 'function') {
+            observeScrollElements();
+        }
+
     } catch (error) {
         console.error("Error loading featured projects:", error);
         grid.innerHTML = `<p class="text-center text-red-500 col-span-full">خطأ في التحميل</p>`;
@@ -332,13 +343,14 @@ async function loadEliteCommunity() {
             return;
         }
 
+        // استخدام index هنا ضروري لحساب التوقيت الزمني
         container.innerHTML = eliteUsers.map((user, index) => {
             let avatarHTML = '';
             if (user.profilePicture && user.profilePicture.startsWith('http')) {
                 avatarHTML = `<img src="${user.profilePicture}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${user.fullName}">`;
             } else {
                 const initial = (user.fullName || 'U').charAt(0).toUpperCase();
-                const colors = ['bg-[#1E3A8A]', 'bg-[#D4AF37]', 'bg-slate-800', 'bg-indigo-900'];
+                const colors = ['bg-[#1E3A8A]', 'bg-[#D4AF37]', 'bg-purple-800', 'bg-slate-800'];
                 const bg = colors[index % colors.length];
                 avatarHTML = `<div class="w-full h-full ${bg} flex items-center justify-center text-white text-3xl font-serif font-bold">${initial}</div>`;
             }
@@ -351,10 +363,14 @@ async function loadEliteCommunity() {
                 : '';
             const tagKey = user.accountType === 'investor' ? 'elite-tag-active' : 'elite-tag-innovator';
 
+            // حساب التأخير الزمني
+            const delay = index * 100;
+
             return `
-                <div class="reveal zoom-in  min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'" style="transition-delay: ${index * 100}ms">
+                <div class="reveal zoom-in min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'" style="transition-delay: ${delay}ms">
                     <div class="relative bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-blue-100">
                         
+                        <!-- Avatar Section -->
                         <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
                             <div class="w-full h-full rounded-full p-1 bg-white shadow-md relative z-10 group-hover:shadow-lg transition-shadow">
                                 <div class="w-full h-full rounded-full overflow-hidden border-[3px] ${user.accountType === 'investor' ? 'border-[#D4AF37]' : 'border-blue-500'}">
@@ -364,6 +380,7 @@ async function loadEliteCommunity() {
                             ${verifiedBadge}
                         </div>
 
+                        <!-- Info -->
                         <h3 class="mt-4 text-lg font-bold text-gray-800 truncate group-hover:text-[#1E3A8A] transition-colors">${escapeHTML(user.fullName)}</h3>
                         
                         <div class="flex items-center justify-center gap-2 mt-1 mb-3">
@@ -373,6 +390,7 @@ async function loadEliteCommunity() {
 
                         <p class="text-xs text-gray-400 mb-4 line-clamp-1 h-4">${escapeHTML(user.profileTitle || '')}</p>
 
+                        <!-- Tag -->
                         <div class="border-t border-gray-50 pt-3">
                             <span class="inline-block px-3 py-1 bg-gray-50 text-gray-600 text-[10px] font-bold rounded-full border border-gray-100 group-hover:bg-[#1E3A8A] group-hover:text-white group-hover:border-[#1E3A8A] transition-all duration-300">${t(tagKey)}</span>
                         </div>
@@ -380,8 +398,15 @@ async function loadEliteCommunity() {
                 </div>
             `;
         }).join('');
+
+        // هام: تشغيل مراقب التمرير لإظهار العناصر
+        if (typeof observeScrollElements === 'function') {
+            observeScrollElements();
+        }
+
     } catch (error) {
         console.error("Error loading elite:", error);
+        container.innerHTML = `<div class="text-center w-full py-8 text-red-400">حدث خطأ في تحميل البيانات</div>`;
     }
 }
 
