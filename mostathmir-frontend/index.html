@@ -27,6 +27,8 @@
             }
         }
     </script>
+    <!-- إضافة config.js قبل السكريبتات الأخرى -->
+    <!-- <script src="/js/config.js"></script> -->
 </head>
 
 <body data-page-key="page-title-main">
@@ -47,10 +49,10 @@
             <div class="container mx-auto px-6 relative z-10">
                 <div class="flex flex-col lg:flex-row items-center gap-12">
 
-                    <!-- Text Content -->
-                    <div class="lg:w-1/2 text-center lg:text-right">
+                    <!-- Text Content (Added reveal fade-up) -->
+                    <div class="lg:w-1/2 text-center lg:text-right reveal fade-up">
                         <span
-                            class="inline-block py-1 px-3 rounded-full bg-blue-800/50 border border-blue-700 text-blue-200 text-sm font-medium mb-6 animate-fade-in-up">
+                            class="inline-block py-1 px-3 rounded-full bg-blue-800/50 border border-blue-700 text-blue-200 text-sm font-medium mb-6">
                             🚀 المنصة الأولى للاستثمار الجريء
                         </span>
                         <h1 class="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6"
@@ -84,10 +86,9 @@
                         </div>
                     </div>
 
-                    <!-- Hero Image / Visual -->
-                    <div class="lg:w-1/2 relative hidden lg:block">
+                    <!-- Hero Image / Visual (Added reveal zoom-in with delay) -->
+                    <div class="lg:w-1/2 relative hidden lg:block reveal zoom-in delay-200">
                         <div class="relative z-10 animate-float">
-                            <!-- يمكنك استبدال هذا بصورة حقيقية -->
                             <img src="https://cdni.iconscout.com/illustration/premium/thumb/investment-growth-4268487-3551736.png"
                                 alt="Investment Growth"
                                 class="w-full max-w-lg mx-auto drop-shadow-2xl filter brightness-110">
@@ -114,7 +115,8 @@
         <!-- Modern About Section -->
         <section class="py-24 bg-white" id="about">
             <div class="container mx-auto px-6">
-                <div class="text-center max-w-3xl mx-auto mb-16">
+                <!-- Title (Added reveal fade-up) -->
+                <div class="text-center max-w-3xl mx-auto mb-16 reveal fade-up">
                     <h2 class="text-3xl font-bold text-[#1E3A8A] mb-6 relative inline-block">
                         <span class="relative z-10" data-i18n-key="about-title"></span>
                         <div class="absolute bottom-1 left-0 w-full h-3 bg-yellow-200/50 -z-0 transform -rotate-1">
@@ -123,7 +125,8 @@
                     <p class="text-gray-600 text-lg leading-relaxed" data-i18n-key="about-desc"></p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Cards (Added stagger-container) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 stagger-container">
                     <!-- Card 1 -->
                     <div
                         class="group p-8 rounded-3xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-2xl transition-all duration-500 text-center">
@@ -158,7 +161,7 @@
                     </div>
                 </div>
 
-                <div class="text-center mt-12">
+                <div class="text-center mt-12 reveal fade-up delay-300">
                     <button
                         class="group text-[#1E3A8A] font-bold hover:text-blue-700 transition-colors flex items-center justify-center gap-2 mx-auto"
                         data-i18n-key="about-btn">
@@ -179,12 +182,14 @@
             </div>
 
             <div class="max-w-7xl mx-auto px-6 relative z-10">
-                <div class="text-center mb-16">
+                <!-- Title (Added reveal fade-up) -->
+                <div class="text-center mb-16 reveal fade-up">
                     <h2 class="text-3xl md:text-4xl font-bold mb-4 text-[#D4AF37]" data-i18n-key="stats-title"></h2>
                     <p class="text-gray-300 max-w-2xl mx-auto text-lg" data-i18n-key="stats-subtitle"></p>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <!-- Stats Grid (Added stagger-container) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center stagger-container">
                     <!-- Stat 1 -->
                     <div
                         class="stat-item p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-2">
@@ -229,15 +234,15 @@
         <!-- How It Works Section -->
         <section id="how-it-works" class="py-20 bg-white">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="text-center mb-12">
+                <div class="text-center mb-12 reveal fade-up">
                     <h2 id="section-title"
                         class="text-4xl font-bold text-yellow-500 mb-4 transition-colors duration-300"
                         data-i18n-key="how-title"></h2>
                     <p class="text-gray-600 text-lg max-w-2xl mx-auto" data-i18n-key="how-desc"></p>
                 </div>
 
-                <!-- Toggle Buttons -->
-                <div class="flex justify-center mb-16">
+                <!-- Toggle Buttons (Added reveal zoom-in) -->
+                <div class="flex justify-center mb-16 reveal zoom-in delay-200">
                     <div class="bg-gray-100 p-1 rounded-full inline-flex shadow-inner">
                         <button id="btn-entrepreneur" onclick="switchHowItWorks('entrepreneur')"
                             class="px-8 py-3 rounded-full text-sm font-bold transition-all duration-300 bg-yellow-500 text-white shadow-md"
@@ -248,10 +253,9 @@
                     </div>
                 </div>
 
-                <!-- Content: Entrepreneur -->
-                <!-- محتوى رواد الأعمال (الأصفر) -->
+                <!-- Content: Entrepreneur (Added stagger-container) -->
                 <div id="content-entrepreneur"
-                    class="grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
+                    class="grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500 stagger-container">
                     <!-- Step 1 -->
                     <div
                         class="bg-white border border-gray-200 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-yellow-400 group cursor-default">
@@ -289,9 +293,9 @@
                     </div>
                 </div>
 
-                <!-- محتوى المستثمرين (الأخضر) -->
+                <!-- Content: Investor (Added stagger-container) -->
                 <div id="content-investor"
-                    class="hidden grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500">
+                    class="hidden grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-500 stagger-container">
                     <!-- Step 1 -->
                     <div
                         class="bg-white border border-gray-200 rounded-2xl p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-green-500 group cursor-default">
@@ -329,7 +333,7 @@
                     </div>
                 </div>
 
-                <div class="text-center mt-12">
+                <div class="text-center mt-12 reveal fade-up delay-300">
                     <a href="signup.html"
                         class="inline-block bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-transform hover:-translate-y-1 shadow-lg"
                         data-i18n-key="how-cta-start"></a>
@@ -337,20 +341,24 @@
             </div>
         </section>
 
-        <!-- Project Rating Section -->
+        <!-- Project Rating Section (Featured) -->
         <section class="project-rating" id="project-rating">
             <div class="container">
-                <h2 class="section-title" data-i18n-key="projects-title">مشاريع مميزة</h2>
-                <p class="section-description" data-i18n-key="projects-desc">اكتشف بعض المشاريع المميزة على منصتنا والتي
-                    حظيت باهتمام المستثمرين</p>
-                <div class="grid grid-cols-1 md:grid-cols-3" id="featuredProjectsGrid">
-                    <!-- سيتم حقن البطاقات هنا بواسطة الجافاسكريبت -->
+                <div class="text-center reveal fade-up">
+                    <h2 class="section-title" data-i18n-key="projects-title">مشاريع مميزة</h2>
+                    <p class="section-description" data-i18n-key="projects-desc">اكتشف بعض المشاريع المميزة على منصتنا
+                        والتي حظيت باهتمام المستثمرين</p>
+                </div>
+
+                <!-- Grid container - JS handles content reveals -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="featuredProjectsGrid">
+                    <!-- البطاقات هنا تظهر بواسطة JS مع كلاس reveal-on-scroll -->
                     <div class="text-center" style="grid-column: 1 / -1;">
                         <i class="fas fa-circle-notch fa-spin text-primary-color text-3xl"></i>
                         <p class="mt-2 text-gray-500">جاري تحميل المشاريع المميزة...</p>
                     </div>
                 </div>
-                <div class="text-center" style="margin-top: 2rem;">
+                <div class="text-center mt-8 reveal fade-up delay-200">
                     <a href="browse-projects.html" class="btn btn-outline" data-i18n-key="more-projects">عرض المزيد من
                         المشاريع</a>
                 </div>
@@ -360,14 +368,14 @@
         <!-- Elite Community Section -->
         <section class="py-20 bg-white relative overflow-hidden" id="elite-section">
             <div class="max-w-7xl mx-auto px-6">
-                <!-- Header -->
-                <div class="text-center mb-12">
+                <!-- Header (Added reveal fade-up) -->
+                <div class="text-center mb-12 reveal fade-up">
                     <h2 class="text-3xl md:text-4xl font-bold text-[#1E3A8A] mb-4" data-i18n-key="elite-title"></h2>
                     <p class="text-gray-600 max-w-2xl mx-auto" data-i18n-key="elite-subtitle"></p>
                 </div>
 
-                <!-- Carousel Wrapper -->
-                <div class="relative group px-4 md:px-12">
+                <!-- Carousel Wrapper (Added reveal fade-up with delay) -->
+                <div class="relative group px-4 md:px-12 reveal fade-up delay-200">
 
                     <!-- Navigation Button Left -->
                     <button onclick="scrollElite('left')"
@@ -401,10 +409,15 @@
         <!-- Testimonials Section -->
         <section class="testimonials">
             <div class="container">
-                <h2 class="section-title" data-i18n-key="testimonials-title">آراء المستخدمين</h2>
-                <p class="section-description" data-i18n-key="testimonials-desc">تعرف على تجارب بعض مستخدمي منصة مستثمر
-                    من أصحاب المشاريع والمستثمرين</p>
-                <div class="testimonials-grid">
+                <!-- Header (Added reveal fade-up) -->
+                <div class="reveal fade-up">
+                    <h2 class="section-title" data-i18n-key="testimonials-title">آراء المستخدمين</h2>
+                    <p class="section-description" data-i18n-key="testimonials-desc">تعرف على تجارب بعض مستخدمي منصة
+                        مستثمر من أصحاب المشاريع والمستثمرين</p>
+                </div>
+
+                <!-- Grid (Added stagger-container) -->
+                <div class="testimonials-grid stagger-container">
                     <div class="testimonial-card">
                         <div class="quote-icon"><!-- quote icon --></div>
                         <div class="testimonial-rating"><!-- rating stars --></div>
@@ -447,24 +460,25 @@
                 </div>
             </div>
         </section>
+
         <!-- Final CTA Section -->
         <section class="relative py-24 overflow-hidden">
             <!-- Background with Gradient & Pattern -->
             <div class="absolute inset-0 bg-gradient-to-r from-[#b45309] to-[#d97706]"></div>
-            <div class="absolute inset-0 opacity-10 pattern-grid"></div> <!-- سنضيف النقش في CSS -->
+            <div class="absolute inset-0 opacity-10 pattern-grid"></div>
 
-            <!-- Content -->
-            <div class="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
+            <!-- Content (Added reveal zoom-in) -->
+            <div class="relative z-10 max-w-4xl mx-auto px-6 text-center text-white reveal zoom-in">
                 <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight" data-i18n-key="cta-footer-title"></h2>
                 <p class="text-lg md:text-xl text-yellow-50 mb-10 font-medium" data-i18n-key="cta-footer-subtitle"></p>
 
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <!-- زر المستثمر (أبيض) -->
+                    <!-- زر المستثمر -->
                     <a href="signup.html?type=investor"
                         class="bg-white text-[#d97706] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-transform transform hover:-translate-y-1 shadow-lg"
                         data-i18n-key="cta-footer-btn-investor"></a>
 
-                    <!-- زر رائد الأعمال (كحلي داكن) -->
+                    <!-- زر رائد الأعمال -->
                     <a href="signup.html?type=ideaHolder"
                         class="bg-[#0f172a] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#1e293b] transition-transform transform hover:-translate-y-1 shadow-lg border border-[#1e293b]"
                         data-i18n-key="cta-footer-btn-entrepreneur"></a>
@@ -475,7 +489,7 @@
         <!-- Footer -->
         <footer class="footer" id="contact">
             <div class="container">
-                <div class="footer-content">
+                <div class="footer-content stagger-container">
                     <div class="footer-column">
                         <h3 class="footer-title" data-i18n-key="footer-contact">تواصل معنا</h3>
                         <ul class="contact-list">

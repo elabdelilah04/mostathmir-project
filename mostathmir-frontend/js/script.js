@@ -240,7 +240,7 @@ async function loadFeaturedProjects() {
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
             return `
-                <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full">
+                <div class=" reveal fade-up group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full" style="transition-delay: ${index * 100}ms">
                     
                     <!-- Image Header -->
                     <div class="relative h-44 overflow-hidden">
@@ -352,7 +352,7 @@ async function loadEliteCommunity() {
             const tagKey = user.accountType === 'investor' ? 'elite-tag-active' : 'elite-tag-innovator';
 
             return `
-                <div class="min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'">
+                <div class="reveal zoom-in  min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center cursor-pointer group" onclick="window.location.href='public-profile.html?id=${user._id}'" style="transition-delay: ${index * 100}ms">
                     <div class="relative bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-blue-100">
                         
                         <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
@@ -740,9 +740,50 @@ function setupChatModal() {
         });
     }
 }
+/**
+ * ============================================================================
+ *  5.SCROLL ANIMATION LOGIC
+ * منطق حركات الظهور عند التمرير
+ * ============================================================================
+ */
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.15, // تبدأ الحركة عندما يظهر 15% من العنصر
+        rootMargin: "0px 0px -50px 0px" // إزاحة لضمان أن العنصر دخل الشاشة فعلاً
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+
+                // للتعامل مع العدادات في قسم الإحصائيات إذا كانت تحمل كلاس reveal
+                if (entry.target.classList.contains('stat-item')) {
+                    // منطق العدادات موجود في دالة أخرى، لكن هذا يضمن ظهور الكارد نفسه
+                }
+
+                observer.unobserve(entry.target); // إيقاف المراقبة بعد الظهور لمرة واحدة
+            }
+        });
+    }, observerOptions);
+
+    // 1. مراقبة كل العناصر التي تحمل كلاس .reveal
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // 2. إضافة تأثير التتابع التلقائي (Stagger) لأي حاوية تحمل كلاس .stagger-container
+    // هذا مفيد جداً لشبكات البطاقات (Grid)
+    document.querySelectorAll('.stagger-container').forEach(container => {
+        const children = container.children;
+        Array.from(children).forEach((child, index) => {
+            child.classList.add('reveal', 'fade-up'); // إضافة الحركة الافتراضية
+            child.style.transitionDelay = `${index * 150}ms`; // تأخير زمني بناءً على الترتيب
+            observer.observe(child);
+        });
+    });
+}
 
 /* ============================================================================
-   5. MAIN INITIALIZATION
+  6. MAIN INITIALIZATION
    ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -817,4 +858,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 7. Chat Modal
     setupChatModal();
+
+    // تشغيل الأنيميشن
+    initScrollAnimations();
+
 });
