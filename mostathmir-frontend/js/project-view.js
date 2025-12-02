@@ -1,15 +1,15 @@
 // const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 let currentProject = null;
-// const categoryTranslationKeys = {
-//     "تقنية": "addproject-category-tech",
-//     "تجارة إلكترونية": "addproject-category-ecommerce",
-//     "تطبيقات جوال": "addproject-category-mobile-apps",
-//     "ذكاء اصطناعي": "addproject-category-ai",
-//     "تقنيات مالية": "addproject-category-fintech",
-//     "صحة": "addproject-category-health",
-//     "تعليم": "addproject-category-education",
-//     "أخرى": "addproject-category-other"
-// };
+const categoryTranslationKeys = {
+    "تقنية": "addproject-category-tech",
+    "تجارة إلكترونية": "addproject-category-ecommerce",
+    "تطبيقات جوال": "addproject-category-mobile-apps",
+    "ذكاء اصطناعي": "addproject-category-ai",
+    "تقنيات مالية": "addproject-category-fintech",
+    "صحة": "addproject-category-health",
+    "تعليم": "addproject-category-education",
+    "أخرى": "addproject-category-other"
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
@@ -549,7 +549,7 @@ function createInvestorCard(investment, baseUrl) {
 
     const date = new Date(createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'long', year: 'numeric' });
     const accountType = investor.accountType === 'investor' ? t('js-public-profile-role-investor') : t('js-public-profile-role-ideaholder');
-
+    
     let financialDetailsHTML = `
         <div class="font-bold text-lg text-green-700">${amount.toLocaleString()} ${currency}</div>
     `;
@@ -562,7 +562,7 @@ function createInvestorCard(investment, baseUrl) {
             </div>
         `;
     }
-
+    
     return `
         <div class="modal-project-card" style="border-left-color: #16a34a;">
             <div class="flex items-start gap-4">
