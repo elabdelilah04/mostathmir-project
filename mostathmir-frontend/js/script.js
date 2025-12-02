@@ -247,7 +247,8 @@ async function loadFeaturedProjects() {
                 ? project.mainImage
                 : 'https://via.placeholder.com/600x400?text=Project';
 
-            const category = project.projectCategory || t('js-browse-category-general');
+            const categoryKey = categoryTranslationKeys[project.projectCategory];
+            const category = categoryKey ? t(categoryKey) : (project.projectCategory || t('js-browse-category-general'));
             const description = project.projectDescription ? project.projectDescription.substring(0, 70) + '...' : '';
             const investorsCount = project.followers ? project.followers.length : 0;
             const viewsCount = project.views || 0;
