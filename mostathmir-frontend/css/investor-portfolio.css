@@ -467,3 +467,25 @@ body {
     font-size: 0.8rem;
     color: #6b7280;
 }
+
+/* تنسيق جدول سجل الاستثمارات */
+.overflow-x-auto table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.overflow-x-auto th {
+    text-align: right;
+    font-weight: 600;
+    color: #64748b;
+    padding-bottom: 10px;
+}
+
+.overflow-x-auto td {
+    padding: 12px 0;
+}
+
+.overflow-x-auto tfoot td {
+    background-color: #f0fdf4; /* خلفية خضراء فاتحة للمجموع */
+    font-size: 1.1rem;
+}

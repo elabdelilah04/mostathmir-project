@@ -1,4 +1,3 @@
-// const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 let allInvestments = [];
 let allProposals = [];
 let followedProjects = [];
@@ -46,7 +45,6 @@ async function fetchPortfolioData() {
         allProposals = await proposalsRes.json();
         followedProjects = await followedRes.json();
 
-        // Force re-translation after data is ready
         if (window.translatePage) {
             window.translatePage();
         }
@@ -109,19 +107,40 @@ function applyFiltersAndRender() {
                 return p >= min && p <= max;
             });
         }
-        itemsToRender = filtered;
+
+        const groupedInvestments = {};
+
+        filtered.forEach(inv => {
+            if (!inv.project) return;
+            const projectId = inv.project._id;
+
+            if (!groupedInvestments[projectId]) {
+                groupedInvestments[projectId] = {
+                    project: inv.project,
+                    totalAmount: 0,
+                    currency: inv.currency,
+                    transactionsCount: 0,
+                    lastInvestmentDate: inv.createdAt
+                };
+            }
+
+            groupedInvestments[projectId].totalAmount += inv.amount;
+            groupedInvestments[projectId].transactionsCount += 1;
+
+            if (new Date(inv.createdAt) > new Date(groupedInvestments[projectId].lastInvestmentDate)) {
+                groupedInvestments[projectId].lastInvestmentDate = inv.createdAt;
+            }
+        });
+
+        itemsToRender = Object.values(groupedInvestments);
 
     } else if (currentFilterType === 'proposals') {
         let filtered = [...allProposals];
         const status = document.getElementById('proposalStatusFilter').value;
         const type = document.getElementById('proposalTypeFilter').value;
 
-        if (status !== 'all') {
-            filtered = filtered.filter(item => item.status === status);
-        }
-        if (type !== 'all') {
-            filtered = filtered.filter(item => item.partnershipType === type);
-        }
+        if (status !== 'all') filtered = filtered.filter(item => item.status === status);
+        if (type !== 'all') filtered = filtered.filter(item => item.partnershipType === type);
         itemsToRender = filtered;
 
     } else if (currentFilterType === 'followed') {
@@ -145,20 +164,21 @@ function applyFiltersAndRender() {
         ? document.getElementById('fundingSortFilter').value
         : document.getElementById('followedFundingSortFilter').value;
 
-    if (fundingSort) {
-        itemsToRender.sort((a, b) => {
-            const goalA = (currentFilterType === 'investments' ? a.project?.fundingGoal?.amount : a.fundingGoal?.amount) || 0;
-            const goalB = (currentFilterType === 'investments' ? b.project?.fundingGoal?.amount : b.fundingGoal?.amount) || 0;
-            return fundingSort === 'highest' ? goalB - goalA : goalA - goalB;
-        });
-    } else {
-        itemsToRender.sort((a, b) => {
-            if (sortBy === 'oldest') {
-                return new Date(a.createdAt) - new Date(b.createdAt);
-            }
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        });
-    }
+    itemsToRender.sort((a, b) => {
+        if (fundingSort) {
+            const valA = currentFilterType === 'investments' ? a.totalAmount : (a.fundingGoal?.amount || 0);
+            const valB = currentFilterType === 'investments' ? b.totalAmount : (b.fundingGoal?.amount || 0);
+            return fundingSort === 'highest' ? valB - valA : valA - valB;
+        }
+
+        const dateA = currentFilterType === 'investments' ? a.lastInvestmentDate : a.createdAt;
+        const dateB = currentFilterType === 'investments' ? b.lastInvestmentDate : b.createdAt;
+
+        if (sortBy === 'oldest') {
+            return new Date(dateA) - new Date(dateB);
+        }
+        return new Date(dateB) - new Date(dateA);
+    });
 
     renderItems(itemsToRender);
 }
@@ -183,25 +203,29 @@ function renderItems(items) {
     grid.innerHTML = html;
 }
 
-function createInvestmentCard(investment) {
-    if (!investment.project) return '';
-    const { project, amount, createdAt, investmentType, currency } = investment;
+function createInvestmentCard(groupedItem) {
+    if (!groupedItem.project) return '';
+
+    const { project, totalAmount, transactionsCount, currency, lastInvestmentDate } = groupedItem;
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
 
     return `
-        <div class="investment-card" onclick="openModal('${investment._id}')">
+        <div class="investment-card" onclick="openModal('${project._id}')">
             <div class="card-header">
                 <h3 class="card-title">${escapeHTML(project.projectName)}</h3>
                 <span class="card-status ${statusClass}">${statusText}</span>
             </div>
             <div class="card-body">
                 <p>${escapeHTML(project.projectDescription.substring(0, 100))}...</p>
-                <div class="text-xs text-gray-500 mb-2">${t('js-portfolio-investment-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-2 mt-3 bg-gray-50 p-2 rounded">
+                    <span>${t('js-portfolio-investment-date')}: ${new Date(lastInvestmentDate).toLocaleDateString('en-us')}</span>
+                    <span class="font-semibold text-blue-600">${transactionsCount} عمليات</span>
+                </div>
             </div>
-            <div class="card-footer">
-                <span>${t('js-portfolio-investment-amount')}: <strong>${amount.toLocaleString()} ${currency}</strong></span>
-                <span>${t('js-portfolio-investment-type')}: <strong>${investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation')}</strong></span>
+            <div class="card-footer" style="border-top: 2px dashed #e5e7eb;">
+                <span class="text-gray-600 text-sm">مجموع الاستثمار:</span>
+                <span class="text-xl font-bold text-green-700">${totalAmount.toLocaleString()} ${currency}</span>
             </div>
         </div>
     `;
@@ -261,11 +285,7 @@ function createFollowedCard(project) {
 
 function formatDate(dateString) {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-us', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+    return new Date(dateString).toLocaleDateString('en-us', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 window.openModal = (itemId) => {
@@ -276,31 +296,60 @@ window.openModal = (itemId) => {
     if (!modal || !modalTitle || !modalContent || !modalLink) return;
 
     let contentHTML = '';
-    let item, project;
 
     if (currentFilterType === 'investments') {
-        item = allInvestments.find(i => i._id === itemId);
-        if (!item) return;
-        project = item.project;
+        const projectInvestments = allInvestments.filter(inv => inv.project && inv.project._id === itemId);
+
+        if (projectInvestments.length === 0) return;
+
+        const project = projectInvestments[0].project;
+        const totalInvested = projectInvestments.reduce((sum, inv) => sum + inv.amount, 0);
+        const currency = projectInvestments[0].currency;
+
         modalTitle.textContent = `${t('js-portfolio-modal-investment-title')}: ${project.projectName}`;
+
+        const rowsHTML = projectInvestments.map(inv => {
+            const typeText = inv.investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation');
+            return `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 font-bold text-gray-800">${inv.amount.toLocaleString()} ${inv.currency}</td>
+                    <td class="py-3 text-blue-600 text-sm">${typeText}</td>
+                    <td class="py-3 text-gray-500 text-sm">${formatDate(inv.createdAt)}</td>
+                </tr>
+            `;
+        }).join('');
+
         contentHTML = `
-            <div class="investment-summary-grid">
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-investment-amount')}</div><div class="value text-green-600">${item.amount.toLocaleString()} ${item.currency}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-investment-type')}</div><div class="value">${item.investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation')}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-investment-date')}</div><div class="value text-sm">${formatDate(item.createdAt)}</div></div>
-            </div>`;
-        if (item.investmentType === 'reservation') {
-            contentHTML += `<div class="transaction-list">
-                <div class="transaction-item"><div>${t('js-portfolio-modal-paid-now')}</div><div class="amount">${(item.amountPaidNow || 0).toLocaleString()} ${item.currency}</div></div>
-                <div class="transaction-item"><div>${t('js-portfolio-modal-remaining')}</div><div class="amount text-red-600">${(item.amountRemaining || 0).toLocaleString()} ${item.currency}</div></div>
-            </div>`;
-        }
+            <div class="overflow-x-auto">
+                <table class="w-full text-right" style="direction: rtl;">
+                    <thead>
+                        <tr class="text-gray-500 text-sm border-b-2 border-gray-100">
+                            <th class="pb-2 text-right">المبلغ</th>
+                            <th class="pb-2 text-right">النوع</th>
+                            <th class="pb-2 text-right">التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHTML}
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-green-50">
+                            <td class="py-3 font-bold text-green-800 border-t border-green-200">${totalInvested.toLocaleString()} ${currency}</td>
+                            <td colspan="2" class="py-3 font-bold text-green-800 border-t border-green-200 text-left pl-4">المجموع الكلي</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        `;
+        modalLink.href = `project-view.html?id=${project._id}`;
+
     } else if (currentFilterType === 'proposals') {
-        item = allProposals.find(p => p._id === itemId);
+        const item = allProposals.find(p => p._id === itemId);
         if (!item) return;
-        project = item.projectId;
+        const project = item.projectId;
         modalTitle.textContent = `${t('js-portfolio-modal-proposal-title')}: ${project.projectName}`;
         const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
+
         contentHTML = `
             <div class="investment-summary-grid">
                 <div class="summary-box"><div class="label">${t('js-portfolio-modal-partnership-type')}</div><div class="value">${typeMap[item.partnershipType] || t('js-portfolio-type-custom')}</div></div>
@@ -308,24 +357,28 @@ window.openModal = (itemId) => {
             </div>
             <h4 class="text-md font-bold text-gray-700 mt-4 mb-2">${t('js-portfolio-modal-proposed-terms')}:</h4>
             <p class="p-3 bg-gray-100 rounded-lg text-sm">${item.proposedTerms}</p>`;
+
+        modalLink.href = `project-view.html?id=${project._id}`;
+
     } else if (currentFilterType === 'followed') {
-        item = followedProjects.find(p => p._id === itemId);
+        const item = followedProjects.find(p => p._id === itemId);
         if (!item) return;
-        project = item;
-        modalTitle.textContent = `${t('js-portfolio-modal-project-details')}: ${project.projectName}`;
-        const goal = project.fundingGoal?.amount || 0;
-        const raised = project.fundingAmountRaised || 0;
+        modalTitle.textContent = `${t('js-portfolio-modal-project-details')}: ${item.projectName}`;
+        const goal = item.fundingGoal?.amount || 0;
+        const raised = item.fundingAmountRaised || 0;
         const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
+
         contentHTML = `
              <div class="investment-summary-grid">
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-goal')}</div><div class="value">${goal.toLocaleString()} ${project.fundingGoal?.currency}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-raised')}</div><div class="value text-green-600">${raised.toLocaleString()} ${project.fundingGoal?.currency}</div></div>
+                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-goal')}</div><div class="value">${goal.toLocaleString()} ${item.fundingGoal?.currency}</div></div>
+                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-raised')}</div><div class="value text-green-600">${raised.toLocaleString()} ${item.fundingGoal?.currency}</div></div>
                 <div class="summary-box"><div class="label">${t('js-portfolio-modal-progress')}</div><div class="value">${progress}%</div></div>
             </div>`;
+
+        modalLink.href = `project-view.html?id=${item._id}`;
     }
 
     modalContent.innerHTML = contentHTML;
-    modalLink.href = `project-view.html?id=${project._id}`;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 };
