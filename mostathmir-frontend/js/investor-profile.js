@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 <a href="project-view.html?id=${investment.project._id}" target="_blank" class="secondary-button px-4 py-2 text-sm">
-                    ${t('js-investor-profile-view-details-btn')}
+                    ${t('add-project-section-details')}
                 </a>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
