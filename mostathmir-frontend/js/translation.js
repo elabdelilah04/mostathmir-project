@@ -202,6 +202,8 @@
       "js-portfolio-modal-funding-raised": "التمويل المحقق",
       "js-portfolio-modal-progress": "نسبة التقدم",
       // investor-profile.js
+      
+      'investment-portfolio': 'محفظة الاستثمارات',
       "js-investor-profile-login-required": "يرجى تسجيل الدخول للمتابعة.",
       "js-investor-profile-error-fetch-failed": "فشل في جلب بعض البيانات.",
       "js-investor-profile-username-placeholder": "اسم المستخدم",

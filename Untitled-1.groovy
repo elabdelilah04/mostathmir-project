@@ -11,7 +11,7 @@
       // 'investor-phone': '+966 50 123 4567',
       // 'investor-linkedin': 'LinkedIn.com/ahmed-investor',
       // 'edit-profile': 'تعديل الملف الشخصي',
-      // 'investment-portfolio': 'محفظة الاستثمارات',
+      
       // 'total-investments': 'إجمالي الاستثمارات',
       // 'total-investments-value': '1,250,000 ريال',
       // 'total-profit': 'الأرباح',
