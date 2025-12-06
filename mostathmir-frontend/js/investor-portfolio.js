@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const closeBtn = document.querySelector('#projectModal .text-3xl');
     const modalOverlay = document.getElementById('projectModal');
-    
+
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
         if (e.target.id === 'projectModal') {
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function fetchPortfolioData() {
     const grid = document.getElementById('projectsGrid');
     if (grid) grid.innerHTML = `<div class="col-span-full text-center py-10"><i class="fas fa-circle-notch fa-spin text-blue-600 text-2xl"></i><p class="mt-2 text-gray-500">${t('js-portfolio-loading-portfolio')}</p></div>`;
-    
+
     const token = localStorage.getItem('user_token');
 
     try {
@@ -111,11 +111,11 @@ function applyFiltersAndRender() {
         }
 
         const groupedInvestments = {};
-        
+
         filtered.forEach(inv => {
             if (!inv.project) return;
             const projectId = inv.project._id;
-            
+
             if (!groupedInvestments[projectId]) {
                 groupedInvestments[projectId] = {
                     project: inv.project,
@@ -126,7 +126,7 @@ function applyFiltersAndRender() {
                     lastInvestmentDate: inv.createdAt
                 };
             }
-            
+
             let equity = inv.equityObtained;
             if (equity === undefined || equity === null) {
                 const goal = inv.project.fundingGoal?.amount || 1;
@@ -137,7 +137,7 @@ function applyFiltersAndRender() {
             groupedInvestments[projectId].totalAmount += inv.amount;
             groupedInvestments[projectId].totalEquity += equity;
             groupedInvestments[projectId].transactionsCount += 1;
-            
+
             if (new Date(inv.createdAt) > new Date(groupedInvestments[projectId].lastInvestmentDate)) {
                 groupedInvestments[projectId].lastInvestmentDate = inv.createdAt;
             }
@@ -181,10 +181,10 @@ function applyFiltersAndRender() {
             const valB = currentFilterType === 'investments' ? b.totalAmount : (b.fundingGoal?.amount || 0);
             return fundingSort === 'highest' ? valB - valA : valA - valB;
         }
-        
+
         const dateA = currentFilterType === 'investments' ? a.lastInvestmentDate : a.createdAt;
         const dateB = currentFilterType === 'investments' ? b.lastInvestmentDate : b.createdAt;
-        
+
         if (sortBy === 'oldest') {
             return new Date(dateA) - new Date(dateB);
         }
@@ -219,9 +219,9 @@ function renderItems(items) {
 
 function createInvestmentCard(groupedItem) {
     if (!groupedItem.project) return '';
-    
+
     const { project, totalAmount, totalEquity, transactionsCount, currency, lastInvestmentDate } = groupedItem;
-    
+
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
 
@@ -257,18 +257,18 @@ function createInvestmentCard(groupedItem) {
 function createProposalCard(proposal) {
     if (!proposal.projectId) return '';
     const { _id, status, partnershipType, proposedTerms, createdAt, projectId } = proposal;
-    
+
     const statusMap = {
         pending: { text: t('js-portfolio-status-pending'), class: 'status-pending' },
         accepted: { text: t('js-portfolio-status-accepted'), class: 'status-accepted' },
         rejected: { text: t('js-portfolio-status-rejected'), class: 'status-rejected' }
     };
     const statusInfo = statusMap[status] || { text: status, class: '' };
-    const typeMap = { 
-        'strategic': t('js-portfolio-type-strategic'), 
-        'expertise': t('js-portfolio-type-expertise'), 
-        'advisory': t('js-portfolio-type-advisory'), 
-        'hybrid': t('js-portfolio-type-hybrid') 
+    const typeMap = {
+        'strategic': t('js-portfolio-type-strategic'),
+        'expertise': t('js-portfolio-type-expertise'),
+        'advisory': t('js-portfolio-type-advisory'),
+        'hybrid': t('js-portfolio-type-hybrid')
     };
 
     return `
@@ -325,21 +325,26 @@ window.openModal = (itemId) => {
     if (!modal || !modalTitle || !modalContent || !modalLink) return;
 
     let contentHTML = '';
-    
+
+    // ============================================================
+    // CASE 1: INVESTMENTS (استثمارات)
+    // ============================================================
     if (currentFilterType === 'investments') {
         const projectInvestments = allInvestments.filter(inv => inv.project && inv.project._id === itemId);
-        
+
         if (projectInvestments.length === 0) return;
-        
+
         const project = projectInvestments[0].project;
-        
+
         const projectGoal = project.fundingGoal?.amount || 0;
         const projectRaised = project.fundingAmountRaised || 0;
         const projectEquityOffered = project.equityOffered || 0;
         const currency = projectInvestments[0].currency;
 
+        const projectProgress = projectGoal > 0 ? Math.round((projectRaised / projectGoal) * 100) : 0;
+
         const totalInvested = projectInvestments.reduce((sum, inv) => sum + inv.amount, 0);
-        
+
         let totalEquity = 0;
         projectInvestments.forEach(inv => {
             let eq = inv.equityObtained;
@@ -352,10 +357,10 @@ window.openModal = (itemId) => {
         });
 
         modalTitle.textContent = `${t('js-portfolio-modal-investment-title')}: ${project.projectName}`;
-        
+
         const rowsHTML = projectInvestments.map(inv => {
             const typeText = inv.investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation');
-            
+
             let rowEquity = inv.equityObtained;
             if (rowEquity === undefined || rowEquity === null) {
                 const goal = project.fundingGoal?.amount || 1;
@@ -375,18 +380,23 @@ window.openModal = (itemId) => {
 
         contentHTML = `
             <div class="bg-gray-50 rounded-lg p-3 mb-5 border border-gray-100">
-                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="grid grid-cols-4 gap-2 text-center text-xs divide-x divide-x-reverse divide-gray-200">
                     <div>
                         <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-goal')}</span>
-                        <span class="font-bold text-gray-700">${projectGoal.toLocaleString()} ${currency}</span>
-                    </div>
-                    <div class="border-x border-gray-200">
-                        <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-raised')}</span>
-                        <span class="font-bold text-green-600">${projectRaised.toLocaleString()} ${currency}</span>
+                        <span class="font-bold text-gray-700">${projectGoal.toLocaleString()} <span class="text-[9px]">${currency}</span></span>
                     </div>
                     <div>
-                        <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-equity')}</span>
+                        <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-raised')}</span>
+                        <span class="font-bold text-green-600">${projectRaised.toLocaleString()} <span class="text-[9px]">${currency}</span></span>
+                    </div>
+                    <div>
+                        <span class="block text-gray-400 mb-1">${t('project-view-equity-label')}</span>
                         <span class="font-bold text-purple-600">${projectEquityOffered}%</span>
+                    </div>
+                    <!-- العمود الجديد: نسبة التقدم -->
+                    <div>
+                        <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-progress')}</span>
+                        <span class="font-bold text-blue-600">${projectProgress}%</span>
                     </div>
                 </div>
             </div>
@@ -421,14 +431,22 @@ window.openModal = (itemId) => {
         `;
         modalLink.href = `project-view.html?id=${project._id}`;
 
+        // ============================================================
+        // CASE 2: PROPOSALS (المقترحات)
+        // ============================================================
     } else if (currentFilterType === 'proposals') {
         const item = allProposals.find(p => p._id === itemId);
         if (!item) return;
         const project = item.projectId;
         modalTitle.textContent = `${t('js-portfolio-modal-proposal-title')}: ${project.projectName}`;
-        
+
         const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
-        
+
+        let responseBg = 'bg-gray-50';
+        let responseBorder = 'border-gray-200';
+        if (item.status === 'accepted') { responseBg = 'bg-green-50'; responseBorder = 'border-green-200'; }
+        else if (item.status === 'rejected') { responseBg = 'bg-red-50'; responseBorder = 'border-red-200'; }
+
         contentHTML = `
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="summary-box bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -440,13 +458,34 @@ window.openModal = (itemId) => {
                     <div class="value font-semibold">${item.status}</div>
                 </div>
             </div>
-            <h4 class="text-sm font-bold text-gray-700 mt-4 mb-2 flex items-center gap-2"><i class="fas fa-file-contract"></i> ${t('js-portfolio-modal-proposed-terms')}:</h4>
-            <div class="p-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 leading-relaxed shadow-sm">
+
+            <!-- الشروط المقترحة -->
+            <h4 class="text-sm font-bold text-gray-700 mt-4 mb-2 flex items-center gap-2">
+                <i class="fas fa-file-contract"></i> ${t('js-portfolio-modal-proposed-terms')}:
+            </h4>
+            <div class="p-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 leading-relaxed shadow-sm mb-4">
                 ${escapeHTML(item.proposedTerms)}
-            </div>`;
-        
+            </div>
+
+            <!-- --- التعديل 3: عرض الرد إذا وجد --- -->
+            ${item.responseMessage ? `
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-reply"></i> ${t('js-portfolio-modal-response-message')}:
+                    </h4>
+                    <div class="p-4 ${responseBg} border ${responseBorder} rounded-lg text-sm text-gray-800 leading-relaxed relative">
+                        <i class="fas fa-quote-right absolute top-2 left-2 text-gray-300 opacity-50 text-xl"></i>
+                        ${escapeHTML(item.responseMessage)}
+                    </div>
+                </div>
+            ` : ''}
+            `;
+
         modalLink.href = `project-view.html?id=${project._id}`;
 
+        // ============================================================
+        // CASE 3: FOLLOWED PROJECTS (المشاريع المتابعة)
+        // ============================================================
     } else if (currentFilterType === 'followed') {
         const item = followedProjects.find(p => p._id === itemId);
         if (!item) return;
@@ -454,7 +493,7 @@ window.openModal = (itemId) => {
         const goal = item.fundingGoal?.amount || 0;
         const raised = item.fundingAmountRaised || 0;
         const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
-        
+
         contentHTML = `
              <div class="investment-summary-grid grid grid-cols-3 gap-3 text-center">
                 <div class="summary-box bg-gray-50 p-3 rounded-lg border">
@@ -475,7 +514,7 @@ window.openModal = (itemId) => {
                     <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
                 </div>
             </div>`;
-        
+
         modalLink.href = `project-view.html?id=${item._id}`;
     }
 

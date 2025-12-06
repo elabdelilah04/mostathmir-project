@@ -150,6 +150,8 @@
       "js-header-logout-success": "تم تسجيل الخروج بنجاح.",
       "js-header-error-load-failed": "فشل تحميل رأس الصفحة.",
       // investor-profolio
+      "js-portfolio-project-context-progress": "نسبة التقدم",
+      "js-portfolio-modal-response-message": "رد صاحب المشروع",
       "js-portfolio-card-equity-share": "حصة الملكية",
       "js-portfolio-card-transactions": "عمليات",
       "js-portfolio-modal-total-portfolio": "مجموع المحفظة",
@@ -2030,6 +2032,8 @@
       "js-header-logout-success": "Logged out successfully.",
       "js-header-error-load-failed": "Failed to load header.",
       // invest-portfolio
+      "js-portfolio-project-context-progress": "Progress",
+      "js-portfolio-modal-response-message": "Owner's Response",
       "js-portfolio-card-equity-share": "Equity Share",
       "js-portfolio-card-transactions": "Transactions",
       "js-portfolio-modal-total-portfolio": "Total Portfolio",
