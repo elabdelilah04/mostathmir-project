@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const closeBtn = document.querySelector('#projectModal .text-3xl');
     const modalOverlay = document.getElementById('projectModal');
+
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
         if (e.target.id === 'projectModal') {
@@ -27,7 +28,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function fetchPortfolioData() {
     const grid = document.getElementById('projectsGrid');
-    if (grid) grid.innerHTML = `<p class="text-center col-span-full">${t('js-portfolio-loading-portfolio')}</p>`;
+    if (grid) grid.innerHTML = `<div class="col-span-full text-center py-10"><i class="fas fa-circle-notch fa-spin text-blue-600 text-2xl"></i><p class="mt-2 text-gray-500">${t('js-portfolio-loading-portfolio')}</p></div>`;
+
     const token = localStorage.getItem('user_token');
 
     try {
@@ -118,13 +120,22 @@ function applyFiltersAndRender() {
                 groupedInvestments[projectId] = {
                     project: inv.project,
                     totalAmount: 0,
+                    totalEquity: 0,
                     currency: inv.currency,
                     transactionsCount: 0,
                     lastInvestmentDate: inv.createdAt
                 };
             }
 
+            let equity = inv.equityObtained;
+            if (equity === undefined || equity === null) {
+                const goal = inv.project.fundingGoal?.amount || 1;
+                const totalOffered = inv.project.equityOffered || 0;
+                equity = (inv.amount / goal) * totalOffered;
+            }
+
             groupedInvestments[projectId].totalAmount += inv.amount;
+            groupedInvestments[projectId].totalEquity += equity;
             groupedInvestments[projectId].transactionsCount += 1;
 
             if (new Date(inv.createdAt) > new Date(groupedInvestments[projectId].lastInvestmentDate)) {
@@ -188,7 +199,10 @@ function renderItems(items) {
     if (!grid) return;
 
     if (items.length === 0) {
-        grid.innerHTML = `<p class="text-center text-gray-500 col-span-full py-10">${t('js-portfolio-no-items-match-filter')}</p>`;
+        grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
+            <i class="fas fa-folder-open text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">${t('js-portfolio-no-items-match-filter')}</p>
+        </div>`;
         return;
     }
 
@@ -203,29 +217,39 @@ function renderItems(items) {
     grid.innerHTML = html;
 }
 
+
 function createInvestmentCard(groupedItem) {
     if (!groupedItem.project) return '';
 
-    const { project, totalAmount, transactionsCount, currency, lastInvestmentDate } = groupedItem;
+    const { project, totalAmount, totalEquity, transactionsCount, currency, lastInvestmentDate } = groupedItem;
+
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
 
     return `
         <div class="investment-card" onclick="openModal('${project._id}')">
             <div class="card-header">
-                <h3 class="card-title">${escapeHTML(project.projectName)}</h3>
+                <h3 class="card-title line-clamp-1" title="${escapeHTML(project.projectName)}">${escapeHTML(project.projectName)}</h3>
                 <span class="card-status ${statusClass}">${statusText}</span>
             </div>
             <div class="card-body">
-                <p>${escapeHTML(project.projectDescription.substring(0, 100))}...</p>
-                <div class="flex justify-between items-center text-xs text-gray-500 mb-2 mt-3 bg-gray-50 p-2 rounded">
+                <p class="line-clamp-2 h-10 mb-4">${escapeHTML(project.projectDescription)}</p>
+                
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-2 bg-gray-50 p-2 rounded">
                     <span>${t('js-portfolio-investment-date')}: ${new Date(lastInvestmentDate).toLocaleDateString('en-us')}</span>
-                    <span class="font-semibold text-blue-600">${transactionsCount} عمليات</span>
+                    <span class="font-semibold text-blue-600 bg-blue-100 px-2 py-0.5 rounded">${transactionsCount} عمليات</span>
                 </div>
-            </div>
-            <div class="card-footer" style="border-top: 2px dashed #e5e7eb;">
-                <span class="text-gray-600 text-sm">مجموع الاستثمار:</span>
-                <span class="text-xl font-bold text-green-700">${totalAmount.toLocaleString()} ${currency}</span>
+
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 border-dashed">
+                    <div class="text-center">
+                        <span class="text-xs text-gray-400 block">إجمالي المبلغ</span>
+                        <span class="text-lg font-bold text-green-700">${totalAmount.toLocaleString()} <span class="text-xs">${currency}</span></span>
+                    </div>
+                    <div class="text-center pl-4 border-l border-gray-100">
+                        <span class="text-xs text-gray-400 block">حصة الملكية</span>
+                        <span class="text-lg font-bold text-purple-700">${totalEquity.toFixed(2)}%</span>
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -234,23 +258,29 @@ function createInvestmentCard(groupedItem) {
 function createProposalCard(proposal) {
     if (!proposal.projectId) return '';
     const { _id, status, partnershipType, proposedTerms, createdAt, projectId } = proposal;
+
     const statusMap = {
         pending: { text: t('js-portfolio-status-pending'), class: 'status-pending' },
         accepted: { text: t('js-portfolio-status-accepted'), class: 'status-accepted' },
         rejected: { text: t('js-portfolio-status-rejected'), class: 'status-rejected' }
     };
     const statusInfo = statusMap[status] || { text: status, class: '' };
-    const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
+    const typeMap = {
+        'strategic': t('js-portfolio-type-strategic'),
+        'expertise': t('js-portfolio-type-expertise'),
+        'advisory': t('js-portfolio-type-advisory'),
+        'hybrid': t('js-portfolio-type-hybrid')
+    };
 
     return `
         <div class="proposal-card" onclick="openModal('${_id}')">
             <div class="card-header">
-                <h3 class="card-title">${escapeHTML(projectId.projectName)}</h3>
+                <h3 class="card-title line-clamp-1">${escapeHTML(projectId.projectName)}</h3>
                 <span class="card-status ${statusInfo.class}">${statusInfo.text}</span>
             </div>
             <div class="card-body">
-                 <p>${escapeHTML(proposedTerms.substring(0, 100))}...</p>
-                 <div class="text-xs text-gray-500 mb-2">${t('js-portfolio-sent-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
+                 <p class="line-clamp-3 h-16">${escapeHTML(proposedTerms)}</p>
+                 <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-50">${t('js-portfolio-sent-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
             </div>
             <div class="card-footer">
                  <span>${t('js-portfolio-partnership-type')}: <strong>${typeMap[partnershipType] || t('js-portfolio-type-custom')}</strong></span>
@@ -269,12 +299,12 @@ function createFollowedCard(project) {
     return `
         <div class="followed-card" onclick="openModal('${_id}')">
              <div class="card-header">
-                <h3 class="card-title">${escapeHTML(projectName)}</h3>
+                <h3 class="card-title line-clamp-1">${escapeHTML(projectName)}</h3>
                 <span class="card-status status-published">${progress}% ${t('js-portfolio-completed')}</span>
             </div>
             <div class="card-body">
-                 <p>${escapeHTML(projectDescription.substring(0, 100))}...</p>
-                 <div class="text-xs text-gray-500 mb-2">${t('js-portfolio-followed-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
+                 <p class="line-clamp-2 h-10">${escapeHTML(projectDescription)}</p>
+                 <div class="text-xs text-gray-500 mt-2">${t('js-portfolio-followed-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
             </div>
             <div class="card-footer">
                  <span>${t('js-portfolio-funding-goal')}: <strong>${goal.toLocaleString()} ${currency}</strong></span>
@@ -304,41 +334,68 @@ window.openModal = (itemId) => {
 
         const project = projectInvestments[0].project;
         const totalInvested = projectInvestments.reduce((sum, inv) => sum + inv.amount, 0);
-        const currency = projectInvestments[0].currency;
 
+        let totalEquity = 0;
+        projectInvestments.forEach(inv => {
+            let eq = inv.equityObtained;
+            if (eq === undefined || eq === null) {
+                const goal = project.fundingGoal?.amount || 1;
+                const totalOffered = project.equityOffered || 0;
+                eq = (inv.amount / goal) * totalOffered;
+            }
+            totalEquity += eq;
+        });
+
+        const currency = projectInvestments[0].currency;
         modalTitle.textContent = `${t('js-portfolio-modal-investment-title')}: ${project.projectName}`;
 
         const rowsHTML = projectInvestments.map(inv => {
             const typeText = inv.investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation');
+
+            let rowEquity = inv.equityObtained;
+            if (rowEquity === undefined || rowEquity === null) {
+                const goal = project.fundingGoal?.amount || 1;
+                const totalOffered = project.equityOffered || 0;
+                rowEquity = (inv.amount / goal) * totalOffered;
+            }
+
             return `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="py-3 font-bold text-gray-800">${inv.amount.toLocaleString()} ${inv.currency}</td>
-                    <td class="py-3 text-blue-600 text-sm">${typeText}</td>
+                <tr class="border-b hover:bg-gray-50 transition-colors">
+                    <td class="py-3 font-bold text-gray-800">${inv.amount.toLocaleString()} <span class="text-xs text-gray-500">${inv.currency}</span></td>
+                    <td class="py-3 text-purple-600 font-semibold">${rowEquity.toFixed(2)}%</td>
+                    <td class="py-3 text-blue-600 text-sm"><span class="bg-blue-50 px-2 py-1 rounded">${typeText}</span></td>
                     <td class="py-3 text-gray-500 text-sm">${formatDate(inv.createdAt)}</td>
                 </tr>
             `;
         }).join('');
 
         contentHTML = `
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
                 <table class="w-full text-right" style="direction: rtl;">
-                    <thead>
-                        <tr class="text-gray-500 text-sm border-b-2 border-gray-100">
-                            <th class="pb-2 text-right">المبلغ</th>
-                            <th class="pb-2 text-right">النوع</th>
-                            <th class="pb-2 text-right">التاريخ</th>
+                    <thead class="bg-gray-50">
+                        <tr class="text-gray-600 text-sm">
+                            <th class="py-3 px-4">المبلغ</th>
+                            <th class="py-3 px-4">النسبة</th>
+                            <th class="py-3 px-4">النوع</th>
+                            <th class="py-3 px-4">التاريخ</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-100">
                         ${rowsHTML}
                     </tbody>
-                    <tfoot>
-                        <tr class="bg-green-50">
-                            <td class="py-3 font-bold text-green-800 border-t border-green-200">${totalInvested.toLocaleString()} ${currency}</td>
-                            <td colspan="2" class="py-3 font-bold text-green-800 border-t border-green-200 text-left pl-4">المجموع الكلي</td>
+                    <tfoot class="bg-green-50 border-t-2 border-green-100">
+                        <tr>
+                            <td class="py-4 px-4 font-bold text-green-800">${totalInvested.toLocaleString()} ${currency}</td>
+                            <td class="py-4 px-4 font-bold text-purple-800">${totalEquity.toFixed(2)}%</td>
+                            <td colspan="2" class="py-4 px-4 font-bold text-gray-600 text-left pl-6">الإجمالي الكلي</td>
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800 border border-blue-100 flex items-center gap-2">
+                <i class="fas fa-info-circle"></i>
+                <span>يتم تحديث نسب الملكية والعوائد بناءً على أداء المشروع ومراحل التمويل.</span>
             </div>
         `;
         modalLink.href = `project-view.html?id=${project._id}`;
@@ -348,15 +405,24 @@ window.openModal = (itemId) => {
         if (!item) return;
         const project = item.projectId;
         modalTitle.textContent = `${t('js-portfolio-modal-proposal-title')}: ${project.projectName}`;
+
         const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
 
         contentHTML = `
-            <div class="investment-summary-grid">
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-partnership-type')}</div><div class="value">${typeMap[item.partnershipType] || t('js-portfolio-type-custom')}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-status')}</div><div class="value">${item.status}</div></div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="summary-box bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div class="label text-xs text-gray-500 mb-1">${t('js-portfolio-modal-partnership-type')}</div>
+                    <div class="value font-semibold text-purple-700">${typeMap[item.partnershipType] || t('js-portfolio-type-custom')}</div>
+                </div>
+                <div class="summary-box bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div class="label text-xs text-gray-500 mb-1">${t('js-portfolio-modal-status')}</div>
+                    <div class="value font-semibold">${item.status}</div>
+                </div>
             </div>
-            <h4 class="text-md font-bold text-gray-700 mt-4 mb-2">${t('js-portfolio-modal-proposed-terms')}:</h4>
-            <p class="p-3 bg-gray-100 rounded-lg text-sm">${item.proposedTerms}</p>`;
+            <h4 class="text-sm font-bold text-gray-700 mt-4 mb-2 flex items-center gap-2"><i class="fas fa-file-contract"></i> ${t('js-portfolio-modal-proposed-terms')}:</h4>
+            <div class="p-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 leading-relaxed shadow-sm">
+                ${escapeHTML(item.proposedTerms)}
+            </div>`;
 
         modalLink.href = `project-view.html?id=${project._id}`;
 
@@ -369,10 +435,24 @@ window.openModal = (itemId) => {
         const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
 
         contentHTML = `
-             <div class="investment-summary-grid">
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-goal')}</div><div class="value">${goal.toLocaleString()} ${item.fundingGoal?.currency}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-funding-raised')}</div><div class="value text-green-600">${raised.toLocaleString()} ${item.fundingGoal?.currency}</div></div>
-                <div class="summary-box"><div class="label">${t('js-portfolio-modal-progress')}</div><div class="value">${progress}%</div></div>
+             <div class="investment-summary-grid grid grid-cols-3 gap-3 text-center">
+                <div class="summary-box bg-gray-50 p-3 rounded-lg border">
+                    <div class="label text-xs text-gray-500">${t('js-portfolio-modal-funding-goal')}</div>
+                    <div class="value font-bold text-gray-800">${goal.toLocaleString()} <span class="text-xs">${item.fundingGoal?.currency}</span></div>
+                </div>
+                <div class="summary-box bg-green-50 p-3 rounded-lg border border-green-100">
+                    <div class="label text-xs text-green-600">${t('js-portfolio-modal-funding-raised')}</div>
+                    <div class="value font-bold text-green-700">${raised.toLocaleString()} <span class="text-xs">${item.fundingGoal?.currency}</span></div>
+                </div>
+                <div class="summary-box bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <div class="label text-xs text-blue-600">${t('js-portfolio-modal-progress')}</div>
+                    <div class="value font-bold text-blue-700">${progress}%</div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
+                </div>
             </div>`;
 
         modalLink.href = `project-view.html?id=${item._id}`;

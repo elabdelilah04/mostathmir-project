@@ -26,6 +26,11 @@ const investmentSchema = new mongoose.Schema({
         type: String,
         default: 'USD'
     },
+    equityObtained: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     investmentType: {
         type: String,
         enum: ['full', 'reservation'],

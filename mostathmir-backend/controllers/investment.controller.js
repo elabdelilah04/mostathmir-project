@@ -26,13 +26,34 @@ const registerInvestment = async (req, res, next) => {
             return res.status(403).json({ message: 'فقط المستثمرون يمكنهم الاستثمار.' });
         }
         const { investmentAmount, amountPaidNow, amountRemaining, isReservation, projectId, investmentType, currency } = req.body;
+
         if (!investmentAmount || !projectId || !investmentType) {
             return res.status(400).json({ message: 'بيانات الاستثمار ناقصة: (المبلغ، المشروع، أو النوع).' });
         }
+
         const project = await Project.findById(projectId);
         if (!project) {
             return res.status(404).json({ message: 'المشروع غير موجود.' });
         }
+
+        const projectCurrency = project.fundingGoal.currency;
+        let amountInProjectCurrency = Number(investmentAmount);
+
+        if (currency && currency !== projectCurrency) {
+            const investmentRate = exchangeRatesToUSD[currency] || 1;
+            const amountInUSD = Number(investmentAmount) * investmentRate;
+            const projectRate = exchangeRatesToUSD[projectCurrency] || 1;
+
+            if (projectRate > 0) {
+                amountInProjectCurrency = amountInUSD / projectRate;
+            }
+        }
+
+        const totalEquityOffered = project.equityOffered || 0;
+        const goalAmount = project.fundingGoal.amount || 1;
+
+        const equityObtained = (amountInProjectCurrency / goalAmount) * totalEquityOffered;
+
         const newInvestmentId = await generateInvestmentId();
         const investment = await Investment.create({
             investmentId: newInvestmentId,
@@ -44,32 +65,21 @@ const registerInvestment = async (req, res, next) => {
             amountPaidNow: amountPaidNow,
             amountRemaining: amountRemaining,
             isReservation: isReservation,
-            paymentStatus: 'paid'
+            paymentStatus: 'paid',
+            equityObtained: Number(equityObtained.toFixed(4))
         });
 
         let fundingGoalReached = false;
         if (investmentType === 'full' || investmentType === 'reservation') {
-            const projectCurrency = project.fundingGoal.currency;
-            let amountToAdd = Number(investmentAmount);
 
-            // التحقق مما إذا كانت عملة الاستثمار مختلفة وتحويلها إلى عملة المشروع
-            if (currency && currency !== projectCurrency) {
-                const investmentRate = exchangeRatesToUSD[currency] || 1;
-                const amountInUSD = Number(investmentAmount) * investmentRate;
-                const projectRate = exchangeRatesToUSD[projectCurrency] || 1;
-                // تأكد من أن projectRate ليس صفراً لتجنب القسمة على صفر
-                if (projectRate > 0) {
-                    amountToAdd = amountInUSD / projectRate;
-                }
-            }
-
-            project.fundingAmountRaised = (project.fundingAmountRaised || 0) + amountToAdd;
+            project.fundingAmountRaised = (project.fundingAmountRaised || 0) + amountInProjectCurrency;
 
             const investorId = req.user._id.toString();
             if (!project.investors.some(id => id.toString() === investorId)) {
                 project.investors.push(req.user._id);
             }
-            if (project.fundingAmountRaised >= project.fundingGoal.amount) {
+
+            if (project.fundingAmountRaised >= (project.fundingGoal.amount - 1)) {
                 project.status = 'funded';
                 fundingGoalReached = true;
             }
@@ -145,8 +155,10 @@ const registerInvestment = async (req, res, next) => {
                 }
             }
         }
+
         const projectFollowers = project.followers.map(id => id.toString());
         const isFollowing = projectFollowers.includes(req.user._id.toString());
+
         res.status(201).json({
             message: 'تم تسجيل استثمارك بنجاح!',
             investment,
