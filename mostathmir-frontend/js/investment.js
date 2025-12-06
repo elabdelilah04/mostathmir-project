@@ -209,8 +209,13 @@ function updateCalculations() {
     } else if (selectedInvestmentType === 'reservation') {
         updateReservationCalculations(amount);
     }
+    const totalEquityOffered = currentProject?.equityOffered || 0;
+    let realEquity = 0;
 
-    const ownershipPercentage = ((amount / currentTargetAmount) * 100).toFixed(1);
+    if (currentTargetAmount > 0) {
+        realEquity = (amount / currentTargetAmount) * totalEquityOffered;
+    }
+    const ownershipPercentage = realEquity.toFixed(2);
     const expectedReturnAmount = Math.round(amount * EXPECTED_RETURN_RATE);
     const currency = currentProject?.fundingGoal?.currency || 'USD';
 

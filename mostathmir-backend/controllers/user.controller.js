@@ -278,13 +278,13 @@ const getInvestmentRecords = async (req, res, next) => {
         const records = await Investment.find({ investor: req.user._id })
             .populate({
                 path: 'project',
-                select: 'projectName projectDescription projectCategory status fundingGoal followers fundingAmountRaised investmentPeriod',
+                select: 'projectName projectDescription projectCategory status fundingGoal followers fundingAmountRaised investmentPeriod equityOffered',
                 populate: {
                     path: 'owner',
                     select: 'fullName profileTitle accountType'
                 }
             })
-            .select('amount investmentType createdAt currency amountPaidNow amountRemaining');
+            .select('amount investmentType createdAt currency amountPaidNow amountRemaining equityObtained');
         res.json(records);
     } catch (error) {
         console.error("Error fetching investment records:", error);
