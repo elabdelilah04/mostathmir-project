@@ -1,5 +1,5 @@
 /* ==========================================================================
-   INVESTOR PORTFOLIO SCRIPT (Corrected Version)
+   INVESTOR PORTFOLIO SCRIPT (Fixed Visibility State)
    ========================================================================== */
 
 let allInvestments = [];
@@ -114,7 +114,6 @@ function applyFiltersAndRender() {
             });
         }
 
-        // تجميع الاستثمارات حسب المشروع
         const groupedInvestments = {};
 
         filtered.forEach(inv => {
@@ -129,9 +128,8 @@ function applyFiltersAndRender() {
                     currency: inv.currency,
                     transactionsCount: 0,
                     lastInvestmentDate: inv.createdAt,
-                    // === إصلاح: حفظ معرف الاستثمار وحالة الظهور ===
                     _id: inv._id,
-                    isVisible: inv.isVisible
+                    isVisible: (inv.isVisible !== undefined) ? inv.isVisible : true
                 };
             }
 
@@ -232,17 +230,18 @@ function createInvestmentCard(groupedItem) {
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
 
-    const isVisible = groupedItem.isVisible !== false; // الافتراضي true
+    // التحقق الصارم من الحالة
+    const isVisible = groupedItem.isVisible === false ? false : true;
+
     const eyeIconClass = isVisible ? 'fa-eye' : 'fa-eye-slash';
     const visibilityTitle = isVisible ? 'مرئي للعامة' : 'مخفي من الملف العام';
-    const visibilityColor = isVisible ? 'text-gray-500 hover:text-blue-600' : 'text-red-500 hover:text-red-700';
+    const visibilityColor = isVisible ? 'text-gray-400 hover:text-blue-600' : 'text-red-500 hover:text-red-700';
 
     return `
-        <div class="investment-card relative group" onclick="openModal('${project._id}')">
+        <div class="investment-card relative group cursor-pointer" onclick="openModal('${project._id}')">
 
-            <!-- زر التحكم في الظهور -->
             <button onclick="toggleVisibility('${groupedItem._id}', event)" 
-                    class="absolute top-4 left-4 z-10 p-2 bg-white rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
+                    class="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
                     title="${visibilityTitle}">
                 <i class="fas ${eyeIconClass}"></i>
             </button>
@@ -252,21 +251,21 @@ function createInvestmentCard(groupedItem) {
                 <span class="card-status ${statusClass}">${statusText}</span>
             </div>
             <div class="card-body">
-                <p class="line-clamp-2 h-10 mb-4">${escapeHTML(project.projectDescription)}</p>
+                <p class="line-clamp-2 h-10 mb-4 text-sm text-gray-600">${escapeHTML(project.projectDescription)}</p>
                 
-                <div class="flex justify-between items-center text-xs text-gray-500 mb-2 bg-gray-50 p-2 rounded">
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-3 bg-gray-50 p-2 rounded">
                     <span>${t('js-portfolio-investment-date')}: ${new Date(lastInvestmentDate).toLocaleDateString('en-us')}</span>
                     <span class="font-semibold text-blue-600 bg-blue-100 px-2 py-0.5 rounded">${transactionsCount} ${t('js-portfolio-card-transactions')}</span>
                 </div>
 
-                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 border-dashed">
+                <div class="flex justify-between items-center pt-3 border-t border-gray-100 border-dashed">
                     <div class="text-center">
-                        <span class="text-xs text-gray-400 block">${t('js-investor-profile-your-investment')}</span>
-                        <span class="text-lg font-bold text-green-700">${totalAmount.toLocaleString()} <span class="text-xs">${currency}</span></span>
+                        <span class="text-[10px] text-gray-400 block mb-1">${t('js-investor-profile-your-investment')}</span>
+                        <span class="text-base font-bold text-green-700">${totalAmount.toLocaleString()} <span class="text-[10px]">${currency}</span></span>
                     </div>
                     <div class="text-center pl-4 border-l border-gray-100">
-                        <span class="text-xs text-gray-400 block">${t('js-portfolio-card-equity-share')}</span>
-                        <span class="text-lg font-bold text-purple-700">${totalEquity.toFixed(2)}%</span>
+                        <span class="text-[10px] text-gray-400 block mb-1">${t('js-portfolio-card-equity-share')}</span>
+                        <span class="text-base font-bold text-purple-700">${totalEquity.toFixed(2)}%</span>
                     </div>
                 </div>
             </div>
@@ -274,11 +273,17 @@ function createInvestmentCard(groupedItem) {
     `;
 }
 
+// دالة تبديل حالة الظهور مع تحديث المصفوفة المحلية
 window.toggleVisibility = async (investmentId, event) => {
     event.stopPropagation();
+
     const token = localStorage.getItem('user_token');
     const button = event.currentTarget;
     const icon = button.querySelector('i');
+
+    // حفظ الكلاسات القديمة للعودة إليها في حال الخطأ
+    const originalClass = button.className;
+    const originalIconClass = icon.className;
 
     try {
         icon.className = 'fas fa-spinner fa-spin';
@@ -294,19 +299,30 @@ window.toggleVisibility = async (investmentId, event) => {
         if (!response.ok) throw new Error('فشل تحديث الحالة');
 
         const data = await response.json();
+
+        // 1. تحديث المصفوفة المحلية لضمان بقاء الحالة عند الفلترة
+        const investIndex = allInvestments.findIndex(inv => inv._id === investmentId);
+        if (investIndex !== -1) {
+            allInvestments[investIndex].isVisible = data.isVisible;
+        }
+
+        // 2. تحديث الزر في الواجهة
         if (data.isVisible) {
             icon.className = 'fas fa-eye';
-            button.className = button.className.replace('text-red-500', 'text-gray-500').replace('hover:text-red-700', 'hover:text-blue-600');
+            button.className = button.className.replace('text-red-500', 'text-gray-400').replace('hover:text-red-700', 'hover:text-blue-600');
             button.title = 'مرئي للعامة';
         } else {
             icon.className = 'fas fa-eye-slash';
-            button.className = button.className.replace('text-gray-500', 'text-red-500').replace('hover:text-blue-600', 'hover:text-red-700');
+            button.className = button.className.replace('text-gray-400', 'text-red-500').replace('hover:text-blue-600', 'hover:text-red-700');
             button.title = 'مخفي من الملف العام';
         }
 
     } catch (error) {
         console.error(error);
         alert('حدث خطأ أثناء تحديث الحالة');
+        // استعادة الحالة السابقة
+        button.className = originalClass;
+        icon.className = originalIconClass;
     }
 };
 
@@ -334,11 +350,11 @@ function createProposalCard(proposal) {
                 <span class="card-status ${statusInfo.class}">${statusInfo.text}</span>
             </div>
             <div class="card-body">
-                 <p class="line-clamp-3 h-16">${escapeHTML(proposedTerms)}</p>
-                 <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-50">${t('js-portfolio-sent-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
+                 <p class="line-clamp-3 h-16 text-sm text-gray-600">${escapeHTML(proposedTerms)}</p>
+                 <div class="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-50">${t('js-portfolio-sent-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
             </div>
             <div class="card-footer">
-                 <span>${t('js-portfolio-partnership-type')}: <strong>${typeMap[partnershipType] || t('js-portfolio-type-custom')}</strong></span>
+                 <span>${t('js-portfolio-partnership-type')}: <strong class="text-purple-600">${typeMap[partnershipType] || t('js-portfolio-type-custom')}</strong></span>
             </div>
         </div>
     `;
@@ -358,8 +374,8 @@ function createFollowedCard(project) {
                 <span class="card-status status-published">${progress}% ${t('js-portfolio-completed')}</span>
             </div>
             <div class="card-body">
-                 <p class="line-clamp-2 h-10">${escapeHTML(projectDescription)}</p>
-                 <div class="text-xs text-gray-500 mt-2">${t('js-portfolio-followed-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
+                 <p class="line-clamp-2 h-10 text-sm text-gray-600">${escapeHTML(projectDescription)}</p>
+                 <div class="text-xs text-gray-400 mt-2">${t('js-portfolio-followed-date')}: ${new Date(createdAt).toLocaleDateString('en-us')}</div>
             </div>
             <div class="card-footer">
                  <span>${t('js-portfolio-funding-goal')}: <strong>${goal.toLocaleString()} ${currency}</strong></span>
