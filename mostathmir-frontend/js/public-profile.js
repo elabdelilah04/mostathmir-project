@@ -404,11 +404,11 @@ function createGroupedInvestmentCard(item) {
             
             <!-- الصف العلوي -->
             <div class=" phonewidth flex justify-between items-start mb-3">
-                <span class="status-badge-soft">${statusText}</span>
-                <h3 class="font-bold text-gray-800 text-lg text-right truncate w-2/3" title="${escapeHTML(projectName)}">
+                           <h3 class="font-bold text-gray-800 text-lg text-right truncate w-2/3" title="${escapeHTML(projectName)}">
                     ${escapeHTML(projectName)}
                 </h3>
-            </div>
+                <span class="status-badge-soft">${statusText}</span>
+             </div>
 
             <!-- الوصف -->
             <p class="text-gray-500 text-sm mb-4 text-right line-clamp-2 h-10">
