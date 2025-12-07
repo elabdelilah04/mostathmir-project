@@ -261,7 +261,7 @@ function createInvestmentCard(groupedItem) {
 
                 <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 border-dashed">
                     <div class="text-center">
-                        <span class="text-xs text-gray-400 block">${t('js-portfolio-your-investment')}</span>
+                        <span class="text-xs text-gray-400 block">${t('js-investor-profile-your-investment')}</span>
                         <span class="text-lg font-bold text-green-700">${totalAmount.toLocaleString()} <span class="text-xs">${currency}</span></span>
                     </div>
                     <div class="text-center pl-4 border-l border-gray-100">
