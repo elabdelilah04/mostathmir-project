@@ -1,3 +1,7 @@
+/* ==========================================================================
+   INVESTOR PORTFOLIO SCRIPT (Corrected Version)
+   ========================================================================== */
+
 let allInvestments = [];
 let allProposals = [];
 let followedProjects = [];
@@ -110,6 +114,7 @@ function applyFiltersAndRender() {
             });
         }
 
+        // تجميع الاستثمارات حسب المشروع
         const groupedInvestments = {};
 
         filtered.forEach(inv => {
@@ -123,7 +128,10 @@ function applyFiltersAndRender() {
                     totalEquity: 0,
                     currency: inv.currency,
                     transactionsCount: 0,
-                    lastInvestmentDate: inv.createdAt
+                    lastInvestmentDate: inv.createdAt,
+                    // === إصلاح: حفظ معرف الاستثمار وحالة الظهور ===
+                    _id: inv._id,
+                    isVisible: inv.isVisible
                 };
             }
 
@@ -223,16 +231,17 @@ function createInvestmentCard(groupedItem) {
     const { project, totalAmount, totalEquity, transactionsCount, currency, lastInvestmentDate } = groupedItem;
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
-    // التحقق من حالة الظهور
-    const isVisible = investment.isVisible !== false; // الافتراضي true
+
+    const isVisible = groupedItem.isVisible !== false; // الافتراضي true
     const eyeIconClass = isVisible ? 'fa-eye' : 'fa-eye-slash';
     const visibilityTitle = isVisible ? 'مرئي للعامة' : 'مخفي من الملف العام';
     const visibilityColor = isVisible ? 'text-gray-500 hover:text-blue-600' : 'text-red-500 hover:text-red-700';
 
     return `
-        <div class="investment-card" onclick="openModal('${project._id}')">
+        <div class="investment-card relative group" onclick="openModal('${project._id}')">
 
-            <button onclick="toggleVisibility('${investment._id}', event)" 
+            <!-- زر التحكم في الظهور -->
+            <button onclick="toggleVisibility('${groupedItem._id}', event)" 
                     class="absolute top-4 left-4 z-10 p-2 bg-white rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
                     title="${visibilityTitle}">
                 <i class="fas ${eyeIconClass}"></i>
@@ -264,17 +273,14 @@ function createInvestmentCard(groupedItem) {
         </div>
     `;
 }
-// دالة لتبديل حالة الظهور
-window.toggleVisibility = async (investmentId, event) => {
-    // منع فتح المودال عند الضغط على الزر
-    event.stopPropagation();
 
+window.toggleVisibility = async (investmentId, event) => {
+    event.stopPropagation();
     const token = localStorage.getItem('user_token');
     const button = event.currentTarget;
     const icon = button.querySelector('i');
 
     try {
-        // تغيير الأيقونة مؤقتاً لتدل على التحميل
         icon.className = 'fas fa-spinner fa-spin';
 
         const response = await fetch(`${API_BASE_URL}/api/investments/${investmentId}/visibility`, {
@@ -288,25 +294,19 @@ window.toggleVisibility = async (investmentId, event) => {
         if (!response.ok) throw new Error('فشل تحديث الحالة');
 
         const data = await response.json();
-
-        // تحديث الأيقونة بناءً على الحالة الجديدة
         if (data.isVisible) {
             icon.className = 'fas fa-eye';
             button.className = button.className.replace('text-red-500', 'text-gray-500').replace('hover:text-red-700', 'hover:text-blue-600');
             button.title = 'مرئي للعامة';
-            // showInlineMessage('تم إظهار المشروع في ملفك العام', 'success'); // دالة اختيارية
         } else {
             icon.className = 'fas fa-eye-slash';
             button.className = button.className.replace('text-gray-500', 'text-red-500').replace('hover:text-blue-600', 'hover:text-red-700');
             button.title = 'مخفي من الملف العام';
-            // showInlineMessage('تم إخفاء المشروع من ملفك العام', 'success');
         }
 
     } catch (error) {
         console.error(error);
         alert('حدث خطأ أثناء تحديث الحالة');
-        // إعادة الأيقونة لحالتها السابقة في حال الخطأ
-        // (يمكن تحسين هذا بإعادة تحميل البيانات)
     }
 };
 
@@ -382,23 +382,17 @@ window.openModal = (itemId) => {
 
     let contentHTML = '';
 
-    // ============================================================
-    // CASE 1: INVESTMENTS (استثمارات)
-    // ============================================================
     if (currentFilterType === 'investments') {
         const projectInvestments = allInvestments.filter(inv => inv.project && inv.project._id === itemId);
 
         if (projectInvestments.length === 0) return;
 
         const project = projectInvestments[0].project;
-
         const projectGoal = project.fundingGoal?.amount || 0;
         const projectRaised = project.fundingAmountRaised || 0;
         const projectEquityOffered = project.equityOffered || 0;
         const currency = projectInvestments[0].currency;
-
         const projectProgress = projectGoal > 0 ? Math.round((projectRaised / projectGoal) * 100) : 0;
-
         const totalInvested = projectInvestments.reduce((sum, inv) => sum + inv.amount, 0);
 
         let totalEquity = 0;
@@ -416,14 +410,12 @@ window.openModal = (itemId) => {
 
         const rowsHTML = projectInvestments.map(inv => {
             const typeText = inv.investmentType === 'full' ? t('js-portfolio-type-full') : t('js-portfolio-type-reservation');
-
             let rowEquity = inv.equityObtained;
             if (rowEquity === undefined || rowEquity === null) {
                 const goal = project.fundingGoal?.amount || 1;
                 const totalOffered = project.equityOffered || 0;
                 rowEquity = (inv.amount / goal) * totalOffered;
             }
-
             return `
                 <tr class="border-b hover:bg-gray-50 transition-colors">
                     <td class="py-3 font-bold text-gray-800">${inv.amount.toLocaleString()} <span class="text-xs text-gray-500">${inv.currency}</span></td>
@@ -449,7 +441,6 @@ window.openModal = (itemId) => {
                         <span class="block text-gray-400 mb-1">${t('project-view-equity-label')}</span>
                         <span class="font-bold text-purple-600">${projectEquityOffered}%</span>
                     </div>
-                    <!-- العمود الجديد: نسبة التقدم -->
                     <div>
                         <span class="block text-gray-400 mb-1">${t('js-portfolio-project-context-progress')}</span>
                         <span class="font-bold text-blue-600">${projectProgress}%</span>
@@ -487,9 +478,6 @@ window.openModal = (itemId) => {
         `;
         modalLink.href = `project-view.html?id=${project._id}`;
 
-        // ============================================================
-        // CASE 2: PROPOSALS (المقترحات)
-        // ============================================================
     } else if (currentFilterType === 'proposals') {
         const item = allProposals.find(p => p._id === itemId);
         if (!item) return;
@@ -497,7 +485,6 @@ window.openModal = (itemId) => {
         modalTitle.textContent = `${t('js-portfolio-modal-proposal-title')}: ${project.projectName}`;
 
         const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
-
         let responseBg = 'bg-gray-50';
         let responseBorder = 'border-gray-200';
         if (item.status === 'accepted') { responseBg = 'bg-green-50'; responseBorder = 'border-green-200'; }
@@ -514,16 +501,12 @@ window.openModal = (itemId) => {
                     <div class="value font-semibold">${item.status}</div>
                 </div>
             </div>
-
-            <!-- الشروط المقترحة -->
             <h4 class="text-sm font-bold text-gray-700 mt-4 mb-2 flex items-center gap-2">
                 <i class="fas fa-file-contract"></i> ${t('js-portfolio-modal-proposed-terms')}:
             </h4>
             <div class="p-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 leading-relaxed shadow-sm mb-4">
                 ${escapeHTML(item.proposedTerms)}
             </div>
-
-            <!-- --- التعديل 3: عرض الرد إذا وجد --- -->
             ${item.responseMessage ? `
                 <div class="mt-6 pt-4 border-t border-gray-100">
                     <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
@@ -536,12 +519,8 @@ window.openModal = (itemId) => {
                 </div>
             ` : ''}
             `;
-
         modalLink.href = `project-view.html?id=${project._id}`;
 
-        // ============================================================
-        // CASE 3: FOLLOWED PROJECTS (المشاريع المتابعة)
-        // ============================================================
     } else if (currentFilterType === 'followed') {
         const item = followedProjects.find(p => p._id === itemId);
         if (!item) return;
@@ -570,7 +549,6 @@ window.openModal = (itemId) => {
                     <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
                 </div>
             </div>`;
-
         modalLink.href = `project-view.html?id=${item._id}`;
     }
 
