@@ -359,3 +359,59 @@ body {
     color: white;
     border-color: #3730a3;
 }
+
+/* === Public Profile Investment Card (New Design) === */
+
+.public-invest-card {
+    background-color: #fff;
+    border-radius: 16px;
+    /* حواف دائرية ناعمة */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    /* ظل خفيف جداً */
+    padding: 1.5rem;
+    border-left: 5px solid;
+    /* الشريط الملون الجانبي */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.public-invest-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* حالة الحدود (ألوان) */
+.public-invest-card.border-l-blue-500 {
+    border-left-color: #3b82f6;
+}
+
+.public-invest-card.border-l-emerald-500 {
+    border-left-color: #10b981;
+}
+
+/* شارة الحالة (أزرق فاتح) */
+.status-badge-soft {
+    background-color: #dbeafe;
+    /* blue-100 */
+    color: #1e40af;
+    /* blue-800 */
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* شارة العمليات */
+.ops-badge {
+    background-color: #e0e7ff;
+    /* indigo-100 */
+    color: #3730a3;
+    /* indigo-800 */
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

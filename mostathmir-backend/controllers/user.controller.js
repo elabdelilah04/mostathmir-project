@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 const Project = require('../models/project.model');
 const Investment = require('../models/investment.model');
@@ -43,7 +44,8 @@ const getUserProfile = async (req, res) => {
 
 const getPublicUserProfile = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id)
+        const userId = req.params.id;
+        const user = await User.findById(userId)
             .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following');
 
         if (!user) {
@@ -67,38 +69,68 @@ const getPublicUserProfile = async (req, res, next) => {
             investorsCount = uniqueInvestors.length;
 
             if (req.user && req.user.accountType === 'investor') {
-                const hasInvested = uniqueInvestors.some(investorId => investorId.equals(req.user._id));
-                if (hasInvested) {
-                    canAddTestimonial = true;
-                }
+                const hasInvested = uniqueInvestors.some(id => id.toString() === req.user._id.toString());
+                if (hasInvested) canAddTestimonial = true;
             }
-        } else if (user.accountType === 'investor') {
-            const query = { investor: user._id };
-            const isOwner = req.user && req.user._id.toString() === user._id.toString();
+        }
 
+        else if (user.accountType === 'investor') {
+
+            const matchConditions = {
+                investor: new mongoose.Types.ObjectId(userId)
+            };
+
+            const isOwner = req.user && req.user._id.toString() === userId.toString();
             if (!isOwner) {
-                query.isVisible = true;
+                matchConditions.isVisible = true;
             }
 
-            const investments = await Investment.find(query)
-                .populate({
-                    path: 'project',
-                    select: 'projectName projectDescription projectCategory status fundingGoal fundingAmountRaised owner',
-                    populate: {
-                        path: 'owner',
-                        select: '_id'
+            const investments = await Investment.aggregate([
+                { $match: matchConditions },
+                {
+                    $group: {
+                        _id: "$project",
+                        totalAmount: { $sum: "$amount" },
+                        count: { $sum: 1 },
+                        lastDate: { $max: "$createdAt" },
+                        currency: { $first: "$currency" }
                     }
-                });
+                },
+                {
+                    $lookup: {
+                        from: "projects",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "projectDetails"
+                    }
+                },
+                { $unwind: "$projectDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        projectId: "$_id",
+                        projectName: "$projectDetails.projectName",
+                        projectDescription: "$projectDetails.projectDescription",
+                        projectStatus: "$projectDetails.status",
+                        fundingGoal: "$projectDetails.fundingGoal.amount",
+                        equityOffered: "$projectDetails.equityOffered",
+                        totalAmount: 1,
+                        count: 1,
+                        lastDate: 1,
+                        currency: 1
+                    }
+                },
+                { $sort: { lastDate: -1 } }
+            ]);
 
-            const uniquePartners = new Set(investments.map(inv => inv.project.owner._id.toString()));
-            const uniqueInvestedProjects = new Set(investments.map(inv => inv.project._id.toString()));
+            const stats = {
+                investmentsCount: investments.length,
+                partnersCount: investments.length
+            };
 
             investorData = {
                 investments: investments,
-                stats: {
-                    investmentsCount: uniqueInvestedProjects.size,
-                    partnersCount: uniquePartners.size
-                }
+                stats: stats
             };
         }
 
@@ -109,6 +141,7 @@ const getPublicUserProfile = async (req, res, next) => {
             canAddTestimonial: canAddTestimonial,
             investorData: investorData
         });
+
     } catch (error) {
         console.error("Error fetching public profile:", error);
         next(error);

@@ -269,14 +269,15 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 
         if (investorData && investorData.stats) {
             const stats = investorData.stats;
-            const investments = investorData.investments;
+            const groupedInvestments = investorData.investments; 
 
             document.getElementById('public-stat-investments').textContent = stats.investmentsCount || 0;
             document.getElementById('public-stat-partners').textContent = stats.partnersCount || 0;
 
             const investmentsGrid = document.getElementById('investmentsGrid');
-            if (investments && investments.length > 0) {
-                investmentsGrid.innerHTML = investments.map(inv => createPublicInvestmentCard(inv)).join('');
+            
+            if (groupedInvestments && groupedInvestments.length > 0) {
+                investmentsGrid.innerHTML = groupedInvestments.map(item => createGroupedInvestmentCard(item)).join('');
             } else {
                 investmentsGrid.innerHTML = emptySectionMessage('js-public-profile-empty-investments');
             }
@@ -373,28 +374,70 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
     }
 }
 
-function createPublicInvestmentCard(investment) {
-    const { project, amount, currency } = investment;
-    const progress = (project.fundingGoal.amount > 0) ? Math.round((project.fundingAmountRaised / project.fundingGoal.amount) * 100) : 0;
-    const statusText = (project.status === 'published') ? t('js-public-profile-project-status-funding') : t('js-public-profile-project-status-completed');
+function createGroupedInvestmentCard(item) {
+    const { 
+        projectId, 
+        projectName, 
+        projectDescription, 
+        projectStatus, 
+        totalAmount, 
+        count, 
+        lastDate, 
+        currency,
+        fundingGoal,
+        equityOffered 
+    } = item;
+    
+    const dateStr = new Date(lastDate).toLocaleDateString('ar-EG');
+    const statusText = projectStatus === 'published' ? t('js-public-profile-project-status-funding') : t('js-public-profile-project-status-completed');
+    const borderClass = projectStatus === 'published' ? 'border-l-blue-500' : 'border-l-emerald-500';
+
+    // حساب نسبة الملكية (بسيط الآن لأن الأرقام جاهزة)
+    let totalEquity = 0;
+    if (fundingGoal > 0 && equityOffered > 0) {
+        totalEquity = (totalAmount / fundingGoal) * equityOffered;
+    }
 
     return `
-        <a href="./project-view.html?id=${project._id}" target="_blank">
-            <div class="project-card rounded-lg p-4 cursor-pointer bg-white">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-white font-bold">${project.projectCategory ? project.projectCategory.charAt(0) : 'P'}</div>
-                    <div>
-                        <h3 class="font-semibold text-slate-800">${escapeHTML(project.projectName)}</h3>
-                        <p class="text-xs text-gray-500 font-medium">${statusText}</p>
-                    </div>
+    <a href="./project-view.html?id=${projectId}" target="_blank" class="block h-full">
+        <div class="public-invest-card ${borderClass}">
+            
+            <!-- الصف العلوي -->
+            <div class="flex justify-between items-start mb-3">
+                <span class="status-badge-soft">${statusText}</span>
+                <h3 class="font-bold text-gray-800 text-lg text-right truncate w-2/3" title="${escapeHTML(projectName)}">
+                    ${escapeHTML(projectName)}
+                </h3>
+            </div>
+
+            <!-- الوصف -->
+            <p class="text-gray-500 text-sm mb-4 text-right line-clamp-2 h-10">
+                ${escapeHTML(projectDescription)}
+            </p>
+
+            <!-- الصف الأوسط -->
+            <div class="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded-lg">
+                <span class="text-xs text-gray-500">${t('investment-date') || 'تاريخ الاستثمار:'} ${dateStr}</span>
+                <span class="ops-badge">${count} عمليات</span>
+            </div>
+
+            <div class="border-t border-dashed border-gray-300 my-3"></div>
+
+            <!-- الصف السفلي -->
+            <div class="flex justify-between items-end">
+                <div class="text-left">
+                    <span class="block text-xs text-gray-400 mb-1">حصة الملكية</span>
+                    <span class="text-lg font-bold text-purple-600">${totalEquity.toFixed(2)}%</span>
                 </div>
-                <p class="text-sm text-slate-600 mb-3">${t('js-public-profile-invested-amount-prefix')} <strong>${amount.toLocaleString()} ${currency}</strong></p>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">${t('js-public-profile-completed-prefix')} ${progress}%</span>
-                    <span class="text-gray-600 text-sm font-semibold">${(project.fundingGoal.amount || 0).toLocaleString()} ${project.fundingGoal.currency}</span>
+                <div class="text-right">
+                    <span class="block text-xs text-gray-400 mb-1">إجمالي استثمارك</span>
+                    <span class="text-lg font-bold text-emerald-600">
+                        ${currency} ${totalAmount.toLocaleString()}
+                    </span>
                 </div>
             </div>
-        </a>
+        </div>
+    </a>
     `;
 }
 
