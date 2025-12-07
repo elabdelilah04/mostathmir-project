@@ -6,6 +6,7 @@
     ar: {
       // indexpage
       // about section
+      "shared-growth-slogan": "ننمو معاً",
       "hero-badge-text": "🚀 مستثمر: أول وسيط بين الفكرة والإستثمار",
       "hero-user-count": "+80 مستخدم",
       "about-card1-title": "ابتكار بلا حدود",
@@ -1816,6 +1817,7 @@
     en: {
       // indexpage
       // abot section
+      "shared-growth-slogan": "Growing Together",
       "hero-badge-text": "🚀 Mostathmir: The First Bridge Between Ideas and Investment",
       "hero-user-count": "+80 Users",
       "about-card1-title": "Limitless Innovation",
