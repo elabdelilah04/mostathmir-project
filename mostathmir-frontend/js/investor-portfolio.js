@@ -240,6 +240,12 @@ function createInvestmentCard(groupedItem) {
     return `
         <div class="investment-card relative group cursor-pointer" onclick="openModal('${project._id}')">
 
+            <button onclick="toggleVisibility('${groupedItem._id}', event)" 
+                    class="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
+                    title="${visibilityTitle}">
+                <i class="fas ${eyeIconClass}"></i>
+            </button>
+
             <div class="card-header">
                 <h3 class="card-title line-clamp-1" title="${escapeHTML(project.projectName)}">${escapeHTML(project.projectName)}</h3>
                 <span class="card-status ${statusClass}">${statusText}</span>
@@ -485,11 +491,6 @@ window.openModal = (itemId) => {
                 <i class="fas fa-info-circle"></i>
                 <span>يتم تحديث نسب الملكية والعوائد بناءً على أداء المشروع ومراحل التمويل.</span>
             </div>
-            <button onclick="toggleVisibility('${groupedItem._id}', event)" 
-                    class="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
-                    title="${visibilityTitle}">
-                <i class="fas ${eyeIconClass}"></i>
-            </button>
         `;
         modalLink.href = `project-view.html?id=${project._id}`;
 
