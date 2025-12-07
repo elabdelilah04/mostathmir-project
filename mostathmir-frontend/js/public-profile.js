@@ -388,7 +388,7 @@ function createGroupedInvestmentCard(item) {
         equityOffered 
     } = item;
     
-    const dateStr = new Date(lastDate).toLocaleDateString('ar-EG');
+    const dateStr = new Date(lastDate).toLocaleDateString('en-EG');
     const statusText = projectStatus === 'published' ? t('js-public-profile-project-status-funding') : t('js-public-profile-project-status-completed');
     const borderClass = projectStatus === 'published' ? 'border-l-blue-500' : 'border-l-emerald-500';
 
@@ -403,7 +403,7 @@ function createGroupedInvestmentCard(item) {
         <div class="public-invest-card ${borderClass}">
             
             <!-- الصف العلوي -->
-            <div class="flex justify-between items-start mb-3">
+            <div class=" phonewidth flex justify-between items-start mb-3">
                 <span class="status-badge-soft">${statusText}</span>
                 <h3 class="font-bold text-gray-800 text-lg text-right truncate w-2/3" title="${escapeHTML(projectName)}">
                     ${escapeHTML(projectName)}
@@ -417,7 +417,7 @@ function createGroupedInvestmentCard(item) {
 
             <!-- الصف الأوسط -->
             <div class="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded-lg">
-                <span class="text-xs text-gray-500">${t('investment-date') || 'تاريخ الاستثمار:'} ${dateStr}</span>
+                <span class="text-xs text-gray-500">${t('js-portfolio-investment-date')}: ${dateStr}</span>
                 <span class="ops-badge">${count} عمليات</span>
             </div>
 
