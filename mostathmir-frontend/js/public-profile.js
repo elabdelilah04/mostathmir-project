@@ -404,14 +404,14 @@ function createGroupedInvestmentCard(item) {
             
             <!-- الصف العلوي -->
             <div class=" phonewidth flex justify-between items-start mb-3">
-                           <h3 class="font-bold text-gray-800 text-lg text-right truncate w-2/3" title="${escapeHTML(projectName)}">
+                           <h3 class="font-bold text-gray-800 text-lg  truncate w-2/3" title="${escapeHTML(projectName)}">
                     ${escapeHTML(projectName)}
                 </h3>
                 <span class="status-badge-soft">${statusText}</span>
              </div>
 
             <!-- الوصف -->
-            <p class="text-gray-500 text-sm mb-4 text-right line-clamp-2 h-10">
+            <p class="text-gray-500 text-sm mb-4  line-clamp-2 h-10">
                 ${escapeHTML(projectDescription)}
             </p>
 
@@ -429,7 +429,7 @@ function createGroupedInvestmentCard(item) {
                     <span class="block text-xs text-gray-400 mb-1">${t('js-portfolio-card-equity-share')}</span>
                     <span class="text-lg font-bold text-purple-600">${totalEquity.toFixed(2)}%</span>
                 </div>
-                <div class="text-right">
+                <div class="">
                     <span class="block text-xs text-gray-400 mb-1">${t('js-project-view-investor-card-amount')}</span>
                     <span class="text-lg font-bold text-emerald-600">
                         ${currency} ${totalAmount.toLocaleString()}
