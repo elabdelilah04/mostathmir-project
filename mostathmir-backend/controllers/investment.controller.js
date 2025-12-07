@@ -212,25 +212,31 @@ const getInvestmentRecords = async (req, res, next) => {
         next(error);
     }
 };
+
 const toggleInvestmentVisibility = async (req, res, next) => {
     try {
-        const { id } = req.params;
-
-        const investment = await Investment.findOne({
-            _id: id,
-            investor: req.user._id
+        const { id: projectId } = req.params;
+        const userId = req.user._id;
+        const anyInvestment = await Investment.findOne({
+            project: projectId,
+            investor: userId
         });
 
-        if (!investment) {
-            return res.status(404).json({ message: 'الاستثمار غير موجود أو غير مصرح لك بتعديله.' });
+        if (!anyInvestment) {
+            return res.status(404).json({ message: 'لا توجد استثمارات لك في هذا المشروع.' });
         }
 
-        investment.isVisible = !investment.isVisible;
-        await investment.save();
+        const newVisibilityState = !anyInvestment.isVisible;
+
+        await Investment.updateMany(
+            { project: projectId, investor: userId },
+            { $set: { isVisible: newVisibilityState } }
+        );
 
         res.json({
-            message: investment.isVisible ? 'أصبح الاستثمار مرئياً للعامة' : 'تم إخفاء الاستثمار من الملف العام',
-            isVisible: investment.isVisible
+            message: newVisibilityState ? 'المشروع مرئي الآن' : 'تم إخفاء المشروع',
+            isVisible: newVisibilityState,
+            projectId: projectId
         });
 
     } catch (error) {

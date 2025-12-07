@@ -46,7 +46,7 @@ const getPublicUserProfile = async (req, res, next) => {
     try {
         const userId = req.params.id;
         const user = await User.findById(userId)
-            .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following');
+            .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following isVisible');
 
         if (!user) {
             return res.status(404).json({ message: 'المستخدم غير موجود' });
@@ -324,7 +324,7 @@ const getInvestmentRecords = async (req, res, next) => {
                     select: 'fullName profileTitle accountType'
                 }
             })
-            .select('amount investmentType createdAt currency amountPaidNow amountRemaining equityObtained');
+            .select('amount investmentType createdAt currency amountPaidNow amountRemaining equityObtained isVisible');
         res.json(records);
     } catch (error) {
         console.error("Error fetching investment records:", error);
