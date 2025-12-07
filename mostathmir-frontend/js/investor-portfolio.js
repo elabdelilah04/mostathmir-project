@@ -490,7 +490,6 @@ window.openModal = (itemId) => {
                     title="${visibilityTitle}">
                 <i class="fas ${eyeIconClass}"></i>
             </button>
-            
         `;
         modalLink.href = `project-view.html?id=${project._id}`;
 
