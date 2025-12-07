@@ -268,6 +268,8 @@
                 document.getElementById('nav-my-projects').style.display = 'none';
                 document.getElementById('nav-my-investments').style.display = 'none';
                 document.getElementById('Myprofile').style.display = 'none';
+                document.getElementById('nav-add-project').style.display = 'none';
+
             }
 
             // --- Language Switcher Logic ---
