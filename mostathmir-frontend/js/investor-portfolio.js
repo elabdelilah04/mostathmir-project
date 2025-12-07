@@ -128,7 +128,7 @@ function applyFiltersAndRender() {
                     currency: inv.currency,
                     transactionsCount: 0,
                     lastInvestmentDate: inv.createdAt,
-                    _id: inv._id,
+                    _id: projectId,
                     isVisible: (inv.isVisible !== undefined) ? inv.isVisible : true
                 };
             }
