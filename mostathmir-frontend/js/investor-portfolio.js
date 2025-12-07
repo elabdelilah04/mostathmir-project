@@ -221,12 +221,23 @@ function createInvestmentCard(groupedItem) {
     if (!groupedItem.project) return '';
 
     const { project, totalAmount, totalEquity, transactionsCount, currency, lastInvestmentDate } = groupedItem;
-
     const statusText = project.status === 'published' ? t('js-portfolio-status-funding') : t('js-portfolio-status-funded');
     const statusClass = project.status === 'published' ? 'status-published' : 'status-funded';
+    // التحقق من حالة الظهور
+    const isVisible = investment.isVisible !== false; // الافتراضي true
+    const eyeIconClass = isVisible ? 'fa-eye' : 'fa-eye-slash';
+    const visibilityTitle = isVisible ? 'مرئي للعامة' : 'مخفي من الملف العام';
+    const visibilityColor = isVisible ? 'text-gray-500 hover:text-blue-600' : 'text-red-500 hover:text-red-700';
 
     return `
         <div class="investment-card" onclick="openModal('${project._id}')">
+
+            <button onclick="toggleVisibility('${investment._id}', event)" 
+                    class="absolute top-4 left-4 z-10 p-2 bg-white rounded-full shadow-sm border border-gray-200 transition-colors ${visibilityColor}"
+                    title="${visibilityTitle}">
+                <i class="fas ${eyeIconClass}"></i>
+            </button>
+
             <div class="card-header">
                 <h3 class="card-title line-clamp-1" title="${escapeHTML(project.projectName)}">${escapeHTML(project.projectName)}</h3>
                 <span class="card-status ${statusClass}">${statusText}</span>
@@ -253,6 +264,51 @@ function createInvestmentCard(groupedItem) {
         </div>
     `;
 }
+// دالة لتبديل حالة الظهور
+window.toggleVisibility = async (investmentId, event) => {
+    // منع فتح المودال عند الضغط على الزر
+    event.stopPropagation();
+
+    const token = localStorage.getItem('user_token');
+    const button = event.currentTarget;
+    const icon = button.querySelector('i');
+
+    try {
+        // تغيير الأيقونة مؤقتاً لتدل على التحميل
+        icon.className = 'fas fa-spinner fa-spin';
+
+        const response = await fetch(`${API_BASE_URL}/api/investments/${investmentId}/visibility`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error('فشل تحديث الحالة');
+
+        const data = await response.json();
+
+        // تحديث الأيقونة بناءً على الحالة الجديدة
+        if (data.isVisible) {
+            icon.className = 'fas fa-eye';
+            button.className = button.className.replace('text-red-500', 'text-gray-500').replace('hover:text-red-700', 'hover:text-blue-600');
+            button.title = 'مرئي للعامة';
+            // showInlineMessage('تم إظهار المشروع في ملفك العام', 'success'); // دالة اختيارية
+        } else {
+            icon.className = 'fas fa-eye-slash';
+            button.className = button.className.replace('text-gray-500', 'text-red-500').replace('hover:text-blue-600', 'hover:text-red-700');
+            button.title = 'مخفي من الملف العام';
+            // showInlineMessage('تم إخفاء المشروع من ملفك العام', 'success');
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert('حدث خطأ أثناء تحديث الحالة');
+        // إعادة الأيقونة لحالتها السابقة في حال الخطأ
+        // (يمكن تحسين هذا بإعادة تحميل البيانات)
+    }
+};
 
 function createProposalCard(proposal) {
     if (!proposal.projectId) return '';

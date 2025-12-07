@@ -1,9 +1,7 @@
-// ملف: models/investment.model.js
-
 const mongoose = require('mongoose');
 
 const investmentSchema = new mongoose.Schema({
-    investmentId: { // تمت الإضافة
+    investmentId: {
         type: String,
         unique: true,
         required: true
@@ -17,6 +15,10 @@ const investmentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Project',
         required: true
+    },
+    isVisible: {
+        type: Boolean,
+        default: true // الافتراضي أن الاستثمار ظاهر
     },
     amount: {
         type: Number,

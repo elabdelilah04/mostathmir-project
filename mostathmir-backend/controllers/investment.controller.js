@@ -212,9 +212,36 @@ const getInvestmentRecords = async (req, res, next) => {
         next(error);
     }
 };
+const toggleInvestmentVisibility = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const investment = await Investment.findOne({
+            _id: id,
+            investor: req.user._id
+        });
+
+        if (!investment) {
+            return res.status(404).json({ message: 'الاستثمار غير موجود أو غير مصرح لك بتعديله.' });
+        }
+
+        investment.isVisible = !investment.isVisible;
+        await investment.save();
+
+        res.json({
+            message: investment.isVisible ? 'أصبح الاستثمار مرئياً للعامة' : 'تم إخفاء الاستثمار من الملف العام',
+            isVisible: investment.isVisible
+        });
+
+    } catch (error) {
+        console.error("Error toggling visibility:", error);
+        next(error);
+    }
+};
 
 module.exports = {
     registerInvestment,
     getInvestmentRecords,
-    getProjectInvestors
+    getProjectInvestors,
+    toggleInvestmentVisibility,
 };

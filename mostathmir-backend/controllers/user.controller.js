@@ -73,7 +73,14 @@ const getPublicUserProfile = async (req, res, next) => {
                 }
             }
         } else if (user.accountType === 'investor') {
-            const investments = await Investment.find({ investor: user._id })
+            const query = { investor: user._id };
+            const isOwner = req.user && req.user._id.toString() === user._id.toString();
+
+            if (!isOwner) {
+                query.isVisible = true;
+            }
+
+            const investments = await Investment.find(query)
                 .populate({
                     path: 'project',
                     select: 'projectName projectDescription projectCategory status fundingGoal fundingAmountRaised owner',

@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { registerInvestment, getProjectInvestors } = require('../controllers/investment.controller.js');
+const {
+    registerInvestment,
+    getProjectInvestors,
+    toggleInvestmentVisibility,
+} = require('../controllers/investment.controller.js');
 const { protect } = require('../middleware/auth.middleware.js');
-// المسار سيكون الآن POST /api/investments/
 router.post('/', protect, registerInvestment);
-// مسار جديد لجلب المستثمرين لمشروع معين
 router.get('/:projectId/investors', protect, getProjectInvestors);
+router.put('/:id/visibility', protect, toggleInvestmentVisibility);
+
 module.exports = router;
