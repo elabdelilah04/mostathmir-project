@@ -4,6 +4,76 @@
   // =========================
   const dict = {
     ar: {
+      // --- صفحة الوثائق القانونية (Legal Page) ---
+      "legal-page-title": "الوثائق القانونية - منصة مستثمر",
+      "legal-hero-title": "الوثائق القانونية",
+      "legal-hero-desc": "نلتزم بالشفافية الكاملة. يرجى قراءة الشروط والسياسات أدناه بعناية لفهم حقوقك وواجباتك.",
+      "legal-last-update": "آخر تحديث: 08 ديسمبر 2025",
+      
+      // Tabs & Actions
+      "legal-tab-terms": "الشروط والأحكام",
+      "legal-tab-privacy": "سياسة الخصوصية",
+      "legal-btn-print": "طباعة الوثيقة",
+
+      // Navigation Sidebar
+      "legal-nav-t-intro": "1. مقدمة عامة",
+      "legal-nav-t-accounts": "2. الحسابات والتسجيل",
+      "legal-nav-t-projects": "3. نشر المشاريع والتمويل",
+      "legal-nav-t-risks": "4. إخلاء المسؤولية والمخاطر",
+      "legal-nav-t-fees": "5. الرسوم والمدفوعات",
+      "legal-nav-t-intellectual": "6. الملكية الفكرية",
+      
+      "legal-nav-p-collection": "1. جمع المعلومات",
+      "legal-nav-p-use": "2. استخدام المعلومات",
+      "legal-nav-p-sharing": "3. مشاركة البيانات",
+      "legal-nav-p-security": "4. أمن المعلومات",
+      "legal-nav-p-cookies": "5. ملفات تعريف الارتباط",
+
+      // Terms Content
+      "legal-terms-title": "شروط وأحكام الاستخدام",
+      "legal-t-intro-title": "1. مقدمة عامة",
+      "legal-t-intro-text1": "مرحباً بكم في منصة 'مستثمر'. تحكم هذه الشروط والأحكام استخدامكم للموقع الإلكتروني والخدمات المقدمة من خلاله. بوصولكم إلى الموقع أو استخدامه، فأنتم توافقون على الالتزام بهذه الشروط.",
+      "legal-t-intro-text2": "تعتبر منصة 'مستثمر' وسيطاً تقنياً يربط بين رواد الأعمال والمستثمرين، ولا تقدم المنصة أي نصائح استثمارية مباشرة.",
+      
+      "legal-t-acc-title": "2. الحسابات والتسجيل",
+      "legal-t-acc-text": "للاستفادة من خدمات المنصة، يجب عليك إنشاء حساب. أنت مسؤول عن الحفاظ على سرية بيانات حسابك.",
+      "legal-t-acc-li1": "يجب أن تكون المعلومات المقدمة دقيقة ومحدثة.",
+      "legal-t-acc-li2": "يمنع إنشاء حسابات وهمية أو انتحال شخصية الآخرين.",
+      "legal-t-acc-li3": "يحق للمنصة تعليق أو إغلاق أي حساب يخالف سياسات الاستخدام.",
+
+      "legal-t-proj-title": "3. نشر المشاريع والتمويل",
+      "legal-t-proj-text1": "يقر أصحاب المشاريع بأن جميع المعلومات والبيانات والوثائق (مثل دراسات الجدوى) المقدمة صحيحة وغير مضللة.",
+      "legal-t-proj-text2": "المستثمرون يقرون بأنهم يتخذون قرارات الاستثمار بناءً على تقديرهم الشخصي ومسؤوليتهم الكاملة.",
+
+      "legal-t-risk-title": "4. إخلاء المسؤولية والمخاطر",
+      "legal-t-risk-alert-title": "تنبيه هام حول المخاطر:",
+      "legal-t-risk-alert-text": "الاستثمار في الشركات الناشئة والمشاريع الجديدة ينطوي على درجة عالية من المخاطرة، بما في ذلك احتمال خسارة رأس المال بالكامل. منصة 'مستثمر' لا تضمن أي عوائد مالية ولا تتحمل مسؤولية أي خسائر.",
+
+      "legal-t-fees-title": "5. الرسوم والمدفوعات",
+      "legal-t-fees-text": "قد تفرض المنصة رسوماً إدارية أو نسبة مئوية عند نجاح جولات التمويل. سيتم توضيح كافة الرسوم بشفافية قبل إتمام أي عملية مالية.",
+
+      "legal-t-ip-title": "6. الملكية الفكرية",
+      "legal-t-ip-text": "جميع حقوق الملكية الفكرية الخاصة بالموقع ومحتوياته مملوكة لمنصة 'مستثمر'. تحتفظ المشاريع المنشورة بحقوق ملكيتها الفكرية لأصحابها.",
+
+      // Privacy Content
+      "legal-privacy-title": "سياسة الخصوصية",
+      "legal-p-col-title": "1. جمع المعلومات",
+      "legal-p-col-text": "نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند التسجيل، مثل الاسم، البريد الإلكتروني، ومعلومات الدفع.",
+
+      "legal-p-use-title": "2. استخدام المعلومات",
+      "legal-p-use-text": "نستخدم المعلومات التي نجمعها للأغراض التالية:",
+      "legal-p-use-li1": "تقديم خدماتنا وصيانتها وتحسينها.",
+      "legal-p-use-li2": "معالجة المعاملات وإرسال الإشعارات.",
+      "legal-p-use-li3": "التحقق من الهوية ومنع الاحتيال.",
+
+      "legal-p-share-title": "3. مشاركة البيانات",
+      "legal-p-share-text": "نحن لا نبيع بياناتك الشخصية. قد نشارك المعلومات الضرورية فقط مع مزودي الخدمات (مثل بوابات الدفع) أو للامتثال للقوانين.",
+
+      "legal-p-sec-title": "4. أمن المعلومات",
+      "legal-p-sec-text": "نحن نتخذ إجراءات أمنية معقولة لحماية معلوماتك. نستخدم تقنيات التشفير (SSL) لحماية البيانات الحساسة.",
+
+      "legal-p-cook-title": "5. ملفات تعريف الارتباط (Cookies)",
+      "legal-p-cook-text": "نستخدم ملفات تعريف الارتباط لتحسين تجربة المستخدم وتحليل حركة المرور. يمكنك التحكم في الإعدادات من متصفحك.",
       // indexpage
       // about section
       "shared-growth-slogan": "ننمو معاً",
@@ -1815,6 +1885,76 @@
     },
 
     en: {
+      // --- Legal Documents Page ---
+      "legal-page-title": "Legal Documents - Mostathmir",
+      "legal-hero-title": "Legal Documents",
+      "legal-hero-desc": "We are committed to full transparency. Please read the terms and policies below carefully to understand your rights and obligations.",
+      "legal-last-update": "Last updated: December 08, 2025",
+      
+      // Tabs & Actions
+      "legal-tab-terms": "Terms & Conditions",
+      "legal-tab-privacy": "Privacy Policy",
+      "legal-btn-print": "Print Document",
+
+      // Navigation Sidebar
+      "legal-nav-t-intro": "1. General Introduction",
+      "legal-nav-t-accounts": "2. Accounts & Registration",
+      "legal-nav-t-projects": "3. Project Posting & Funding",
+      "legal-nav-t-risks": "4. Disclaimer & Risks",
+      "legal-nav-t-fees": "5. Fees & Payments",
+      "legal-nav-t-intellectual": "6. Intellectual Property",
+      
+      "legal-nav-p-collection": "1. Information Collection",
+      "legal-nav-p-use": "2. Use of Information",
+      "legal-nav-p-sharing": "3. Data Sharing",
+      "legal-nav-p-security": "4. Security",
+      "legal-nav-p-cookies": "5. Cookies",
+
+      // Terms Content
+      "legal-terms-title": "Terms of Use",
+      "legal-t-intro-title": "1. General Introduction",
+      "legal-t-intro-text1": "Welcome to 'Mostathmir'. These terms govern your use of the website and services. By accessing or using the site, you agree to be bound by these terms.",
+      "legal-t-intro-text2": "'Mostathmir' acts as a technical intermediary connecting entrepreneurs and investors and does not provide direct investment advice.",
+      
+      "legal-t-acc-title": "2. Accounts & Registration",
+      "legal-t-acc-text": "To use our services, you must create an account. You are responsible for maintaining the confidentiality of your account data.",
+      "legal-t-acc-li1": "Information provided must be accurate and up-to-date.",
+      "legal-t-acc-li2": "Creating fake accounts or impersonating others is prohibited.",
+      "legal-t-acc-li3": "We reserve the right to suspend any account violating our policies.",
+
+      "legal-t-proj-title": "3. Project Posting & Funding",
+      "legal-t-proj-text1": "Project owners acknowledge that all information, data, and documents (such as feasibility studies) provided are accurate and not misleading.",
+      "legal-t-proj-text2": "Investors acknowledge that they make investment decisions based on their own discretion and full responsibility.",
+
+      "legal-t-risk-title": "4. Disclaimer & Risks",
+      "legal-t-risk-alert-title": "Important Risk Warning:",
+      "legal-t-risk-alert-text": "Investing in startups involves a high degree of risk, including the potential loss of all capital. 'Mostathmir' does not guarantee any financial returns and is not liable for any losses.",
+
+      "legal-t-fees-title": "5. Fees & Payments",
+      "legal-t-fees-text": "The platform may charge administrative fees or a percentage upon successful funding rounds. All fees will be clearly disclosed before any transaction.",
+
+      "legal-t-ip-title": "6. Intellectual Property",
+      "legal-t-ip-text": "All intellectual property rights of the site and its content belong to 'Mostathmir'. Published projects retain their intellectual property rights for their owners.",
+
+      // Privacy Content
+      "legal-privacy-title": "Privacy Policy",
+      "legal-p-col-title": "1. Information Collection",
+      "legal-p-col-text": "We collect information you provide directly upon registration, such as name, email, and payment information.",
+
+      "legal-p-use-title": "2. Use of Information",
+      "legal-p-use-text": "We use the collected information for the following purposes:",
+      "legal-p-use-li1": "To provide, maintain, and improve our services.",
+      "legal-p-use-li2": "To process transactions and send related notifications.",
+      "legal-p-use-li3": "To verify identity and prevent fraud.",
+
+      "legal-p-share-title": "3. Data Sharing",
+      "legal-p-share-text": "We do not sell your personal data. We may share necessary information only with service providers (e.g., payment gateways) or to comply with laws.",
+
+      "legal-p-sec-title": "4. Security",
+      "legal-p-sec-text": "We take reasonable security measures to protect your information. We use encryption technologies (SSL) to protect sensitive data.",
+
+      "legal-p-cook-title": "5. Cookies",
+      "legal-p-cook-text": "We use cookies to improve user experience and analyze site traffic. You can control cookie settings through your browser.",
       // indexpage
       // abot section
       "shared-growth-slogan": "Growing Together",

@@ -8,7 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="/css/header-styles.css">
-  <!-- ملف CSS خاص للصفحة القانونية -->
   <link rel="stylesheet" href="/css/legal.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -21,11 +20,11 @@
   <section class="legal-hero relative bg-[#1E3A8A] text-white py-16 overflow-hidden">
     <div class="absolute inset-0 opacity-10 pattern-grid"></div>
     <div class="container mx-auto px-6 relative z-10 text-center">
-      <h1 class="text-4xl font-bold mb-4">الوثائق القانونية</h1>
-      <p class="text-blue-100 text-lg max-w-2xl mx-auto">نلتزم بالشفافية الكاملة. يرجى قراءة الشروط والسياسات أدناه
-        بعناية لفهم حقوقك وواجباتك.</p>
+      <h1 class="text-4xl font-bold mb-4" data-i18n-key="legal-hero-title">الوثائق القانونية</h1>
+      <p class="text-blue-100 text-lg max-w-2xl mx-auto" data-i18n-key="legal-hero-desc">نلتزم بالشفافية الكاملة. يرجى
+        قراءة الشروط والسياسات أدناه بعناية لفهم حقوقك وواجباتك.</p>
       <div class="mt-6 text-sm bg-white/10 inline-block px-4 py-2 rounded-full backdrop-blur-sm">
-        <i class="far fa-clock ml-2"></i> آخر تحديث: 08 ديسمبر 2025
+        <i class="far fa-clock ml-2"></i> <span data-i18n-key="legal-last-update">آخر تحديث: 08 ديسمبر 2025</span>
       </div>
     </div>
   </section>
@@ -40,40 +39,54 @@
           <!-- Tabs Headers -->
           <div class="flex border-b border-gray-100">
             <button onclick="switchLegalTab('terms')" id="tab-btn-terms"
-              class="flex-1 py-4 text-sm font-bold text-center border-b-2 border-[#1E3A8A] text-[#1E3A8A] bg-blue-50 transition-colors">
+              class="flex-1 py-4 text-sm font-bold text-center border-b-2 border-[#1E3A8A] text-[#1E3A8A] bg-blue-50 transition-colors"
+              data-i18n-key="legal-tab-terms">
               الشروط والأحكام
             </button>
             <button onclick="switchLegalTab('privacy')" id="tab-btn-privacy"
-              class="flex-1 py-4 text-sm font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
+              class="flex-1 py-4 text-sm font-bold text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors"
+              data-i18n-key="legal-tab-privacy">
               سياسة الخصوصية
             </button>
           </div>
 
-          <!-- Navigation Links -->
+          <!-- Navigation Links: Terms -->
           <nav class="p-4" id="nav-terms">
             <ul class="space-y-1">
-              <li><a href="#t-intro" class="legal-nav-link active">1. مقدمة عامة</a></li>
-              <li><a href="#t-accounts" class="legal-nav-link">2. الحسابات والتسجيل</a></li>
-              <li><a href="#t-projects" class="legal-nav-link">3. نشر المشاريع والتمويل</a></li>
-              <li><a href="#t-risks" class="legal-nav-link">4. إخلاء المسؤولية والمخاطر</a></li>
-              <li><a href="#t-fees" class="legal-nav-link">5. الرسوم والمدفوعات</a></li>
-              <li><a href="#t-intellectual" class="legal-nav-link">6. الملكية الفكرية</a></li>
+              <li><a href="#t-intro" class="legal-nav-link active" data-i18n-key="legal-nav-t-intro">1. مقدمة عامة</a>
+              </li>
+              <li><a href="#t-accounts" class="legal-nav-link" data-i18n-key="legal-nav-t-accounts">2. الحسابات
+                  والتسجيل</a></li>
+              <li><a href="#t-projects" class="legal-nav-link" data-i18n-key="legal-nav-t-projects">3. نشر المشاريع
+                  والتمويل</a></li>
+              <li><a href="#t-risks" class="legal-nav-link" data-i18n-key="legal-nav-t-risks">4. إخلاء المسؤولية
+                  والمخاطر</a></li>
+              <li><a href="#t-fees" class="legal-nav-link" data-i18n-key="legal-nav-t-fees">5. الرسوم والمدفوعات</a>
+              </li>
+              <li><a href="#t-intellectual" class="legal-nav-link" data-i18n-key="legal-nav-t-intellectual">6. الملكية
+                  الفكرية</a></li>
             </ul>
           </nav>
+
+          <!-- Navigation Links: Privacy -->
           <nav class="p-4 hidden" id="nav-privacy">
             <ul class="space-y-1">
-              <li><a href="#p-collection" class="legal-nav-link">1. جمع المعلومات</a></li>
-              <li><a href="#p-use" class="legal-nav-link">2. استخدام المعلومات</a></li>
-              <li><a href="#p-sharing" class="legal-nav-link">3. مشاركة البيانات</a></li>
-              <li><a href="#p-security" class="legal-nav-link">4. أمن المعلومات</a></li>
-              <li><a href="#p-cookies" class="legal-nav-link">5. ملفات تعريف الارتباط</a></li>
+              <li><a href="#p-collection" class="legal-nav-link" data-i18n-key="legal-nav-p-collection">1. جمع
+                  المعلومات</a></li>
+              <li><a href="#p-use" class="legal-nav-link" data-i18n-key="legal-nav-p-use">2. استخدام المعلومات</a></li>
+              <li><a href="#p-sharing" class="legal-nav-link" data-i18n-key="legal-nav-p-sharing">3. مشاركة البيانات</a>
+              </li>
+              <li><a href="#p-security" class="legal-nav-link" data-i18n-key="legal-nav-p-security">4. أمن المعلومات</a>
+              </li>
+              <li><a href="#p-cookies" class="legal-nav-link" data-i18n-key="legal-nav-p-cookies">5. ملفات تعريف
+                  الارتباط</a></li>
             </ul>
           </nav>
 
           <div class="p-4 border-t border-gray-100">
             <button onclick="window.print()"
               class="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold flex items-center justify-center gap-2">
-              <i class="fas fa-print"></i> طباعة الوثيقة
+              <i class="fas fa-print"></i> <span data-i18n-key="legal-btn-print">طباعة الوثيقة</span>
             </button>
           </div>
         </div>
@@ -87,57 +100,49 @@
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
               <i class="fas fa-file-contract text-2xl text-[#D4AF37]"></i>
-              <h2 class="text-2xl font-bold text-gray-800">شروط وأحكام الاستخدام</h2>
+              <h2 class="text-2xl font-bold text-gray-800" data-i18n-key="legal-terms-title">شروط وأحكام الاستخدام</h2>
             </div>
 
             <article id="t-intro" class="legal-article">
-              <h3>1. مقدمة عامة</h3>
-              <p>مرحباً بكم في منصة "مستثمر". تحكم هذه الشروط والأحكام استخدامكم للموقع الإلكتروني والخدمات المقدمة من
-                خلاله. بوصولكم إلى الموقع أو استخدامه، فأنتم توافقون على الالتزام بهذه الشروط. إذا كنتم لا توافقون على
-                أي جزء من هذه الشروط، يرجى عدم استخدام خدماتنا.</p>
-              <p>تعتبر منصة "مستثمر" وسيطاً تقنياً يربط بين رواد الأعمال والمستثمرين، ولا تقدم المنصة أي نصائح استثمارية
-                مباشرة.</p>
+              <h3 data-i18n-key="legal-t-intro-title">1. مقدمة عامة</h3>
+              <p data-i18n-key="legal-t-intro-text1">مرحباً بكم في منصة "مستثمر"...</p>
+              <p data-i18n-key="legal-t-intro-text2">تعتبر منصة "مستثمر" وسيطاً...</p>
             </article>
 
             <article id="t-accounts" class="legal-article">
-              <h3>2. الحسابات والتسجيل</h3>
-              <p>للاستفادة من خدمات المنصة، يجب عليك إنشاء حساب. أنت مسؤول عن الحفاظ على سرية بيانات حسابك وكلمة المرور
-                الخاصة بك.</p>
+              <h3 data-i18n-key="legal-t-acc-title">2. الحسابات والتسجيل</h3>
+              <p data-i18n-key="legal-t-acc-text">للاستفادة من خدمات المنصة...</p>
               <ul class="list-disc list-inside mt-2 text-gray-600 space-y-1">
-                <li>يجب أن تكون المعلومات المقدمة دقيقة ومحدثة.</li>
-                <li>يمنع إنشاء حسابات وهمية أو انتحال شخصية الآخرين.</li>
-                <li>يحق للمنصة تعليق أو إغلاق أي حساب يخالف سياسات الاستخدام.</li>
+                <li data-i18n-key="legal-t-acc-li1">يجب أن تكون المعلومات...</li>
+                <li data-i18n-key="legal-t-acc-li2">يمنع إنشاء حسابات وهمية...</li>
+                <li data-i18n-key="legal-t-acc-li3">يحق للمنصة تعليق...</li>
               </ul>
             </article>
 
             <article id="t-projects" class="legal-article">
-              <h3>3. نشر المشاريع والتمويل</h3>
-              <p>يقر أصحاب المشاريع بأن جميع المعلومات والبيانات والوثائق (مثل دراسات الجدوى) المقدمة صحيحة وغير مضللة.
-              </p>
-              <p>المستثمرون يقرون بأنهم يتخذون قرارات الاستثمار بناءً على تقديرهم الشخصي ومسؤوليتهم الكاملة، مع فهم
-                المخاطر المحتملة.</p>
+              <h3 data-i18n-key="legal-t-proj-title">3. نشر المشاريع والتمويل</h3>
+              <p data-i18n-key="legal-t-proj-text1">يقر أصحاب المشاريع بأن جميع المعلومات...</p>
+              <p data-i18n-key="legal-t-proj-text2">المستثمرون يقرون بأنهم يتخذون...</p>
             </article>
 
             <article id="t-risks" class="legal-article">
-              <h3>4. إخلاء المسؤولية والمخاطر</h3>
+              <h3 data-i18n-key="legal-t-risk-title">4. إخلاء المسؤولية والمخاطر</h3>
               <div class="bg-red-50 border-r-4 border-red-500 p-4 my-4 rounded-l">
-                <p class="text-red-700 font-bold mb-1">تنبيه هام حول المخاطر:</p>
-                <p class="text-sm text-red-600">الاستثمار في الشركات الناشئة والمشاريع الجديدة ينطوي على درجة عالية من
-                  المخاطرة، بما في ذلك احتمال خسارة رأس المال بالكامل. منصة "مستثمر" لا تضمن أي عوائد مالية ولا تتحمل
-                  مسؤولية أي خسائر.</p>
+                <p class="text-red-700 font-bold mb-1" data-i18n-key="legal-t-risk-alert-title">تنبيه هام حول المخاطر:
+                </p>
+                <p class="text-sm text-red-600" data-i18n-key="legal-t-risk-alert-text">الاستثمار في الشركات الناشئة...
+                </p>
               </div>
             </article>
 
             <article id="t-fees" class="legal-article">
-              <h3>5. الرسوم والمدفوعات</h3>
-              <p>قد تفرض المنصة رسوماً إدارية أو نسبة مئوية عند نجاح جولات التمويل. سيتم توضيح كافة الرسوم بشفافية قبل
-                إتمام أي عملية مالية.</p>
+              <h3 data-i18n-key="legal-t-fees-title">5. الرسوم والمدفوعات</h3>
+              <p data-i18n-key="legal-t-fees-text">قد تفرض المنصة رسوماً إدارية...</p>
             </article>
 
             <article id="t-intellectual" class="legal-article">
-              <h3>6. الملكية الفكرية</h3>
-              <p>جميع حقوق الملكية الفكرية الخاصة بالموقع ومحتوياته (الشعارات، التصاميم، الكود البرمجي) مملوكة لمنصة
-                "مستثمر". تحتفظ المشاريع المنشورة بحقوق ملكيتها الفكرية لأصحابها.</p>
+              <h3 data-i18n-key="legal-t-ip-title">6. الملكية الفكرية</h3>
+              <p data-i18n-key="legal-t-ip-text">جميع حقوق الملكية الفكرية...</p>
             </article>
           </div>
         </div>
@@ -147,42 +152,37 @@
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
               <i class="fas fa-user-shield text-2xl text-[#D4AF37]"></i>
-              <h2 class="text-2xl font-bold text-gray-800">سياسة الخصوصية</h2>
+              <h2 class="text-2xl font-bold text-gray-800" data-i18n-key="legal-privacy-title">سياسة الخصوصية</h2>
             </div>
 
             <article id="p-collection" class="legal-article">
-              <h3>1. جمع المعلومات</h3>
-              <p>نقوم بجمع المعلومات التي تقدمها لنا مباشرة عند التسجيل، مثل الاسم، البريد الإلكتروني، رقم الهاتف،
-                ومعلومات الدفع. قد نجمع أيضاً معلومات حول كيفية استخدامك للموقع لتحسين تجربتك.</p>
+              <h3 data-i18n-key="legal-p-col-title">1. جمع المعلومات</h3>
+              <p data-i18n-key="legal-p-col-text">نقوم بجمع المعلومات...</p>
             </article>
 
             <article id="p-use" class="legal-article">
-              <h3>2. استخدام المعلومات</h3>
-              <p>نستخدم المعلومات التي نجمعها للأغراض التالية:</p>
+              <h3 data-i18n-key="legal-p-use-title">2. استخدام المعلومات</h3>
+              <p data-i18n-key="legal-p-use-text">نستخدم المعلومات...</p>
               <ul class="list-disc list-inside mt-2 text-gray-600 space-y-1">
-                <li>تقديم خدماتنا وصيانتها وتحسينها.</li>
-                <li>معالجة المعاملات وإرسال الإشعارات المتعلقة بها.</li>
-                <li>التحقق من هويتكم ومنع الاحتيال.</li>
-                <li>التواصل معكم حول التحديثات والعروض (بموافقتكم).</li>
+                <li data-i18n-key="legal-p-use-li1">تقديم خدماتنا...</li>
+                <li data-i18n-key="legal-p-use-li2">معالجة المعاملات...</li>
+                <li data-i18n-key="legal-p-use-li3">التحقق من هويتكم...</li>
               </ul>
             </article>
 
             <article id="p-sharing" class="legal-article">
-              <h3>3. مشاركة البيانات</h3>
-              <p>نحن لا نبيع بياناتك الشخصية لأي طرف ثالث. قد نشارك المعلومات الضرورية فقط مع:</p>
-              <p>مزودي الخدمات (مثل بوابات الدفع)، أو الامتثال للقوانين واللوائح المعمول بها.</p>
+              <h3 data-i18n-key="legal-p-share-title">3. مشاركة البيانات</h3>
+              <p data-i18n-key="legal-p-share-text">نحن لا نبيع بياناتك الشخصية...</p>
             </article>
 
             <article id="p-security" class="legal-article">
-              <h3>4. أمن المعلومات</h3>
-              <p>نحن نتخذ إجراءات أمنية معقولة لحماية معلوماتك من الوصول غير المصرح به أو التغيير أو الإفصاح أو الإتلاف.
-                نستخدم تقنيات التشفير (SSL) لحماية البيانات الحساسة.</p>
+              <h3 data-i18n-key="legal-p-sec-title">4. أمن المعلومات</h3>
+              <p data-i18n-key="legal-p-sec-text">نحن نتخذ إجراءات أمنية...</p>
             </article>
 
             <article id="p-cookies" class="legal-article">
-              <h3>5. ملفات تعريف الارتباط (Cookies)</h3>
-              <p>نستخدم ملفات تعريف الارتباط لتحسين تجربة المستخدم وتحليل حركة المرور في الموقع. يمكنك التحكم في إعدادات
-                ملفات تعريف الارتباط من خلال متصفحك.</p>
+              <h3 data-i18n-key="legal-p-cook-title">5. ملفات تعريف الارتباط</h3>
+              <p data-i18n-key="legal-p-cook-text">نستخدم ملفات تعريف الارتباط...</p>
             </article>
           </div>
         </div>
@@ -193,10 +193,10 @@
 
   <div id="footer-placeholder"></div>
 
-  <script src="/js/header.js"></script>
-  <script src="/js/script.js"></script>
+  <!-- Scripts -->
   <script src="/js/translation.js"></script>
-  <!-- سكربت خاص للصفحة القانونية -->
+  <script src="/js/script.js"></script>
+  <script src="/js/header.js"></script>
   <script src="/js/legal.js"></script>
 </body>
 
