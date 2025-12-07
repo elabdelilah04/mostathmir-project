@@ -269,13 +269,13 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 
         if (investorData && investorData.stats) {
             const stats = investorData.stats;
-            const groupedInvestments = investorData.investments; 
+            const groupedInvestments = investorData.investments;
 
             document.getElementById('public-stat-investments').textContent = stats.investmentsCount || 0;
             document.getElementById('public-stat-partners').textContent = stats.partnersCount || 0;
 
             const investmentsGrid = document.getElementById('investmentsGrid');
-            
+
             if (groupedInvestments && groupedInvestments.length > 0) {
                 investmentsGrid.innerHTML = groupedInvestments.map(item => createGroupedInvestmentCard(item)).join('');
             } else {
@@ -375,20 +375,20 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 }
 
 function createGroupedInvestmentCard(item) {
-    const { 
-        projectId, 
-        projectName, 
-        projectDescription, 
-        projectStatus, 
-        totalAmount, 
-        count, 
-        lastDate, 
+    const {
+        projectId,
+        projectName,
+        projectDescription,
+        projectStatus,
+        totalAmount,
+        count,
+        lastDate,
         currency,
         fundingGoal,
-        equityOffered 
+        equityOffered
     } = item;
-    
-    const dateStr = new Date(lastDate).toLocaleDateString('en-EG');
+
+    const dateStr = new Date(lastDate).toLocaleDateString('en-us');
     const statusText = projectStatus === 'published' ? t('js-public-profile-project-status-funding') : t('js-public-profile-project-status-completed');
     const borderClass = projectStatus === 'published' ? 'border-l-blue-500' : 'border-l-emerald-500';
 
@@ -418,7 +418,7 @@ function createGroupedInvestmentCard(item) {
             <!-- الصف الأوسط -->
             <div class="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded-lg">
                 <span class="text-xs text-gray-500">${t('js-portfolio-investment-date')}: ${dateStr}</span>
-                <span class="ops-badge">${count} عمليات</span>
+                <span class="ops-badge">${count} ${t('js-portfolio-card-transactions')}</span>
             </div>
 
             <div class="border-t border-dashed border-gray-300 my-3"></div>
@@ -426,11 +426,11 @@ function createGroupedInvestmentCard(item) {
             <!-- الصف السفلي -->
             <div class="flex justify-between items-end">
                 <div class="text-left">
-                    <span class="block text-xs text-gray-400 mb-1">حصة الملكية</span>
+                    <span class="block text-xs text-gray-400 mb-1">${t('js-portfolio-card-equity-share')}</span>
                     <span class="text-lg font-bold text-purple-600">${totalEquity.toFixed(2)}%</span>
                 </div>
                 <div class="text-right">
-                    <span class="block text-xs text-gray-400 mb-1">إجمالي استثمارك</span>
+                    <span class="block text-xs text-gray-400 mb-1">${t('js-project-view-investor-card-amount')}</span>
                     <span class="text-lg font-bold text-emerald-600">
                         ${currency} ${totalAmount.toLocaleString()}
                     </span>
