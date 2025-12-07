@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/admin-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -106,112 +106,111 @@
     </main>
 
     <!-- نافذة تفاصيل المشروع والمصادقة -->
-    <div class="modal" id="approvalModal">
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h2 id="modalTitle">تفاصيل المشروع</h2>
+<div class="modal" id="approvalModal">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h2 id="modalTitle">تفاصيل المشروع</h2>
+            
+            <!-- أزرار الإجراءات العلوية -->
+            <div class="header-actions" style="display: flex; gap: 10px;">
+                <a id="viewProjectLink" href="#" target="_blank" class="action-btn btn-secondary" title="عرض صفحة المشروع">
+                    <i class="fas fa-external-link-alt"></i> عرض في الموقع
+                </a>
+                <button id="downloadPdfBtn" class="action-btn btn-secondary" title="تحميل كـ PDF">
+                    <i class="fas fa-file-download"></i> PDF
+                </button>
                 <button class="close-btn" onclick="closeApprovalModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="project-details">
-                    <div class="detail-section">
-                        <h3>معلومات المشروع</h3>
-                        <div class="detail-grid">
-                            <div class="detail-item">
-                                <label>عنوان المشروع:</label>
-                                <span id="detailTitle">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>صاحب المشروع:</label>
-                                <span id="detailOwner">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>تاريخ التقديم:</label>
-                                <span id="detailSubmissionDate">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>التمويل المطلوب:</label>
-                                <span id="detailFunding">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>فئة المشروع:</label>
-                                <span id="detailCategory">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>موقع المشروع:</label>
-                                <span id="detailLocation">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>وصف مختصر:</label>
-                                <span id="detailBriefDescription">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>التحديات الحالية:</label>
-                                <span id="detailChallenges">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>رابط الفيديو:</label>
-                                <span id="detailVideoLink">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>تفاصيل الإنفاق:</label>
-                                <span id="detailFundingDetails">-</span>
-                            </div>
-                            <div class="detail-item">
-                                <label>إعدادات الرؤية:</label>
-                                <span id="detailVisibility">-</span>
-                            </div>
-                        </div>
-                    </div>
+        </div>
 
-                    <div class="detail-section">
-                        <h3>وصف المشروع</h3>
-                        <div class="description-box" id="detailDescription">
-                            -
-                        </div>
+        <div class="modal-body">
+            <!-- هذا الـ ID هو ما سنقوم بطباعته كـ PDF -->
+            <div id="project-details-content" class="project-details">
+                
+                <!-- 1. المعلومات الأساسية -->
+                <div class="detail-section">
+                    <h3>المعلومات الأساسية</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><label>عنوان المشروع:</label><span id="detailTitle">-</span></div>
+                        <div class="detail-item"><label>صاحب المشروع:</label><span id="detailOwner">-</span></div>
+                        <div class="detail-item"><label>تاريخ التقديم:</label><span id="detailSubmissionDate">-</span></div>
+                        <div class="detail-item"><label>الفئة:</label><span id="detailCategory">-</span></div>
+                        <div class="detail-item"><label>الموقع:</label><span id="detailLocation">-</span></div>
+                        <div class="detail-item"><label>المرحلة:</label><span id="detailStage">-</span></div>
                     </div>
+                </div>
 
-                    <div class="detail-section">
-                        <h3>المرفقات والوثائق</h3>
-                        <div class="attachments-list" id="detailAttachments">
-                            <div class="attachment-item">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>خطة العمل.pdf</span>
-                                <button class="view-btn">عرض</button>
-                            </div>
-                            <div class="attachment-item">
-                                <i class="fas fa-file-excel"></i>
-                                <span>الميزانية.xlsx</span>
-                                <button class="view-btn">عرض</button>
-                            </div>
-                        </div>
+                <!-- 2. التفاصيل المالية -->
+                <div class="detail-section">
+                    <h3>البيانات المالية</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><label>الهدف المالي:</label><span id="detailFundingGoal">-</span></div>
+                        <div class="detail-item"><label>الحد الأدنى للاستثمار:</label><span id="detailMinInvestment">-</span></div>
+                        <div class="detail-item"><label>نسبة الملكية المعروضة:</label><span id="detailEquity">-</span></div>
+                        <div class="detail-item"><label>مدة الحملة:</label><span id="detailDuration">-</span></div>
                     </div>
+                    
+                    <h4 style="margin-top: 15px; margin-bottom: 10px;">توزيع الميزانية:</h4>
+                    <div id="detailFundingDetails" class="bg-gray-50 p-3 rounded"></div>
 
-                    <div class="detail-section">
-                        <h3>ملاحظات الإدارة</h3>
-                        <textarea id="adminNotes" placeholder="أضف ملاحظاتك هنا..." rows="4"></textarea>
-                    </div>
+                    <h4 style="margin-top: 15px; margin-bottom: 10px;">التوقعات المالية (3 سنوات):</h4>
+                    <div id="detailFinancialProjections" class="overflow-x-auto"></div>
+                </div>
 
-                    <div class="approval-actions">
-                        <button class="action-btn btn-success" onclick="approveProject()">
-                            <i class="fas fa-check"></i>
-                            قبول المشروع
-                        </button>
-                        <button class="action-btn btn-warning" onclick="requestRevision()">
-                            <i class="fas fa-edit"></i>
-                            طلب مراجعة
-                        </button>
-                        <button class="action-btn btn-danger" onclick="rejectProject()">
-                            <i class="fas fa-times"></i>
-                            رفض المشروع
-                        </button>
+                <!-- 3. الوصف والفريق -->
+                <div class="detail-section">
+                    <h3>الوصف والفريق</h3>
+                    <div class="detail-item mb-4">
+                        <label>الوصف المختصر:</label>
+                        <p id="detailBriefDescription" class="p-2 bg-gray-50 rounded">-</p>
                     </div>
+                    <div class="detail-item mb-4">
+                        <label>الوصف التفصيلي:</label>
+                        <div class="description-box" id="detailDescription">-</div>
+                    </div>
+                    
+                    <h4>أعضاء الفريق:</h4>
+                    <div id="detailTeamMembers" class="team-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;"></div>
+                </div>
+
+                <!-- 4. المرفقات والفيديو -->
+                <div class="detail-section">
+                    <h3>المرفقات والوسائط</h3>
+                    <div class="detail-item mb-2">
+                        <label>رابط الفيديو:</label>
+                        <span id="detailVideoLink">-</span>
+                    </div>
+                    <div class="attachments-list" id="detailAttachments"></div>
+                </div>
+
+                <!-- 5. الصور -->
+                <div class="detail-section" id="imagesSection">
+                    <h3>صور المشروع</h3>
+                    <div id="detailImages" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                </div>
+            </div>
+
+            <!-- قسم الملاحظات والإجراءات (لن يظهر في الـ PDF) -->
+            <div class="detail-section mt-6 no-print">
+                <h3>إجراءات الإدارة</h3>
+                <textarea id="adminNotes" placeholder="أضف ملاحظاتك هنا..." rows="4"></textarea>
+                <div class="approval-actions">
+                    <button class="action-btn btn-success" onclick="approveProject()">
+                        <i class="fas fa-check"></i> قبول
+                    </button>
+                    <button class="action-btn btn-warning" onclick="requestRevision()">
+                        <i class="fas fa-edit"></i> مراجعة
+                    </button>
+                    <button class="action-btn btn-danger" onclick="rejectProject()">
+                        <i class="fas fa-times"></i> رفض
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- نافذة تأكيد الإجراء -->
     <div class="modal" id="confirmModal">
