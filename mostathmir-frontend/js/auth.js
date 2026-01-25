@@ -1,5 +1,3 @@
-const API_BASE_URL = 'https://mostathmir-api.onrender.com';
-
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;
