@@ -1,23 +1,3 @@
-
-const arabCountries = {
-    [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
-    [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
-    [t('js-country-tunisia')]: [t('js-city-tunis'), t('js-city-sfax'), t('js-city-sousse'), t('js-city-bizerte')],
-    [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria'), t('js-city-giza'), t('js-city-portsaid'), t('js-city-mansoura')],
-    [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah'), t('js-city-mecca'), t('js-city-medina'), t('js-city-dammam')],
-    [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi'), t('js-city-sharjah'), t('js-city-alain')],
-    [t('js-country-qatar')]: [t('js-city-doha'), t('js-city-alrayyan'), t('js-city-alwakrah')],
-    [t('js-country-kuwait')]: [t('js-city-kuwait_city'), t('js-city-alfarwaniyah'), t('js-city-hawalli'), t('js-city-alahmadi')],
-    [t('js-country-bahrain')]: [t('js-city-manama'), t('js-city-muharraq'), t('js-city-sitra')],
-    [t('js-country-oman')]: [t('js-city-muscat'), t('js-city-salalah'), t('js-city-sohar')],
-    [t('js-country-jordan')]: [t('js-city-amman'), t('js-city-irbid'), t('js-city-zarqa')],
-    [t('js-country-lebanon')]: [t('js-city-beirut'), t('js-city-tripoli'), t('js-city-sidon')],
-    [t('js-country-iraq')]: [t('js-city-baghdad'), t('js-city-basra'), t('js-city-mosul'), t('js-city-erbil')],
-    [t('js-country-palestine')]: [t('js-city-jerusalem'), t('js-city-ramallah'), t('js-city-gaza'), t('js-city-nablus'), t('js-city-hebron')],
-    [t('js-country-yemen')]: [t('js-city-sanaa'), t('js-city-aden'), t('js-city-taiz'), t('js-city-alhodeidah'), t('js-city-ibb')],
-    [t('js-country-sudan')]: [t('js-city-khartoum'), t('js-city-omdurman'), t('js-city-portsudan')]
-};
-
 async function handleApiRequest(url, options, form) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;
@@ -32,9 +12,9 @@ async function handleApiRequest(url, options, form) {
             error.data = data;
             throw error;
         }
-        return data; 
+        return data;
     } catch (error) {
-        throw error; 
+        throw error;
     } finally {
         if (submitButton) {
             submitButton.disabled = false;
@@ -103,7 +83,7 @@ async function handleSignupSubmit(e, signupForm) {
     const country = signupForm.querySelector('#country').value;
     const city = signupForm.querySelector('#city').value;
     const locationValue = country && city ? `${city}, ${country}` : '';
-    
+
     const formData = {
         fullName: signupForm.querySelector('#fullName').value,
         email: signupForm.querySelector('#email').value,
@@ -181,7 +161,7 @@ async function handleLoginSubmit(e, loginForm) {
 function initCountryCityDropdowns() {
     const countrySelect = document.getElementById("country");
     const citySelect = document.getElementById("city");
-    
+
     if (!countrySelect || !citySelect) return;
 
     const arabCountriesList = {
@@ -230,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     redirectIfLoggedIn();
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
-        initCountryCityDropdowns();
+        initCountryCityDropdowns(); // استدعاء الدالة بعد تحميل الصفحة
         signupForm.addEventListener('submit', (e) => handleSignupSubmit(e, signupForm));
     }
     const loginForm = document.getElementById('loginForm');
