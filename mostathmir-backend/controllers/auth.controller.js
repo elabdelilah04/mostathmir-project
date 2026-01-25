@@ -1,3 +1,4 @@
+
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -11,14 +12,19 @@ const generateToken = (id) => {
 
 exports.registerUser = async (req, res) => {
     const { fullName, email, phone, password, accountType, location, bio } = req.body;
+
+    let user;
+
     try {
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ messageKey: 'auth_email_exists' });
         }
-        const user = await User.create({
+
+        user = await User.create({
             fullName, email, phone, password, accountType, location, bio,
         });
+
         const verificationToken = user.createVerificationToken();
         await user.save({ validateBeforeSave: false });
 
@@ -38,18 +44,22 @@ exports.registerUser = async (req, res) => {
                 subject: 'رمز تفعيل حسابك في منصة مستثمر',
                 html: message
             });
+
             res.status(201).json({
                 success: true,
                 messageKey: 'auth_verification_sent'
             });
         } catch (err) {
-            console.error(err);
-            user.verificationToken = undefined;
-            user.verificationTokenExpires = undefined;
-            await user.save({ validateBeforeSave: false });
+            console.error("Email send failed, rolling back user creation:", err);
+
+            if (user && user._id) {
+                await User.findByIdAndDelete(user._id);
+            }
+
             return res.status(500).json({ messageKey: 'auth_email_send_failed' });
         }
     } catch (error) {
+        console.error("Register server error:", error);
         res.status(500).json({ messageKey: 'auth_server_error' });
     }
 };
@@ -159,7 +169,7 @@ exports.resendVerificationToken = async (req, res) => {
         const verificationToken = user.createVerificationToken();
         await user.save({ validateBeforeSave: false });
 
-        const verificationURL = `${req.protocol}://${req.get('host')}/verify-email.html?email=${user.email}`;
+        const verificationURL = `${process.env.FRONTEND_URL}/verify-email.html?email=${user.email}`;
         const message = `
             <h2>مرحباً ${user.fullName},</h2>
             <p>لقد طلبت إعادة إرسال رمز التفعيل. يرجى استخدام الرمز التالي:</p>
