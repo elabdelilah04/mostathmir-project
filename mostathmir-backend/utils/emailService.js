@@ -1,33 +1,40 @@
-const sgMail = require('@sendgrid/mail');
-
-// قم بتعيين مفتاح API الخاص بك
-sgMail.setApiKey(process.env.EMAIL_PASS); // نحن نستخدم EMAIL_PASS لأنه يحتوي بالفعل على مفتاح SendGrid
+const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-    // استخراج البريد الإلكتروني الفعلي من EMAIL_FROM
-    // المثال: "Mostathmir Platform" <no-reply@mostathmir.com> -> no-reply@mostathmir.com
-    const fromEmailMatch = process.env.EMAIL_FROM.match(/<(.+)>/);
-    const fromEmail = fromEmailMatch ? fromEmailMatch[1] : process.env.EMAIL_USER; // استخدم بريد إلكتروني احتياطي
 
-    const msg = {
-        to: options.email,
-        from: {
-            email: fromEmail, // استخدم البريد الإلكتروني الذي قمت بتوثيقه في SendGrid
-            name: 'Mostathmir Platform'
+    // 1. إعداد الناقل (Transporter) باستخدام إعدادات Brevo
+    const transporter = nodemailer.createTransport({
+        host: "smtp-relay.brevo.com", // خادم Brevo
+        port: 587,                    // المنفذ القياسي
+        secure: false,                // false لـ 587، true لـ 465
+        auth: {
+            user: process.env.EMAIL_USER, // إيميل تسجيل الدخول في Brevo
+            pass: process.env.EMAIL_PASS, // مفتاح SMTP Key (وليس كلمة سر حسابك)
         },
+    });
+
+    // 2. التحقق من إيميل المرسل
+    const sender = process.env.EMAIL_FROM;
+    if (!sender) {
+        console.error("❌ ERROR: EMAIL_FROM is missing in Environment Variables.");
+        throw new Error("Sender email is not configured.");
+    }
+
+    // 3. خيارات الرسالة
+    const message = {
+        from: `Mostathmir Platform <${sender}>`, // يظهر الاسم وبجانبه الإيميل
+        to: options.email,
         subject: options.subject,
         html: options.html,
     };
 
+    // 4. الإرسال
     try {
-        await sgMail.send(msg);
-        console.log('Email sent successfully via SendGrid API to:', options.email);
+        const info = await transporter.sendMail(message);
+        console.log(`✅ Email sent: ${info.messageId}`);
     } catch (error) {
-        console.error('Error sending email via SendGrid API:', error);
-        if (error.response) {
-            console.error(error.response.body);
-        }
-        throw new Error('فشل إرسال البريد الإلكتروني.');
+        console.error("❌ SMTP Error:", error);
+        throw new Error("فشل إرسال البريد الإلكتروني عبر Brevo.");
     }
 };
 
