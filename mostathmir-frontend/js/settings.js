@@ -227,28 +227,48 @@ async function initSettingsPage(user) {
         }
     });
 
-    function toggleEditMode(enable) {
-        inputsToToggle.forEach(input => { if (input) input.disabled = !enable; });
+  function toggleEditMode(enable) {
+        // 1. الحقول التي يتم تفعيلها/تعطيلها دائماً مع زر التعديل
+        const fullNameInput = document.getElementById('fullName');
+        const bioInput = document.getElementById('bio');
+        const profileTitleInput = document.getElementById('profileTitle');
+
+        if (fullNameInput) fullNameInput.disabled = !enable;
+        if (bioInput) bioInput.disabled = !enable;
+        if (profileTitleInput) profileTitleInput.disabled = !enable;
+
+        // 2. منطق رقم الهاتف (القاعدة الجديدة)
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            if (user.isPhoneVerified) {
+                // إذا كان الهاتف موثقاً -> يبقى معطلاً دائماً حتى لو ضغطنا "تعديل"
+                phoneInput.disabled = true;
+                phoneInput.style.backgroundColor = "#f3f4f6"; // تمييز بصري (اختياري)
+                phoneInput.title = t('js-phone-verified-label');
+            } else {
+                // إذا لم يكن موثقاً -> يتغير حسب حالة زر التعديل
+                phoneInput.disabled = !enable;
+            }
+        }
+
+        // 3. الإيميل يبقى معطلاً دائماً (حالة ثابتة)
+        const emailInput = document.getElementById('email');
+        if (emailInput) emailInput.disabled = true;
+
+        // 4. تفعيل/تعطيل القوائم المنسدلة
         const countrySelect = document.getElementById('country');
         const citySelect = document.getElementById('city');
         if (countrySelect) countrySelect.disabled = !enable;
         if (citySelect) citySelect.disabled = !enable;
-        if (skillsContainer) skillsContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addSkillBtn) addSkillBtn.disabled = !enable;
-        if (socialLinksContainer) socialLinksContainer.querySelectorAll('input, select, button').forEach(el => el.disabled = !enable);
-        if (addSocialLinkBtn) addSocialLinkBtn.disabled = !enable;
-        if (interestsContainer) {
-            interestsContainer.querySelectorAll('.interest-tag').forEach(tag => {
-                tag.style.pointerEvents = enable ? 'auto' : 'none';
-                tag.style.opacity = enable ? '1' : '0.7';
-            });
-        }
-        if (achievementsContainer) achievementsContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addAchievementBtn) addAchievementBtn.disabled = !enable;
-        if (experienceContainer) experienceContainer.querySelectorAll('input, textarea, button').forEach(el => el.disabled = !enable);
-        if (addExperienceBtn) addExperienceBtn.disabled = !enable;
-        if (educationContainer) educationContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addEducationBtn) addEducationBtn.disabled = !enable;
+
+        // 5. إدارة الأزرار الداخلية للكروت (إضافة مهارة، حذف، إلخ)
+        document.querySelectorAll('.settings-card button:not([type="submit"])').forEach(btn => {
+            // لا نعطل أزرار التحقق (تأكيد الرقم / تأكيد الكود) لأنها تحتاج للعمل بدون وضع "تعديل"
+            if(btn.id !== 'btnStartVerify' && btn.id !== 'btnConfirmOTP') {
+                btn.disabled = !enable;
+            }
+        });
+        
         settingsForm.classList.toggle('is-editing', enable);
     }
 
