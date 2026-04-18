@@ -14,9 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error(t('js-settings-error-fetch-failed'));
         }
         const user = await response.json();
+
+        // تشغيل الصفحة بالبيانات المستلمة
         initSettingsPage(user);
 
-        // Force re-translation after dynamic content is added
+        // تحديث النصوص إذا تم تغيير اللغة
         if (window.translatePage) {
             window.translatePage();
         }
@@ -35,6 +37,79 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
+    // ==========================================
+    // 1. منطق تحقق رقم الهاتف (التعديل الجديد)
+    // ==========================================
+    function setupPhoneVerification(user) {
+        const btnStartVerify = document.getElementById('btnStartVerify');
+        const otpSection = document.getElementById('otpSection');
+        const otpInput = document.getElementById('otpInput');
+        const btnConfirmOTP = document.getElementById('btnConfirmOTP');
+        const phoneVerifiedBadge = document.getElementById('phoneVerifiedBadge');
+        const otpSentMessage = document.getElementById('otpSentMessage');
+        const phoneInput = document.getElementById('phone');
+
+        if (!btnStartVerify || !otpSection) return;
+
+        // الحالة الأولية من قاعدة البيانات
+        if (user.isPhoneVerified) {
+            phoneVerifiedBadge.style.display = 'flex';
+            btnStartVerify.style.display = 'none';
+        } else {
+            phoneVerifiedBadge.style.display = 'none';
+            btnStartVerify.style.display = 'block';
+        }
+
+        // الضغط على "تأكيد الرقم"
+        btnStartVerify.onclick = () => {
+            const currentPhone = phoneInput.value || user.phone || 'المسجل';
+            otpSentMessage.textContent = `${t('js-phone-otp-sent-prefix')} ${currentPhone}`;
+            otpSection.style.display = 'block';
+            btnStartVerify.style.display = 'none';
+        };
+
+        // الضغط على زر "تأكيد" الكود
+        btnConfirmOTP.onclick = async () => {
+            if (otpInput.value === '0000') {
+                btnConfirmOTP.disabled = true;
+                btnConfirmOTP.textContent = '...';
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/users/verify-phone-manual`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (res.ok) {
+                        alert('✅ تم تأكيد رقم الهاتف بنجاح!');
+                        otpSection.style.display = 'none';
+                        phoneVerifiedBadge.style.display = 'flex';
+                        user.isPhoneVerified = true;
+                    } else {
+                        alert('❌ فشل التحديث في السيرفر');
+                    }
+                } catch (err) {
+                    alert('❌ خطأ في الاتصال بالسيرفر');
+                } finally {
+                    btnConfirmOTP.disabled = false;
+                    btnConfirmOTP.textContent = 'تأكيد';
+                }
+            } else {
+                alert('⚠️ الكود خاطئ! أدخل 0000 للتجربة.');
+            }
+        };
+    }
+
+    // تشغيل نظام التحقق
+    setupPhoneVerification(user);
+
+
+    // ==========================================
+    // 2. منطق الدول والمدن
+    // ==========================================
     const arabCountries = {
         [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
         [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
@@ -58,6 +133,7 @@ async function initSettingsPage(user) {
         const countrySelect = document.getElementById("country");
         const citySelect = document.getElementById("city");
         if (!countrySelect || !citySelect) return;
+
         let initialCountry = '';
         let initialCity = '';
         if (currentLocation && currentLocation.includes(', ')) {
@@ -67,37 +143,34 @@ async function initSettingsPage(user) {
         } else {
             initialCountry = currentLocation;
         }
+
+        countrySelect.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
         Object.keys(arabCountries).forEach(country => {
-            const option = document.createElement("option");
-            option.value = country;
-            option.textContent = country;
-            if (country === initialCountry) {
-                option.selected = true;
-            }
+            const option = new Option(country, country);
+            if (country === initialCountry) option.selected = true;
             countrySelect.appendChild(option);
         });
+
         const populateCities = (selectedCountry, selectedCity) => {
             citySelect.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
             if (selectedCountry && arabCountries[selectedCountry]) {
                 arabCountries[selectedCountry].forEach(city => {
-                    const option = document.createElement("option");
-                    option.value = city;
-                    option.textContent = city;
-                    if (city === selectedCity) {
-                        option.selected = true;
-                    }
+                    const option = new Option(city, city);
+                    if (city === selectedCity) option.selected = true;
                     citySelect.appendChild(option);
                 });
             }
         };
+
         populateCities(initialCountry, initialCity);
-        countrySelect.addEventListener("change", function () {
-            populateCities(this.value, null);
-        });
+        countrySelect.addEventListener("change", function () { populateCities(this.value, null); });
         countrySelect.disabled = true;
         citySelect.disabled = true;
     }
 
+    // ==========================================
+    // 3. إدارة التعديل والحقول
+    // ==========================================
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
         settingsForm.querySelector('#phone'),
@@ -106,23 +179,38 @@ async function initSettingsPage(user) {
     ];
     const editButton = settingsForm.querySelector('[data-i18n-key="settings-account-info-edit"]');
     const saveButton = settingsForm.querySelector('[data-i18n-key="settings-save-changes"]');
-    const socialLinksContainer = document.getElementById('socialLinksContainer');
-    const addSocialLinkBtn = document.getElementById('addSocialLinkBtn');
-    const socialLinkTemplate = document.getElementById('socialLinkTemplate');
-    const interestsContainer = document.getElementById('interestsContainer');
-    const availableInterests = [t('js-settings-interest-social'), t('js-settings-interest-productivity'), t('js-settings-interest-photo'), t('js-settings-interest-communication'), t('js-settings-interest-travel'), t('js-settings-interest-entertainment'), t('js-settings-interest-tech'), t('js-settings-interest-education'), t('js-settings-interest-health'), t('js-settings-interest-ecommerce')];
-    const achievementsContainer = document.getElementById('achievementsFormContainer');
-    const addAchievementBtn = document.getElementById('addAchievementBtn');
-    const achievementTemplate = document.getElementById('achievementTemplate');
-    const experienceContainer = document.getElementById('experienceFormContainer');
-    const addExperienceBtn = document.getElementById('addExperienceBtn');
-    const experienceTemplate = document.getElementById('experienceTemplate');
-    const educationContainer = document.getElementById('educationFormContainer');
-    const addEducationBtn = document.getElementById('addEducationBtn');
-    const educationTemplate = document.getElementById('educationTemplate');
+
+    function toggleEditMode(enable) {
+        inputsToToggle.forEach(input => { if (input) input.disabled = !enable; });
+        document.getElementById('country').disabled = !enable;
+        document.getElementById('city').disabled = !enable;
+        if (!user.isPhoneVerified) {
+            document.getElementById('btnStartVerify').style.display = enable ? 'none' : 'block';
+        }
+
+        // تفعيل/تعطيل الأزرار الإضافية
+        document.querySelectorAll('.settings-card button:not([type="submit"])').forEach(btn => {
+            if (btn.id !== 'btnStartVerify' && btn.id !== 'btnConfirmOTP') btn.disabled = !enable;
+        });
+
+        settingsForm.classList.toggle('is-editing', enable);
+    }
+
+    // تعبئة البيانات الأساسية
+    settingsForm.querySelector('#email').value = user.email || '';
+    settingsForm.querySelector('#fullName').value = user.fullName || '';
+    settingsForm.querySelector('#phone').value = user.phone || '';
+    settingsForm.querySelector('#bio').value = user.bio || '';
+    settingsForm.querySelector('#profileTitle').value = user.profileTitle || '';
+
+    initCountryCityDropdowns(user.location);
+
+    // ==========================================
+    // 4. إدارة المهارات، الخبرات، التعليم (بناءً على الكود الأصلي)
+    // ==========================================
     const skillsContainer = document.getElementById('skillsFormContainer');
-    const addSkillBtn = document.getElementById('addSkillBtn');
     const skillTemplate = document.getElementById('skillTemplate');
+    const addSkillBtn = document.getElementById('addSkillBtn');
 
     function createSkillRow(data = { name: '', level: 80 }) {
         if (!skillTemplate || !skillsContainer) return;
@@ -133,204 +221,121 @@ async function initSettingsPage(user) {
         nameInput.value = data.name;
         levelInput.value = data.level;
         levelValue.textContent = `${data.level}%`;
-        levelInput.addEventListener('input', () => {
-            levelValue.textContent = `${levelInput.value}%`;
-        });
+        levelInput.addEventListener('input', () => { levelValue.textContent = `${levelInput.value}%`; });
         skillsContainer.appendChild(content);
     }
 
-    if (skillsContainer) {
-        skillsContainer.innerHTML = '';
-        if (user.skills && user.skills.length > 0) {
-            user.skills.forEach(skill => createSkillRow(skill));
-        }
-    }
+    if (user.skills) user.skills.forEach(skill => createSkillRow(skill));
+    if (addSkillBtn) addSkillBtn.addEventListener('click', () => createSkillRow());
 
-    if (addSkillBtn) {
-        addSkillBtn.addEventListener('click', () => createSkillRow());
-    }
-
-    settingsForm.addEventListener('click', e => {
-        if (e.target.closest('.remove-row-btn')) {
-            const row = e.target.closest('.skill-row');
-            if (row) row.remove();
-        }
-    });
-
-    function toggleEditMode(enable) {
-        inputsToToggle.forEach(input => { if (input) input.disabled = !enable; });
-        const countrySelect = document.getElementById('country');
-        const citySelect = document.getElementById('city');
-        if (countrySelect) countrySelect.disabled = !enable;
-        if (citySelect) citySelect.disabled = !enable;
-        if (skillsContainer) skillsContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addSkillBtn) addSkillBtn.disabled = !enable;
-        if (socialLinksContainer) socialLinksContainer.querySelectorAll('input, select, button').forEach(el => el.disabled = !enable);
-        if (addSocialLinkBtn) addSocialLinkBtn.disabled = !enable;
-        if (interestsContainer) {
-            interestsContainer.querySelectorAll('.interest-tag').forEach(tag => {
-                tag.style.pointerEvents = enable ? 'auto' : 'none';
-                tag.style.opacity = enable ? '1' : '0.7';
-            });
-        }
-        if (achievementsContainer) achievementsContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addAchievementBtn) addAchievementBtn.disabled = !enable;
-        if (experienceContainer) experienceContainer.querySelectorAll('input, textarea, button').forEach(el => el.disabled = !enable);
-        if (addExperienceBtn) addExperienceBtn.disabled = !enable;
-        if (educationContainer) educationContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
-        if (addEducationBtn) addEducationBtn.disabled = !enable;
-        settingsForm.classList.toggle('is-editing', enable);
-    }
-
-    function createRow(template, container, data, populateFn) {
+    // الخبرات والتعليم والشهادات (استخدام دالة createRow الموحدة)
+    function createRow(templateId, containerId, data, populateFn) {
+        const template = document.getElementById(templateId);
+        const container = document.getElementById(containerId);
         if (!template || !container) return;
         const content = template.content.cloneNode(true);
         if (data) populateFn(content, data);
         container.appendChild(content);
     }
 
-    settingsForm.querySelector('#email').value = user.email || '';
-    settingsForm.querySelector('#fullName').value = user.fullName || '';
-    settingsForm.querySelector('#phone').value = user.phone || '';
-    settingsForm.querySelector('#bio').value = user.bio || '';
-    settingsForm.querySelector('#profileTitle').value = user.profileTitle || '';
-
-    initCountryCityDropdowns(user.location);
-
-    if (socialLinksContainer) {
-        socialLinksContainer.innerHTML = '';
-        if (user.socialLinks && user.socialLinks.length > 0) {
-            user.socialLinks.forEach(link => createRow(socialLinkTemplate, socialLinksContainer, link, (content, data) => {
-                content.querySelector('.social-platform').value = data.platform;
-                content.querySelector('.social-url').value = data.url;
-            }));
-        }
+    if (user.professionalExperience) {
+        user.professionalExperience.forEach(exp => createRow('experienceTemplate', 'experienceFormContainer', exp, (content, d) => {
+            content.querySelector('.exp-title').value = d.title;
+            content.querySelector('.exp-company').value = d.company;
+            content.querySelector('.exp-period').value = d.period;
+            content.querySelector('.exp-description').value = d.description;
+        }));
     }
 
-    if (interestsContainer) {
-        interestsContainer.innerHTML = '';
-        availableInterests.forEach(interestText => {
-            const tag = document.createElement('button');
-            tag.type = 'button';
-            tag.className = 'interest-tag';
-            tag.textContent = interestText;
-            tag.dataset.interest = interestText;
-            const plusIcon = document.createElement('span');
-            plusIcon.className = 'plus-icon';
-            plusIcon.textContent = '+';
-            tag.prepend(plusIcon);
-            if (user.interests && user.interests.includes(interestText)) {
-                tag.classList.add('selected');
+    if (user.education) {
+        user.education.forEach(edu => createRow('educationTemplate', 'educationFormContainer', edu, (content, d) => {
+            content.querySelector('.edu-degree').value = d.degree;
+            content.querySelector('.edu-institution').value = d.institution;
+            content.querySelector('.edu-details').value = d.details;
+        }));
+    }
+
+    if (user.achievements) {
+        user.achievements.forEach(ach => createRow('achievementTemplate', 'achievementsFormContainer', ach, (content, d) => {
+            content.querySelector('.ach-title').value = d.title;
+            content.querySelector('.ach-issuer').value = d.issuer;
+            content.querySelector('.ach-year').value = d.year;
+        }));
+    }
+
+    // روابط التواصل
+    const socialLinksContainer = document.getElementById('socialLinksContainer');
+    if (user.socialLinks) {
+        user.socialLinks.forEach(link => createRow('socialLinkTemplate', 'socialLinksContainer', link, (content, d) => {
+            content.querySelector('.social-platform').value = d.platform;
+            content.querySelector('.social-url').value = d.url;
+        }));
+    }
+
+    // ==========================================
+    // 5. حفظ التغييرات (Submit)
+    // ==========================================
+    settingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const country = document.getElementById('country').value;
+        const city = document.getElementById('city').value;
+        if (!country || !city) return alert(t('js-settings-alert-select-country-city'));
+
+        const updatedData = {
+            fullName: document.getElementById('fullName').value,
+            phone: document.getElementById('phone').value,
+            location: `${city}, ${country}`,
+            bio: document.getElementById('bio').value,
+            profileTitle: document.getElementById('profileTitle').value,
+            skills: Array.from(document.querySelectorAll('.skill-row')).map(row => ({
+                name: row.querySelector('.skill-name').value,
+                level: row.querySelector('.skill-level').value
+            })),
+            professionalExperience: Array.from(document.querySelectorAll('#experienceFormContainer .dynamic-form-row')).map(row => ({
+                title: row.querySelector('.exp-title').value,
+                company: row.querySelector('.exp-company').value,
+                period: row.querySelector('.exp-period').value,
+                description: row.querySelector('.exp-description').value
+            })),
+            socialLinks: Array.from(document.querySelectorAll('.social-link-row')).map(row => ({
+                platform: row.querySelector('.social-platform').value,
+                url: row.querySelector('.social-url').value
+            }))
+        };
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(updatedData)
+            });
+            if (res.ok) {
+                alert(t('js-settings-success-update'));
+                window.location.reload();
             }
-            tag.addEventListener('click', () => tag.classList.toggle('selected'));
-            interestsContainer.appendChild(tag);
-        });
-    }
-
-    if (achievementsContainer) {
-        achievementsContainer.innerHTML = '';
-        if (user.achievements && user.achievements.length > 0) {
-            user.achievements.forEach(ach => createRow(achievementTemplate, achievementsContainer, ach, (content, data) => {
-                content.querySelector('.ach-title').value = data.title;
-                content.querySelector('.ach-issuer').value = data.issuer;
-                content.querySelector('.ach-year').value = data.year;
-            }));
-        }
-    }
-
-    if (experienceContainer && user.professionalExperience) {
-        experienceContainer.innerHTML = '';
-        user.professionalExperience.forEach(exp => createRow(experienceTemplate, experienceContainer, exp, (content, data) => {
-            content.querySelector('.exp-title').value = data.title;
-            content.querySelector('.exp-company').value = data.company;
-            content.querySelector('.exp-period').value = data.period;
-            content.querySelector('.exp-description').value = data.description;
-        }));
-    }
-
-    if (educationContainer && user.education) {
-        educationContainer.innerHTML = '';
-        user.education.forEach(edu => createRow(educationTemplate, educationContainer, edu, (content, data) => {
-            content.querySelector('.edu-degree').value = data.degree;
-            content.querySelector('.edu-institution').value = data.institution;
-            content.querySelector('.edu-details').value = data.details;
-        }));
-    }
-
-    if (editButton) editButton.addEventListener('click', () => toggleEditMode(true));
-    if (addSocialLinkBtn) addSocialLinkBtn.addEventListener('click', () => createRow(socialLinkTemplate, socialLinksContainer, null, () => { }));
-    if (addAchievementBtn) addAchievementBtn.addEventListener('click', () => createRow(achievementTemplate, achievementsContainer, null, () => { }));
-    if (addExperienceBtn) addExperienceBtn.addEventListener('click', () => createRow(experienceTemplate, experienceContainer, null, () => { }));
-    if (addEducationBtn) addEducationBtn.addEventListener('click', () => createRow(educationTemplate, educationContainer, null, () => { }));
-
-    settingsForm.addEventListener('click', e => {
-        const row = e.target.closest('.social-link-row, .achievement-form-row, .dynamic-form-row');
-        if (e.target.closest('.remove-link-btn, .remove-ach-btn, .remove-row-btn') && row) {
-            row.remove();
+        } catch (err) {
+            alert('خطأ أثناء حفظ البيانات');
         }
     });
 
-    if (settingsForm && saveButton) {
-        settingsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newCountry = settingsForm.querySelector('#country').value;
-            const newCity = settingsForm.querySelector('#city').value;
-            const newLocation = newCountry && newCity ? `${newCity}, ${newCountry}` : '';
-            if (!newCountry || !newCity) {
-                return alert(t('js-settings-alert-select-country-city'));
-            }
+    // تفعيل أزرار الإضافة والحذف
+    if (editButton) editButton.onclick = () => toggleEditMode(true);
+    document.getElementById('addExperienceBtn').onclick = () => createRow('experienceTemplate', 'experienceFormContainer', null, () => { });
+    document.getElementById('addEducationBtn').onclick = () => createRow('educationTemplate', 'educationFormContainer', null, () => { });
+    document.getElementById('addAchievementBtn').onclick = () => createRow('achievementTemplate', 'achievementsFormContainer', null, () => { });
+    document.getElementById('addSocialLinkBtn').onclick = () => createRow('socialLinkTemplate', 'socialLinksContainer', null, () => { });
 
-            const updatedSkills = Array.from(document.querySelectorAll('#skillsFormContainer .skill-row')).map(row => ({
-                name: row.querySelector('.skill-name').value.trim(),
-                level: parseInt(row.querySelector('.skill-level').value, 10)
-            })).filter(skill => skill.name);
+    // حذف الصفوف ديناميكياً
+    settingsForm.addEventListener('click', e => {
+        if (e.target.closest('.remove-row-btn, .remove-ach-btn, .remove-link-btn')) {
+            e.target.closest('.dynamic-form-row, .achievement-form-row, .social-link-row').remove();
+        }
+    });
 
-            const updatedData = {
-                fullName: settingsForm.querySelector('#fullName').value,
-                phone: settingsForm.querySelector('#phone').value,
-                location: newLocation,
-                bio: settingsForm.querySelector('#bio').value,
-                skills: updatedSkills,
-                profileTitle: document.getElementById('profileTitle').value,
-                socialLinks: Array.from(document.querySelectorAll('#socialLinksContainer .social-link-row')).map(row => ({
-                    platform: row.querySelector('.social-platform').value,
-                    url: row.querySelector('.social-url').value.trim()
-                })).filter(link => link.url),
-                interests: Array.from(document.querySelectorAll('#interestsContainer .interest-tag.selected')).map(tag => tag.dataset.interest),
-                achievements: Array.from(document.querySelectorAll('#achievementsFormContainer .achievement-form-row')).map(row => ({
-                    title: row.querySelector('.ach-title').value.trim(),
-                    issuer: row.querySelector('.ach-issuer').value.trim(),
-                    year: row.querySelector('.ach-year').value.trim()
-                })).filter(ach => ach.title),
-                professionalExperience: Array.from(experienceContainer.querySelectorAll('.dynamic-form-row')).map(row => ({
-                    title: row.querySelector('.exp-title').value,
-                    company: row.querySelector('.exp-company').value,
-                    period: row.querySelector('.exp-period').value,
-                    description: row.querySelector('.exp-description').value,
-                })),
-                education: Array.from(educationContainer.querySelectorAll('.dynamic-form-row')).map(row => ({
-                    degree: row.querySelector('.edu-degree').value,
-                    institution: row.querySelector('.edu-institution').value,
-                    details: row.querySelector('.edu-details').value,
-                }))
-            };
-            try {
-                const response = await fetch('https://mostathmir-api.onrender.com/api/users/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify(updatedData)
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || t('js-settings-error-update-failed'));
-                alert(t('js-settings-success-update'));
-                localStorage.setItem('user_data', JSON.stringify(data));
-                window.location.reload();
-            } catch (error) {
-                alert(error.message);
-            } finally {
-                toggleEditMode(false);
-            }
-        });
-    }
     toggleEditMode(false);
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }

@@ -56,8 +56,35 @@
                                 data-i18n-key="settings-profile-title-placeholder" disabled>
                         </div>
                         <div class="form-group">
-                            <label for="phone" class="form-label" data-i18n-key="signup-phone">رقم الهاتف </label>
-                            <input type="tel" id="phone" class="form-control" value="" disabled required>
+                            <label for="phone" class="form-label" data-i18n-key="signup-phone">رقم الهاتف</label>
+                            <div class="phone-input-wrapper" style="position: relative; display: flex; gap: 10px;">
+                                <input type="tel" id="phone" class="form-control" value="" disabled style="flex: 1;">
+
+                                <!-- أيقونة التحقق (تظهر فقط إذا كان مؤكداً) -->
+                                <span id="phoneVerifiedBadge"
+                                    style="display: none; align-items: center; color: #10b981;">
+                                    <i class="fas fa-check-circle fa-lg"></i>
+                                </span>
+
+                                <!-- زر بدء التأكيد (يظهر فقط إذا لم يكن مؤكداً) -->
+                                <button type="button" id="btnStartVerify" class="btn btn-outline"
+                                    style="display: none; white-space: nowrap; font-size: 0.8rem;">
+                                    تأكيد الرقم
+                                </button>
+                            </div>
+
+                            <!-- منطقة إدخال الكود (مخفية افتراضياً) -->
+                            <div id="otpSection"
+                                style="display: none; margin-top: 15px; padding: 15px; background: #f0f7ff; border-radius: 8px; border: 1px solid #cce3ff;">
+                                <p id="otpSentMessage" class="text-sm text-blue-800 mb-3"></p>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="otpInput" class="form-control" placeholder="0000"
+                                        maxlength="4"
+                                        style="text-align: center; letter-spacing: 5px; font-weight: bold;">
+                                    <button type="button" id="btnConfirmOTP" class="btn btn-primary">تأكيد</button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">أدخل الرمز 0000 للتجربة حالياً</p>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="password" class="form-label" data-i18n-key="signup-password">كلمة السر</label>

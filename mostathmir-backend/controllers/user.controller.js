@@ -548,6 +548,19 @@ const getEliteMembers = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+const verifyPhoneManual = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+        user.isPhoneVerified = true;
+        await user.save();
+
+        res.json({ message: 'تم تأكيد الهاتف بنجاح', isPhoneVerified: true });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     getUserProfile,
     updateUserProfile,
@@ -565,4 +578,5 @@ module.exports = {
     updateTestimonial,
     getPublicPlatformStats,
     getEliteMembers,
+    verifyPhoneManual,
 };

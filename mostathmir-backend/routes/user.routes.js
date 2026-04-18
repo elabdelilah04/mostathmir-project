@@ -20,6 +20,7 @@ const {
     updateTestimonial,
     getPublicPlatformStats,
     getEliteMembers,
+    verifyPhoneManual,
 } = require('../controllers/user.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 
@@ -57,7 +58,7 @@ router.post('/:id/follow', protect, toggleFollowUser);
 router.post('/:id/testimonials', protect, addTestimonial);
 router.put('/:id/testimonials/:testimonialId', protect, updateTestimonial);
 router.delete('/:id/testimonials/:testimonialId', protect, deleteTestimonial);
-
+router.put('/verify-phone-manual', protect, verifyPhoneManual);
 router.get('/portfolio/stats', protect, getInvestorStats);
 router.get('/portfolio/investments', protect, getInvestmentRecords);
 router.get('/portfolio/followed', protect, getFollowedProjects);

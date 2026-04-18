@@ -4,12 +4,22 @@
   // =========================
   const dict = {
     ar: {
+      // أضف هذه المفاتيح في قسم "settings" أو في نهاية قائمة "ar"
+      "js-phone-verify-start": "تأكيد الرقم",
+      "js-phone-verify-success": "✅ تم تفعيل رقم الهاتف بنجاح!",
+      "js-phone-otp-error": "⚠️ الكود خاطئ! أدخل 0000 للتجربة.",
+      "js-phone-otp-sent-prefix": "تم إرسال كود التأكيد للرقم: ",
+      "js-phone-otp-demo-note": "أدخل الرمز 0000 للتجربة حالياً",
+      "js-phone-verified-label": "رقم هاتف موثق",
+      "settings-phone-verified": "تم التحقق من الحساب",
+      "settings-phone-not-verified": "حسابك غير مؤكد، يرجى تفعيل الحساب عبر الرابط المرسل لبريدك.",
+      "settings-verify-now": "تأكيد الحساب الآن",
       // --- صفحة الوثائق القانونية (Legal Page) ---
       "legal-page-title": "الوثائق القانونية - منصة مستثمر",
       "legal-hero-title": "الوثائق القانونية",
       "legal-hero-desc": "نلتزم بالشفافية الكاملة. يرجى قراءة الشروط والسياسات أدناه بعناية لفهم حقوقك وواجباتك.",
       "legal-last-update": "آخر تحديث: 08 ديسمبر 2025",
-      
+
       // Tabs & Actions
       "legal-tab-terms": "الشروط والأحكام",
       "legal-tab-privacy": "سياسة الخصوصية",
@@ -22,7 +32,7 @@
       "legal-nav-t-risks": "4. إخلاء المسؤولية والمخاطر",
       "legal-nav-t-fees": "5. الرسوم والمدفوعات",
       "legal-nav-t-intellectual": "6. الملكية الفكرية",
-      
+
       "legal-nav-p-collection": "1. جمع المعلومات",
       "legal-nav-p-use": "2. استخدام المعلومات",
       "legal-nav-p-sharing": "3. مشاركة البيانات",
@@ -34,7 +44,7 @@
       "legal-t-intro-title": "1. مقدمة عامة",
       "legal-t-intro-text1": "مرحباً بكم في منصة 'مستثمر'. تحكم هذه الشروط والأحكام استخدامكم للموقع الإلكتروني والخدمات المقدمة من خلاله. بوصولكم إلى الموقع أو استخدامه، فأنتم توافقون على الالتزام بهذه الشروط.",
       "legal-t-intro-text2": "تعتبر منصة 'مستثمر' وسيطاً تقنياً يربط بين رواد الأعمال والمستثمرين، ولا تقدم المنصة أي نصائح استثمارية مباشرة.",
-      
+
       "legal-t-acc-title": "2. الحسابات والتسجيل",
       "legal-t-acc-text": "للاستفادة من خدمات المنصة، يجب عليك إنشاء حساب. أنت مسؤول عن الحفاظ على سرية بيانات حسابك.",
       "legal-t-acc-li1": "يجب أن تكون المعلومات المقدمة دقيقة ومحدثة.",
@@ -1885,12 +1895,22 @@
     },
 
     en: {
+      // أضف هذه المفاتيح في قسم "settings" أو في نهاية قائمة "en"
+      "js-phone-verify-start": "Verify Number",
+      "js-phone-verify-success": "✅ Phone number verified successfully!",
+      "js-phone-otp-error": "⚠️ Invalid code! Enter 0000 for testing.",
+      "js-phone-otp-sent-prefix": "Verification code sent to: ",
+      "js-phone-otp-demo-note": "Enter code 0000 for testing purposes",
+      "js-phone-verified-label": "Verified Phone Number",
+      "settings-phone-verified": "Account Verified",
+      "settings-phone-not-verified": "Account not verified, please verify your account via the link sent to your email.",
+      "settings-verify-now": "Verify Account Now",
       // --- Legal Documents Page ---
       "legal-page-title": "Legal Documents - Mostathmir",
       "legal-hero-title": "Legal Documents",
       "legal-hero-desc": "We are committed to full transparency. Please read the terms and policies below carefully to understand your rights and obligations.",
       "legal-last-update": "Last updated: December 08, 2025",
-      
+
       // Tabs & Actions
       "legal-tab-terms": "Terms & Conditions",
       "legal-tab-privacy": "Privacy Policy",
@@ -1903,7 +1923,7 @@
       "legal-nav-t-risks": "4. Disclaimer & Risks",
       "legal-nav-t-fees": "5. Fees & Payments",
       "legal-nav-t-intellectual": "6. Intellectual Property",
-      
+
       "legal-nav-p-collection": "1. Information Collection",
       "legal-nav-p-use": "2. Use of Information",
       "legal-nav-p-sharing": "3. Data Sharing",
@@ -1915,7 +1935,7 @@
       "legal-t-intro-title": "1. General Introduction",
       "legal-t-intro-text1": "Welcome to 'Mostathmir'. These terms govern your use of the website and services. By accessing or using the site, you agree to be bound by these terms.",
       "legal-t-intro-text2": "'Mostathmir' acts as a technical intermediary connecting entrepreneurs and investors and does not provide direct investment advice.",
-      
+
       "legal-t-acc-title": "2. Accounts & Registration",
       "legal-t-acc-text": "To use our services, you must create an account. You are responsible for maintaining the confidentiality of your account data.",
       "legal-t-acc-li1": "Information provided must be accurate and up-to-date.",
