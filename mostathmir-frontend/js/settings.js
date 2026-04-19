@@ -124,7 +124,7 @@ async function initSettingsPage(user) {
     const addSkillBtn = document.getElementById('addSkillBtn');
     const skillTemplate = document.getElementById('skillTemplate');
 
-        // ==========================================
+    // ==========================================
     // 1. منطق تحقق رقم الهاتف (التعديل الجديد)
     // ==========================================
     function setupPhoneVerification(user) {
@@ -250,6 +250,22 @@ async function initSettingsPage(user) {
         if (educationContainer) educationContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
         if (addEducationBtn) addEducationBtn.disabled = !enable;
         settingsForm.classList.toggle('is-editing', enable);
+        // داخل دالة toggleEditMode(enable)
+        const phoneInput = document.getElementById('phone');
+
+        if (phoneInput) {
+            if (user.isPhoneVerified) {
+                // إذا كان الرقم موثقاً: يبقى معطلاً (disabled) دائماً
+                phoneInput.disabled = true;
+                phoneInput.style.backgroundColor = "#f3f4f6"; // تمييز بصري بأنه محمي
+                phoneInput.style.cursor = "not-allowed";
+            } else {
+                // إذا لم يكن موثقاً: يتم تفعيله أو تعطيله بناءً على حالة زر التعديل
+                phoneInput.disabled = !enable;
+                phoneInput.style.backgroundColor = "";
+                phoneInput.style.cursor = "";
+            }
+        }
     }
 
     function createRow(template, container, data, populateFn) {
