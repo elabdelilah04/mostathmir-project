@@ -35,6 +35,81 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
+    // ==========================================
+    // 1. منطق تحقق رقم الهاتف (0000)
+    // ==========================================
+    function setupPhoneVerification(user) {
+        const btnStartVerify = document.getElementById('btnStartVerify');
+        const otpSection = document.getElementById('otpSection');
+        const otpInput = document.getElementById('otpInput');
+        const btnConfirmOTP = document.getElementById('btnConfirmOTP');
+        const phoneVerifiedBadge = document.getElementById('phoneVerifiedBadge');
+        const otpSentMessage = document.getElementById('otpSentMessage');
+        const phoneInput = document.getElementById('phone');
+
+        if (!btnStartVerify || !otpSection) return;
+
+        // الحالة الأولية من قاعدة البيانات
+        if (user.isPhoneVerified) {
+            if (phoneVerifiedBadge) phoneVerifiedBadge.style.display = 'flex';
+            btnStartVerify.style.display = 'none';
+        } else {
+            if (phoneVerifiedBadge) phoneVerifiedBadge.style.display = 'none';
+            btnStartVerify.style.display = 'block';
+        }
+
+        // الضغط على "تأكيد الرقم"
+        btnStartVerify.onclick = () => {
+            const currentPhone = phoneInput.value || user.phone || 'المسجل';
+            otpSentMessage.textContent = `${t('js-phone-otp-sent-prefix')} ${currentPhone}`;
+            otpSection.style.display = 'block';
+            btnStartVerify.style.display = 'none';
+        };
+
+        // الضغط على زر "تأكيد" الكود
+        btnConfirmOTP.onclick = async () => {
+            if (otpInput.value === '0000') {
+                btnConfirmOTP.disabled = true;
+                btnConfirmOTP.textContent = '...';
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/users/verify-phone-manual`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (res.ok) {
+                        alert('✅ تم تأكيد رقم الهاتف بنجاح!');
+                        otpSection.style.display = 'none';
+                        if (phoneVerifiedBadge) phoneVerifiedBadge.style.display = 'flex';
+                        user.isPhoneVerified = true;
+                        // قفل الحقل فوراً بعد التأكيد
+                        if (phoneInput) {
+                            phoneInput.disabled = true;
+                            phoneInput.style.backgroundColor = "#f3f4f6";
+                        }
+                    } else {
+                        alert('❌ فشل التحديث في السيرفر');
+                    }
+                } catch (err) {
+                    alert('❌ خطأ في الاتصال بالسيرفر');
+                } finally {
+                    btnConfirmOTP.disabled = false;
+                    btnConfirmOTP.textContent = 'تأكيد';
+                }
+            } else {
+                alert('⚠️ الكود خاطئ! أدخل 0000 للتجربة.');
+            }
+        };
+    }
+
+    // تشغيل نظام التحقق
+    setupPhoneVerification(user);
+
+
     const arabCountries = {
         [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
         [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
@@ -124,75 +199,9 @@ async function initSettingsPage(user) {
     const addSkillBtn = document.getElementById('addSkillBtn');
     const skillTemplate = document.getElementById('skillTemplate');
 
-    // ==========================================
-    // 1. منطق تحقق رقم الهاتف (التعديل الجديد)
-    // ==========================================
-    function setupPhoneVerification(user) {
-        const btnStartVerify = document.getElementById('btnStartVerify');
-        const otpSection = document.getElementById('otpSection');
-        const otpInput = document.getElementById('otpInput');
-        const btnConfirmOTP = document.getElementById('btnConfirmOTP');
-        const phoneVerifiedBadge = document.getElementById('phoneVerifiedBadge');
-        const otpSentMessage = document.getElementById('otpSentMessage');
-        const phoneInput = document.getElementById('phone');
-
-        if (!btnStartVerify || !otpSection) return;
-
-        // الحالة الأولية من قاعدة البيانات
-        if (user.isPhoneVerified) {
-            phoneVerifiedBadge.style.display = 'flex';
-            btnStartVerify.style.display = 'none';
-        } else {
-            phoneVerifiedBadge.style.display = 'none';
-            btnStartVerify.style.display = 'block';
-        }
-
-        // الضغط على "تأكيد الرقم"
-        btnStartVerify.onclick = () => {
-            const currentPhone = phoneInput.value || user.phone || 'المسجل';
-            otpSentMessage.textContent = `${t('js-phone-otp-sent-prefix')} ${currentPhone}`;
-            otpSection.style.display = 'block';
-            btnStartVerify.style.display = 'none';
-        };
-
-        // الضغط على زر "تأكيد" الكود
-        btnConfirmOTP.onclick = async () => {
-            if (otpInput.value === '0000') {
-                btnConfirmOTP.disabled = true;
-                btnConfirmOTP.textContent = '...';
-
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/users/verify-phone-manual`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (res.ok) {
-                        alert('✅ تم تأكيد رقم الهاتف بنجاح!');
-                        otpSection.style.display = 'none';
-                        phoneVerifiedBadge.style.display = 'flex';
-                        user.isPhoneVerified = true;
-                    } else {
-                        alert('❌ فشل التحديث في السيرفر');
-                    }
-                } catch (err) {
-                    alert('❌ خطأ في الاتصال بالسيرفر');
-                } finally {
-                    btnConfirmOTP.disabled = false;
-                    btnConfirmOTP.textContent = 'تأكيد';
-                }
-            } else {
-                alert('⚠️ الكود خاطئ! أدخل 0000 للتجربة.');
-            }
-        };
-    }
-
-    // تشغيل نظام التحقق
-    setupPhoneVerification(user);
-
+    // عناصر إعدادات الخصوصية الجديدة
+    const showEmailPublicly = document.getElementById('showEmailPublicly');
+    const showPhonePublicly = document.getElementById('showPhonePublicly');
 
     function createSkillRow(data = { name: '', level: 80 }) {
         if (!skillTemplate || !skillsContainer) return;
@@ -249,23 +258,30 @@ async function initSettingsPage(user) {
         if (addExperienceBtn) addExperienceBtn.disabled = !enable;
         if (educationContainer) educationContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
         if (addEducationBtn) addEducationBtn.disabled = !enable;
-        settingsForm.classList.toggle('is-editing', enable);
-        // داخل دالة toggleEditMode(enable)
-        const phoneInput = document.getElementById('phone');
 
+        // تفعيل/تعطيل مفاتيح الخصوصية
+        if (showEmailPublicly) showEmailPublicly.disabled = !enable;
+        if (showPhonePublicly) showPhonePublicly.disabled = !enable;
+
+        settingsForm.classList.toggle('is-editing', enable);
+        
+        // منطق حماية رقم الهاتف الموثق
+        const phoneInput = document.getElementById('phone');
         if (phoneInput) {
             if (user.isPhoneVerified) {
-                // إذا كان الرقم موثقاً: يبقى معطلاً (disabled) دائماً
                 phoneInput.disabled = true;
-                phoneInput.style.backgroundColor = "#f3f4f6"; // تمييز بصري بأنه محمي
+                phoneInput.style.backgroundColor = "#f3f4f6";
                 phoneInput.style.cursor = "not-allowed";
             } else {
-                // إذا لم يكن موثقاً: يتم تفعيله أو تعطيله بناءً على حالة زر التعديل
                 phoneInput.disabled = !enable;
                 phoneInput.style.backgroundColor = "";
                 phoneInput.style.cursor = "";
             }
         }
+
+        // الإيميل يبقى للقراءة فقط دائماً
+        const emailInput = document.getElementById('email');
+        if (emailInput) emailInput.disabled = true;
     }
 
     function createRow(template, container, data, populateFn) {
@@ -275,11 +291,16 @@ async function initSettingsPage(user) {
         container.appendChild(content);
     }
 
+    // تعبئة البيانات الأولية
     settingsForm.querySelector('#email').value = user.email || '';
     settingsForm.querySelector('#fullName').value = user.fullName || '';
     settingsForm.querySelector('#phone').value = user.phone || '';
     settingsForm.querySelector('#bio').value = user.bio || '';
     settingsForm.querySelector('#profileTitle').value = user.profileTitle || '';
+
+    // تعبئة حالة الخصوصية الأولية
+    if (showEmailPublicly) showEmailPublicly.checked = user.showEmailPublicly || false;
+    if (showPhonePublicly) showPhonePublicly.checked = user.showPhonePublicly || false;
 
     initCountryCityDropdowns(user.location);
 
@@ -343,7 +364,7 @@ async function initSettingsPage(user) {
         }));
     }
 
-    if (editButton) editButton.addEventListener('click', () => toggleEditMode(true));
+    if (editButton) editButton.addEventListener('click', (e) => { e.preventDefault(); toggleEditMode(true); });
     if (addSocialLinkBtn) addSocialLinkBtn.addEventListener('click', () => createRow(socialLinkTemplate, socialLinksContainer, null, () => { }));
     if (addAchievementBtn) addAchievementBtn.addEventListener('click', () => createRow(achievementTemplate, achievementsContainer, null, () => { }));
     if (addExperienceBtn) addExperienceBtn.addEventListener('click', () => createRow(experienceTemplate, experienceContainer, null, () => { }));
@@ -378,6 +399,9 @@ async function initSettingsPage(user) {
                 bio: settingsForm.querySelector('#bio').value,
                 skills: updatedSkills,
                 profileTitle: document.getElementById('profileTitle').value,
+                // إضافة حقول الخصوصية للإرسال إلى السيرفر
+                showEmailPublicly: showEmailPublicly ? showEmailPublicly.checked : false,
+                showPhonePublicly: showPhonePublicly ? showPhonePublicly.checked : false,
                 socialLinks: Array.from(document.querySelectorAll('#socialLinksContainer .social-link-row')).map(row => ({
                     platform: row.querySelector('.social-platform').value,
                     url: row.querySelector('.social-url').value.trim()
@@ -419,4 +443,9 @@ async function initSettingsPage(user) {
         });
     }
     toggleEditMode(false);
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match]));
 }
