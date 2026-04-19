@@ -24,6 +24,8 @@ const exchangeRatesToUSD = {
     "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
     "MAD": 0.10, "USD": 1, "EUR": 1.08,
 };
+
+// جلب الملف الشخصي الخاص بالمستخدم الحالي
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
@@ -42,15 +44,29 @@ const getUserProfile = async (req, res) => {
     }
 };
 
+// جلب الملف الشخصي العام (مع تطبيق منطق الخصوصية)
 const getPublicUserProfile = async (req, res, next) => {
     try {
         const userId = req.params.id;
+        
+        // التعديل: إضافة حقول الخصوصية والبيانات الحساسة في الـ select
         const user = await User.findById(userId)
-            .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following isVisible');
+            .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following isVisible showEmailPublicly showPhonePublicly email phone');
 
         if (!user) {
             return res.status(404).json({ message: 'المستخدم غير موجود' });
         }
+
+        // --- تطبيق منطق الخصوصية ---
+        let userObj = user.toObject();
+
+        if (!userObj.showEmailPublicly) {
+            delete userObj.email;
+        }
+        if (!userObj.showPhonePublicly) {
+            delete userObj.phone;
+        }
+        // ------------------------
 
         let projects = [];
         let investorsCount = 0;
@@ -75,7 +91,6 @@ const getPublicUserProfile = async (req, res, next) => {
         }
 
         else if (user.accountType === 'investor') {
-
             const matchConditions = {
                 investor: new mongoose.Types.ObjectId(userId)
             };
@@ -135,7 +150,7 @@ const getPublicUserProfile = async (req, res, next) => {
         }
 
         res.json({
-            user: user,
+            user: userObj, // إرسال الكائن بعد الفلترة
             projects: projects,
             investorsCount: investorsCount,
             canAddTestimonial: canAddTestimonial,
@@ -148,21 +163,29 @@ const getPublicUserProfile = async (req, res, next) => {
     }
 };
 
+// تحديث بيانات الملف الشخصي (الإعدادات)
 const updateUserProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id);
         if (user) {
+            // تحديث خيارات الخصوصية الجديدة
+            user.showEmailPublicly = req.body.showEmailPublicly !== undefined ? req.body.showEmailPublicly : user.showEmailPublicly;
+            user.showPhonePublicly = req.body.showPhonePublicly !== undefined ? req.body.showPhonePublicly : user.showPhonePublicly;
+
+            // تحديث الحقول الأساسية
             user.fullName = req.body.fullName || user.fullName;
             user.phone = req.body.phone || user.phone;
             user.location = req.body.location || user.location;
             user.bio = req.body.bio || user.bio;
             user.profileTitle = req.body.profileTitle || user.profileTitle;
+            
             if (req.body.skills) user.skills = req.body.skills;
             if (req.body.socialLinks) user.socialLinks = req.body.socialLinks;
             if (req.body.interests) user.interests = req.body.interests;
             if (req.body.achievements) user.achievements = req.body.achievements;
             if (req.body.professionalExperience) user.professionalExperience = req.body.professionalExperience;
             if (req.body.education) user.education = req.body.education;
+
             const updatedUser = await user.save();
             res.json(updatedUser);
         } else {
@@ -174,6 +197,23 @@ const updateUserProfile = async (req, res, next) => {
     }
 };
 
+// تحديث حالة الهاتف يدوياً (محاكاة)
+const verifyPhoneManual = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+        user.isPhoneVerified = true;
+        await user.save();
+
+        res.json({ message: 'تم تأكيد الهاتف بنجاح', isPhoneVerified: true });
+    } catch (error) {
+        console.error("Error in verifyPhoneManual:", error);
+        next(error);
+    }
+};
+
+// تحديث صورة الملف الشخصي
 const updateUserProfilePicture = async (req, res, next) => {
     try {
         if (!req.file) {
@@ -186,7 +226,6 @@ const updateUserProfilePicture = async (req, res, next) => {
         }
 
         user.profilePicture = req.file.path;
-
         const updatedUser = await user.save();
 
         res.json({
@@ -199,6 +238,7 @@ const updateUserProfilePicture = async (req, res, next) => {
     }
 };
 
+// جلب إحصائيات لوحة التحكم لصاحب الفكرة
 const getIdeaHolderDashboard = async (req, res, next) => {
     try {
         const userId = req.user._id;
@@ -250,6 +290,7 @@ const getIdeaHolderDashboard = async (req, res, next) => {
     }
 };
 
+// جلب عروض الشراكة المستلمة
 const getReceivedProposals = async (req, res, next) => {
     try {
         const projectIds = await Project.find({ owner: req.user._id }).distinct('_id');
@@ -264,6 +305,7 @@ const getReceivedProposals = async (req, res, next) => {
     }
 };
 
+// متابعة مستخدم أو إلغاء المتابعة
 const toggleFollowUser = async (req, res, next) => {
     try {
         const userToFollow = await User.findById(req.params.id);
@@ -310,6 +352,7 @@ const toggleFollowUser = async (req, res, next) => {
     }
 };
 
+// جلب سجل الاستثمارات للمستثمر
 const getInvestmentRecords = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
@@ -332,6 +375,7 @@ const getInvestmentRecords = async (req, res, next) => {
     }
 };
 
+// جلب المشاريع المتابعة
 const getFollowedProjects = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
@@ -346,6 +390,7 @@ const getFollowedProjects = async (req, res, next) => {
     }
 };
 
+// جلب إحصائيات المستثمر
 const getInvestorStats = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
@@ -416,6 +461,7 @@ const getInvestorStats = async (req, res, next) => {
     }
 };
 
+// جلب العروض قيد الانتظار
 const getPendingProposals = async (req, res, next) => {
     try {
         if (req.user.accountType !== 'investor') {
@@ -434,6 +480,7 @@ const getPendingProposals = async (req, res, next) => {
     }
 };
 
+// إضافة توصية
 const addTestimonial = async (req, res, next) => {
     try {
         const userToReview = await User.findById(req.params.id);
@@ -474,6 +521,7 @@ const addTestimonial = async (req, res, next) => {
     }
 };
 
+// حذف توصية
 const deleteTestimonial = async (req, res, next) => {
     try {
         const userToReview = await User.findById(req.params.id);
@@ -497,6 +545,7 @@ const deleteTestimonial = async (req, res, next) => {
     }
 };
 
+// تحديث توصية
 const updateTestimonial = async (req, res, next) => {
     try {
         const userToReview = await User.findById(req.params.id);
@@ -522,6 +571,7 @@ const updateTestimonial = async (req, res, next) => {
     }
 };
 
+// جلب إحصائيات عامة للمنصة
 const getPublicPlatformStats = async (req, res, next) => {
     try {
         const investorCount = await User.countDocuments({ accountType: 'investor' });
@@ -534,9 +584,9 @@ const getPublicPlatformStats = async (req, res, next) => {
     }
 };
 
+// جلب أعضاء النخبة
 const getEliteMembers = async (req, res) => {
     try {
-
         const users = await User.find({})
             .select('fullName profilePicture accountType profileTitle isVerified')
             .sort({ createdAt: -1 })
@@ -548,19 +598,7 @@ const getEliteMembers = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
-const verifyPhoneManual = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.user._id);
-        if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
 
-        user.isPhoneVerified = true;
-        await user.save();
-
-        res.json({ message: 'تم تأكيد الهاتف بنجاح', isPhoneVerified: true });
-    } catch (error) {
-        next(error);
-    }
-};
 module.exports = {
     getUserProfile,
     updateUserProfile,
@@ -578,5 +616,5 @@ module.exports = {
     updateTestimonial,
     getPublicPlatformStats,
     getEliteMembers,
-    verifyPhoneManual,
+    verifyPhoneManual // تمت إضافة الدالة الجديدة هنا
 };

@@ -51,6 +51,14 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    showEmailPublicly: {
+        type: Boolean,
+        default: false // إخفاء افتراضي لمزيد من الخصوصية
+    },
+    showPhonePublicly: {
+        type: Boolean,
+        default: false
+    },
     verificationToken: String, // تمت الإضافة
     verificationTokenExpires: Date, // تمت الإضافة
 
