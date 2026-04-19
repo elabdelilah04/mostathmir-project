@@ -53,6 +53,10 @@ async function initSettingsPage(user) {
         if (user.isPhoneVerified) {
             if (phoneVerifiedBadge) phoneVerifiedBadge.style.display = 'flex';
             btnStartVerify.style.display = 'none';
+            if (phoneInput) {
+                phoneInput.disabled = true;
+                phoneInput.style.backgroundColor = "#f3f4f6";
+            }
         } else {
             if (phoneVerifiedBadge) phoneVerifiedBadge.style.display = 'none';
             btnStartVerify.style.display = 'block';
@@ -106,7 +110,6 @@ async function initSettingsPage(user) {
         };
     }
 
-    // تشغيل نظام التحقق
     setupPhoneVerification(user);
 
 
@@ -175,10 +178,14 @@ async function initSettingsPage(user) {
 
     const inputsToToggle = [
         settingsForm.querySelector('#fullName'),
-        settingsForm.querySelector('#phone'),
         settingsForm.querySelector('#bio'),
-        settingsForm.querySelector('#profileTitle')
+        settingsForm.querySelector('#profileTitle'),
+        document.getElementById('showEmailPublicly'),
+        document.getElementById('showPhonePublicly'),
+        document.getElementById('notifications'),
+        document.getElementById('privacy')
     ];
+
     const editButton = settingsForm.querySelector('[data-i18n-key="settings-account-info-edit"]');
     const saveButton = settingsForm.querySelector('[data-i18n-key="settings-save-changes"]');
     const socialLinksContainer = document.getElementById('socialLinksContainer');
@@ -198,10 +205,6 @@ async function initSettingsPage(user) {
     const skillsContainer = document.getElementById('skillsFormContainer');
     const addSkillBtn = document.getElementById('addSkillBtn');
     const skillTemplate = document.getElementById('skillTemplate');
-
-    // عناصر إعدادات الخصوصية الجديدة
-    const showEmailPublicly = document.getElementById('showEmailPublicly');
-    const showPhonePublicly = document.getElementById('showPhonePublicly');
 
     function createSkillRow(data = { name: '', level: 80 }) {
         if (!skillTemplate || !skillsContainer) return;
@@ -237,11 +240,15 @@ async function initSettingsPage(user) {
     });
 
     function toggleEditMode(enable) {
+        // تفعيل الحقول العادية والمفاتيح
         inputsToToggle.forEach(input => { if (input) input.disabled = !enable; });
+        
         const countrySelect = document.getElementById('country');
         const citySelect = document.getElementById('city');
         if (countrySelect) countrySelect.disabled = !enable;
         if (citySelect) citySelect.disabled = !enable;
+
+        // تفعيل أزرار الإضافة في البطاقات
         if (skillsContainer) skillsContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
         if (addSkillBtn) addSkillBtn.disabled = !enable;
         if (socialLinksContainer) socialLinksContainer.querySelectorAll('input, select, button').forEach(el => el.disabled = !enable);
@@ -259,17 +266,11 @@ async function initSettingsPage(user) {
         if (educationContainer) educationContainer.querySelectorAll('input, button').forEach(el => el.disabled = !enable);
         if (addEducationBtn) addEducationBtn.disabled = !enable;
 
-        // تفعيل/تعطيل مفاتيح الخصوصية
-        if (showEmailPublicly) showEmailPublicly.disabled = !enable;
-        if (showPhonePublicly) showPhonePublicly.disabled = !enable;
-
-        settingsForm.classList.toggle('is-editing', enable);
-        
         // منطق حماية رقم الهاتف الموثق
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
             if (user.isPhoneVerified) {
-                phoneInput.disabled = true;
+                phoneInput.disabled = true; // يبقى مقفلاً دائماً
                 phoneInput.style.backgroundColor = "#f3f4f6";
                 phoneInput.style.cursor = "not-allowed";
             } else {
@@ -279,9 +280,11 @@ async function initSettingsPage(user) {
             }
         }
 
-        // الإيميل يبقى للقراءة فقط دائماً
+        // الإيميل يبقى معطلاً دائماً
         const emailInput = document.getElementById('email');
         if (emailInput) emailInput.disabled = true;
+
+        settingsForm.classList.toggle('is-editing', enable);
     }
 
     function createRow(template, container, data, populateFn) {
@@ -291,16 +294,18 @@ async function initSettingsPage(user) {
         container.appendChild(content);
     }
 
-    // تعبئة البيانات الأولية
+    // تعبئة البيانات من السيرفر
     settingsForm.querySelector('#email').value = user.email || '';
     settingsForm.querySelector('#fullName').value = user.fullName || '';
     settingsForm.querySelector('#phone').value = user.phone || '';
     settingsForm.querySelector('#bio').value = user.bio || '';
     settingsForm.querySelector('#profileTitle').value = user.profileTitle || '';
 
-    // تعبئة حالة الخصوصية الأولية
-    if (showEmailPublicly) showEmailPublicly.checked = user.showEmailPublicly || false;
-    if (showPhonePublicly) showPhonePublicly.checked = user.showPhonePublicly || false;
+    // تعبئة حالة الخصوصية
+    const showEmailToggle = document.getElementById('showEmailPublicly');
+    const showPhoneToggle = document.getElementById('showPhonePublicly');
+    if (showEmailToggle) showEmailToggle.checked = user.showEmailPublicly || false;
+    if (showPhoneToggle) showPhoneToggle.checked = user.showPhonePublicly || false;
 
     initCountryCityDropdowns(user.location);
 
@@ -380,10 +385,9 @@ async function initSettingsPage(user) {
     if (settingsForm && saveButton) {
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newCountry = settingsForm.querySelector('#country').value;
-            const newCity = settingsForm.querySelector('#city').value;
-            const newLocation = newCountry && newCity ? `${newCity}, ${newCountry}` : '';
-            if (!newCountry || !newCity) {
+            const country = document.getElementById('country').value;
+            const city = document.getElementById('city').value;
+            if (!country || !city) {
                 return alert(t('js-settings-alert-select-country-city'));
             }
 
@@ -393,15 +397,14 @@ async function initSettingsPage(user) {
             })).filter(skill => skill.name);
 
             const updatedData = {
-                fullName: settingsForm.querySelector('#fullName').value,
-                phone: settingsForm.querySelector('#phone').value,
-                location: newLocation,
-                bio: settingsForm.querySelector('#bio').value,
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                location: `${city}, ${country}`,
+                bio: document.getElementById('bio').value,
                 skills: updatedSkills,
                 profileTitle: document.getElementById('profileTitle').value,
-                // إضافة حقول الخصوصية للإرسال إلى السيرفر
-                showEmailPublicly: showEmailPublicly ? showEmailPublicly.checked : false,
-                showPhonePublicly: showPhonePublicly ? showPhonePublicly.checked : false,
+                showEmailPublicly: showEmailToggle ? showEmailToggle.checked : false,
+                showPhonePublicly: showPhoneToggle ? showPhoneToggle.checked : false,
                 socialLinks: Array.from(document.querySelectorAll('#socialLinksContainer .social-link-row')).map(row => ({
                     platform: row.querySelector('.social-platform').value,
                     url: row.querySelector('.social-url').value.trim()
