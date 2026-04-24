@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // التأكد من وجود دالة الترجمة قبل أي شيء آخر
     if (typeof t !== 'function') {
         console.error('Translation function t() is not available. Make sure translation.js is loaded correctly and before this script.');
-        // عرض رسالة خطأ للمستخدم في حال عدم وجود الترجمة
         document.body.innerHTML = "<div class='container mx-auto p-8 text-center'><h1>Error: Translation library failed to load.</h1></div>";
         return;
     }
@@ -97,7 +96,7 @@ async function openContactModal() {
     }
 
     subjectSelect.onchange = () => {
-        if (subjectSelect.value === 'اقتراح استثمار') { // لا يزال يعتمد على القيمة الخام هنا
+        if (subjectSelect.value === 'اقتراح استثمار') {
             projectsContainer.style.display = 'block';
         } else {
             projectsContainer.style.display = 'none';
@@ -122,7 +121,7 @@ function closeContactModal() {
             modal.style.display = 'none';
             overlay.style.display = 'none';
             document.getElementById('contactMessage').value = '';
-            document.getElementById('contactSubject').value = 'عام'; // القيمة الخام
+            document.getElementById('contactSubject').value = 'عام';
             document.getElementById('projectsSelectContainer').style.display = 'none';
         }, 300);
     }
@@ -146,7 +145,7 @@ async function handleSendMessage(event) {
         return;
     }
 
-    if (subject === 'اقتراح استثمار' && !relatedProject) { // القيمة الخام
+    if (subject === 'اقتراح استثمار' && !relatedProject) {
         alert(t('js-public-profile-alert-select-project'));
         return;
     }
@@ -253,6 +252,30 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 
     document.getElementById('location').textContent = user.location || '';
 
+    // ==========================================
+    // منطق الخصوصية لإظهار/إخفاء الإيميل والهاتف
+    // ==========================================
+    const emailEl = document.getElementById('email');
+    const phoneEl = document.getElementById('phone');
+
+    if (emailEl) {
+        if (user.email) {
+            emailEl.textContent = user.email;
+            emailEl.parentElement.style.display = 'flex';
+        } else {
+            emailEl.parentElement.style.display = 'none';
+        }
+    }
+
+    if (phoneEl) {
+        if (user.phone) {
+            phoneEl.textContent = user.phone;
+            phoneEl.parentElement.style.display = 'flex';
+        } else {
+            phoneEl.parentElement.style.display = 'none';
+        }
+    }
+
     const ideaHolderStats = document.getElementById('ideaHolderStatsContainer');
     const investorStats = document.getElementById('investorStatsContainer');
     const ideaHolderProjects = document.getElementById('ideaHolderProjectsSection');
@@ -261,37 +284,44 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
     const emptySectionMessage = (messageKey) => `<div class="text-center p-4 bg-slate-50 rounded-lg"><p class="text-slate-500 text-sm">${t(messageKey)}</p></div>`;
 
     if (user.accountType === 'investor') {
-        ideaHolderStats.style.display = 'none';
-        investorStats.style.display = 'grid';
-        ideaHolderProjects.style.display = 'none';
-        investorProjects.style.display = 'block';
-        testimonialsSection.style.display = 'none';
+        if (ideaHolderStats) ideaHolderStats.style.display = 'none';
+        if (investorStats) investorStats.style.display = 'grid';
+        if (ideaHolderProjects) ideaHolderProjects.style.display = 'none';
+        if (investorProjects) investorProjects.style.display = 'block';
+        if (testimonialsSection) testimonialsSection.style.display = 'none';
 
         if (investorData && investorData.stats) {
             const stats = investorData.stats;
             const groupedInvestments = investorData.investments;
 
-            document.getElementById('public-stat-investments').textContent = stats.investmentsCount || 0;
-            document.getElementById('public-stat-partners').textContent = stats.partnersCount || 0;
+            if (document.getElementById('public-stat-investments')) 
+                document.getElementById('public-stat-investments').textContent = stats.investmentsCount || 0;
+            if (document.getElementById('public-stat-partners'))
+                document.getElementById('public-stat-partners').textContent = stats.partnersCount || 0;
 
             const investmentsGrid = document.getElementById('investmentsGrid');
-
-            if (groupedInvestments && groupedInvestments.length > 0) {
-                investmentsGrid.innerHTML = groupedInvestments.map(item => createGroupedInvestmentCard(item)).join('');
-            } else {
-                investmentsGrid.innerHTML = emptySectionMessage('js-public-profile-empty-investments');
+            if (investmentsGrid) {
+                if (groupedInvestments && groupedInvestments.length > 0) {
+                    investmentsGrid.innerHTML = groupedInvestments.map(item => createGroupedInvestmentCard(item)).join('');
+                } else {
+                    investmentsGrid.innerHTML = emptySectionMessage('js-public-profile-empty-investments');
+                }
             }
         }
     } else {
-        ideaHolderStats.style.display = 'grid';
-        investorStats.style.display = 'none';
-        ideaHolderProjects.style.display = 'block';
-        investorProjects.style.display = 'none';
-        testimonialsSection.style.display = 'block';
+        if (ideaHolderStats) ideaHolderStats.style.display = 'grid';
+        if (investorStats) investorStats.style.display = 'none';
+        if (ideaHolderProjects) ideaHolderProjects.style.display = 'block';
+        if (investorProjects) investorProjects.style.display = 'none';
+        if (testimonialsSection) testimonialsSection.style.display = 'block';
 
-        document.getElementById('projectsCountStat').textContent = projects ? projects.length : 0;
-        document.getElementById('investorsCountStat').textContent = investorsCount || 0;
-        document.getElementById('followersCountStat').textContent = user.followers ? user.followers.length : 0;
+        if (document.getElementById('projectsCountStat'))
+            document.getElementById('projectsCountStat').textContent = projects ? projects.length : 0;
+        if (document.getElementById('investorsCountStat'))
+            document.getElementById('investorsCountStat').textContent = investorsCount || 0;
+        if (document.getElementById('followersCountStat'))
+            document.getElementById('followersCountStat').textContent = user.followers ? user.followers.length : 0;
+        
         populateStarRating(user.testimonials);
         renderTestimonials(user.testimonials);
 
@@ -302,16 +332,14 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
             const completedSection = document.getElementById('completedProjectsSection');
             const fundingGrid = document.getElementById('fundingProjectsGrid');
             const completedGrid = document.getElementById('completedProjectsGrid');
-            if (fundingProjects.length > 0) {
+            
+            if (fundingProjects.length > 0 && fundingGrid) {
                 fundingGrid.innerHTML = fundingProjects.map(p => createPublicProjectCard(p, baseUrl)).join('');
-                fundingSection.style.display = 'block';
+                if (fundingSection) fundingSection.style.display = 'block';
             }
-            if (completedProjects.length > 0) {
+            if (completedProjects.length > 0 && completedGrid) {
                 completedGrid.innerHTML = completedProjects.map(p => createPublicProjectCard(p, baseUrl)).join('');
-                completedSection.style.display = 'block';
-            }
-            if (fundingProjects.length === 0 && completedProjects.length === 0) {
-                if (ideaHolderProjects) ideaHolderProjects.innerHTML += emptySectionMessage('js-public-profile-empty-projects-ideaholder');
+                if (completedSection) completedSection.style.display = 'block';
             }
         } else {
             if (ideaHolderProjects) ideaHolderProjects.innerHTML += emptySectionMessage('js-public-profile-empty-projects-ideaholder');
@@ -375,55 +403,27 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 }
 
 function createGroupedInvestmentCard(item) {
-    const {
-        projectId,
-        projectName,
-        projectDescription,
-        projectStatus,
-        totalAmount,
-        count,
-        lastDate,
-        currency,
-        fundingGoal,
-        equityOffered
-    } = item;
-
+    const { projectId, projectName, projectDescription, projectStatus, totalAmount, count, lastDate, currency, fundingGoal, equityOffered } = item;
     const dateStr = new Date(lastDate).toLocaleDateString('en-us');
     const statusText = projectStatus === 'published' ? t('js-public-profile-project-status-funding') : t('js-public-profile-project-status-completed');
     const borderClass = projectStatus === 'published' ? 'border-l-blue-500' : 'border-l-emerald-500';
-
-    // حساب نسبة الملكية (بسيط الآن لأن الأرقام جاهزة)
     let totalEquity = 0;
     if (fundingGoal > 0 && equityOffered > 0) {
         totalEquity = (totalAmount / fundingGoal) * equityOffered;
     }
-
     return `
     <a href="./project-view.html?id=${projectId}" target="_blank" class="block h-full">
         <div class="public-invest-card ${borderClass}">
-            
-            <!-- الصف العلوي -->
             <div class=" phonewidth flex justify-between items-start mb-3">
-                           <h3 class="font-bold text-gray-800 text-lg  truncate w-2/3" title="${escapeHTML(projectName)}">
-                    ${escapeHTML(projectName)}
-                </h3>
+                <h3 class="font-bold text-gray-800 text-lg  truncate w-2/3" title="${escapeHTML(projectName)}">${escapeHTML(projectName)}</h3>
                 <span class="status-badge-soft">${statusText}</span>
              </div>
-
-            <!-- الوصف -->
-            <p class="text-gray-500 text-sm mb-4  line-clamp-2 h-10">
-                ${escapeHTML(projectDescription)}
-            </p>
-
-            <!-- الصف الأوسط -->
+            <p class="text-gray-500 text-sm mb-4  line-clamp-2 h-10">${escapeHTML(projectDescription)}</p>
             <div class="flex justify-between items-center mb-4 bg-gray-50 p-2 rounded-lg">
                 <span class="text-xs text-gray-500">${t('js-portfolio-investment-date')}: ${dateStr}</span>
                 <span class="ops-badge">${count} ${t('js-portfolio-card-transactions')}</span>
             </div>
-
             <div class="border-t border-dashed border-gray-300 my-3"></div>
-
-            <!-- الصف السفلي -->
             <div class="flex justify-between items-end">
                 <div class="text-left">
                     <span class="block text-xs text-gray-400 mb-1">${t('js-portfolio-card-equity-share')}</span>
@@ -431,14 +431,11 @@ function createGroupedInvestmentCard(item) {
                 </div>
                 <div class="">
                     <span class="block text-xs text-gray-400 mb-1">${t('js-project-view-investor-card-amount')}</span>
-                    <span class="text-lg font-bold text-emerald-600">
-                        ${currency} ${totalAmount.toLocaleString()}
-                    </span>
+                    <span class="text-lg font-bold text-emerald-600">${currency} ${totalAmount.toLocaleString()}</span>
                 </div>
             </div>
         </div>
-    </a>
-    `;
+    </a>`;
 }
 
 function renderTestimonials(testimonials) {
@@ -446,7 +443,7 @@ function renderTestimonials(testimonials) {
     const emptySectionMessage = (messageKey) => `<div class="text-center p-4 bg-slate-50 rounded-lg"><p class="text-slate-500 text-sm">${t(messageKey)}</p></div>`;
     const currentUserId = localStorage.getItem('user_id');
     if (testimonials && testimonials.length > 0) {
-        testimonialsContainer.innerHTML = testimonials.map(testimonial => { // *** التعديل هنا: تغيير 't' إلى 'testimonial' ***
+        testimonialsContainer.innerHTML = testimonials.map(testimonial => {
             let starsHTML = '';
             for (let i = 1; i <= 5; i++) {
                 starsHTML += `<i class="fas fa-star ${i <= testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`;
@@ -456,8 +453,7 @@ function renderTestimonials(testimonials) {
                 <div class="testimonial-controls">
                     <button class="control-btn edit-btn" title="${t('js-public-profile-edit-testimonial')}" onclick="handleEditTestimonial('${testimonial._id}')"><i class="fas fa-edit"></i></button>
                     <button class="control-btn delete-btn" title="${t('js-public-profile-delete-testimonial')}" onclick="handleDeleteTestimonial('${testimonial._id}')"><i class="fas fa-trash"></i></button>
-                </div>
-            ` : '';
+                </div>` : '';
             return `
             <div id="testimonial-${testimonial._id}" class="testimonial-card border-r-4 border-emerald-500 pr-4 bg-slate-50 p-4 rounded-lg relative">
                 ${authorControlsHTML}
@@ -472,8 +468,7 @@ function renderTestimonials(testimonials) {
                     <div class="testimonial-rating text-sm">${starsHTML}</div>
                 </div>
                 <p class="text-slate-600 text-sm leading-relaxed">"${escapeHTML(testimonial.quote)}"</p>
-            </div>
-        `;
+            </div>`;
         }).join('');
     } else {
         testimonialsContainer.innerHTML = emptySectionMessage('js-public-profile-empty-testimonials');
@@ -485,11 +480,8 @@ function setupTestimonialForm(userId) {
     const form = document.getElementById('addTestimonialForm');
     const ratingContainer = document.getElementById('rating-input-container');
     const stars = ratingContainer.querySelectorAll('i');
-
     if (!container || !form || !ratingContainer) return;
-
     container.style.display = 'block';
-
     stars.forEach(star => {
         star.addEventListener('mouseover', () => {
             const ratingValue = star.dataset.value;
@@ -498,7 +490,6 @@ function setupTestimonialForm(userId) {
                 s.classList.toggle('text-gray-300', s.dataset.value > ratingValue);
             });
         });
-
         star.addEventListener('mouseout', () => {
             const currentRating = ratingContainer.dataset.rating;
             stars.forEach(s => {
@@ -506,55 +497,36 @@ function setupTestimonialForm(userId) {
                 s.classList.toggle('text-gray-300', s.dataset.value > currentRating);
             });
         });
-
-        star.addEventListener('click', () => {
-            ratingContainer.dataset.rating = star.dataset.value;
-        });
+        star.addEventListener('click', () => { ratingContainer.dataset.rating = star.dataset.value; });
     });
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const quoteTextarea = document.getElementById('testimonialQuote');
         const quote = quoteTextarea.value.trim();
         const rating = parseInt(ratingContainer.dataset.rating, 10);
         const token = localStorage.getItem('user_token');
-
-        if (!quote) {
-            alert(t('js-public-profile-alert-write-testimonial'));
-            return;
-        }
-        if (rating === 0) {
-            alert(t('js-public-profile-alert-select-rating'));
-            return;
-        }
-
+        if (!quote) { alert(t('js-public-profile-alert-write-testimonial')); return; }
+        if (rating === 0) { alert(t('js-public-profile-alert-select-rating')); return; }
         const submitButton = form.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = t('js-public-profile-sending-text');
-
         try {
             const response = await fetch(`${API_BASE_URL}/api/users/${userId}/testimonials`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ quote, rating })
             });
-
             if (!response.ok) {
                 const err = await response.json();
                 throw new Error(err.message || t('js-public-profile-error-testimonial-failed'));
             }
-
             const updatedTestimonials = await response.json();
             renderTestimonials(updatedTestimonials);
             quoteTextarea.value = '';
             ratingContainer.dataset.rating = 0;
             stars.forEach(s => s.classList.replace('text-yellow-400', 'text-gray-300'));
             alert(t('js-public-profile-success-testimonial-added'));
-
         } catch (error) {
             alert(`${t('js-public-profile-error-generic')}: ${error.message}`);
         } finally {
@@ -565,14 +537,8 @@ function setupTestimonialForm(userId) {
 }
 
 async function handleDeleteTestimonial(testimonialId) {
-    if (!testimonialId || testimonialId === 'undefined') {
-        console.error("Invalid testimonial ID:", testimonialId);
-        alert(t('js-public-profile-error-invalid-testimonial-id'));
-        return;
-    }
-    if (!confirm(t('js-public-profile-confirm-delete-testimonial'))) {
-        return;
-    }
+    if (!testimonialId || testimonialId === 'undefined') { alert(t('js-public-profile-error-invalid-testimonial-id')); return; }
+    if (!confirm(t('js-public-profile-confirm-delete-testimonial'))) return;
     const params = new URLSearchParams(window.location.search);
     const userId = params.get('id');
     const token = localStorage.getItem('user_token');
@@ -581,30 +547,22 @@ async function handleDeleteTestimonial(testimonialId) {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || t('js-public-profile-error-delete-testimonial-failed'));
         }
-
         const updatedTestimonials = await response.json();
         renderTestimonials(updatedTestimonials);
         alert(t('js-public-profile-success-testimonial-deleted'));
-
-    } catch (error) {
-        alert(`${t('js-public-profile-error-generic')}: ${error.message}`);
-    }
+    } catch (error) { alert(`${t('js-public-profile-error-generic')}: ${error.message}`); }
 }
 
 function handleEditTestimonial(testimonialId) {
     const card = document.getElementById(`testimonial-${testimonialId}`);
     if (!card || card.classList.contains('editing')) return;
-
     const currentQuote = card.querySelector('p').innerText.replace(/"/g, '');
     const currentRating = card.querySelectorAll('.fa-star.text-yellow-400').length;
-
     const originalContent = card.innerHTML;
-
     card.classList.add('editing');
     card.innerHTML = `
         <div class="mb-2">
@@ -616,11 +574,8 @@ function handleEditTestimonial(testimonialId) {
         <div class="edit-actions">
             <button onclick="cancelEdit('${testimonialId}')" class="cancel-btn">${t('js-public-profile-cancel-btn')}</button>
             <button onclick="handleSaveTestimonial('${testimonialId}')" class="save-btn">${t('js-public-profile-save-btn')}</button>
-        </div>
-    `;
-
+        </div>`;
     card.originalInnerHTML = originalContent;
-
     const stars = card.querySelectorAll('.edit-rating-stars i');
     const ratingContainer = card.querySelector('.edit-rating-stars');
     stars.forEach(star => {
@@ -632,9 +587,7 @@ function handleEditTestimonial(testimonialId) {
             const currentRating = ratingContainer.dataset.rating;
             stars.forEach(s => s.classList.toggle('text-yellow-400', s.dataset.value <= currentRating));
         });
-        star.addEventListener('click', () => {
-            ratingContainer.dataset.rating = star.dataset.value;
-        });
+        star.addEventListener('click', () => { ratingContainer.dataset.rating = star.dataset.value; });
     });
 }
 
@@ -650,29 +603,22 @@ async function handleSaveTestimonial(testimonialId) {
     const card = document.getElementById(`testimonial-${testimonialId}`);
     const userId = new URLSearchParams(window.location.search).get('id');
     const token = localStorage.getItem('user_token');
-
     const newQuote = card.querySelector('textarea').value;
     const newRating = card.querySelector('.edit-rating-stars').dataset.rating;
-
     try {
         const response = await fetch(`${API_BASE_URL}/api/users/${userId}/testimonials/${testimonialId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ quote: newQuote, rating: newRating })
         });
-
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || t('js-public-profile-error-update-testimonial-failed'));
         }
-
         const updatedTestimonials = await response.json();
         renderTestimonials(updatedTestimonials);
         alert(t('js-public-profile-success-testimonial-updated'));
-
-    } catch (error) {
-        alert(`${t('js-public-profile-error-generic')}: ${error.message}`);
-    }
+    } catch (error) { alert(`${t('js-public-profile-error-generic')}: ${error.message}`); }
 }
 
 function createPublicProjectCard(project, baseUrl) {
@@ -698,18 +644,15 @@ function createPublicProjectCard(project, baseUrl) {
                 <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">${t('js-public-profile-completed-prefix')} ${progress}%</span>
                 <span class="text-gray-600 text-sm font-semibold">${(project.fundingGoal.amount || 0).toLocaleString()} ${project.fundingGoal.currency}</span>
             </div>
-            </div>
-        </a>
-    `;
+        </div>
+    </a>`;
 }
 
 function setupFollowButton(profileUser) {
     const followButton = document.getElementById('followUserButton');
     const token = localStorage.getItem('user_token');
     const currentUserId = localStorage.getItem('user_id');
-
     if (!followButton) return;
-
     if (currentUserId && currentUserId === profileUser._id) {
         followButton.textContent = t('js-public-profile-edit-profile-btn');
         followButton.className = 'financial-highlight text-white px-6 py-2.5 rounded-lg font-semibold';
@@ -717,12 +660,7 @@ function setupFollowButton(profileUser) {
         followButton.style.display = 'block';
         return;
     }
-
-    if (!token || !currentUserId) {
-        followButton.style.display = 'none';
-        return;
-    }
-
+    if (!token || !currentUserId) { followButton.style.display = 'none'; return; }
     followButton.style.display = 'block';
     fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
@@ -730,7 +668,6 @@ function setupFollowButton(profileUser) {
             const isFollowing = fullCurrentUser.following && fullCurrentUser.following.some(followedUser => followedUser._id === profileUser._id);
             updateFollowButtonState(isFollowing);
         });
-
     followButton.addEventListener('click', async () => {
         followButton.disabled = true;
         try {
@@ -740,19 +677,10 @@ function setupFollowButton(profileUser) {
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || t('js-public-profile-error-follow-failed'));
-
             updateFollowButtonState(data.isFollowing);
-
             const followersCountEl = document.getElementById('followersCountStat');
-            if (followersCountEl) {
-                followersCountEl.textContent = data.followersCount;
-            }
-
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            followButton.disabled = false;
-        }
+            if (followersCountEl) followersCountEl.textContent = data.followersCount;
+        } catch (error) { alert(error.message); } finally { followButton.disabled = false; }
     });
 }
 
