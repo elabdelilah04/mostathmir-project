@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get('id');
 
-    // التأكد من وجود دالة الترجمة قبل أي شيء آخر
+    // التأكد من وجود دالة الترجمة
     if (typeof t !== 'function') {
-        console.error('Translation function t() is not available. Make sure translation.js is loaded correctly and before this script.');
+        console.error('Translation function t() is not available.');
         document.body.innerHTML = "<div class='container mx-auto p-8 text-center'><h1>Error: Translation library failed to load.</h1></div>";
         return;
     }
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             setupTestimonialForm(userId);
         }
 
-        // Force re-translation after dynamic content is added
         if (window.translatePage) {
             window.translatePage();
         }
@@ -252,14 +251,14 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
 
     document.getElementById('location').textContent = user.location || '';
 
-    // ==========================================
-    // منطق الخصوصية لإظهار/إخفاء الإيميل والهاتف
-    // ==========================================
+    // ======================================================
+    // التعديل الجديد: منطق إظهار/إخفاء بيانات الاتصال (Privacy)
+    // ======================================================
     const emailEl = document.getElementById('email');
     const phoneEl = document.getElementById('phone');
 
     if (emailEl) {
-        if (user.email) {
+        if (user.email && user.email.trim() !== "") {
             emailEl.textContent = user.email;
             emailEl.parentElement.style.display = 'flex';
         } else {
@@ -268,13 +267,14 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
     }
 
     if (phoneEl) {
-        if (user.phone) {
+        if (user.phone && user.phone.trim() !== "") {
             phoneEl.textContent = user.phone;
             phoneEl.parentElement.style.display = 'flex';
         } else {
             phoneEl.parentElement.style.display = 'none';
         }
     }
+    // ======================================================
 
     const ideaHolderStats = document.getElementById('ideaHolderStatsContainer');
     const investorStats = document.getElementById('investorStatsContainer');
@@ -342,7 +342,12 @@ async function populatePage(user, projects, investorsCount, baseUrl, investorDat
                 if (completedSection) completedSection.style.display = 'block';
             }
         } else {
-            if (ideaHolderProjects) ideaHolderProjects.innerHTML += emptySectionMessage('js-public-profile-empty-projects-ideaholder');
+            if (ideaHolderProjects) {
+                 const currentContent = ideaHolderProjects.innerHTML;
+                 if (!currentContent.includes('fundingProjectsSection')) {
+                    ideaHolderProjects.innerHTML += emptySectionMessage('js-public-profile-empty-projects-ideaholder');
+                 }
+            }
         }
     }
 
@@ -440,7 +445,7 @@ function createGroupedInvestmentCard(item) {
 
 function renderTestimonials(testimonials) {
     const testimonialsContainer = document.getElementById('testimonialsContainer');
-    const emptySectionMessage = (messageKey) => `<div class="text-center p-4 bg-slate-50 rounded-lg"><p class="text-slate-500 text-sm">${t(messageKey)}</p></div>`;
+    // const emptySectionMessage = (messageKey) => `<div class="text-center p-4 bg-slate-50 rounded-lg"><p class="text-slate-500 text-sm">${t(messageKey)}</p></div>`;
     const currentUserId = localStorage.getItem('user_id');
     if (testimonials && testimonials.length > 0) {
         testimonialsContainer.innerHTML = testimonials.map(testimonial => {
@@ -471,7 +476,7 @@ function renderTestimonials(testimonials) {
             </div>`;
         }).join('');
     } else {
-        testimonialsContainer.innerHTML = emptySectionMessage('js-public-profile-empty-testimonials');
+        testimonialsContainer.innerHTML = `<div class="text-center p-4 bg-slate-50 rounded-lg"><p class="text-slate-500 text-sm">${t('js-public-profile-empty-testimonials')}</p></div>`;
     }
 }
 

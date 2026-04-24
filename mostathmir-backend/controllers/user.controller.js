@@ -60,10 +60,10 @@ const getPublicUserProfile = async (req, res, next) => {
         // --- تطبيق منطق الخصوصية ---
         let userObj = user.toObject();
 
-        if (!userObj.showEmailPublicly) {
+        if (userObj.showEmailPublicly !== true) {
             delete userObj.email;
         }
-        if (!userObj.showPhonePublicly) {
+        if (userObj.showPhonePublicly !== true) {
             delete userObj.phone;
         }
         // ------------------------
