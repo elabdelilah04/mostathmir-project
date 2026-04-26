@@ -248,12 +248,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     title: t('js-dashboard-step-skills-title'), description: t('js-dashboard-step-skills-desc'), icon: '★', link: 'settings.html',
                     container: document.getElementById('skillsContainer')?.parentElement
                 },
-                {
-                    check: () => user.achievements && user.achievements.length > 0,
-                    title: t('js-dashboard-step-achievements-title'), description: t('js-dashboard-step-achievements-desc'),
-                    icon: '💪', link: 'settings.html',
-                    container: document.getElementById('keyAchievementsContainer')?.parentElement
-                }
+                // {
+                //     check: () => user.achievements && user.achievements.length > 0,
+                //     title: t('js-dashboard-step-achievements-title'), description: t('js-dashboard-step-achievements-desc'),
+                //     icon: '💪', link: 'settings.html',
+                //     container: document.getElementById('keyAchievementsContainer')?.parentElement
+                // }
             ];
             let stepsLeftCount = 0;
             profileSteps.forEach(step => {
