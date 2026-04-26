@@ -1453,6 +1453,16 @@ h6 {
 }
 
 @media (max-width: 992px) {
+
+    .settings-card {
+        margin-right: 2rem;
+        margin-left: 2rem;
+    }
+
+    .dynamic-form-row {
+        border: none;
+    }
+
     .st-layout {
         flex-direction: column;
     }
