@@ -5667,6 +5667,11 @@ h6 {
         margin-bottom: 1rem;
         flex-direction: column;
     }
+
+    .social-link-row .social-platform {
+        flex-shrink: 0;
+        width: 100%;
+    }
 }
 
 /* --- START: Proposal Card Enhancements --- */
