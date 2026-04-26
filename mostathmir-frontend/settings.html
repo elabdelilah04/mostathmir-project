@@ -13,12 +13,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <style>
-       
-    </style>
 </head>
 
 <body data-page-key="page-title-settings">
+
     <div class="app rtl" id="app">
         <div id="header-placeholder"></div>
 
@@ -26,34 +24,34 @@
             <div class="container">
                 <h1 class="section-title" data-i18n-key="settings-title">إعدادات الحساب</h1>
 
-                <div class="settings-layout">
-                    <!-- الشريط الجانبي للتنقل -->
-                    <aside class="settings-sidebar">
-                        <nav class="settings-nav">
-                            <button type="button" class="nav-item active" data-target="section-account">
+                <div class="st-layout">
+                    <!-- الشريط الجانبي -->
+                    <aside class="st-sidebar">
+                        <nav class="st-nav">
+                            <button type="button" class="st-nav-link active" data-target="section-account">
                                 <i class="fas fa-user-cog"></i> <span data-i18n-key="settings-account-info">معلومات
                                     الحساب</span>
                             </button>
-                            <button type="button" class="nav-item" data-target="section-skills">
+                            <button type="button" class="st-nav-link" data-target="section-skills">
                                 <i class="fas fa-star"></i> <span data-i18n-key="settings-skills-title">المهارات</span>
                             </button>
-                            <button type="button" class="nav-item" data-target="section-experience">
+                            <button type="button" class="st-nav-link" data-target="section-experience">
                                 <i class="fas fa-briefcase"></i> <span data-i18n-key="settings-experience-title">الخبرة
                                     المهنية</span>
                             </button>
-                            <button type="button" class="nav-item" data-target="section-education">
+                            <button type="button" class="st-nav-link" data-target="section-education">
                                 <i class="fas fa-graduation-cap"></i> <span
                                     data-i18n-key="settings-education-title">التعليم</span>
                             </button>
-                            <button type="button" class="nav-item" data-target="section-social">
+                            <button type="button" class="st-nav-link" data-target="section-social">
                                 <i class="fas fa-share-alt"></i> <span data-i18n-key="settings-social-links">الروابط
                                     الاجتماعية</span>
                             </button>
-                            <button type="button" class="nav-item" data-target="section-privacy">
-                                <i class="fas fa-user-shield"></i> <span
-                                    data-i18n-key="settings-preferences">الخصوصية</span>
+                            <button type="button" class="st-nav-link" data-target="section-privacy">
+                                <i class="fas fa-user-shield"></i> <span data-i18n-key="settings-preferences">الخصوصية
+                                    والتفضيلات</span>
                             </button>
-                            <button type="button" class="nav-item danger" data-target="section-danger">
+                            <button type="button" class="st-nav-link danger" data-target="section-danger">
                                 <i class="fas fa-trash-alt"></i> <span data-i18n-key="settings-delete-account">إدارة
                                     الحساب</span>
                             </button>
@@ -61,51 +59,44 @@
                     </aside>
 
                     <!-- منطقة المحتوى -->
-                    <div class="settings-content-area">
+                    <div class="st-content-area">
                         <form id="settingsForm" class="settings-form">
 
-                            <!-- 1. قسم معلومات الحساب -->
-                            <div id="section-account" class="settings-tab-content active">
+                            <!-- 1. معلومات الحساب -->
+                            <div id="section-account" class="st-tab-content active">
                                 <div class="settings-card">
-                                    <div class="flex-header">
+                                    <div class="st-flex-header">
                                         <h2 class="settings-card-title" data-i18n-key="settings-account-info"
                                             style="border:none; margin:0; padding:0;">معلومات الحساب</h2>
-                                        <div class="settings-actions">
-                                            <button type="button" class="btn btn-outline" id="editBtnGlobal"
-                                                data-i18n-key="settings-account-info-edit">تعديل</button>
-                                        </div>
+                                        <button type="button" class="btn btn-outline" id="editBtnGlobal"
+                                            data-i18n-key="settings-account-info-edit">تعديل</button>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="email" class="form-label" data-i18n-key="settings-email">البريد
                                             الإلكتروني</label>
-                                        <input type="email" id="email" class="form-control" value="" disabled>
+                                        <input type="email" id="email" class="form-control" disabled>
                                     </div>
                                     <div class="form-group">
                                         <label for="fullName" class="form-label" data-i18n-key="signup-fullname">الاسم
                                             الكامل</label>
-                                        <input type="text" id="fullName" class="form-control" value="" required
-                                            disabled>
+                                        <input type="text" id="fullName" class="form-control" required disabled>
                                     </div>
                                     <div class="form-group">
                                         <label for="profileTitle" class="form-label"
                                             data-i18n-key="settings-profile-title-label">العنوان الوظيفي</label>
-                                        <input type="text" id="profileTitle" class="form-control"
-                                            placeholder="مثال: مطور تطبيقات" disabled>
+                                        <input type="text" id="profileTitle" class="form-control" disabled>
                                     </div>
                                     <div class="form-group">
                                         <label for="phone" class="form-label" data-i18n-key="signup-phone">رقم
                                             الهاتف</label>
-                                        <div class="phone-input-wrapper"
-                                            style="position: relative; display: flex; gap: 10px;">
-                                            <input type="tel" id="phone" class="form-control" value="" disabled
-                                                style="flex: 1;">
+                                        <div class="phone-input-wrapper" style="display: flex; gap: 10px;">
+                                            <input type="tel" id="phone" class="form-control" disabled style="flex: 1;">
                                             <span id="phoneVerifiedBadge"
                                                 style="display: none; align-items: center; color: #10b981;"><i
                                                     class="fas fa-check-circle fa-lg"></i></span>
                                             <button type="button" id="btnStartVerify" class="btn btn-outline"
-                                                style="display: none; white-space: nowrap; font-size: 0.8rem;">تأكيد
-                                                الرقم</button>
+                                                style="display: none; white-space: nowrap;">تأكيد الرقم</button>
                                         </div>
                                         <div id="otpSection"
                                             style="display: none; margin-top: 15px; padding: 15px; background: #f0f7ff; border-radius: 8px; border: 1px solid #cce3ff;">
@@ -120,14 +111,13 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="location" class="form-label"
-                                            data-i18n-key="signup-location">الموقع</label>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <select id="country" name="country" class="form-select" disabled required>
-                                                <option value="">اختر الدولة</option>
+                                        <label class="form-label" data-i18n-key="signup-location">الموقع</label>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                            <select id="country" class="form-select" disabled>
+                                                <option value="">الدولة</option>
                                             </select>
-                                            <select id="city" name="city" class="form-select" disabled required>
-                                                <option value="">اختر المدينة</option>
+                                            <select id="city" class="form-select" disabled>
+                                                <option value="">المدينة</option>
                                             </select>
                                         </div>
                                     </div>
@@ -138,8 +128,8 @@
                                 </div>
                             </div>
 
-                            <!-- 2. قسم المهارات -->
-                            <div id="section-skills" class="settings-tab-content">
+                            <!-- 2. المهارات -->
+                            <div id="section-skills" class="st-tab-content">
                                 <div class="settings-card">
                                     <h2 class="settings-card-title" data-i18n-key="settings-skills-title">المهارات</h2>
                                     <div id="skillsFormContainer"></div>
@@ -148,8 +138,8 @@
                                 </div>
                             </div>
 
-                            <!-- 3. قسم الخبرة -->
-                            <div id="section-experience" class="settings-tab-content">
+                            <!-- 3. الخبرة المهنية -->
+                            <div id="section-experience" class="st-tab-content">
                                 <div class="settings-card">
                                     <h2 class="settings-card-title" data-i18n-key="settings-experience-title">الخبرة
                                         المهنية</h2>
@@ -159,8 +149,8 @@
                                 </div>
                             </div>
 
-                            <!-- 4. قسم التعليم -->
-                            <div id="section-education" class="settings-tab-content">
+                            <!-- 4. التعليم -->
+                            <div id="section-education" class="st-tab-content">
                                 <div class="settings-card">
                                     <h2 class="settings-card-title" data-i18n-key="settings-education-title">التعليم
                                         والمؤهلات</h2>
@@ -170,8 +160,8 @@
                                 </div>
                             </div>
 
-                            <!-- 5. قسم الروابط الاجتماعية -->
-                            <div id="section-social" class="settings-tab-content">
+                            <!-- 5. الروابط الاجتماعية -->
+                            <div id="section-social" class="st-tab-content">
                                 <div class="settings-card">
                                     <h2 class="settings-card-title" data-i18n-key="settings-social-links">روابط التواصل
                                     </h2>
@@ -181,8 +171,8 @@
                                 </div>
                             </div>
 
-                            <!-- 6. قسم الخصوصية -->
-                            <div id="section-privacy" class="settings-tab-content">
+                            <!-- 6. الخصوصية -->
+                            <div id="section-privacy" class="st-tab-content">
                                 <div class="settings-card">
                                     <h2 class="settings-card-title" data-i18n-key="settings-preferences">الخصوصية
                                         والتفضيلات</h2>
@@ -205,20 +195,21 @@
                             </div>
 
                             <!-- 7. إدارة الحساب -->
-                            <div id="section-danger" class="settings-tab-content">
+                            <div id="section-danger" class="st-tab-content">
                                 <div class="settings-card danger-zone">
                                     <h2 class="settings-card-title" data-i18n-key="settings-delete-account">حذف الحساب
                                     </h2>
-                                    <p>بمجرد حذف حسابك، سيتم مسح جميع بياناتك ومشاريعك بشكل دائم.</p>
-                                    <button type="button" id="deleteAccountBtn" class="btn btn-danger">حذف حسابي
-                                        نهائياً</button>
+                                    <p data-i18n-key="settings-delete-warning">بمجرد حذف حسابك، سيتم مسح جميع بياناتك
+                                        ومشاريعك بشكل دائم.</p>
+                                    <button type="button" id="deleteAccountBtn" class="btn btn-danger"
+                                        data-i18n-key="settings-delete-button">حذف حسابي نهائياً</button>
                                 </div>
                             </div>
 
-                            <!-- أزرار الحفظ السفلية -->
+                            <!-- زر الحفظ الموحد -->
                             <div class="settings-actions" style="margin-top: 2rem;">
-                                <button type="submit" class="btn btn-primary" id="saveAllBtn"
-                                    data-i18n-key="settings-save-changes">حفظ كافة التغييرات</button>
+                                <button type="submit" class="btn btn-primary" data-i18n-key="settings-save-changes">حفظ
+                                    كافة التغييرات</button>
                             </div>
                         </form>
                     </div>

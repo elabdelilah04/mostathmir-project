@@ -1355,27 +1355,26 @@ h6 {
 }
 
 /* ===== SETTINGS PAGE STYLES ===== */
-/* تنسيقات سريعة للشريط الجانبي لضمان عمله فوراً */
-.settings-layout {
+/* --- Settings Side Navigation Styles --- */
+.st-layout {
     display: flex;
     gap: 30px;
     margin-top: 2rem;
+    align-items: flex-start;
 }
 
-.settings-sidebar {
-    flex: 0 0 250px;
-}
-
-.settings-nav {
-    background: white;
+.st-sidebar {
+    flex: 0 0 260px;
+    background: #ffffff;
     border-radius: 12px;
     padding: 10px;
     border: 1px solid #e2e8f0;
     position: sticky;
     top: 100px;
+    z-index: 10;
 }
 
-.nav-item {
+.st-nav-link {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1390,68 +1389,58 @@ h6 {
     transition: all 0.3s ease;
     text-align: right;
     margin-bottom: 5px;
+    font-family: inherit;
 }
 
-.nav-item:hover {
+.st-nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.st-nav-link:hover {
     background: #f8fafc;
     color: #1e3a8a;
 }
 
-.nav-item.active {
+.st-nav-link.active {
     background: #eff6ff;
     color: #1e3a8a;
     border-right: 4px solid #1e3a8a;
 }
 
-.nav-item.danger {
+.st-nav-link.danger {
     color: #ef4444;
 }
 
-.settings-tab-content {
+.st-nav-link.danger:hover {
+    background: #fef2f2;
+}
+
+.st-content-area {
+    flex: 1;
+    min-width: 0;
+    /* لمنع تمدد العناصر داخل الـ Flex */
+}
+
+.st-tab-content {
     display: none;
 }
 
-.settings-tab-content.active {
+.st-tab-content.active {
     display: block;
-    animation: fadeIn 0.3s ease;
+    animation: stFadeIn 0.4s ease;
 }
 
-.settings-content-area {
-    flex: 1;
-}
-
-.flex-header {
+.st-flex-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #f1f5f9;
     padding-bottom: 1rem;
 }
 
-@media (max-width: 992px) {
-    .settings-layout {
-        flex-direction: column;
-    }
-
-    .settings-sidebar {
-        flex: none;
-        width: 100%;
-    }
-
-    .settings-nav {
-        display: flex;
-        overflow-x: auto;
-        white-space: nowrap;
-        position: static;
-    }
-
-    .nav-item {
-        width: auto;
-    }
-}
-
-@keyframes fadeIn {
+@keyframes stFadeIn {
     from {
         opacity: 0;
         transform: translateY(10px);
@@ -1460,6 +1449,38 @@ h6 {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 992px) {
+    .st-layout {
+        flex-direction: column;
+    }
+
+    .st-sidebar {
+        flex: none;
+        width: 100%;
+        position: static;
+        padding: 5px;
+    }
+
+    .st-nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        white-space: nowrap;
+        padding-bottom: 5px;
+    }
+
+    .st-nav-link {
+        width: auto;
+        padding: 10px 15px;
+    }
+
+    .st-nav-link.active {
+        border-right: none;
+        border-bottom: 3px solid #1e3a8a;
+        border-radius: 8px 8px 0 0;
     }
 }
 
