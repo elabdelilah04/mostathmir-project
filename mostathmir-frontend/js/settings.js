@@ -10,24 +10,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) {
-            throw new Error(t('js-settings-error-fetch-failed'));
-        }
+        if (!response.ok) throw new Error('Failed to fetch profile');
         const user = await response.json();
 
-        // تشغيل الصفحة بالبيانات المستلمة
         initSettingsPage(user);
 
         if (window.translatePage) {
             window.translatePage();
         }
-
     } catch (error) {
         console.error(error);
-        alert(t('js-settings-error-loading-settings'));
+        alert('حدث خطأ في تحميل البيانات الأساسية');
     }
 });
-
 
 async function initSettingsPage(user) {
     const settingsForm = document.getElementById('settingsForm');
@@ -37,7 +32,7 @@ async function initSettingsPage(user) {
     const token = localStorage.getItem('user_token');
 
     // ============================================================
-    // 1. منطق التنقل الجانبي الجديد (Tab Switching) - كلاسات فريدة
+    // 1. منطق التبديل بين التبويبات الجانبية (Side Tabs)
     // ============================================================
     const stLinks = document.querySelectorAll('.st-nav-link');
     const stContents = document.querySelectorAll('.st-tab-content');
@@ -64,7 +59,7 @@ async function initSettingsPage(user) {
     });
 
     // ============================================================
-    // 2. منطق تحقق رقم الهاتف (إصلاح شامل لعدم الاختفاء والعمل)
+    // 2. منطق تحقق رقم الهاتف (0000)
     // ============================================================
     const btnStartVerify = document.getElementById('btnStartVerify');
     const otpSection = document.getElementById('otpSection');
@@ -88,22 +83,20 @@ async function initSettingsPage(user) {
     refreshPhoneUI();
 
     if (btnStartVerify) {
-        btnStartVerify.onclick = (e) => {
+        btnStartVerify.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); // منع تداخل الأحداث
             const currentPhone = phoneInput.value || user.phone || '...';
-            document.getElementById('otpSentMessage').textContent = `${t('js-phone-otp-sent-prefix')} ${currentPhone}`;
+            document.getElementById('otpSentMessage').textContent = `${t('js-phone-otp-sent-prefix') || 'تم إرسال الكود للرقم:'} ${currentPhone}`;
             otpSection.style.display = 'block';
             btnStartVerify.style.display = 'none';
-        };
+        });
     }
 
     const btnConfirmOTP = document.getElementById('btnConfirmOTP');
     if (btnConfirmOTP) {
         btnConfirmOTP.onclick = async (e) => {
             e.preventDefault();
-            const otpVal = document.getElementById('otpInput').value;
-            if (otpVal === '0000') {
+            if (document.getElementById('otpInput').value === '0000') {
                 btnConfirmOTP.disabled = true;
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/users/verify-phone-manual`, {
@@ -114,24 +107,24 @@ async function initSettingsPage(user) {
                         }
                     });
                     if (res.ok) {
-                        alert(t('js-phone-verify-success'));
+                        alert('✅ تم تأكيد رقم الهاتف بنجاح!');
                         user.isPhoneVerified = true;
                         refreshPhoneUI();
                     }
                 } catch (err) {
-                    alert('Error');
+                    alert('❌ خطأ في الاتصال');
                 } finally {
                     btnConfirmOTP.disabled = false;
                 }
             } else {
-                alert(t('js-phone-otp-error'));
+                alert('⚠️ الكود خاطئ! أدخل 0000.');
             }
         };
     }
 
-    // ==========================================
+    // ============================================================
     // 3. القائمة الكاملة للدول والمدن
-    // ==========================================
+    // ============================================================
     const arabCountries = {
         [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech'), t('js-city-fes'), t('js-city-tanger'), t('js-city-agadir')],
         [t('js-country-algeria')]: [t('js-city-algiers'), t('js-city-oran'), t('js-city-constantine'), t('js-city-annaba')],
@@ -163,7 +156,7 @@ async function initSettingsPage(user) {
             initialCountry = currentLocation;
         }
 
-        countrySelect.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
+        countrySelect.innerHTML = `<option value="">${t('settings-country-select') || 'اختر الدولة'}</option>`;
         Object.keys(arabCountries).forEach(country => {
             const option = new Option(country, country);
             if (country === initialCountry) option.selected = true;
@@ -171,7 +164,7 @@ async function initSettingsPage(user) {
         });
 
         const populateCities = (selectedCountry, selectedCity) => {
-            citySelect.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
+            citySelect.innerHTML = `<option value="">${t('js-settings-select-city') || 'اختر المدينة'}</option>`;
             if (selectedCountry && arabCountries[selectedCountry]) {
                 arabCountries[selectedCountry].forEach(city => {
                     const option = new Option(city, city);
@@ -186,20 +179,20 @@ async function initSettingsPage(user) {
         countrySelect.disabled = true; citySelect.disabled = true;
     }
 
-    // ==========================================
-    // 4. إدارة وضع التعديل (Edit Mode)
-    // ==========================================
+    // ============================================================
+    // 4. إدارة وضع التعديل (Edit Mode) - شامل لكافة التبويبات
+    // ============================================================
     function toggleEditMode(enable) {
-        // استهداف كافة الحقول في الفورم لضمان فتح التبويبات المخفية أيضاً
+        // فك قفل كل شيء داخل الفورم (بما فيها التبويبات المخفية)
         const allInputs = settingsForm.querySelectorAll('input, select, textarea, button:not([type="submit"]):not(#editBtnGlobal)');
 
         allInputs.forEach(input => {
-            if (input.id === 'email') return;
+            if (input.id === 'email') return; // الإيميل لا يفتح أبداً
             if (input.id === 'phone' && user.isPhoneVerified) {
                 input.disabled = true;
                 return;
             }
-            if (input.id === 'otpInput') return; // حقل الـ OTP يظل مفعلاً عند ظهوره
+            if (input.id === 'otpInput') return; // حقل الـ OTP يظل مفعلاً
 
             input.disabled = !enable;
 
@@ -210,24 +203,24 @@ async function initSettingsPage(user) {
             }
         });
 
-        // التأكد من أن زر التأكيد لا يختفي إلا إذا كان الهاتف موثقاً
-        if (btnStartVerify) {
-            btnStartVerify.style.display = (user.isPhoneVerified) ? 'none' : 'block';
+        // إدارة زر تأكيد الهاتف
+        if (btnStartVerify && !user.isPhoneVerified) {
+            btnStartVerify.style.display = enable ? 'none' : 'block';
         }
 
         settingsForm.classList.toggle('is-editing', enable);
     }
 
-    const editButton = document.getElementById('editBtnGlobal');
-    if (editButton) {
-        editButton.onclick = (e) => {
+    const editBtn = document.getElementById('editBtnGlobal');
+    if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
             e.preventDefault();
             toggleEditMode(true);
-        };
+        });
     }
 
     // ============================================================
-    // 5. تعبئة البيانات والمصفوفات (مع إفراغ الحاويات لمنع التكرار)
+    // 5. تعبئة البيانات والمصفوفات (إصلاح تكرار البيانات)
     // ============================================================
     document.getElementById('email').value = user.email || '';
     document.getElementById('fullName').value = user.fullName || '';
@@ -235,10 +228,8 @@ async function initSettingsPage(user) {
     document.getElementById('bio').value = user.bio || '';
     document.getElementById('profileTitle').value = user.profileTitle || '';
 
-    const showEmailCheck = document.getElementById('showEmailPublicly');
-    const showPhoneCheck = document.getElementById('showPhonePublicly');
-    if (showEmailCheck) showEmailCheck.checked = !!user.showEmailPublicly;
-    if (showPhoneCheck) showPhoneCheck.checked = !!user.showPhonePublicly;
+    if (document.getElementById('showEmailPublicly')) document.getElementById('showEmailPublicly').checked = !!user.showEmailPublicly;
+    if (document.getElementById('showPhonePublicly')) document.getElementById('showPhonePublicly').checked = !!user.showPhonePublicly;
 
     initCountryCityDropdowns(user.location);
 
@@ -251,49 +242,49 @@ async function initSettingsPage(user) {
         container.appendChild(content);
     }
 
-    // إفراغ الحاويات قبل التعبئة لمنع تكرار البيانات عند التحميل
-    const containers = ['skillsFormContainer', 'experienceFormContainer', 'educationFormContainer', 'socialLinksContainer'];
-    containers.forEach(id => { const c = document.getElementById(id); if (c) c.innerHTML = ''; });
+    // إفراغ الحاويات قبل التعبئة (هام جداً لمنع التكرار)
+    const containersToClear = ['skillsFormContainer', 'experienceFormContainer', 'educationFormContainer', 'socialLinksContainer', 'achievementsFormContainer'];
+    containersToClear.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
 
     if (user.skills) user.skills.forEach(s => createRow('skillTemplate', 'skillsFormContainer', s, (c, d) => {
         c.querySelector('.skill-name').value = d.name;
         c.querySelector('.skill-level').value = d.level;
         c.querySelector('.skill-level-value').textContent = `${d.level}%`;
     }));
-
     if (user.professionalExperience) user.professionalExperience.forEach(e => createRow('experienceTemplate', 'experienceFormContainer', e, (c, d) => {
-        c.querySelector('.exp-title').value = d.title;
-        c.querySelector('.exp-company').value = d.company;
-        c.querySelector('.exp-period').value = d.period;
-        c.querySelector('.exp-description').value = d.description;
+        c.querySelector('.exp-title').value = d.title; c.querySelector('.exp-company').value = d.company;
+        c.querySelector('.exp-period').value = d.period; c.querySelector('.exp-description').value = d.description;
     }));
-
     if (user.education) user.education.forEach(edu => createRow('educationTemplate', 'educationFormContainer', edu, (c, d) => {
-        c.querySelector('.edu-degree').value = d.degree;
-        c.querySelector('.edu-institution').value = d.institution;
+        c.querySelector('.edu-degree').value = d.degree; c.querySelector('.edu-institution').value = d.institution;
         c.querySelector('.edu-details').value = d.details;
     }));
-
+    if (user.achievements) user.achievements.forEach(ach => createRow('achievementTemplate', 'achievementsFormContainer', ach, (c, d) => {
+        c.querySelector('.ach-title').value = d.title; c.querySelector('.ach-issuer').value = d.issuer; c.querySelector('.ach-year').value = d.year;
+    }));
     if (user.socialLinks) user.socialLinks.forEach(l => createRow('socialLinkTemplate', 'socialLinksContainer', l, (c, d) => {
-        c.querySelector('.social-platform').value = d.platform;
-        c.querySelector('.social-url').value = d.url;
+        c.querySelector('.social-platform').value = d.platform; c.querySelector('.social-url').value = d.url;
     }));
 
     // أزرار الإضافة
-    document.getElementById('addSkillBtn').onclick = (e) => { e.preventDefault(); createRow('skillTemplate', 'skillsFormContainer', null, () => { }); };
-    document.getElementById('addExperienceBtn').onclick = (e) => { e.preventDefault(); createRow('experienceTemplate', 'experienceFormContainer', null, () => { }); };
-    document.getElementById('addEducationBtn').onclick = (e) => { e.preventDefault(); createRow('educationTemplate', 'educationFormContainer', null, () => { }); };
-    document.getElementById('addSocialLinkBtn').onclick = (e) => { e.preventDefault(); createRow('socialLinkTemplate', 'socialLinksContainer', null, () => { }); };
+    const bindAdd = (id, temp, cont) => {
+        const b = document.getElementById(id);
+        if (b) b.onclick = (e) => { e.preventDefault(); createRow(temp, cont, null, () => { }); };
+    };
+    bindAdd('addSkillBtn', 'skillTemplate', 'skillsFormContainer');
+    bindAdd('addExperienceBtn', 'experienceTemplate', 'experienceFormContainer');
+    bindAdd('addEducationBtn', 'educationTemplate', 'educationFormContainer');
+    bindAdd('addAchievementBtn', 'achievementTemplate', 'achievementsFormContainer');
+    bindAdd('addSocialLinkBtn', 'socialLinkTemplate', 'socialLinksContainer');
 
     // ============================================================
-    // 6. منطق الحذف وتحديث نسبة المهارة (إصلاح مستمع الأحداث)
+    // 6. منطق الحذف وتحديث النسب
     // ============================================================
     settingsForm.addEventListener('click', (e) => {
         const delBtn = e.target.closest('.remove-row-btn, .remove-link-btn, .remove-ach-btn');
         if (delBtn) {
             e.preventDefault();
-            const row = delBtn.closest('.dynamic-form-row, .social-link-row, .skill-row');
-            if (row) row.remove();
+            delBtn.closest('.dynamic-form-row, .social-link-row, .skill-row, .achievement-form-row').remove();
         }
     });
 
@@ -305,57 +296,59 @@ async function initSettingsPage(user) {
     });
 
     // ============================================================
-    // 7. حفظ البيانات (إصلاح التكرار: جمع شامل لمرة واحدة فقط)
+    // 7. حفظ البيانات النهائي (جمع شامل وإصلاح التكرار)
     // ============================================================
     settingsForm.onsubmit = async (e) => {
         e.preventDefault();
 
-        // التحقق من الموقع
+        // التحقق من الحقول المطلوبة يدوياً لأنها قد تكون مخفية في تبويبات أخرى
+        const fullName = document.getElementById('fullName').value.trim();
         const country = document.getElementById('country').value;
         const city = document.getElementById('city').value;
-        if (!country || !city) return alert(t('js-settings-alert-select-country-city'));
 
-        // جمع البيانات من العناصر الموجودة حالياً في الـ DOM حصراً
+        if (!fullName || !country || !city) {
+            alert('يرجى ملء الاسم الكامل واختيار الموقع (الدولة والمدينة) في تبويب معلومات الحساب.');
+            // توجيه المستخدم لتبويب الحساب تلقائياً لرؤية الخطأ
+            document.querySelector('[data-target="section-account"]').click();
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveAllBtn') || e.submitter;
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '...'; }
+
         const updatedData = {
-            fullName: document.getElementById('fullName').value,
+            fullName: fullName,
             phone: document.getElementById('phone').value,
             location: `${city}, ${country}`,
             bio: document.getElementById('bio').value,
             profileTitle: document.getElementById('profileTitle').value,
             showEmailPublicly: document.getElementById('showEmailPublicly').checked,
             showPhonePublicly: document.getElementById('showPhonePublicly').checked,
-
-            // جمع المهارات الحالية فقط
             skills: Array.from(document.querySelectorAll('.skill-row')).map(r => ({
                 name: r.querySelector('.skill-name').value,
                 level: r.querySelector('.skill-level').value
             })).filter(s => s.name),
-
-            // جمع الروابط الاجتماعية الحالية فقط
             socialLinks: Array.from(document.querySelectorAll('.social-link-row')).map(r => ({
                 platform: r.querySelector('.social-platform').value,
                 url: r.querySelector('.social-url').value
             })).filter(l => l.url),
-
-            // جمع الخبرات الحالية فقط
             professionalExperience: Array.from(document.querySelectorAll('#experienceFormContainer .dynamic-form-row')).map(r => ({
                 title: r.querySelector('.exp-title').value,
                 company: r.querySelector('.exp-company').value,
                 period: r.querySelector('.exp-period').value,
                 description: r.querySelector('.exp-description').value
             })),
-
-            // جمع التعليم الحالي فقط
             education: Array.from(document.querySelectorAll('#educationFormContainer .dynamic-form-row')).map(r => ({
                 degree: r.querySelector('.edu-degree').value,
                 institution: r.querySelector('.edu-institution').value,
                 details: r.querySelector('.edu-details').value
-            }))
+            })),
+            achievements: Array.from(document.querySelectorAll('#achievementsFormContainer .achievement-form-row')).map(r => ({
+                title: r.querySelector('.ach-title').value,
+                issuer: r.querySelector('.ach-issuer').value,
+                year: r.querySelector('.ach-year').value
+            })).filter(a => a.title)
         };
-
-        const saveBtn = document.getElementById('saveAllBtn');
-        saveBtn.disabled = true;
-        saveBtn.textContent = '...';
 
         try {
             const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
@@ -364,19 +357,19 @@ async function initSettingsPage(user) {
                 body: JSON.stringify(updatedData)
             });
             if (res.ok) {
-                alert(t('js-settings-success-update'));
+                alert('✅ تم حفظ كافة التغييرات بنجاح');
                 window.location.reload();
             } else {
-                alert('Error saving data');
+                const errData = await res.json();
+                alert('❌ فشل الحفظ: ' + (errData.message || 'خطأ غير معروف'));
             }
         } catch (err) {
-            console.error(err);
+            alert('❌ حدث خطأ في الاتصال بالسيرفر');
         } finally {
-            saveBtn.disabled = false;
+            if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'حفظ التغييرات'; }
         }
     };
 
-    // التشغيل الأولي: قفل كل شيء
     toggleEditMode(false);
 }
 
