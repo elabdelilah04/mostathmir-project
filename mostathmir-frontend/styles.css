@@ -5659,6 +5659,14 @@ h6 {
         border-bottom: 3px solid #1e3a8a;
         border-radius: 8px 8px 0 0;
     }
+
+    .social-link-row {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-direction: column;
+    }
 }
 
 /* --- START: Proposal Card Enhancements --- */
