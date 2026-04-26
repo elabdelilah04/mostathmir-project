@@ -314,15 +314,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        const achievementsContainer = document.getElementById('keyAchievementsContainer');
-        if (achievementsContainer) {
-            if (user.achievements && user.achievements.length > 0) {
-                achievementsContainer.parentElement.style.display = 'block';
-                achievementsContainer.innerHTML = user.achievements.map(ach => `<div class="investment-card p-3 rounded-lg"><div class="flex items-center gap-3"><div class="w-10 h-10 achievement-badge rounded-lg flex items-center justify-center text-white text-sm font-bold">${ach.icon || '🏆'}</div><div><div class="font-semibold text-slate-800 text-sm">${escapeHTML(ach.title)}</div><div class="text-xs text-emerald-600 font-medium">${escapeHTML(ach.issuer)}</div></div></div></div>`).join('');
-            } else {
-                achievementsContainer.parentElement.style.display = 'none';
-            }
-        }
+        // const achievementsContainer = document.getElementById('keyAchievementsContainer');
+        // if (achievementsContainer) {
+        //     if (user.achievements && user.achievements.length > 0) {
+        //         achievementsContainer.parentElement.style.display = 'block';
+        //         achievementsContainer.innerHTML = user.achievements.map(ach => `<div class="investment-card p-3 rounded-lg"><div class="flex items-center gap-3"><div class="w-10 h-10 achievement-badge rounded-lg flex items-center justify-center text-white text-sm font-bold">${ach.icon || '🏆'}</div><div><div class="font-semibold text-slate-800 text-sm">${escapeHTML(ach.title)}</div><div class="text-xs text-emerald-600 font-medium">${escapeHTML(ach.issuer)}</div></div></div></div>`).join('');
+        //     } else {
+        //         achievementsContainer.parentElement.style.display = 'none';
+        //     }
+        // }
     }
 
     function createDashboardProjectCard(project) {
