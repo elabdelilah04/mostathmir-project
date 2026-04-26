@@ -4,6 +4,8 @@
   // =========================
   const dict = {
     ar: {
+      "settings-show-email": "إظهار البريد الإلكتروني للعموم",
+      "settings-show-phone": "إظهار رقم الهاتف للعموم",
       "js-settings-error-load": "حدث خطأ أثناء تحميل بيانات الحساب",
       "js-phone-otp-sent-prefix": "تم إرسال كود التحقق للرقم: ",
       "js-phone-verify-success": "✅ تم توثيق رقم الهاتف بنجاح",
@@ -1902,6 +1904,8 @@
     },
 
     en: {
+      "settings-show-email": "Show email publicly",
+      "settings-show-phone": "Show phone publicly",
       "js-settings-error-load": "Error loading account data",
       "js-phone-otp-sent-prefix": "Verification code sent to: ",
       "js-phone-verify-success": "✅ Phone verified successfully",
