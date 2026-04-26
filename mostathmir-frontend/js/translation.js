@@ -4,6 +4,13 @@
   // =========================
   const dict = {
     ar: {
+      "js-settings-error-load": "حدث خطأ أثناء تحميل بيانات الحساب",
+      "js-phone-otp-sent-prefix": "تم إرسال كود التحقق للرقم: ",
+      "js-phone-verify-success": "✅ تم توثيق رقم الهاتف بنجاح",
+      "js-phone-otp-error": "⚠️ الكود خاطئ! أدخل 0000 للتجربة.",
+      "js-settings-success-update": "✅ تم حفظ التغييرات بنجاح",
+      "js-settings-error-save": "❌ حدث خطأ أثناء محاولة حفظ البيانات",
+      "js-settings-saving": "جاري الحفظ...",
       // أضف هذه المفاتيح في قسم "settings" أو في نهاية قائمة "ar"
       "js-phone-verify-start": "تأكيد الرقم",
       "js-phone-verify-success": "✅ تم تفعيل رقم الهاتف بنجاح!",
@@ -1895,6 +1902,13 @@
     },
 
     en: {
+      "js-settings-error-load": "Error loading account data",
+      "js-phone-otp-sent-prefix": "Verification code sent to: ",
+      "js-phone-verify-success": "✅ Phone verified successfully",
+      "js-phone-otp-error": "⚠️ Invalid code! Enter 0000 for testing.",
+      "js-settings-success-update": "✅ Changes saved successfully",
+      "js-settings-error-save": "❌ An error occurred while saving data",
+      "js-settings-saving": "Saving...",
       // أضف هذه المفاتيح في قسم "settings" أو في نهاية قائمة "en"
       "js-phone-verify-start": "Verify Number",
       "js-phone-verify-success": "✅ Phone number verified successfully!",
