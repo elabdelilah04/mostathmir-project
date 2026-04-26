@@ -216,8 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (projectsStatCard) projectsStatCard.querySelector('.text-xl').textContent = projectsCount;
             if (followersStatCard) followersStatCard.querySelector('.text-xl').textContent = followersCount;
             if (investorsStatCard) investorsStatCard.querySelector('.text-xl').textContent = investorsCount;
-            if (followersStatCard) followersStatCard.addEventListener('click', () => openFollowersModal(user.followers, baseUrl));
-            if (projectsStatCard) projectsStatCard.addEventListener('click', () => switchTab('dashboard'));
+            if (followersStatCard) followersStatCard.addEventListener('click', () => openFollowersModal(user.followers, user.following, baseUrl)); if (projectsStatCard) projectsStatCard.addEventListener('click', () => switchTab('dashboard'));
             if (investorsStatCard) investorsStatCard.addEventListener('click', () => switchTab('dashboard'));
         }
 
@@ -834,17 +833,65 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
 
-    function openFollowersModal(followers, baseUrl) {
-        const modalBody = document.getElementById('followersModalBody');
-        if (!modalBody || !followersModal) return;
-        if (!followers || followers.length === 0) {
-            modalBody.innerHTML = `<p class="text-center text-gray-500">${t('js-dashboard-empty-followers-profile')}</p>`;
-        } else {
-            modalBody.innerHTML = followers.map(followerUser => createFollowerCard(followerUser, baseUrl)).join('');
-        }
+    function openFollowersModal(followers, following, baseUrl) {
+        const followersModal = document.getElementById('followersModal');
+        if (!followersModal) return;
+
+        const followersBtn = document.getElementById('followersTabBtn');
+        const followingBtn = document.getElementById('followingTabBtn');
+
+        // إعداد المستمعات للأزرار (Tabs)
+        followersBtn.onclick = () => switchFollowTab('followers', followers, following, baseUrl);
+        followingBtn.onclick = () => switchFollowTab('following', followers, following, baseUrl);
+
+        // البدء بعرض المتابعين افتراضياً
+        switchFollowTab('followers', followers, following, baseUrl);
+
         followersModal.classList.remove('hidden');
+        followersModal.classList.add('flex');
     }
 
+
+    // دالة لتبديل حالة التبويبات داخل المودال
+    function switchFollowTab(type, followers, following, baseUrl) {
+        const followersBtn = document.getElementById('followersTabBtn');
+        const followingBtn = document.getElementById('followingTabBtn');
+        const modalBody = document.getElementById('followersModalBody');
+
+        // تحديث شكل الأزرار
+        if (type === 'followers') {
+            followersBtn.style.color = '#1e40af';
+            followersBtn.style.borderBottom = '3px solid #1e40af';
+            followingBtn.style.color = '#64748b';
+            followingBtn.style.borderBottom = 'none';
+            renderFollowList(followers, modalBody, 'js-investor-profile-no-followers');
+        } else {
+            followingBtn.style.color = '#1e40af';
+            followingBtn.style.borderBottom = '3px solid #1e40af';
+            followersBtn.style.color = '#64748b';
+            followersBtn.style.borderBottom = 'none';
+            renderFollowList(following, modalBody, 'js-investor-profile-not-following-anyone');
+        }
+    }
+
+    // دالة رسم القائمة
+    function renderFollowList(list, container, emptyMsgKey) {
+        if (!list || list.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 py-4">${t(emptyMsgKey)}</p>`;
+            return;
+        }
+        container.innerHTML = list.map(u => `
+        <a href="public-profile.html?id=${u._id}" target="_blank" class="follow-list-card" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; text-decoration: none; margin-bottom: 0.5rem;">
+            <div style="flex: 1; text-align: right; margin-right: 1rem;">
+                <h4 style="font-weight: 600; color: #1e293b; margin: 0;">${escapeHTML(u.fullName)}</h4>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 0;">${escapeHTML(u.profileTitle || (u.accountType === 'investor' ? t('investor') : t('profile-role')))}</p>
+            </div>
+            <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #94a3b8; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                ${u.profilePicture && u.profilePicture !== 'default-avatar.png' ? `<img src="${u.profilePicture}" style="width: 100%; height: 100%; object-fit: cover;">` : u.fullName.charAt(0)}
+            </div>
+        </a>
+    `).join('');
+    }
     function closeFollowersModal() {
         if (followersModal) followersModal.classList.add('hidden');
     }
