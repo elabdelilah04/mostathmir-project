@@ -6243,6 +6243,27 @@ body.loaded {
     filter: blur(2px);
 }
 
-.eliteback{
+.eliteback {
     background: none;
+}
+
+
+/* إخفاء scrollbar */
+#featuredProjectsGrid::-webkit-scrollbar {
+    display: none;
+}
+
+#featuredProjectsGrid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* الكارت في الهاتف */
+@media (max-width: 768px) {
+    #featuredProjectsGrid>div {
+        min-width: 85%;
+        max-width: 85%;
+        flex-shrink: 0;
+        scroll-snap-align: center;
+    }
 }
