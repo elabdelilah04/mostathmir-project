@@ -6227,8 +6227,8 @@ body.loaded {
     align-items: center;
     justify-content: center;
 
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(3px);
+    /* background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(3px); */
 
     z-index: 10;
     border-radius: 20px;

@@ -555,14 +555,16 @@ function renderElitePlaceholder() {
 
                 <!-- avatar -->
                 <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
-                    <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xl">
-                        <i class="fas fa-user"></i>
-                    </div>
+  <div class="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-md">
+    <i class="fas fa-user"></i>
+</div>
                 </div>
 
                 <!-- name -->
                 <div class="fake-text-lg mx-auto mb-2"></div>
-
+<div class="text-indigo-400 mb-2">
+    <i class="fas fa-crown"></i>
+</div>
                 <!-- role -->
                 <div class="fake-text-sm mx-auto mb-3"></div>
 
@@ -570,7 +572,7 @@ function renderElitePlaceholder() {
                 <div class="fake-text-xs mx-auto mb-4"></div>
 
                 <!-- tag -->
-                <div class="fake-badge mx-auto"></div>
+<div class="fake-badge mx-auto bg-gradient-to-r from-indigo-100 to-purple-100"></div>
             </div>
         </div>
     `).join('');
@@ -594,7 +596,6 @@ function applyEliteLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content">
-            <div class="text-4xl mb-3">🔒</div>
             <h3 class="text-xl font-bold mb-2">سجل الدخول لرؤية أعضاء النخبة</h3>
             <p class="text-gray-500 mb-4">اكتشف أفضل المستثمرين ورواد الأعمال</p>
             <a href="login.html" class="login-btn">تسجيل الدخول</a>
