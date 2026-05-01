@@ -369,14 +369,24 @@ function renderPlaceholderProjects(grid) {
 }
 
 function applyProjectsLock() {
-    const section = document.getElementById('project-rating');
-    if (!section) return;
-
-    section.classList.add('relative');
+    const grid = document.getElementById('featuredProjectsGrid');
+    if (!grid) return;
 
     // منع التكرار
-    if (section.querySelector('.projects-overlay')) return;
+    if (grid.parentElement.querySelector('.projects-overlay')) return;
 
+    // إنشاء wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'projects-wrapper';
+
+    // لفّ الكروت داخل wrapper
+    grid.parentNode.insertBefore(wrapper, grid);
+    wrapper.appendChild(grid);
+
+    // تطبيق blur فقط على الكروت
+    grid.classList.add('blurred');
+
+    // إنشاء overlay
     const overlay = document.createElement('div');
     overlay.className = 'projects-overlay';
 
@@ -389,15 +399,11 @@ function applyProjectsLock() {
         </div>
     `;
 
-    section.appendChild(overlay);
-
-    // blur للكروت
-    const grid = document.getElementById('featuredProjectsGrid');
-    if (grid) {
-        grid.style.filter = 'blur(6px)';
-        grid.style.pointerEvents = 'none';
-    }
+    wrapper.appendChild(overlay);
 }
+
+
+
 // --- 3.3. Elite Community Section ---
 async function loadEliteCommunity() {
     const container = document.getElementById('elite-container');
