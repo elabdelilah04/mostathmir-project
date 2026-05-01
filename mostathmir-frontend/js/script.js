@@ -596,10 +596,10 @@ function applyEliteLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content eliteback">
-<h3>${t('elite-overlay-title')}</h3>
-<p>${t('elite-overlay-desc')}</p>
-<a href="login.html">${t('elite-overlay-btn')}</a>
-        </div>
+            <h3 class="text-xl font-bold mb-2">${t('elite-overlay-title')}</h3>
+            <p class="text-gray-500 mb-4">${t('elite-overlay-desc')}</p>
+            <a href="login.html" class="login-btn">${t('elite-overlay-btn')}</a>
+
     `;
 
     wrapper.appendChild(overlay);
