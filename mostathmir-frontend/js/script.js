@@ -853,24 +853,32 @@ function initScrollAnimations() {
   6. MAIN INITIALIZATION (مع إضافة منطق التحميل والظهور الناعم)
    ============================================================================ */
 
+/* ============================================================================
+  6. MAIN INITIALIZATION (نسخة نهائية محدثة بنظام القفل الضبابي)
+   ============================================================================ */
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. إضافة كلاس الجاهزية للجسم (للسماح بالظهور التدريجي عبر CSS)
+    // 1. إضافة كلاس الجاهزية للجسم
     document.body.classList.add('loaded');
 
-    // 2. تهيئة الهيدر (انتظار تحميل القوالب)
-    if (window.initHeader) await window.initHeader();
+    // 2. تشغيل الهيدر وجلب بيانات المستخدم في وقت واحد (لتسريع التحميل)
+    const [headerInit, user] = await Promise.all([
+        window.initHeader ? window.initHeader() : Promise.resolve(),
+        fetchCurrentUser()
+    ]);
 
-    // 3. التحقق من حالة تسجيل الدخول والتوجيه التلقائي
+    // 3. التحقق من حالة تسجيل الدخول والتوجيه
     redirectIfLoggedIn();
 
-    // 4. جلب بيانات المستخدم الحالي
-    const user = await fetchCurrentUser();
+    // 4. تعبئة بيانات الهيدر إذا وجد مستخدم
+    if (user && window.populateHeader) {
+        window.populateHeader(user, API_BASE_URL);
+    }
+
+    const pageKey = document.body.dataset.pageKey;
 
     // 5. منطق الصفحات الداخلية (بروفايل، إعدادات)
     if (user) {
-        const pageKey = document.body.dataset.pageKey;
-        if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
-
         switch (pageKey) {
             case 'page-title-profile':
                 initProfilePage(user, API_BASE_URL);
@@ -884,80 +892,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-// 6. منطق الصفحة الرئيسية
-    if (document.body.dataset.pageKey === 'page-title-main') {
+    // 6. منطق الصفحة الرئيسية (نظام القفل للمحتوى الحصري)
+    if (pageKey === 'page-title-main') {
         const token = localStorage.getItem('user_token');
 
         if (token) {
-            // المستخدم مسجل دخول: اجلب البيانات الحقيقية
+            // المستخدم مسجل دخول: تحميل البيانات الحقيقية
             try {
                 await Promise.all([
                     loadFeaturedProjects(),
                     loadEliteCommunity(),
                     fetchPlatformStats()
                 ]);
-            } catch (error) { console.warn(error); }
+            } catch (error) {
+                console.warn("Error loading dashboard data:", error);
+            }
         } else {
-            // المستخدم زائر: ارسم عناصر وهمية وطبق القفل الضبابي
-            renderLockedState();
-            fetchPlatformStats(); // الإحصائيات تظل ظاهرة للتحفيز
+            // المستخدم زائر: تطبيق وضع القفل الضبابي (نفس الصورة)
+            applyVisualLock('featuredProjectsGrid', 'lock-projects-title', 'lock-projects-desc', 3);
+            applyVisualLock('elite-container', 'lock-elite-title', 'lock-elite-desc', 6);
+            
+            // الإحصائيات تظل ظاهرة للجميع كعنصر جذب
+            fetchPlatformStats();
         }
         initMobileScrollEffects();
     }
 
-    // دالة لتطبيق وضع القفل والضبابية
-    function renderLockedState() {
-        const projectsGrid = document.getElementById('featuredProjectsGrid');
-        const eliteContainer = document.getElementById('elite-container');
-
-        if (projectsGrid) {
-            // إضافة كلاس الضبابية وحقن 3 مشاريع وهمية
-            projectsGrid.classList.add('blur-layer');
-            projectsGrid.innerHTML = Array(3).fill(0).map(() => `
-                <div class="bg-white rounded-2xl h-64 border border-gray-200"></div>
-            `).join('');
-            
-            // إضافة الرسالة فوق قسم المشاريع
-            wrapAndOverlay('project-rating', t('lock-projects-title'), t('lock-projects-desc'));
-        }
-
-        if (eliteContainer) {
-            // إضافة كلاس الضبابية وحقن عناصر نخبة وهمية
-            eliteContainer.classList.add('blur-layer');
-            eliteContainer.innerHTML = Array(6).fill(0).map(() => `
-                <div class="min-w-[200px] h-48 bg-white rounded-2xl border border-gray-100"></div>
-            `).join('');
-
-            // إضافة الرسالة فوق قسم النخبة
-            wrapAndOverlay('elite-section', t('lock-elite-title'), t('lock-elite-desc'));
-        }
-    }
-
-    // دالة لتغليف القسم ووضع رسالة القفل
-    function wrapAndOverlay(sectionId, title, desc) {
-        const section = document.getElementById(sectionId);
-        if (!section) return;
-
-        section.classList.add('lock-wrapper');
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'lock-overlay-content';
-        overlay.innerHTML = `
-            <h3 class="lock-text-title">${title}</h3>
-            <p class="lock-text-desc">${desc}</p>
-            <div class="flex gap-4">
-                <a href="signup.html" class="bg-[#D4AF37] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-all">
-                    ${t('cta-footer-btn-investor')}
-                </a>
-                <a href="login.html" class="bg-[#1E3A8A] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-all">
-                    ${t('nav-login')}
-                </a>
-            </div>
-        `;
-        section.appendChild(overlay);
-    }
-
-    // 7. منطق نموذج تسجيل الدخول (في حال وجوده بالصفحة)
+    // 7. منطق نموذج تسجيل الدخول
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -977,9 +938,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.setItem('user_token', data.token);
                     window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
                 }
-            } catch (err) {
-                // الخطأ يتم معالجته داخل handleApiRequest
-            }
+            } catch (err) {}
         });
     }
 
@@ -995,14 +954,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupChatModal();
     initScrollAnimations();
 
-    // 9. الخطوة النهائية: إخفاء شاشة التحميل (Loader)
+    // 9. إخفاء شاشة التحميل (Loader)
     const loader = document.getElementById('main-loader');
     if (loader) {
-        // إضافة كلاس الاختفاء (Fade-out)
         loader.classList.add('hidden');
-        // إزالة العنصر تماماً من المتصفح بعد انتهاء الأنيميشن لتسريع الصفحة
-        setTimeout(() => {
-            loader.remove();
-        }, 600);
+        setTimeout(() => loader.remove(), 600);
     }
 });
+
+/**
+ * دالة تطبيق القفل البصري على الأقسام الحصرية
+ * @param {string} containerId - ID الحاوية التي سيتم تشفيرها
+ * @param {string} titleKey - مفتاح الترجمة للعنوان
+ * @param {string} descKey - مفتاح الترجمة للوصف
+ * @param {number} ghostCount - عدد البطاقات الوهمية في الخلفية
+ */
+function applyVisualLock(containerId, titleKey, descKey, ghostCount) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // 1. حقن بطاقات "شبحية" فارغة لإعطاء مظهر المحتوى خلف الضبابية
+    const heightClass = containerId === 'featuredProjectsGrid' ? 'h-80' : 'h-48';
+    const minWidthClass = containerId === 'elite-container' ? 'min-w-[240px]' : '';
+    
+    container.innerHTML = Array(ghostCount).fill(0).map(() => `
+        <div class="${minWidthClass} bg-white rounded-2xl ${heightClass} shadow-sm border border-gray-100 opacity-40"></div>
+    `).join('');
+
+    // 2. إضافة كلاس الضبابية للحاوية
+    container.classList.add('content-blur');
+
+    // 3. إضافة طبقة القفل فوق القسم الأب
+    const section = container.closest('section');
+    if (section) {
+        section.classList.add('locked-section-wrapper');
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'locked-overlay';
+        overlay.innerHTML = `
+            <div class="lock-icon-circle reveal zoom-in">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="lock-title reveal fade-up delay-100">${t(titleKey)}</h3>
+            <p class="lock-desc reveal fade-up delay-200">${t(descKey)}</p>
+            <a href="login.html" class="lock-btn reveal fade-up delay-300">
+                ${t('nav-login')}
+            </a>
+        `;
+        section.appendChild(overlay);
+    }
+}

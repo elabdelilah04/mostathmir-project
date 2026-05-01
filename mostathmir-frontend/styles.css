@@ -6105,20 +6105,21 @@ body.loaded {
     opacity: 1;
 }
 
-/* حاوية القسم المقفول */
+
+/* 
+
 .locked-section {
     position: relative;
-    min-height: 400px; /* لضمان وجود مساحة حتى بدون محتوى */
+    min-height: 400px; 
 }
 
-/* طبقة الضبابية والرسالة */
 .lock-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    backdrop-filter: blur(12px); /* قوة الضبابية */
+    backdrop-filter: blur(12px); 
     -webkit-backdrop-filter: blur(12px);
     background: rgba(255, 255, 255, 0.4);
     z-index: 50;
@@ -6128,7 +6129,6 @@ body.loaded {
     border-radius: 20px;
 }
 
-/* صندوق رسالة التنبيه */
 .lock-message-box {
     text-align: center;
     background: white;
@@ -6152,21 +6152,18 @@ body.loaded {
 }
 
 
-/* حاوية القسم بالكامل */
 .lock-wrapper {
     position: relative;
     overflow: hidden;
 }
 
-/* الطبقة الضبابية التي ستطبق على شبكة العناصر */
 .blur-layer {
     filter: blur(10px);
-    pointer-events: none; /* منع التفاعل مع العناصر الخلفية */
+    pointer-events: none; 
     user-select: none;
     opacity: 0.6;
 }
 
-/* الرسالة التي ستظهر في المنتصف */
 .lock-overlay-content {
     position: absolute;
     inset: 0;
@@ -6175,7 +6172,7 @@ body.loaded {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1); /* خلفية شفافة جداً */
+    background: rgba(255, 255, 255, 0.1); 
     text-align: center;
     padding: 20px;
 }
@@ -6194,4 +6191,78 @@ body.loaded {
     font-weight: 600;
     margin-bottom: 2rem;
     max-width: 500px;
+} */
+
+/* الحاوية الأساسية للقسم */
+.locked-section-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+/* الطبقة الضبابية للمحتوى الخلفي */
+.content-blur {
+    filter: blur(15px); /* ضبابية قوية كما في الصورة */
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.7;
+}
+
+/* طبقة القفل المركزية */
+.locked-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1); /* شفافية خفيفة جداً */
+    text-align: center;
+    padding: 20px;
+}
+
+/* دائرة أيقونة القفل */
+.lock-icon-circle {
+    width: 90px;
+    height: 90px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    color: #1E3A8A;
+    font-size: 2.5rem;
+}
+
+.lock-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.lock-desc {
+    font-size: 1rem;
+    color: #6B7280;
+    margin-bottom: 2rem;
+    max-width: 450px;
+}
+
+/* زر تسجيل الدخول الأزرق */
+.lock-btn {
+    background-color: #1E3A8A;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    transition: all 0.3s ease;
+}
+
+.lock-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.4);
+    background-color: #152b6a;
 }
