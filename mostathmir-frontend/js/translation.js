@@ -5,6 +5,19 @@
   const dict = {
     ar: {
 
+      "browse-overlay-title": "سجل الدخول لعرض المشاريع",
+      "browse-overlay-desc": "استكشف جميع الفرص الاستثمارية المتاحة على المنصة",
+      "browse-overlay-btn": "تسجيل الدخول",
+
+      "browse-overlay-mobile-title": "🔒 الوصول محدود",
+      "browse-overlay-mobile-desc": "سجل الدخول لاستعراض المشاريع",
+
+      "browse-placeholder-category": "تقنية",
+      "browse-placeholder-status": "نشط",
+      "browse-placeholder-owner": "مستخدم",
+      "browse-placeholder-progress": "نسبة الإنجاز",
+      "browse-placeholder-funded": "تم جمعه",
+      "browse-placeholder-goal": "الهدف",
 
       "elite-overlay-title": "سجل الدخول لرؤية أعضاء النخبة",
       "elite-overlay-desc": "اكتشف أفضل المستثمرين ورواد الأعمال على المنصة",
@@ -1919,6 +1932,20 @@
     },
 
     en: {
+
+      "browse-overlay-title": "Log in to view projects",
+      "browse-overlay-desc": "Explore all available investment opportunities on the platform",
+      "browse-overlay-btn": "Log in",
+
+      "browse-overlay-mobile-title": "🔒 Restricted Access",
+      "browse-overlay-mobile-desc": "Log in to browse projects",
+
+      "browse-placeholder-category": "Technology",
+      "browse-placeholder-status": "Active",
+      "browse-placeholder-owner": "User",
+      "browse-placeholder-progress": "Progress",
+      "browse-placeholder-funded": "Raised",
+      "browse-placeholder-goal": "Goal",
 
       "elite-overlay-title": "Log in to view elite members",
       "elite-overlay-desc": "Discover top investors and entrepreneurs on the platform",

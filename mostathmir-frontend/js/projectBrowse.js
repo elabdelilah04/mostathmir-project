@@ -431,9 +431,9 @@ function applyBrowseLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content">
-            <h3 class="text-xl font-bold mb-2">سجل الدخول لعرض المشاريع</h3>
-            <p class="text-gray-500 mb-4">استكشف جميع الفرص الاستثمارية</p>
-            <a href="login.html" class="">تسجيل الدخول</a>
+            <h3 class="text-xl font-bold mb-2">${t('browse-overlay-title')}   </h3>
+            <p class="text-gray-500 mb-4"> ${t('browse-overlay-desc')}  </p>
+            <a href="login.html" class="">${t('browse-overlay-btn')}</a>
         </div>
     `;
 
