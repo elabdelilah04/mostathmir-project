@@ -884,20 +884,58 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 6. منطق الصفحة الرئيسية - انتظار جلب كافة البيانات قبل إخفاء اللودر
+// 6. منطق الصفحة الرئيسية
     if (document.body.dataset.pageKey === 'page-title-main') {
-        try {
-            // لن تختفي شاشة التحميل إلا بعد انتهاء هذه الطلبات الثلاثة بنجاح
-            await Promise.all([
-                loadFeaturedProjects(),
-                loadEliteCommunity(),
-                fetchPlatformStats()
-            ]);
-        } catch (error) {
-            console.warn("فشل تحميل بعض بيانات الصفحة الرئيسية، سيتم عرض المحتوى المتاح.", error);
+        const token = localStorage.getItem('user_token');
+
+        if (token) {
+            // المستخدم مسجل دخول: اجلب البيانات كالمعتاد
+            try {
+                await Promise.all([
+                    loadFeaturedProjects(),
+                    loadEliteCommunity(),
+                    fetchPlatformStats()
+                ]);
+            } catch (error) {
+                console.warn("Error loading data", error);
+            }
+        } else {
+            // المستخدم زائر: لا تجلب البيانات واعرض طبقة القفل
+            applyLockToSection('featuredProjectsGrid', t('lock-projects-title'), t('lock-projects-desc'));
+            applyLockToSection('elite-container', t('lock-elite-title'), t('lock-elite-desc'));
+            
+            // جلب الإحصائيات العامة فقط (لأنها عامة ومحفزة)
+            fetchPlatformStats();
         }
-        // تشغيل تأثيرات التمرير للجوال
         initMobileScrollEffects();
+    }
+
+    // دالة مساعدة لإنشاء طبقة القفل
+    function applyLockToSection(containerId, title, desc) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // جعل الحاوية الأب "Locked"
+        const parentSection = container.closest('section');
+        if (parentSection) parentSection.classList.add('locked-section');
+
+        container.innerHTML = `
+            <div class="lock-overlay">
+                <div class="lock-message-box reveal zoom-in">
+                    <i class="fas fa-lock"></i>
+                    <h3>${title}</h3>
+                    <p class="text-gray-600 mb-6">${desc}</p>
+                    <div class="flex flex-col gap-3">
+                        <a href="signup.html" class="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-800 transition-all">
+                            ${t('nav-register')}
+                        </a>
+                        <a href="login.html" class="text-[#1E3A8A] font-semibold hover:underline">
+                            ${t('nav-login')}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     // 7. منطق نموذج تسجيل الدخول (في حال وجوده بالصفحة)

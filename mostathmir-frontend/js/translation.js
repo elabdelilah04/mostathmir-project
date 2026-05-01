@@ -4,6 +4,10 @@
   // =========================
   const dict = {
     ar: {
+      "lock-projects-title": "مشاريع استثمارية حصرية",
+      "lock-projects-desc": "سجل دخولك الآن للوصول إلى تفاصيل المشاريع الواعدة وفرص التمويل المتاحة.",
+      "lock-elite-title": "تواصل مع النخبة",
+      "lock-elite-desc": "انضم إلينا لتتمكن من رؤية ملفات كبار المستثمرين ورواد الأعمال في مجتمعنا.",
       "settings-show-email": "إظهار البريد الإلكتروني للعموم",
       "settings-show-phone": "إظهار رقم الهاتف للعموم",
       "js-settings-error-load": "حدث خطأ أثناء تحميل بيانات الحساب",
@@ -1904,6 +1908,10 @@
     },
 
     en: {
+      "lock-projects-title": "Exclusive Investment Projects",
+      "lock-projects-desc": "Log in now to access details of promising projects and available funding opportunities.",
+      "lock-elite-title": "Connect with the Elite",
+      "lock-elite-desc": "Join us to view the profiles of top investors and entrepreneurs in our community.",
       "settings-show-email": "Show email publicly",
       "settings-show-phone": "Show phone publicly",
       "js-settings-error-load": "Error loading account data",
