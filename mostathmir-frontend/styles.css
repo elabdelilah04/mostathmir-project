@@ -6150,11 +6150,11 @@ body.loaded {
 
 /* المحتوى */
 .overlay-content {
-background: rgb(255 255 255 / 80%);
+    background: rgb(255 255 255 / 80%);
     padding: 25px 35px;
     border-radius: 16px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* زر */
@@ -6171,12 +6171,10 @@ background: rgb(255 255 255 / 80%);
 .fake-text-lg,
 .fake-text-sm,
 .fake-text-xs {
-    background: linear-gradient(
-        90deg,
-        #e5e7eb 25%,
-        #d1d5db 37%,
-        #e5e7eb 63%
-    );
+    background: linear-gradient(90deg,
+            #e5e7eb 25%,
+            #d1d5db 37%,
+            #e5e7eb 63%);
     background-size: 400% 100%;
     animation: shimmer 1.5s infinite;
 
@@ -6209,6 +6207,38 @@ background: rgb(255 255 255 / 80%);
 
 /* animation */
 @keyframes shimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+.elite-wrapper {
+    position: relative;
+}
+
+.elite-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(3px);
+
+    z-index: 10;
+    border-radius: 20px;
+}
+
+/* badge وهمي */
+.fake-badge {
+    width: 80px;
+    height: 20px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    filter: blur(2px);
 }

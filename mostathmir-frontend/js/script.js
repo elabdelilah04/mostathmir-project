@@ -454,8 +454,16 @@ function applyProjectsLock() {
 
 // --- 3.3. Elite Community Section ---
 async function loadEliteCommunity() {
+    const token = localStorage.getItem('user_token');
+
+    if (!token) {
+        renderElitePlaceholder();
+        applyEliteLock();
+        return;
+    }
     const container = document.getElementById('elite-container');
     if (!container) return;
+
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/users/elite`);
@@ -537,7 +545,64 @@ async function loadEliteCommunity() {
         container.innerHTML = `<div class="text-center w-full py-8 text-red-400">حدث خطأ في تحميل البيانات</div>`;
     }
 }
+function renderElitePlaceholder() {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
 
+    container.innerHTML = Array(5).fill(0).map((_, index) => `
+        <div class="min-w-[240px] max-w-[240px] pt-8 pb-2 px-2 snap-center">
+            <div class="bg-white rounded-2xl p-6 pt-10 text-center border border-gray-100 shadow-sm">
+
+                <!-- avatar -->
+                <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20">
+                    <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xl">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <!-- name -->
+                <div class="fake-text-lg mx-auto mb-2"></div>
+
+                <!-- role -->
+                <div class="fake-text-sm mx-auto mb-3"></div>
+
+                <!-- bio -->
+                <div class="fake-text-xs mx-auto mb-4"></div>
+
+                <!-- tag -->
+                <div class="fake-badge mx-auto"></div>
+            </div>
+        </div>
+    `).join('');
+}
+function applyEliteLock() {
+    const container = document.getElementById('elite-container');
+    if (!container) return;
+
+    if (container.parentElement.querySelector('.elite-overlay')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'elite-wrapper';
+
+    container.parentNode.insertBefore(wrapper, container);
+    wrapper.appendChild(container);
+
+    container.classList.add('blurred');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'elite-overlay';
+
+    overlay.innerHTML = `
+        <div class="overlay-content">
+            <div class="text-4xl mb-3">🔒</div>
+            <h3 class="text-xl font-bold mb-2">سجل الدخول لرؤية أعضاء النخبة</h3>
+            <p class="text-gray-500 mb-4">اكتشف أفضل المستثمرين ورواد الأعمال</p>
+            <a href="login.html" class="login-btn">تسجيل الدخول</a>
+        </div>
+    `;
+
+    wrapper.appendChild(overlay);
+}
 // Elite Section Scrolling
 window.scrollElite = function (direction) {
     const container = document.getElementById('elite-container');
