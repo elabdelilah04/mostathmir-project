@@ -203,6 +203,13 @@ async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
+    const token = localStorage.getItem('user_token');
+    if (!token) {
+        renderPlaceholderProjects(grid);
+        applyProjectsLock();
+        return;
+    }
+
     // تعيين كلاس الشبكة لتقليص المسافات (gap-5)
     grid.className = "grid grid-cols-1 md:grid-cols-3 gap-5 transition-opacity duration-500";
 
@@ -340,7 +347,57 @@ async function loadFeaturedProjects() {
         grid.innerHTML = `<p class="text-center text-red-500 col-span-full">خطأ في التحميل</p>`;
     }
 }
+function renderPlaceholderProjects(grid) {
+    grid.innerHTML = Array(3).fill(0).map(() => `
+        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm p-4 animate-pulse">
+            
+            <div class="h-40 bg-gray-200 rounded-lg mb-4"></div>
 
+            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="h-10 bg-gray-200 rounded"></div>
+                <div class="h-10 bg-gray-200 rounded"></div>
+            </div>
+
+            <div class="h-2 bg-gray-200 rounded mb-4"></div>
+
+            <div class="h-8 bg-gray-300 rounded"></div>
+        </div>
+    `).join('');
+}
+
+function applyProjectsLock() {
+    const section = document.getElementById('project-rating');
+    if (!section) return;
+
+    section.classList.add('relative');
+
+    // منع التكرار
+    if (section.querySelector('.projects-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'projects-overlay';
+
+    overlay.innerHTML = `
+        <div class="overlay-content">
+            <div class="text-4xl mb-3">🔒</div>
+            <h3 class="text-xl font-bold mb-2">سجل الدخول لعرض المشاريع المميزة</h3>
+            <p class="text-gray-500 mb-4">قم بتسجيل الدخول للوصول إلى التفاصيل الكاملة</p>
+            <a href="login.html" class="login-btn">تسجيل الدخول</a>
+        </div>
+    `;
+
+    section.appendChild(overlay);
+
+    // blur للكروت
+    const grid = document.getElementById('featuredProjectsGrid');
+    if (grid) {
+        grid.style.filter = 'blur(6px)';
+        grid.style.pointerEvents = 'none';
+    }
+}
 // --- 3.3. Elite Community Section ---
 async function loadEliteCommunity() {
     const container = document.getElementById('elite-container');
