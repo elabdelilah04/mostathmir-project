@@ -4,6 +4,17 @@
   // =========================
   const dict = {
     ar: {
+
+
+      "elite-overlay-title": "سجل الدخول لرؤية أعضاء النخبة",
+      "elite-overlay-desc": "اكتشف أفضل المستثمرين ورواد الأعمال على المنصة",
+      "elite-overlay-btn": "تسجيل الدخول",
+
+      "elite-placeholder-name": "عضو مميز",
+      "elite-placeholder-role": "مستثمر محترف",
+      "elite-placeholder-bio": "خبرة واسعة في الاستثمار وريادة الأعمال",
+      "elite-placeholder-badge": "نخبة",
+
       "lock-projects-title": "مشاريع استثمارية حصرية",
       "lock-projects-desc": "سجل دخولك الآن للوصول إلى تفاصيل المشاريع الواعدة وفرص التمويل المتاحة.",
       "lock-elite-title": "تواصل مع النخبة",
@@ -1908,6 +1919,16 @@
     },
 
     en: {
+
+      "elite-overlay-title": "Log in to view elite members",
+      "elite-overlay-desc": "Discover top investors and entrepreneurs on the platform",
+      "elite-overlay-btn": "Log in",
+
+      "elite-placeholder-name": "Elite Member",
+      "elite-placeholder-role": "Professional Investor",
+      "elite-placeholder-bio": "Experienced in investment and entrepreneurship",
+      "elite-placeholder-badge": "Elite",
+
       "lock-projects-title": "Exclusive Investment Projects",
       "lock-projects-desc": "Log in now to access details of promising projects and available funding opportunities.",
       "lock-elite-title": "Connect with the Elite",

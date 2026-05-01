@@ -441,9 +441,9 @@ function applyProjectsLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content">
-            <h3 class="text-xl font-bold mb-2">سجل الدخول لعرض المشاريع المميزة</h3>
-            <p class="text-gray-500 mb-4">قم بتسجيل الدخول للوصول إلى التفاصيل الكاملة</p>
-            <a href="login.html" class="login-btn">تسجيل الدخول</a>
+            <h3 class="text-xl font-bold mb-2">${t('lock-projects-title')}</h3>
+            <p class="text-gray-500 mb-4">${t('lock-projects-desc')}</p>
+            <a href="login.html" class="login-btn"> ${t('signup-login-link')}</a>
         </div>
     `;
 
@@ -596,9 +596,9 @@ function applyEliteLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content eliteback">
-            <h3 class="text-xl font-bold mb-2">سجل الدخول لرؤية أعضاء النخبة</h3>
-            <p class="text-gray-500 mb-4">اكتشف أفضل المستثمرين ورواد الأعمال</p>
-            <a href="login.html" class="login-btn">تسجيل الدخول</a>
+<h3>${t('elite-overlay-title')}</h3>
+<p>${t('elite-overlay-desc')}</p>
+<a href="login.html">${t('elite-overlay-btn')}</a>
         </div>
     `;
 
