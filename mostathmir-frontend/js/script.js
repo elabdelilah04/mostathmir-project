@@ -849,16 +849,24 @@ function initScrollAnimations() {
   6. MAIN INITIALIZATION
    ============================================================================ */
 
+/* ============================================================================
+  6. MAIN INITIALIZATION (مع إضافة منطق التحميل والظهور الناعم)
+   ============================================================================ */
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Header Init
+    // 1. إضافة كلاس الجاهزية للجسم (للسماح بالظهور التدريجي عبر CSS)
+    document.body.classList.add('loaded');
+
+    // 2. تهيئة الهيدر (انتظار تحميل القوالب)
     if (window.initHeader) await window.initHeader();
 
-    // 2. Login Check
+    // 3. التحقق من حالة تسجيل الدخول والتوجيه التلقائي
     redirectIfLoggedIn();
-    // 3. Fetch User
+
+    // 4. جلب بيانات المستخدم الحالي
     const user = await fetchCurrentUser();
 
-    // 4. Route Logic
+    // 5. منطق الصفحات الداخلية (بروفايل، إعدادات)
     if (user) {
         const pageKey = document.body.dataset.pageKey;
         if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
@@ -876,15 +884,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 5. Home Page Logic
+    // 6. منطق الصفحة الرئيسية - انتظار جلب كافة البيانات قبل إخفاء اللودر
     if (document.body.dataset.pageKey === 'page-title-main') {
-        loadFeaturedProjects();
-        loadEliteCommunity();
-        fetchPlatformStats();
+        try {
+            // لن تختفي شاشة التحميل إلا بعد انتهاء هذه الطلبات الثلاثة بنجاح
+            await Promise.all([
+                loadFeaturedProjects(),
+                loadEliteCommunity(),
+                fetchPlatformStats()
+            ]);
+        } catch (error) {
+            console.warn("فشل تحميل بعض بيانات الصفحة الرئيسية، سيتم عرض المحتوى المتاح.", error);
+        }
+        // تشغيل تأثيرات التمرير للجوال
         initMobileScrollEffects();
     }
 
-    // 6. Login Form Logic
+    // 7. منطق نموذج تسجيل الدخول (في حال وجوده بالصفحة)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -904,25 +920,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.setItem('user_token', data.token);
                     window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
                 }
-            } catch {
-                // Error handled by wrapper
+            } catch (err) {
+                // الخطأ يتم معالجته داخل handleApiRequest
             }
         });
     }
 
-    // Helper to select account type based on URL
+    // مساعدة في اختيار نوع الحساب بناءً على الرابط
     const urlParams = new URLSearchParams(window.location.search);
     const accountTypeParam = urlParams.get('type');
     const accountTypeSelect = document.getElementById('accountType');
-
     if (accountTypeParam && accountTypeSelect) {
         accountTypeSelect.value = accountTypeParam;
     }
 
-    // 7. Chat Modal
+    // 8. تهيئة العناصر العامة (الشات وأنيميشن التمرير)
     setupChatModal();
-
-    // تشغيل الأنيميشن
     initScrollAnimations();
 
+    // 9. الخطوة النهائية: إخفاء شاشة التحميل (Loader)
+    const loader = document.getElementById('main-loader');
+    if (loader) {
+        // إضافة كلاس الاختفاء (Fade-out)
+        loader.classList.add('hidden');
+        // إزالة العنصر تماماً من المتصفح بعد انتهاء الأنيميشن لتسريع الصفحة
+        setTimeout(() => {
+            loader.remove();
+        }, 600);
+    }
 });
