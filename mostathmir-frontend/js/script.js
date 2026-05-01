@@ -348,22 +348,71 @@ async function loadFeaturedProjects() {
     }
 }
 function renderPlaceholderProjects(grid) {
-    grid.innerHTML = Array(3).fill(0).map(() => `
-        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm p-4 animate-pulse">
+    grid.innerHTML = Array(3).fill(0).map((_, index) => `
+        <div class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full max-w-[350px] mx-auto w-full">
             
-            <div class="h-40 bg-gray-200 rounded-lg mb-4"></div>
+            <!-- صورة -->
+            <div class="relative h-44 overflow-hidden">
+                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://picsum.photos/600/400?random=${index}')"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <!-- category -->
+                <div class="absolute top-3 right-3">
+                    <span class="bg-white/80 text-[#1E3A8A] text-[10px] font-bold px-2 py-1 rounded-md">
+                        تقنية
+                    </span>
+                </div>
 
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <div class="h-10 bg-gray-200 rounded"></div>
-                <div class="h-10 bg-gray-200 rounded"></div>
+                <!-- owner -->
+                <div class="absolute bottom-2 left-3 text-white text-xs flex items-center gap-1">
+                    <i class="fas fa-user-circle"></i> مستخدم
+                </div>
             </div>
 
-            <div class="h-2 bg-gray-200 rounded mb-4"></div>
+            <!-- body -->
+            <div class="p-4 flex-1 flex flex-col">
 
-            <div class="h-8 bg-gray-300 rounded"></div>
+                <!-- عنوان blurred -->
+                <h3 class="fake-text-lg mb-2"></h3>
+
+                <!-- وصف -->
+                <p class="fake-text-sm mb-3"></p>
+
+                <!-- stats -->
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div class="bg-green-50 rounded-lg p-2 text-center">
+                        <div class="fake-text-xs mb-1"></div>
+                        <div class="fake-text-sm"></div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2 text-center">
+                        <div class="fake-text-xs mb-1"></div>
+                        <div class="fake-text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- progress -->
+                <div class="mb-3">
+                    <div class="fake-text-xs mb-1"></div>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5">
+                        <div class="bg-blue-500 h-full rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <!-- icons -->
+                <div class="flex justify-between items-center mb-4 text-gray-400 text-xs">
+                    <div class="flex items-center gap-1">
+                        <i class="far fa-eye"></i>
+                        <span class="fake-text-xs w-6"></span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-heart text-pink-400"></i>
+                        <span class="fake-text-xs w-10"></span>
+                    </div>
+                </div>
+
+                <!-- button -->
+                <div class="fake-button"></div>
+            </div>
         </div>
     `).join('');
 }

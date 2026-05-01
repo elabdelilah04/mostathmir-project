@@ -6166,3 +6166,49 @@ body.loaded {
     border-radius: 8px;
     text-decoration: none;
 }
+
+/* نصوص وهمية لكنها تبدو حقيقية */
+.fake-text-lg,
+.fake-text-sm,
+.fake-text-xs {
+    background: linear-gradient(
+        90deg,
+        #e5e7eb 25%,
+        #d1d5db 37%,
+        #e5e7eb 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.5s infinite;
+
+    border-radius: 6px;
+    filter: blur(2px);
+}
+
+.fake-text-lg {
+    height: 16px;
+    width: 80%;
+}
+
+.fake-text-sm {
+    height: 12px;
+    width: 60%;
+}
+
+.fake-text-xs {
+    height: 10px;
+    width: 40%;
+}
+
+/* زر وهمي */
+.fake-button {
+    height: 36px;
+    background: #111827;
+    border-radius: 8px;
+    opacity: 0.7;
+}
+
+/* animation */
+@keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
