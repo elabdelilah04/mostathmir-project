@@ -441,7 +441,6 @@ function applyProjectsLock() {
 
     overlay.innerHTML = `
         <div class="overlay-content">
-            <div class="text-4xl mb-3">🔒</div>
             <h3 class="text-xl font-bold mb-2">سجل الدخول لعرض المشاريع المميزة</h3>
             <p class="text-gray-500 mb-4">قم بتسجيل الدخول للوصول إلى التفاصيل الكاملة</p>
             <a href="login.html" class="login-btn">تسجيل الدخول</a>
