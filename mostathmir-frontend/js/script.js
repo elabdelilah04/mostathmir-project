@@ -889,53 +889,72 @@ document.addEventListener('DOMContentLoaded', async () => {
         const token = localStorage.getItem('user_token');
 
         if (token) {
-            // المستخدم مسجل دخول: اجلب البيانات كالمعتاد
+            // المستخدم مسجل دخول: اجلب البيانات الحقيقية
             try {
                 await Promise.all([
                     loadFeaturedProjects(),
                     loadEliteCommunity(),
                     fetchPlatformStats()
                 ]);
-            } catch (error) {
-                console.warn("Error loading data", error);
-            }
+            } catch (error) { console.warn(error); }
         } else {
-            // المستخدم زائر: لا تجلب البيانات واعرض طبقة القفل
-            applyLockToSection('featuredProjectsGrid', t('lock-projects-title'), t('lock-projects-desc'));
-            applyLockToSection('elite-container', t('lock-elite-title'), t('lock-elite-desc'));
-            
-            // جلب الإحصائيات العامة فقط (لأنها عامة ومحفزة)
-            fetchPlatformStats();
+            // المستخدم زائر: ارسم عناصر وهمية وطبق القفل الضبابي
+            renderLockedState();
+            fetchPlatformStats(); // الإحصائيات تظل ظاهرة للتحفيز
         }
         initMobileScrollEffects();
     }
 
-    // دالة مساعدة لإنشاء طبقة القفل
-    function applyLockToSection(containerId, title, desc) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+    // دالة لتطبيق وضع القفل والضبابية
+    function renderLockedState() {
+        const projectsGrid = document.getElementById('featuredProjectsGrid');
+        const eliteContainer = document.getElementById('elite-container');
 
-        // جعل الحاوية الأب "Locked"
-        const parentSection = container.closest('section');
-        if (parentSection) parentSection.classList.add('locked-section');
+        if (projectsGrid) {
+            // إضافة كلاس الضبابية وحقن 3 مشاريع وهمية
+            projectsGrid.classList.add('blur-layer');
+            projectsGrid.innerHTML = Array(3).fill(0).map(() => `
+                <div class="bg-white rounded-2xl h-64 border border-gray-200"></div>
+            `).join('');
+            
+            // إضافة الرسالة فوق قسم المشاريع
+            wrapAndOverlay('project-rating', t('lock-projects-title'), t('lock-projects-desc'));
+        }
 
-        container.innerHTML = `
-            <div class="lock-overlay">
-                <div class="lock-message-box reveal zoom-in">
-                    <i class="fas fa-lock"></i>
-                    <h3>${title}</h3>
-                    <p class="text-gray-600 mb-6">${desc}</p>
-                    <div class="flex flex-col gap-3">
-                        <a href="signup.html" class="bg-[#1E3A8A] text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-800 transition-all">
-                            ${t('nav-register')}
-                        </a>
-                        <a href="login.html" class="text-[#1E3A8A] font-semibold hover:underline">
-                            ${t('nav-login')}
-                        </a>
-                    </div>
-                </div>
+        if (eliteContainer) {
+            // إضافة كلاس الضبابية وحقن عناصر نخبة وهمية
+            eliteContainer.classList.add('blur-layer');
+            eliteContainer.innerHTML = Array(6).fill(0).map(() => `
+                <div class="min-w-[200px] h-48 bg-white rounded-2xl border border-gray-100"></div>
+            `).join('');
+
+            // إضافة الرسالة فوق قسم النخبة
+            wrapAndOverlay('elite-section', t('lock-elite-title'), t('lock-elite-desc'));
+        }
+    }
+
+    // دالة لتغليف القسم ووضع رسالة القفل
+    function wrapAndOverlay(sectionId, title, desc) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        section.classList.add('lock-wrapper');
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'lock-overlay-content';
+        overlay.innerHTML = `
+            <h3 class="lock-text-title">${title}</h3>
+            <p class="lock-text-desc">${desc}</p>
+            <div class="flex gap-4">
+                <a href="signup.html" class="bg-[#D4AF37] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-all">
+                    ${t('cta-footer-btn-investor')}
+                </a>
+                <a href="login.html" class="bg-[#1E3A8A] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition-all">
+                    ${t('nav-login')}
+                </a>
             </div>
         `;
+        section.appendChild(overlay);
     }
 
     // 7. منطق نموذج تسجيل الدخول (في حال وجوده بالصفحة)
