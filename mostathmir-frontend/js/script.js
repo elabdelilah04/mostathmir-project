@@ -849,36 +849,24 @@ function initScrollAnimations() {
   6. MAIN INITIALIZATION
    ============================================================================ */
 
-/* ============================================================================
-  6. MAIN INITIALIZATION (مع إضافة منطق التحميل والظهور الناعم)
-   ============================================================================ */
-
-/* ============================================================================
-  6. MAIN INITIALIZATION (نسخة نهائية محدثة بنظام القفل الضبابي)
-   ============================================================================ */
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. إضافة كلاس الجاهزية للجسم
+    // 1. إضافة كلاس الجاهزية للجسم (للسماح بالظهور التدريجي عبر CSS)
     document.body.classList.add('loaded');
 
-    // 2. تشغيل الهيدر وجلب بيانات المستخدم في وقت واحد (لتسريع التحميل)
-    const [headerInit, user] = await Promise.all([
-        window.initHeader ? window.initHeader() : Promise.resolve(),
-        fetchCurrentUser()
-    ]);
+    // 2. تهيئة الهيدر (انتظار تحميل القوالب)
+    if (window.initHeader) await window.initHeader();
 
-    // 3. التحقق من حالة تسجيل الدخول والتوجيه
+    // 3. التحقق من حالة تسجيل الدخول والتوجيه التلقائي
     redirectIfLoggedIn();
 
-    // 4. تعبئة بيانات الهيدر إذا وجد مستخدم
-    if (user && window.populateHeader) {
-        window.populateHeader(user, API_BASE_URL);
-    }
-
-    const pageKey = document.body.dataset.pageKey;
+    // 4. جلب بيانات المستخدم الحالي
+    const user = await fetchCurrentUser();
 
     // 5. منطق الصفحات الداخلية (بروفايل، إعدادات)
     if (user) {
+        const pageKey = document.body.dataset.pageKey;
+        if (window.populateHeader) window.populateHeader(user, API_BASE_URL);
+
         switch (pageKey) {
             case 'page-title-profile':
                 initProfilePage(user, API_BASE_URL);
@@ -892,33 +880,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 6. منطق الصفحة الرئيسية (نظام القفل للمحتوى الحصري)
-    if (pageKey === 'page-title-main') {
-        const token = localStorage.getItem('user_token');
-
-        if (token) {
-            // المستخدم مسجل دخول: تحميل البيانات الحقيقية
-            try {
-                await Promise.all([
-                    loadFeaturedProjects(),
-                    loadEliteCommunity(),
-                    fetchPlatformStats()
-                ]);
-            } catch (error) {
-                console.warn("Error loading dashboard data:", error);
-            }
-        } else {
-            // المستخدم زائر: تطبيق وضع القفل الضبابي (نفس الصورة)
-            applyVisualLock('featuredProjectsGrid', 'lock-projects-title', 'lock-projects-desc', 3);
-            applyVisualLock('elite-container', 'lock-elite-title', 'lock-elite-desc', 6);
-            
-            // الإحصائيات تظل ظاهرة للجميع كعنصر جذب
-            fetchPlatformStats();
+    // 6. منطق الصفحة الرئيسية - انتظار جلب كافة البيانات قبل إخفاء اللودر
+    if (document.body.dataset.pageKey === 'page-title-main') {
+        try {
+            // لن تختفي شاشة التحميل إلا بعد انتهاء هذه الطلبات الثلاثة بنجاح
+            await Promise.all([
+                loadFeaturedProjects(),
+                loadEliteCommunity(),
+                fetchPlatformStats()
+            ]);
+        } catch (error) {
+            console.warn("فشل تحميل بعض بيانات الصفحة الرئيسية، سيتم عرض المحتوى المتاح.", error);
         }
+        // تشغيل تأثيرات التمرير للجوال
         initMobileScrollEffects();
     }
 
-    // 7. منطق نموذج تسجيل الدخول
+    // 7. منطق نموذج تسجيل الدخول (في حال وجوده بالصفحة)
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -938,7 +916,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     localStorage.setItem('user_token', data.token);
                     window.location.href = data.accountType === 'investor' ? 'investor-profile.html' : 'profile.html';
                 }
-            } catch (err) {}
+            } catch (err) {
+                // الخطأ يتم معالجته داخل handleApiRequest
+            }
         });
     }
 
@@ -954,53 +934,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupChatModal();
     initScrollAnimations();
 
-    // 9. إخفاء شاشة التحميل (Loader)
+    // 9. الخطوة النهائية: إخفاء شاشة التحميل (Loader)
     const loader = document.getElementById('main-loader');
     if (loader) {
+        // إضافة كلاس الاختفاء (Fade-out)
         loader.classList.add('hidden');
-        setTimeout(() => loader.remove(), 600);
+        // إزالة العنصر تماماً من المتصفح بعد انتهاء الأنيميشن لتسريع الصفحة
+        setTimeout(() => {
+            loader.remove();
+        }, 600);
     }
 });
-
-/**
- * دالة تطبيق القفل البصري على الأقسام الحصرية
- * @param {string} containerId - ID الحاوية التي سيتم تشفيرها
- * @param {string} titleKey - مفتاح الترجمة للعنوان
- * @param {string} descKey - مفتاح الترجمة للوصف
- * @param {number} ghostCount - عدد البطاقات الوهمية في الخلفية
- */
-function applyVisualLock(containerId, titleKey, descKey, ghostCount) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    // 1. حقن بطاقات "شبحية" فارغة لإعطاء مظهر المحتوى خلف الضبابية
-    const heightClass = containerId === 'featuredProjectsGrid' ? 'h-80' : 'h-48';
-    const minWidthClass = containerId === 'elite-container' ? 'min-w-[240px]' : '';
-    
-    container.innerHTML = Array(ghostCount).fill(0).map(() => `
-        <div class="${minWidthClass} bg-white rounded-2xl ${heightClass} shadow-sm border border-gray-100 opacity-40"></div>
-    `).join('');
-
-    // 2. إضافة كلاس الضبابية للحاوية
-    container.classList.add('content-blur');
-
-    // 3. إضافة طبقة القفل فوق القسم الأب
-    const section = container.closest('section');
-    if (section) {
-        section.classList.add('locked-section-wrapper');
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'locked-overlay';
-        overlay.innerHTML = `
-            <div class="lock-icon-circle reveal zoom-in">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h3 class="lock-title reveal fade-up delay-100">${t(titleKey)}</h3>
-            <p class="lock-desc reveal fade-up delay-200">${t(descKey)}</p>
-            <a href="login.html" class="lock-btn reveal fade-up delay-300">
-                ${t('nav-login')}
-            </a>
-        `;
-        section.appendChild(overlay);
-    }
-}
