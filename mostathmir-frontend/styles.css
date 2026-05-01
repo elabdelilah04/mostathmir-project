@@ -6242,3 +6242,7 @@ body.loaded {
     border-radius: 999px;
     filter: blur(2px);
 }
+
+.eliteback{
+    background: none;
+}

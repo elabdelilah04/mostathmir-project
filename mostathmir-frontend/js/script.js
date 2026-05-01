@@ -595,7 +595,7 @@ function applyEliteLock() {
     overlay.className = 'elite-overlay';
 
     overlay.innerHTML = `
-        <div class="overlay-content">
+        <div class="overlay-content eliteback">
             <h3 class="text-xl font-bold mb-2">سجل الدخول لرؤية أعضاء النخبة</h3>
             <p class="text-gray-500 mb-4">اكتشف أفضل المستثمرين ورواد الأعمال</p>
             <a href="login.html" class="login-btn">تسجيل الدخول</a>
