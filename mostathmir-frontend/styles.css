@@ -6267,3 +6267,13 @@ body.loaded {
         scroll-snap-align: center;
     }
 }
+
+/* إخفاء scrollbar */
+#featuredProjectsGrid::-webkit-scrollbar {
+    display: none;
+}
+#featuredProjectsGrid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
