@@ -211,12 +211,8 @@ async function loadFeaturedProjects() {
     }
 
     // تعيين كلاس الشبكة لتقليص المسافات (gap-5)
-grid.className = `
-    flex md:grid md:grid-cols-3 gap-5
-    overflow-x-auto md:overflow-visible
-    scroll-smooth snap-x snap-mandatory
-    px-2 transition-opacity duration-500
-`;
+    grid.className = "grid grid-cols-1 md:grid-cols-3 gap-5 transition-opacity duration-500";
+
     try {
         // Loader
         grid.innerHTML = `

@@ -108,7 +108,8 @@ function renderProjects(projectsToRender) {
 
 async function fetchProjects() {
     if (!token) {
-        projectsGrid.innerHTML = `<p class="col-span-full text-center text-xl text-red-500 py-10">${t('js-browse-login-required')}</p>`;
+        renderBrowsePlaceholder();
+        applyBrowseLock();
         return;
     }
 
@@ -367,3 +368,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function renderBrowsePlaceholder() {
+    projectsGrid.innerHTML = Array(6).fill(0).map((_, i) => `
+        <div class="project-card p-6">
+
+            <div class="flex justify-between items-start mb-4">
+                <div class="category-tag bg-indigo-100 text-indigo-600">تقنية</div>
+                <div class="status-badge status-active">نشط</div>
+            </div>
+
+            <div class="fake-text-lg mb-3"></div>
+            <div class="fake-text-sm mb-4"></div>
+
+            <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                    <div class="fake-text-xs w-20"></div>
+                    <div class="fake-text-xs w-16"></div>
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 w-1/2"></div>
+                </div>
+
+                <div class="flex justify-between mt-2">
+                    <div class="fake-text-xs w-12"></div>
+                    <div class="fake-text-xs w-16"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600"></div>
+                    <div class="fake-text-xs w-16"></div>
+                </div>
+                <div class="fake-text-xs w-10"></div>
+            </div>
+
+        </div>
+    `).join('');
+}
+
+function applyBrowseLock() {
+    const grid = document.getElementById('projectsGrid');
+    if (!grid) return;
+
+    if (grid.parentElement.querySelector('.browse-overlay')) return;
+
+    // wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'browse-wrapper';
+
+    grid.parentNode.insertBefore(wrapper, grid);
+    wrapper.appendChild(grid);
+
+    // blur فقط للكروت
+    grid.classList.add('blurred');
+
+    // overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'browse-overlay';
+
+    overlay.innerHTML = `
+        <div class="overlay-content">
+            <div class="text-4xl mb-3">🔒</div>
+            <h3 class="text-xl font-bold mb-2">سجل الدخول لعرض المشاريع</h3>
+            <p class="text-gray-500 mb-4">استكشف جميع الفرص الاستثمارية</p>
+            <a href="login.html" class="login-btn">تسجيل الدخول</a>
+        </div>
+    `;
+
+    wrapper.appendChild(overlay);
+}

@@ -6248,32 +6248,62 @@ body.loaded {
 }
 
 
-/* إخفاء scrollbar */
-#featuredProjectsGrid::-webkit-scrollbar {
-    display: none;
+.browse-wrapper {
+    position: relative;
 }
 
-#featuredProjectsGrid {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.browse-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(3px);
+
+    border-radius: 20px;
+    z-index: 10;
 }
 
-/* الكارت في الهاتف */
-@media (max-width: 768px) {
-    #featuredProjectsGrid>div {
-        min-width: 85%;
-        max-width: 85%;
-        flex-shrink: 0;
-        scroll-snap-align: center;
+/* blur */
+.blurred {
+    filter: blur(6px);
+    pointer-events: none;
+}
+
+/* fake text */
+.fake-text-lg,
+.fake-text-sm,
+.fake-text-xs {
+    background: linear-gradient(90deg, #e0e7ff, #c7d2fe, #e0e7ff);
+    background-size: 400% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    filter: blur(2px);
+}
+
+.fake-text-lg {
+    height: 16px;
+    width: 70%;
+}
+
+.fake-text-sm {
+    height: 12px;
+    width: 50%;
+}
+
+.fake-text-xs {
+    height: 10px;
+    width: 40%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
     }
 }
-
-/* إخفاء scrollbar */
-#featuredProjectsGrid::-webkit-scrollbar {
-    display: none;
-}
-#featuredProjectsGrid {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
