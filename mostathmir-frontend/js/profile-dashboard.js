@@ -229,22 +229,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const profileSteps = [
                 {
                     check: () => user.bio && user.bio.trim().length > 20,
-                    title: t('js-dashboard-step-bio-title'), description: t('js-dashboard-step-bio-desc'), icon: '✎', link: 'settings.html',
+                    title: t('js-dashboard-step-bio-title'), description: t('js-dashboard-step-bio-desc'), icon: '✎', link: 'settings.html#section-account',
                     container: document.getElementById('bioContainer')?.parentElement
                 },
                 {
                     check: () => user.professionalExperience && user.professionalExperience.length > 0,
-                    title: t('js-dashboard-step-experience-title'), description: t('js-dashboard-step-experience-desc'), icon: '💼', link: 'settings.html',
+                    title: t('js-dashboard-step-experience-title'), description: t('js-dashboard-step-experience-desc'), icon: '💼', link: 'settings.html#section-experience'',
                     container: document.getElementById('experienceContainer')?.parentElement
                 },
                 {
                     check: () => user.education && user.education.length > 0,
-                    title: t('js-dashboard-step-education-title'), description: t('js-dashboard-step-education-desc'), icon: '🎓', link: 'settings.html',
+                    title: t('js-dashboard-step-education-title'), description: t('js-dashboard-step-education-desc'), icon: '🎓', link: 'settings.html#section-education',
                     container: document.getElementById('educationContainer')?.parentElement
                 },
                 {
                     check: () => user.skills && user.skills.length > 0,
-                    title: t('js-dashboard-step-skills-title'), description: t('js-dashboard-step-skills-desc'), icon: '★', link: 'settings.html',
+                    title: t('js-dashboard-step-skills-title'), description: t('js-dashboard-step-skills-desc'), icon: '★', link: 'settings.html#section-skills',
                     container: document.getElementById('skillsContainer')?.parentElement
                 },
                 // {

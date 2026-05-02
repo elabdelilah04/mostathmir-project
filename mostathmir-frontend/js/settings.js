@@ -271,7 +271,25 @@ async function initSettingsPage(user) {
     initLocation(user.location);
     toggleEditMode(false);
 }
+// ==========================================
+// 7. التبديل التلقائي للتبويب بناءً على الرابط (Hash)
+// ==========================================
+function activateTabFromHash() {
+    const hash = window.location.hash; // سيجلب مثلاً #section-experience
+    if (hash) {
+        const targetBtn = document.querySelector(`.nav-item[data-target="${hash.substring(1)}"]`);
+        if (targetBtn) {
+            // محاكاة ضغطة زر على التبويب المطلوب
+            targetBtn.click();
 
+            // إذا أردت تفعيل وضع التعديل تلقائياً عند الانتقال من بطاقة "إكمال الملف"
+            toggleEditMode(true);
+        }
+    }
+}
+
+// تشغيل الدالة بعد فترة وجيزة لضمان تحميل التبويبات
+setTimeout(activateTabFromHash, 100);
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
