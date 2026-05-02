@@ -266,7 +266,39 @@ async function initSettingsPage(user) {
         } catch (err) { alert(t('js-auth-server-error')); }
         finally { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; } }
     };
+// --- منطق إظهار تنبيه "تفعيل وضع التعديل" ---
+    let isEditModeActive = false; // متغير لتتبع الحالة
 
+    // نقوم بتحديث هذا المتغير داخل دالة toggleEditMode الحالية عندك
+    const originalToggleFn = toggleEditMode;
+    toggleEditMode = function(enable) {
+        isEditModeActive = enable;
+        originalToggleFn(enable);
+    };
+
+    // إنشاء عنصر التنبيه في الصفحة مرة واحدة
+    const hintToast = document.createElement('div');
+    hintToast.className = 'edit-hint-toast';
+    hintToast.innerHTML = `<i class="fas fa-info-circle"></i> ${t('js-settings-edit-hint')}`;
+    document.body.appendChild(hintToast);
+
+    // دالة إظهار التنبيه
+    function showHint() {
+        hintToast.classList.add('show');
+        setTimeout(() => hintToast.classList.remove('show'), 3000);
+    }
+
+    // مراقبة النقرات على الحقول وهي معطلة
+    settingsForm.addEventListener('click', (e) => {
+        // إذا كان وضع التعديل غير مفعل وضغط المستخدم على حقل أو منطقة إدخال
+        if (!isEditModeActive) {
+            const target = e.target;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.closest('.switch-toggle')) {
+                showHint();
+            }
+        }
+    });
+    
     populateFields();
     initLocation(user.location);
     toggleEditMode(false);

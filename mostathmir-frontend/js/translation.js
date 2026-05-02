@@ -4,7 +4,7 @@
   // =========================
   const dict = {
     ar: {
-
+      "js-settings-edit-hint": "يرجى تفعيل وضع التعديل أولاً للقيام بالتغييرات",
       "browse-overlay-title": "سجل الدخول لعرض المشاريع",
       "browse-overlay-desc": "استكشف جميع الفرص الاستثمارية المتاحة على المنصة",
       "browse-overlay-btn": "تسجيل الدخول",
@@ -1932,7 +1932,7 @@
     },
 
     en: {
-
+      "js-settings-edit-hint": "Please enable Edit Mode first to make changes",
       "browse-overlay-title": "Log in to view projects",
       "browse-overlay-desc": "Explore all available investment opportunities on the platform",
       "browse-overlay-btn": "Log in",
