@@ -266,39 +266,56 @@ async function initSettingsPage(user) {
         } catch (err) { alert(t('js-auth-server-error')); }
         finally { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; } }
     };
-// --- منطق إظهار تنبيه "تفعيل وضع التعديل" ---
-    let isEditModeActive = false; // متغير لتتبع الحالة
+    // ==========================================
+    // منطق إظهار تنبيه "تفعيل وضع التعديل" (النسخة المصلحة)
+    // ==========================================
 
-    // نقوم بتحديث هذا المتغير داخل دالة toggleEditMode الحالية عندك
-    const originalToggleFn = toggleEditMode;
-    toggleEditMode = function(enable) {
-        isEditModeActive = enable;
-        originalToggleFn(enable);
-    };
-
-    // إنشاء عنصر التنبيه في الصفحة مرة واحدة
-    const hintToast = document.createElement('div');
-    hintToast.className = 'edit-hint-toast';
-    hintToast.innerHTML = `<i class="fas fa-info-circle"></i> ${t('js-settings-edit-hint')}`;
-    document.body.appendChild(hintToast);
-
-    // دالة إظهار التنبيه
-    function showHint() {
-        hintToast.classList.add('show');
-        setTimeout(() => hintToast.classList.remove('show'), 3000);
+    // 1. إنشاء عنصر التنبيه (Toast) إذا لم يكن موجوداً
+    let hintToast = document.querySelector('.edit-hint-toast');
+    if (!hintToast) {
+        hintToast = document.createElement('div');
+        hintToast.className = 'edit-hint-toast';
+        hintToast.innerHTML = `<i class="fas fa-lock"></i> <span>${t('js-settings-edit-hint')}</span>`;
+        document.body.appendChild(hintToast);
     }
 
-    // مراقبة النقرات على الحقول وهي معطلة
-    settingsForm.addEventListener('click', (e) => {
-        // إذا كان وضع التعديل غير مفعل وضغط المستخدم على حقل أو منطقة إدخال
-        if (!isEditModeActive) {
-            const target = e.target;
-            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.closest('.switch-toggle')) {
-                showHint();
+    let toastTimer;
+    function showEditHint() {
+        hintToast.classList.remove('show');
+        clearTimeout(toastTimer);
+
+        setTimeout(() => {
+            hintToast.classList.add('show');
+            toastTimer = setTimeout(() => {
+                hintToast.classList.remove('show');
+            }, 3000);
+        }, 10);
+    }
+
+    // 2. مراقبة النقرات على الحاويات لأنها ليست معطلة (Disabled)
+    // سنراقب كل كارت إعدادات وكل مجموعة حقول
+    const containersToWatch = document.querySelectorAll('.settings-card, .form-group, .phone-input-wrapper');
+
+    containersToWatch.forEach(container => {
+        container.addEventListener('click', (e) => {
+            // نتحقق إذا كان النموذج ليس في وضع التعديل حالياً
+            const isNotEditing = !settingsForm.classList.contains('is-editing');
+
+            if (isNotEditing) {
+                // إذا ضغط المستخدم على أي مدخلات أو أي مكان داخل الحاوية
+                const isInputArea = e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'TEXTAREA' ||
+                    e.target.tagName === 'SELECT' ||
+                    e.target.closest('.switch-toggle') ||
+                    e.target.closest('.form-group');
+
+                if (isInputArea) {
+                    showEditHint();
+                }
             }
-        }
+        });
     });
-    
+
     populateFields();
     initLocation(user.location);
     toggleEditMode(false);

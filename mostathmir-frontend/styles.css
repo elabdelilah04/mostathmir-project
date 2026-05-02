@@ -6331,20 +6331,23 @@ body.loaded {
     position: fixed;
     bottom: 30px;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    transform: translateX(-50%) translateY(150px);
+    /* يبدأ خارج الشاشة */
     background: #1E3A8A;
     color: white;
     padding: 12px 25px;
     border-radius: 50px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    z-index: 11000;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 99999 !important;
+    /* رقم كبير جداً لضمان الظهور فوق كل شيء */
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-family: 'Cairo', sans-serif;
-    font-size: 0.9rem;
     pointer-events: none;
+    /* لكي لا يمنع النقر على ما تحته */
     display: flex;
     align-items: center;
     gap: 10px;
+    width: max-content;
 }
 
 .edit-hint-toast.show {
@@ -6352,5 +6355,6 @@ body.loaded {
 }
 
 .edit-hint-toast i {
-    color: #D4AF37; /* اللون الذهبي للأيقونة */
+    color: #D4AF37;
+    /* اللون الذهبي للأيقونة */
 }
