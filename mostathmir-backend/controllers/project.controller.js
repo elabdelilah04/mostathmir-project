@@ -85,6 +85,16 @@ const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+        // --- التعديل الجديد: قيد التعديل بناءً على الحالة ---
+        const lockedStatuses = ['published', 'funded', 'completed'];
+        if (lockedStatuses.includes(project.status)) {
+            return res.status(403).json({
+                message: 'لا يمكن تعديل المشروع بعد بدء مرحلة الاستثمار. يرجى التواصل مع الإدارة لأي تغييرات ضرورية.'
+            });
+        }
+        // --------
+
         if (project.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized to edit this project.' });
         }

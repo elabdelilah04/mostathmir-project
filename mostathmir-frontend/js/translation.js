@@ -4,6 +4,8 @@
   // =========================
   const dict = {
     ar: {
+      "js-my-projects-edit-locked-note": "لا يمكن التعديل أو الحذف بعد نشر المشروع أو بدء المراجعة.",
+      "js-my-projects-contact-admin-btn": "طلب تعديل",
       "profile-view-public-hint": "معاينة ملفي كما يراه الآخرون",
       "js-settings-edit-hint": "يرجى تفعيل وضع التعديل أولاً للقيام بالتغييرات",
       "browse-overlay-title": "سجل الدخول لعرض المشاريع",
@@ -1933,6 +1935,8 @@
     },
 
     en: {
+      "js-my-projects-edit-locked-note": "لا يمكن التعديل أو الحذف بعد نشر المشروع أو بدء المراجعة.",
+      "js-my-projects-contact-admin-btn": "طلب تعديل",
       "profile-view-public-hint": "Preview my public profile",
       "js-settings-edit-hint": "Please enable Edit Mode first to make changes",
       "browse-overlay-title": "Log in to view projects",
