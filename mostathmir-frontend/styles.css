@@ -6327,33 +6327,46 @@ body.loaded {
 
 
 
+/* تنسيق التنبيه */
 .edit-hint-toast {
     position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%) translateY(150px);
-    /* يبدأ خارج الشاشة */
     background: #1E3A8A;
     color: white;
-    padding: 12px 25px;
+    padding: 12px 30px;
     border-radius: 50px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    z-index: 99999 !important;
-    /* رقم كبير جداً لضمان الظهور فوق كل شيء */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    z-index: 100000;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-family: 'Cairo', sans-serif;
-    pointer-events: none;
-    /* لكي لا يمنع النقر على ما تحته */
     display: flex;
     align-items: center;
-    gap: 10px;
-    width: max-content;
+    gap: 12px;
+    pointer-events: none; /* التنبيه نفسه لا يستقبل نقرات */
+    border: 1px solid #D4AF37;
+    white-space: nowrap;
 }
 
 .edit-hint-toast.show {
     transform: translateX(-50%) translateY(0);
 }
 
+/* الخدعة البرمجية: اجعل العناصر المعطلة "شفافة" أمام النقرات في وضع القراءة فقط */
+#settingsForm:not(.is-editing) input:disabled,
+#settingsForm:not(.is-editing) textarea:disabled,
+#settingsForm:not(.is-editing) select:disabled,
+#settingsForm:not(.is-editing) button:disabled,
+#settingsForm:not(.is-editing) .switch-toggle {
+    pointer-events: none; /* النقرة ستمر من خلالهم إلى النموذج */
+}
+
+/* تأكد أن النموذج نفسه قابل للنقر */
+#settingsForm {
+    position: relative;
+    min-height: 100%;
+}
 .edit-hint-toast i {
     color: #D4AF37;
     /* اللون الذهبي للأيقونة */

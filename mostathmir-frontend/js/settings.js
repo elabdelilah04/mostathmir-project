@@ -270,12 +270,12 @@ async function initSettingsPage(user) {
     // منطق إظهار تنبيه "تفعيل وضع التعديل" (النسخة المصلحة)
     // ==========================================
 
-    // 1. إنشاء عنصر التنبيه (Toast) إذا لم يكن موجوداً
+    // 1. إنشاء عنصر التنبيه لمرة واحدة
     let hintToast = document.querySelector('.edit-hint-toast');
     if (!hintToast) {
         hintToast = document.createElement('div');
         hintToast.className = 'edit-hint-toast';
-        hintToast.innerHTML = `<i class="fas fa-lock"></i> <span>${t('js-settings-edit-hint')}</span>`;
+        hintToast.innerHTML = `<i class="fas fa-lock" style="color:#D4AF37"></i> <span>${t('js-settings-edit-hint')}</span>`;
         document.body.appendChild(hintToast);
     }
 
@@ -292,28 +292,19 @@ async function initSettingsPage(user) {
         }, 10);
     }
 
-    // 2. مراقبة النقرات على الحاويات لأنها ليست معطلة (Disabled)
-    // سنراقب كل كارت إعدادات وكل مجموعة حقول
-    const containersToWatch = document.querySelectorAll('.settings-card, .form-group, .phone-input-wrapper');
+    // 2. مراقبة أي نقرة على النموذج بالكامل
+    settingsForm.addEventListener('mousedown', (e) => {
+        // نتحقق: هل نحن في وضع القراءة فقط؟ (النموذج ليس لديه كلاس is-editing)
+        const isReadOnly = !settingsForm.classList.contains('is-editing');
 
-    containersToWatch.forEach(container => {
-        container.addEventListener('click', (e) => {
-            // نتحقق إذا كان النموذج ليس في وضع التعديل حالياً
-            const isNotEditing = !settingsForm.classList.contains('is-editing');
+        if (isReadOnly) {
+            // نتحقق أن المستخدم لم يضغط على زر "تعديل" نفسه (لأننا لا نريد إظهار تنبيه عند الضغط عليه)
+            const isEditBtn = e.target.closest('[data-i18n-key="settings-account-info-edit"]');
 
-            if (isNotEditing) {
-                // إذا ضغط المستخدم على أي مدخلات أو أي مكان داخل الحاوية
-                const isInputArea = e.target.tagName === 'INPUT' ||
-                    e.target.tagName === 'TEXTAREA' ||
-                    e.target.tagName === 'SELECT' ||
-                    e.target.closest('.switch-toggle') ||
-                    e.target.closest('.form-group');
-
-                if (isInputArea) {
-                    showEditHint();
-                }
+            if (!isEditBtn) {
+                showEditHint();
             }
-        });
+        }
     });
 
     populateFields();
