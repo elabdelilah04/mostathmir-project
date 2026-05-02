@@ -131,38 +131,75 @@ async function initSettingsPage(user) {
     };
 
     // =========================================================
-    // نظام التنقل التلقائي وفتح التعديل بناءً على الـ Hash (#)
+    // 1. دالة موحدة لتبديل التبويبات (Active Tab Logic)
+    // =========================================================
+    function switchTab(targetId) {
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // أ. تحديث شكل الأزرار في القائمة الجانبية
+        navItems.forEach(nav => {
+            if (nav.getAttribute('data-target') === targetId) {
+                nav.classList.add('active');
+            } else {
+                nav.classList.remove('active');
+            }
+        });
+
+        // ب. إظهار القسم المطلوب وإخفاء الباقي
+        tabContents.forEach(content => {
+            if (content.id === targetId) {
+                content.classList.add('active');
+                content.style.display = 'block'; // التأكد من الظهور
+            } else {
+                content.classList.remove('active');
+                content.style.display = 'none'; // التأكد من الاختفاء
+            }
+        });
+    }
+
+    // =========================================================
+    // 2. ربط الأزرار الجانبية بالدالة الجديدة
+    // =========================================================
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = btn.getAttribute('data-target');
+            switchTab(targetId);
+        });
+    });
+
+    // =========================================================
+    // 3. نظام التنقل التلقائي وفتح التعديل بناءً على الـ Hash
     // =========================================================
     function handleUrlHash() {
-        const hash = window.location.hash; // مثال: #section-experience
+        const hash = window.location.hash;
         if (!hash) return;
 
-        // 1. البحث عن الزر الجانبي الذي يمتلك data-target تطابق الهاش
-        // نقوم بإزالة علامة # عند البحث في data-target
-        const targetId = hash.substring(1);
-        const targetBtn = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+        const targetId = hash.substring(1); // إزالة الـ #
 
-        if (targetBtn) {
-            // 2. تفعيل التبويب برمجياً (سيقوم بإظهار المحتوى وإخفاء الباقي)
-            targetBtn.click();
+        // التأكد من أن الـ ID موجود فعلاً في الصفحة
+        const targetSection = document.getElementById(targetId);
 
-            // 3. تفعيل وضع التعديل فوراً لراحة المستخدم
+        if (targetSection) {
+            // تنفيذ تبديل التبويب برمجياً وبشكل صريح
+            switchTab(targetId);
+
+            // فتح وضع التعديل فوراً
             if (typeof toggleEditMode === 'function') {
                 toggleEditMode(true);
             }
 
-            // 4. تمرير الصفحة للقسم المطلوب لضمان ظهوره في الشاشة
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
+            // التمرير للقسم المطلوب لضمان ظهوره
+            setTimeout(() => {
                 targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            }, 300);
         }
     }
 
-    // تشغيل الدالة فور تحميل البيانات
-    setTimeout(handleUrlHash, 200);
+    // تشغيل المنطق عند تحميل الصفحة مع تأخير بسيط لضمان جاهزية الـ DOM
+    setTimeout(handleUrlHash, 300);
 
-    // إضافة مستمع لحدث تغيير الهاش (إذا ضغط المستخدم رابطاً وهو داخل الصفحة)
+    // الاستماع لتغييرات الهاش في الرابط
     window.addEventListener('hashchange', handleUrlHash);
     // 4. تعبئة البيانات (منع التكرار)
     function populateFields() {
