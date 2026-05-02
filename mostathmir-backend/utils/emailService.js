@@ -1,40 +1,42 @@
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const sendEmail = async (options) => {
+    // نستخدم مفتاح الـ API الطويل الذي يبدأ بـ xsmtpsib
+    const apiKey = process.env.EMAIL_PASS;
 
-    // 1. إعداد الناقل (Transporter) باستخدام إعدادات Brevo
-    const transporter = nodemailer.createTransport({
-        host: "smtp-relay.brevo.com", // خادم Brevo
-        port: 587,                    // المنفذ القياسي
-        secure: false,                // false لـ 587، true لـ 465
-        auth: {
-            user: process.env.EMAIL_USER, // إيميل تسجيل الدخول في Brevo
-            pass: process.env.EMAIL_PASS, // مفتاح SMTP Key (وليس كلمة سر حسابك)
-        },
-    });
-
-    // 2. التحقق من إيميل المرسل
-    const sender = process.env.EMAIL_FROM;
-    if (!sender) {
-        console.error("❌ ERROR: EMAIL_FROM is missing in Environment Variables.");
-        throw new Error("Sender email is not configured.");
-    }
-
-    // 3. خيارات الرسالة
-    const message = {
-        from: `Mostathmir Platform <${sender}>`, // يظهر الاسم وبجانبه الإيميل
-        to: options.email,
-        subject: options.subject,
-        html: options.html,
-    };
-
-    // 4. الإرسال
     try {
-        const info = await transporter.sendMail(message);
-        console.log(`✅ Email sent: ${info.messageId}`);
+        console.log(`⏳ جاري إرسال البريد عبر Brevo API إلى: ${options.email}...`);
+
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+            sender: {
+                name: "Mostathmir Platform",
+                email: process.env.EMAIL_FROM
+            },
+            to: [{
+                email: options.email
+            }],
+            subject: options.subject,
+            htmlContent: options.html // ملاحظة: الـ API يتوقع htmlContent
+        }, {
+            headers: {
+                'api-key': apiKey,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        console.log(`✅ تم الإرسال بنجاح عبر API! المعرف: ${response.data.messageId}`);
+        return response.data;
+
     } catch (error) {
-        console.error("❌ SMTP Error:", error);
-        throw new Error("فشل إرسال البريد الإلكتروني عبر Brevo.");
+        console.error("❌ فشل الإرسال عبر نظام الـ API الخاص بـ Brevo:");
+        if (error.response) {
+            // عرض تفاصيل الخطأ القادم من سيرفر بريفو لسهولة التشخيص
+            console.error("Brevo API Response Error:", error.response.data);
+        } else {
+            console.error("Error Message:", error.message);
+        }
+        throw new Error("فشل إرسال بريد التحقق عبر API.");
     }
 };
 
