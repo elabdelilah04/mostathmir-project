@@ -322,6 +322,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         //         achievementsContainer.parentElement.style.display = 'none';
         //     }
         // }
+
+        // --- منطق زر معاينة الملف العام ---
+        const viewPublicBtn = document.getElementById('viewPublicProfileBtn');
+        if (viewPublicBtn) {
+            viewPublicBtn.addEventListener('click', () => {
+                // جلب معرف المستخدم من localStorage
+                const userId = localStorage.getItem('user_id');
+
+                if (userId) {
+                    // فتح صفحة البروفايل العام في تبويب جديد
+                    window.open(`public-profile.html?id=${userId}`, '_blank');
+                } else {
+                    alert('تعذر العثور على بيانات المستخدم، يرجى تسجيل الدخول مجدداً.');
+                }
+            });
+        }
     }
 
     function createDashboardProjectCard(project) {

@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "profile-view-public-hint": "معاينة ملفي كما يراه الآخرون",
       "js-settings-edit-hint": "يرجى تفعيل وضع التعديل أولاً للقيام بالتغييرات",
       "browse-overlay-title": "سجل الدخول لعرض المشاريع",
       "browse-overlay-desc": "استكشف جميع الفرص الاستثمارية المتاحة على المنصة",
@@ -1932,6 +1933,7 @@
     },
 
     en: {
+      "profile-view-public-hint": "Preview my public profile",
       "js-settings-edit-hint": "Please enable Edit Mode first to make changes",
       "browse-overlay-title": "Log in to view projects",
       "browse-overlay-desc": "Explore all available investment opportunities on the platform",

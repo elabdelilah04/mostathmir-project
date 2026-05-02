@@ -64,6 +64,18 @@
                                         <div id="publicSocialLinksContainer" class="flex gap-4 justify-center mb-6">
                                         </div>
                                         <div class="flex gap-3 justify-center mb-6">
+                                            <!-- أيقونة المعاينة الجديدة -->
+                                            <button id="viewPublicProfileBtn"
+                                                class="w-11 h-11 rounded-lg border-2 border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 hover:border-emerald-600 hover:text-emerald-600 transition-all shadow-sm"
+                                                title="معاينة ملفي العام">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+
+                                            <a href="/settings.html"
+                                                class="border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-700 px-6 py-2.5 rounded-lg font-semibold"
+                                                data-i18n-key="profile-edit-page-btn">تعديل صفحتي</a>
+                                        </div>
+                                        <div class="flex gap-3 justify-center mb-6">
                                             <a href="/settings.html"
                                                 class="border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-700 px-6 py-2.5 rounded-lg font-semibold"
                                                 data-i18n-key="profile-edit-page-btn">تعديل
@@ -362,27 +374,31 @@
         </div>
     </div>
 
-<!-- المودال المحدث للمتابعين والمتابَعين -->
-<div id="followersModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl">
-        <!-- رأس المودال -->
-        <div class="p-4 border-b flex justify-between items-center">
-            <h3 class="font-bold text-lg" data-i18n-key="investor-profile-follow-list-title">قائمة المتابعة</h3>
-            <button id="closeFollowersModal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-        </div>
-        
-        <!-- أزرار التبديل (Tabs) -->
-        <div class="follow-modal-tabs" style="display: flex; border-bottom: 1px solid #e5e7eb;">
-            <button id="followingTabBtn" class="follow-tab-btn" style="flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b;" data-i18n-key="investor-profile-following-tab">أتابعهم</button>
-            <button id="followersTabBtn" class="follow-tab-btn active" style="flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #1e40af; border-bottom: 3px solid #1e40af;" data-i18n-key="investor-profile-followers-tab">يتابعونني</button>
-        </div>
+    <!-- المودال المحدث للمتابعين والمتابَعين -->
+    <div id="followersModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl">
+            <!-- رأس المودال -->
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg" data-i18n-key="investor-profile-follow-list-title">قائمة المتابعة</h3>
+                <button id="closeFollowersModal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
 
-        <!-- محتوى القائمة -->
-        <div id="followersModalBody" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <!-- سيتم حقن العناصر هنا بواسطة JavaScript -->
+            <!-- أزرار التبديل (Tabs) -->
+            <div class="follow-modal-tabs" style="display: flex; border-bottom: 1px solid #e5e7eb;">
+                <button id="followingTabBtn" class="follow-tab-btn"
+                    style="flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b;"
+                    data-i18n-key="investor-profile-following-tab">أتابعهم</button>
+                <button id="followersTabBtn" class="follow-tab-btn active"
+                    style="flex: 1; padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #1e40af; border-bottom: 3px solid #1e40af;"
+                    data-i18n-key="investor-profile-followers-tab">يتابعونني</button>
+            </div>
+
+            <!-- محتوى القائمة -->
+            <div id="followersModalBody" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- سيتم حقن العناصر هنا بواسطة JavaScript -->
+            </div>
         </div>
     </div>
-</div>
 
     <div id="proposalResponseModal" class="modal fixed bg-black bg-opacity-50 hidden items-center justify-center z-50"
         style="display: none;">
