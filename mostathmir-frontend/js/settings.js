@@ -130,6 +130,40 @@ async function initSettingsPage(user) {
         toggleEditMode(true);
     };
 
+    // =========================================================
+    // نظام التنقل التلقائي وفتح التعديل بناءً على الـ Hash (#)
+    // =========================================================
+    function handleUrlHash() {
+        const hash = window.location.hash; // مثال: #section-experience
+        if (!hash) return;
+
+        // 1. البحث عن الزر الجانبي الذي يمتلك data-target تطابق الهاش
+        // نقوم بإزالة علامة # عند البحث في data-target
+        const targetId = hash.substring(1);
+        const targetBtn = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+
+        if (targetBtn) {
+            // 2. تفعيل التبويب برمجياً (سيقوم بإظهار المحتوى وإخفاء الباقي)
+            targetBtn.click();
+
+            // 3. تفعيل وضع التعديل فوراً لراحة المستخدم
+            if (typeof toggleEditMode === 'function') {
+                toggleEditMode(true);
+            }
+
+            // 4. تمرير الصفحة للقسم المطلوب لضمان ظهوره في الشاشة
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
+    // تشغيل الدالة فور تحميل البيانات
+    setTimeout(handleUrlHash, 200);
+
+    // إضافة مستمع لحدث تغيير الهاش (إذا ضغط المستخدم رابطاً وهو داخل الصفحة)
+    window.addEventListener('hashchange', handleUrlHash);
     // 4. تعبئة البيانات (منع التكرار)
     function populateFields() {
         document.getElementById('email').value = user.email || '';
@@ -271,25 +305,7 @@ async function initSettingsPage(user) {
     initLocation(user.location);
     toggleEditMode(false);
 }
-// ==========================================
-// 7. التبديل التلقائي للتبويب بناءً على الرابط (Hash)
-// ==========================================
-function activateTabFromHash() {
-    const hash = window.location.hash; // سيجلب مثلاً #section-experience
-    if (hash) {
-        const targetBtn = document.querySelector(`.nav-item[data-target="${hash.substring(1)}"]`);
-        if (targetBtn) {
-            // محاكاة ضغطة زر على التبويب المطلوب
-            targetBtn.click();
 
-            // إذا أردت تفعيل وضع التعديل تلقائياً عند الانتقال من بطاقة "إكمال الملف"
-            toggleEditMode(true);
-        }
-    }
-}
-
-// تشغيل الدالة بعد فترة وجيزة لضمان تحميل التبويبات
-setTimeout(activateTabFromHash, 100);
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
