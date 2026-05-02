@@ -32,24 +32,46 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-    // 1. منطق التنقل الجانبي (Side Tabs)
-    const stLinks = document.querySelectorAll('.st-nav-link');
-    const stContents = document.querySelectorAll('.st-tab-content');
+    // =========================================================
+    // 1. المحرك الموحد لتبديل الأقسام (Tabs Engine)
+    // =========================================================
+    function switchTab(targetId) {
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
 
-    stLinks.forEach(link => {
-        link.onclick = (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('data-target');
-            stLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            stContents.forEach(content => {
+        // أ. تحديث حالة الأزرار الجانبية
+        navItems.forEach(nav => {
+            if (nav.getAttribute('data-target') === targetId) {
+                nav.classList.add('active');
+            } else {
+                nav.classList.remove('active');
+            }
+        });
+
+        // ب. إظهار القسم المطلوب وإخفاء الباقي فوراً
+        tabContents.forEach(content => {
+            if (content.id === targetId) {
+                content.classList.add('active');
+                content.style.display = 'block';
+            } else {
                 content.classList.remove('active');
-                if (content.id === targetId) content.classList.add('active');
-            });
+                content.style.display = 'none';
+            }
+        });
+    }
+
+    // ربط نقرات القائمة الجانبية بالمحرك
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            const targetId = btn.getAttribute('data-target');
+            switchTab(targetId);
         };
     });
 
+    // =========================================================
     // 2. إدارة حالة الهاتف (التحقق المترجم)
+    // =========================================================
     const phoneInput = document.getElementById('phone');
     const btnStartVerify = document.getElementById('btnStartVerify');
     const otpSection = document.getElementById('otpSection');
@@ -104,7 +126,9 @@ async function initSettingsPage(user) {
         };
     }
 
-    // 3. دالة التحكم في وضع التعديل
+    // =========================================================
+    // 3. دالة التحكم في وضع التعديل (Edit Mode)
+    // =========================================================
     function toggleEditMode(enable) {
         const allInputs = settingsForm.querySelectorAll('input, select, textarea, button:not([type="submit"]):not(#editBtnGlobal)');
         allInputs.forEach(input => {
@@ -113,7 +137,8 @@ async function initSettingsPage(user) {
                 input.disabled = true;
                 return;
             }
-            if (input.id === 'otpInput' || input.id === 'btnConfirmOTP') return;
+            if (input.id === 'otpInput' || input.id === 'btnConfirmOTP' || input.id === 'btnStartVerify') return;
+
             input.disabled = !enable;
             const switchCont = input.closest('.switch-toggle');
             if (switchCont) {
@@ -125,87 +150,43 @@ async function initSettingsPage(user) {
         settingsForm.classList.toggle('is-editing', enable);
     }
 
-    document.getElementById('editBtnGlobal').onclick = (e) => {
-        e.preventDefault();
-        toggleEditMode(true);
-    };
-
-    // =========================================================
-    // 1. دالة موحدة لتبديل التبويبات (Active Tab Logic)
-    // =========================================================
-    function switchTab(targetId) {
-        const navItems = document.querySelectorAll('.nav-item');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        // أ. تحديث شكل الأزرار في القائمة الجانبية
-        navItems.forEach(nav => {
-            if (nav.getAttribute('data-target') === targetId) {
-                nav.classList.add('active');
-            } else {
-                nav.classList.remove('active');
-            }
-        });
-
-        // ب. إظهار القسم المطلوب وإخفاء الباقي
-        tabContents.forEach(content => {
-            if (content.id === targetId) {
-                content.classList.add('active');
-                content.style.display = 'block'; // التأكد من الظهور
-            } else {
-                content.classList.remove('active');
-                content.style.display = 'none'; // التأكد من الاختفاء
-            }
-        });
+    const globalEditBtn = document.getElementById('editBtnGlobal') || document.querySelector('[data-i18n-key="settings-account-info-edit"]');
+    if (globalEditBtn) {
+        globalEditBtn.onclick = (e) => {
+            e.preventDefault();
+            toggleEditMode(true);
+        };
     }
 
     // =========================================================
-    // 2. ربط الأزرار الجانبية بالدالة الجديدة
+    // 4. منظم التشغيل التلقائي بناءً على الـ Hash (الأولوية القصوى)
     // =========================================================
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const targetId = btn.getAttribute('data-target');
-            switchTab(targetId);
-        });
-    });
-
-    // =========================================================
-    // 3. نظام التنقل التلقائي وفتح التعديل بناءً على الـ Hash
-    // =========================================================
-    function handleUrlHash() {
+    function runPageOrchestrator() {
         const hash = window.location.hash;
-        if (!hash) return;
-
-        const targetId = hash.substring(1); // إزالة الـ #
-
-        // التأكد من أن الـ ID موجود فعلاً في الصفحة
-        const targetSection = document.getElementById(targetId);
-
-        if (targetSection) {
-            // تنفيذ تبديل التبويب برمجياً وبشكل صريح
+        if (hash && document.getElementById(hash.substring(1))) {
+            const targetId = hash.substring(1);
+            // 1. فتح التبويب المطلوب
             switchTab(targetId);
-
-            // فتح وضع التعديل فوراً
-            if (typeof toggleEditMode === 'function') {
-                toggleEditMode(true);
-            }
-
-            // التمرير للقسم المطلوب لضمان ظهوره
+            // 2. تفعيل التعديل فوراً لراحة المستخدم
+            toggleEditMode(true);
+            // 3. التمرير للقسم
             setTimeout(() => {
-                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 300);
+                document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        } else {
+            // الوضع الافتراضي
+            switchTab('section-account');
+            toggleEditMode(false);
         }
     }
 
-    // تشغيل المنطق عند تحميل الصفحة مع تأخير بسيط لضمان جاهزية الـ DOM
-    setTimeout(handleUrlHash, 300);
-
-    // الاستماع لتغييرات الهاش في الرابط
-    window.addEventListener('hashchange', handleUrlHash);
-    // 4. تعبئة البيانات (منع التكرار)
+    // =========================================================
+    // 5. تعبئة البيانات والوظائف المساعدة
+    // =========================================================
     function populateFields() {
         document.getElementById('email').value = user.email || '';
         document.getElementById('fullName').value = user.fullName || '';
-        document.getElementById('phone').value = user.phone || '';
+        if (document.getElementById('phone')) document.getElementById('phone').value = user.phone || '';
         document.getElementById('bio').value = user.bio || '';
         document.getElementById('profileTitle').value = user.profileTitle || '';
 
@@ -214,8 +195,10 @@ async function initSettingsPage(user) {
         if (document.getElementById('showPhonePublicly'))
             document.getElementById('showPhonePublicly').checked = !!user.showPhonePublicly;
 
-        const containers = ['skillsFormContainer', 'experienceFormContainer', 'educationFormContainer', 'socialLinksContainer', 'achievementsFormContainer'];
-        containers.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+        // تفريغ الحاويات قبل الملء لضمان عدم التكرار
+        ['skillsFormContainer', 'experienceFormContainer', 'educationFormContainer', 'socialLinksContainer', 'achievementsFormContainer'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.innerHTML = '';
+        });
 
         if (user.skills) user.skills.forEach(s => createRow('skillTemplate', 'skillsFormContainer', s, (c, d) => {
             c.querySelector('.skill-name').value = d.name;
@@ -247,6 +230,7 @@ async function initSettingsPage(user) {
         container.appendChild(content);
     }
 
+    // ربط أزرار الإضافة
     const bindBtn = (id, temp, cont) => {
         const b = document.getElementById(id);
         if (b) b.onclick = (e) => { e.preventDefault(); createRow(temp, cont, null, () => { }); };
@@ -270,7 +254,6 @@ async function initSettingsPage(user) {
         }
     });
 
-    // 5. القائمة الكاملة للدول والمدن
     const arabCountries = { [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')], [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah')], [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi')], [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria')] };
 
     function initLocation(currentLoc) {
@@ -297,7 +280,6 @@ async function initSettingsPage(user) {
         countrySel.onchange = function () { fillCities(this.value, null); };
     }
 
-    // 6. حفظ البيانات النهائي المترجم
     settingsForm.onsubmit = async (e) => {
         e.preventDefault();
         const country = document.getElementById('country').value;
@@ -306,7 +288,7 @@ async function initSettingsPage(user) {
 
         const saveBtn = document.getElementById('saveAllBtn') || e.submitter;
         const originalText = saveBtn.textContent;
-        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('js-settings-saving'); }
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('js-settings-saving') || '...'; }
 
         const updatedData = {
             fullName: document.getElementById('fullName').value,
@@ -338,9 +320,14 @@ async function initSettingsPage(user) {
         finally { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; } }
     };
 
+    // التشغيل المتسلسل
     populateFields();
     initLocation(user.location);
-    toggleEditMode(false);
+
+    // تشغيل المنظم في النهاية لضمان أن الهاش له الأولوية في العرض
+    setTimeout(runPageOrchestrator, 400);
+
+    window.addEventListener('hashchange', runPageOrchestrator);
 }
 
 function escapeHTML(str) {
