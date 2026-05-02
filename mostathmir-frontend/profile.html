@@ -75,7 +75,7 @@
                                                 class="border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-700 px-6 py-2.5 rounded-lg font-semibold"
                                                 data-i18n-key="profile-edit-page-btn">تعديل صفحتي</a>
                                         </div>
-                                     
+
                                         <div id="sidebarStats"
                                             class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
                                             <div id="projectsStatCard" class="text-center cursor-pointer"
@@ -209,7 +209,36 @@
                                     </button>
                                 </div>
                             </div>
-
+                            <div class="interaction-metrics">
+                                <h4 class="metrics-title" data-i18n-key="profile-dashboard-interactions-title">مؤشرات
+                                    التفاعل</h4>
+                                <div class="metrics-grid">
+                                    <button class="metric-item" id="followersCard">
+                                        <span class="metric-value" id="stat-total-followers">0</span>
+                                        <span class="metric-label"
+                                            data-i18n-key="profile-dashboard-interactions-followers">مستثمر
+                                            مهتم</span>
+                                    </button>
+                                    <div class="metric-item" id="participatingInvestorsCard">
+                                        <span class="metric-value" id="stat-investors-count">0</span>
+                                        <span class="metric-label"
+                                            data-i18n-key="profile-dashboard-interactions-investors">المستثمرون
+                                            المشاركون</span>
+                                    </div>
+                                    <button class="metric-item" id="proposalsCard">
+                                        <span class="metric-value" id="stat-proposals-count">0</span>
+                                        <span class="metric-label"
+                                            data-i18n-key="profile-dashboard-interactions-proposals">الشراكات
+                                            المقترحة</span>
+                                    </button>
+                                    <button class="metric-item" id="viewsCard">
+                                        <span class="metric-value" id="stat-total-views">0</span>
+                                        <span class="metric-label"
+                                            data-i18n-key="profile-dashboard-interactions-views">مشاهدة
+                                            للمشاريع</span>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="interaction-metrics">
                                 <label class="metrics-title" style="margin: 0px 18px 18px 0 ; display: block;"
                                     data-i18n-key="profile-dashboard-status-title">حالة
@@ -263,36 +292,7 @@
                                 </div>
                             </div>
 
-                            <div class="interaction-metrics">
-                                <h4 class="metrics-title" data-i18n-key="profile-dashboard-interactions-title">مؤشرات
-                                    التفاعل</h4>
-                                <div class="metrics-grid">
-                                    <button class="metric-item" id="followersCard">
-                                        <span class="metric-value" id="stat-total-followers">0</span>
-                                        <span class="metric-label"
-                                            data-i18n-key="profile-dashboard-interactions-followers">مستثمر
-                                            مهتم</span>
-                                    </button>
-                                    <div class="metric-item" id="participatingInvestorsCard">
-                                        <span class="metric-value" id="stat-investors-count">0</span>
-                                        <span class="metric-label"
-                                            data-i18n-key="profile-dashboard-interactions-investors">المستثمرون
-                                            المشاركون</span>
-                                    </div>
-                                    <button class="metric-item" id="proposalsCard">
-                                        <span class="metric-value" id="stat-proposals-count">0</span>
-                                        <span class="metric-label"
-                                            data-i18n-key="profile-dashboard-interactions-proposals">الشراكات
-                                            المقترحة</span>
-                                    </button>
-                                    <button class="metric-item" id="viewsCard">
-                                        <span class="metric-value" id="stat-total-views">0</span>
-                                        <span class="metric-label"
-                                            data-i18n-key="profile-dashboard-interactions-views">مشاهدة
-                                            للمشاريع</span>
-                                    </button>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="text-center">
                             <a href="my-projects.html" class="btn btn-outline"
