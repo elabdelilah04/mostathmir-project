@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 {
                     check: () => user.professionalExperience && user.professionalExperience.length > 0,
-                    title: t('js-dashboard-step-experience-title'), description: t('js-dashboard-step-experience-desc'), icon: '💼', link: 'settings.html#section-experience'',
+                    title: t('js-dashboard-step-experience-title'), description: t('js-dashboard-step-experience-desc'), icon: '💼', link: 'settings.html#section-experience',
                     container: document.getElementById('experienceContainer')?.parentElement
                 },
                 {
