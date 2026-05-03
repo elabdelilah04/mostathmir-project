@@ -203,37 +203,50 @@ async function loadFeaturedProjects() {
     const grid = document.getElementById('featuredProjectsGrid');
     if (!grid) return;
 
+    const token = localStorage.getItem('user_token');
+    if (!token) {
+        renderPlaceholderProjects(grid);
+        applyProjectsLock();
+        return;
+    }
+
     // تعيين كلاس الشبكة لتقليص المسافات (gap-5)
     grid.className = "grid grid-cols-1 md:grid-cols-3 gap-5 transition-opacity duration-500";
 
     try {
-        // عرض اللودر أثناء الجلب
+        // Loader
         grid.innerHTML = `
             <div class="col-span-full flex flex-col items-center justify-center py-10">
                 <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
             </div>`;
 
-        // ⚠️ التعديل هنا: جلب المشاريع المميزة من الرابط المخصص لها
-        const response = await fetch(`${API_BASE_URL}/api/projects/featured`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('user_token')}` }
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch featured projects');
+        const response = await fetch(`${API_BASE_URL}/api/projects/public`);
+        if (!response.ok) throw new Error('Failed to fetch projects');
 
-        let featuredProjects = await response.json();
+        let projects = await response.json();
+        // Filter active projects only
+        projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
+
+        // Sort by funding progress (highest first)
+        projects.sort((a, b) => {
+            const progressA = (a.fundingAmountRaised / a.fundingGoal.amount);
+            const progressB = (b.fundingAmountRaised / b.fundingGoal.amount);
+            return progressB - progressA;
+        });
+
+        // Take top 3
+        const featuredProjects = projects.slice(0, 3);
 
         if (featuredProjects.length === 0) {
             grid.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">${t('featured-no-projects')}</p>`;
             return;
         }
 
-        // تقييد العرض لـ 3 مشاريع بحد أقصى للحفاظ على تناسق التصميم
-        featuredProjects = featuredProjects.slice(0, 3);
-
+        // === التصحيح: إضافة (project, index) هنا ===
         grid.innerHTML = featuredProjects.map((project, index) => {
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
-            const currency = project.fundingGoal?.currency || 'USD'; 
+            const currency = project.fundingGoal?.currency || 'USD'; // للحصول على العملة
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
 
@@ -248,6 +261,7 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
+            // الآن المتغير index معرف بشكل صحيح
             return `
                 <div class="reveal fade-up group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full" style="transition-delay: ${index * 100}ms">
                     
@@ -320,8 +334,13 @@ async function loadFeaturedProjects() {
         }).join('');
 
         setTimeout(() => {
-            if (typeof observeScrollElements === 'function') observeScrollElements();
+            observeScrollElements();
         }, 100);
+
+        // تشغيل دالة مراقبة التمرير لإظهار العناصر
+        if (typeof observeScrollElements === 'function') {
+            observeScrollElements();
+        }
 
     } catch (error) {
         console.error("Error loading featured projects:", error);
