@@ -38,50 +38,49 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-8">
         <!-- Filters -->
-        <div class="mb-8">
-            <div class="flex flex-wrap gap-4 justify-center items-center">
-                <button class="filter-btn active px-6 py-3 font-medium" data-filter="all"
-                    data-i18n-key="browse-filter-all">
-                    جميع المشاريع
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="تقنية" data-i18n-key="browse-filter-tech">
-                    تقنية
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="تجارة إلكترونية"
-                    data-i18n-key="browse-filter-ecommerce">
-                    تجارة إلكترونية
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="تطبيقات جوال"
-                    data-i18n-key="browse-filter-mobile-apps">
-                    تطبيقات جوال
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="ذكاء اصطناعي"
-                    data-i18n-key="browse-filter-ai">
-                    ذكاء اصطناعي
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="تقنيات مالية"
-                    data-i18n-key="browse-filter-fintech">
-                    تقنيات مالية
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="صحة" data-i18n-key="browse-filter-health">
-                    الصحة
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="تعليم"
-                    data-i18n-key="browse-filter-education">
-                    التعليم
-                </button>
-                <button class="filter-btn px-6 py-3 font-medium" data-filter="أخرى" data-i18n-key="browse-filter-other">
-                    أخرى
-                </button>
+        <section class="max-w-7xl mx-auto px-6 py-8">
+            <div class="filter-section bg-white rounded-xl shadow-lg p-6">
+                <div class="sub-filters-container flex flex-wrap gap-4 items-center justify-center">
 
-                <!-- Advanced Filter Button -->
-                <button onclick="openAdvancedFilter()"
-                    class="filter-btn px-4 py-3 font-medium flex items-center gap-2 hover:bg-blue-50 hover:border-blue-500 hover:text-blue-600 transition-all duration-300">
-                    <span class="text-lg">⚙️</span>
-                    <span data-i18n-key="browse-filter-advanced">فلترة متقدمة</span>
-                </button>
+                    <!-- 1. قائمة التصنيفات -->
+                    <div class="filter-group">
+                        <select id="categoryFilter" class="filter-select-custom">
+                            <option value="all" data-i18n-key="browse-filter-all">جميع التصنيفات</option>
+                            <option value="تقنية" data-i18n-key="browse-filter-tech">تقنية</option>
+                            <option value="تجارة إلكترونية" data-i18n-key="browse-filter-ecommerce">تجارة إلكترونية
+                            </option>
+                            <option value="تطبيقات جوال" data-i18n-key="browse-filter-mobile-apps">تطبيقات جوال</option>
+                            <option value="ذكاء اصطناعي" data-i18n-key="browse-filter-ai">ذكاء اصطناعي</option>
+                            <option value="تقنيات مالية" data-i18n-key="browse-filter-fintech">تقنيات مالية</option>
+                            <option value="صحة" data-i18n-key="browse-filter-health">الصحة</option>
+                            <option value="تعليم" data-i18n-key="browse-filter-education">التعليم</option>
+                            <option value="أخرى" data-i18n-key="browse-filter-other">أخرى</option>
+                        </select>
+                    </div>
+
+                    <!-- 2. قائمة الترتيب (خرجت من المودال) -->
+                    <div class="filter-group">
+                        <select id="sortBy" class="filter-select-custom">
+                            <option value="newest" data-i18n-key="browse-modal-filter-sort-newest">الأحدث</option>
+                            <option value="oldest" data-i18n-key="browse-modal-filter-sort-oldest">الأقدم</option>
+                            <option value="funding-high" data-i18n-key="browse-modal-filter-sort-funding-high">التمويل
+                                الأعلى</option>
+                            <option value="funding-low" data-i18n-key="browse-modal-filter-sort-funding-low">التمويل
+                                الأقل</option>
+                            <option value="views-high" data-i18n-key="browse-modal-filter-sort-views-high">الأكثر مشاهدة
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- 3. زر الفلترة المتقدمة -->
+                    <button onclick="openAdvancedFilter()" class="advanced-filter-btn">
+                        <i class="fas fa-sliders-h"></i>
+                        <span data-i18n-key="browse-filter-advanced">فلترة متقدمة</span>
+                    </button>
+
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- Projects Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projectsGrid">
@@ -218,30 +217,6 @@
                                 data-i18n-key="browse-modal-filter-progress4">76% - 100%</label>
                         </div>
                     </div>
-                </div>
-                <!-- Sort Options -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3"
-                        data-i18n-key="browse-modal-filter-sort-by">ترتيب حسب</label>
-                    <select id="sortBy"
-                        class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none">
-                        <option value="newest" data-i18n-key="browse-modal-filter-sort-newest">الأحدث
-                        </option>
-                        <option value="oldest" data-i18n-key="browse-modal-filter-sort-oldest">الأقدم
-                        </option>
-                        <option value="funding-high" data-i18n-key="browse-modal-filter-sort-funding-high">التمويل
-                            الأعلى
-                        </option>
-                        <option value="funding-low" data-i18n-key="browse-modal-filter-sort-funding-low">التمويل الأقل
-                        </option>
-                        <option value="progress-high" data-i18n-key="browse-modal-filter-sort-progress-high">الإنجاز
-                            الأعلى
-                        </option>
-                        <option value="progress-low" data-i18n-key="browse-modal-filter-sort-progress-low">الإنجاز الأقل
-                        </option>
-                        <option value="views-high" data-i18n-key="browse-modal-filter-sort-views-high">الأكثر مشاهدة
-                        </option>
-                    </select>
                 </div>
             </div>
             <div class="flex gap-4 mt-8">

@@ -165,3 +165,39 @@
         /* لون أخضر للنص */
         font-weight: 600;
     }
+
+    .filter-select-custom {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    background-color: #f9fafb;
+    min-width: 200px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    font-family: 'Cairo', sans-serif;
+}
+
+.filter-select-custom:focus {
+    outline: none;
+    border-color: #1E3A8A;
+}
+
+.advanced-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #1E3A8A 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.advanced-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+}
