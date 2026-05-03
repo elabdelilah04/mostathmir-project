@@ -91,41 +91,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let actionButtonsHTML = '';
 
-        // --- منطق الأزرار بناءً على حالة المشروع (التعديل الجديد) ---
+        // --- القاعدة الجديدة: القفل يعتمد على وجود تمويل فعلي ---
+        const hasInvestment = (project.fundingAmountRaised || 0) > 0;
 
-        // 1. إذا كان المشروع مكتمل التمويل أو انتهى
-        const isFinished = project.status === 'funded' || project.status === 'completed';
+        // المشاريع المكتملة أو التي بدأت باستلام مبالغ يتم قفلها
+        const isLocked = hasInvestment || project.status === 'funded' || project.status === 'completed';
 
-        // 2. إذا كان المشروع نشطاً (بدأ جمع الاستثمارات) أو قيد المراجعة حالياً
-        const isLocked = project.status === 'published' || project.status === 'under-review';
-
-        if (isFinished) {
-            actionButtonsHTML = `
-            <a href="project-view.html?id=${project._id}" class="action-btn btn-primary"><i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span></a>
-            <div class="action-btn btn-completed" style="background-color: #f1f5f9; color: #64748b; cursor: help;" title="${t('js-my-projects-edit-locked-note')}">
-                <i class="fas fa-lock"></i>
-                <span>${statusText}</span>
-            </div>
-        `;
-        }
-        else if (isLocked) {
-            // المشروع نشط: نمنع التعديل والحذف ونظهر زر التواصل مع الإدارة
+        if (isLocked) {
+            // حالة القفل: لا يمكن التعديل أو الحذف لوجود أموال مستثمرة
             actionButtonsHTML = `
             <a href="project-view.html?id=${project._id}" class="action-btn btn-primary">
-                <i class="fas fa-eye"></i><span>${t('my-projects-view-details')}</span>
+                <i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span>
             </a>
-            <a href="faq-support.html" class="action-btn btn-secondary" title="${t('js-my-projects-edit-locked-note')}">
+            <a href="faq-support.html" class="action-btn btn-secondary">
                 <i class="fas fa-headset"></i><span>${t('js-my-projects-contact-admin-btn')}</span>
             </a>
-            <div style="flex-basis: 100%; text-align: center; margin-top: 8px; font-size: 0.75rem; color: #ef4444; font-weight: 600;">
-                <i class="fas fa-info-circle"></i> ${t('js-my-projects-edit-locked-note')}
+            <div style="flex-basis: 100%; text-align: center; margin-top: 10px; font-size: 0.75rem; color: #ef4444; font-weight: 600;">
+                <i class="fas fa-lock"></i> ${t('js-my-projects-edit-locked-funded')}
             </div>
         `;
-        }
-        else if (project.status === 'draft' || project.status === 'needs-revision' || project.status === 'closed') {
-            // المشروع في حالة تسمح بالتعديل (مسودة، يحتاج مراجعة، أو مغلق)
+        } else {
+            // حالة السماح: (مسودة، مراجعة، منشور) طالما التمويل = 0
             const previewText = project.status === 'needs-revision' ? t('js-my-projects-view-notes-btn') : t('js-my-projects-preview-btn');
-            const editText = project.status === 'draft' ? t('js-my-projects-complete-project-btn') : t('js-my-projects-edit-btn');
+            const editText = (project.status === 'draft') ? t('js-my-projects-complete-project-btn') : t('js-my-projects-edit-btn');
 
             actionButtonsHTML = `
             <a href="project-view.html?id=${project._id}" class="action-btn btn-secondary"><i class="fas fa-eye"></i> ${previewText}</a>
@@ -153,11 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ${(project.fundingGoal && project.fundingGoal.amount > 0) ? `
             <div class="project-funding">
                 <div class="funding-item">
-                    <div class="funding-label" data-i18n-key="funding-required">${t('funding-required')}</div>
+                    <div class="funding-label">${t('funding-required')}</div>
                     <div class="funding-value required">${project.fundingGoal.amount.toLocaleString()} ${project.fundingGoal.currency}</div>
                 </div>
                 <div class="funding-item">
-                    <div class="funding-label" data-i18n-key="funding-received">${t('funding-received')}</div>
+                    <div class="funding-label">${t('funding-received')}</div>
                     <div class="funding-value collected">${(project.fundingAmountRaised || 0).toLocaleString()} ${project.fundingGoal.currency}</div>
                 </div>
             </div>

@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "js-my-projects-edit-locked-funded": "لا يمكن التعديل أو الحذف لوجود استثمارات جارية.",
       "js-project-view-btn-contact-admin": "تواصل مع الإدارة للتعديل",
       "js-project-view-btn-edit-project": "تعديل بيانات المشروع",
       "js-project-view-btn-invest-now": "استثمر في المشروع الآن",
@@ -1939,6 +1940,7 @@
     },
 
     en: {
+      "js-my-projects-edit-locked-funded": "Editing is disabled as investments have already started.",
       "js-project-view-btn-contact-admin": "Contact Admin to Edit",
       "js-project-view-btn-edit-project": "Edit Project Data",
       "js-project-view-btn-invest-now": "Invest in Project Now",

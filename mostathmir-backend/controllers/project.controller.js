@@ -86,11 +86,10 @@ const updateProject = async (req, res, next) => {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
 
-        // --- التعديل الجديد: قيد التعديل بناءً على الحالة ---
-        const lockedStatuses = ['published', 'funded', 'completed'];
-        if (lockedStatuses.includes(project.status)) {
+        // القيد الجديد: التحقق من وجود تمويل
+        if (project.fundingAmountRaised > 0) {
             return res.status(403).json({
-                message: 'لا يمكن تعديل المشروع بعد بدء مرحلة الاستثمار. يرجى التواصل مع الإدارة لأي تغييرات ضرورية.'
+                message: 'لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.'
             });
         }
         // --------
@@ -225,6 +224,15 @@ const deleteProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        // القيد الجديد: منع الحذف إذا وجد تمويل
+        if (project.fundingAmountRaised > 0) {
+            return res.status(403).json({
+                message: 'لا يمكن حذف المشروع لأنه يحتوي على استثمارات قائمة.'
+            });
+        }
+        // ..
+
         if (project.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized' });
         }

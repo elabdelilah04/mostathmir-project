@@ -72,9 +72,16 @@ function populatePage(project, baseUrl) {
     document.title = `${project.projectName} - ${t('js-project-view-page-title-suffix')}`;
 
     const currentUser = JSON.parse(localStorage.getItem('user_data'));
+    
+    // تعريف المتغيرات الأساسية للصلاحيات
     const isOwner = currentUser && project.owner && currentUser._id === project.owner._id;
     const isInvestor = currentUser && currentUser.accountType === 'investor';
     const isIdeaHolder = currentUser && currentUser.accountType === 'ideaHolder';
+    
+    // الشرط الجوهري: هل المشروع مقفل بسبب وجود استثمارات؟
+    const hasInvestment = (project.fundingAmountRaised || 0) > 0;
+    const isFunded = ['funded', 'completed'].includes(project.status);
+    const isLocked = hasInvestment || isFunded;
 
     const investorsCountEl = document.querySelector('#investorsCount');
     if (investorsCountEl) {
@@ -106,11 +113,6 @@ function populatePage(project, baseUrl) {
     const investButton = document.getElementById('investNowButton');
     const statusBadge = document.querySelector('.hero-gradient .bg-green-500');
 
-    // --- تحديث المنطق البرمجي للأزرار والحالات ---
-    
-    const isFunded = ['funded', 'completed'].includes(project.status);
-    const isLocked = ['published', 'funded', 'completed'].includes(project.status);
-
     if (statusBadge) {
         if (isFunded) {
             statusBadge.textContent = t('js-project-view-status-funded');
@@ -123,17 +125,18 @@ function populatePage(project, baseUrl) {
         }
     }
 
+    // --- تحديث منطق أزرار التحكم (الاستثمار والتعديل) ---
     if (investButton) {
-        // 1. إذا كان المستخدم هو صاحب المشروع
+        // 1. إذا كان المستخدم هو المالك
         if (isOwner) {
             if (isLocked) {
-                // المشروع نشط أو ممول: لا يمكن التعديل يدوياً
+                // المشروع مقفل (يوجد تمويل > 0): يظهر زر التواصل مع الإدارة
                 investButton.textContent = t('js-project-view-btn-contact-admin');
-                investButton.style.backgroundColor = '#4B5563'; // لون رمادي غامق
+                investButton.style.backgroundColor = '#4B5563'; // رمادي
                 investButton.disabled = false;
                 investButton.onclick = () => { window.location.href = 'faq-support.html'; };
             } else {
-                // المشروع مسودة أو يحتاج مراجعة: يمكن التعديل
+                // المشروع قابل للتعديل (تمويل = 0): يظهر زر التعديل العادي
                 investButton.textContent = (project.status === 'draft' || project.status === 'needs-revision') 
                     ? t('js-project-view-btn-complete-data') 
                     : t('js-project-view-btn-edit-project');
@@ -155,18 +158,18 @@ function populatePage(project, baseUrl) {
             }
             investButton.style.display = 'block';
         }
-        // 3. إذا كان المستخدم حامل فكرة آخر (ليس المالك)
+        // 3. إذا كان المستخدم حامل فكرة آخر (يتم إخفاء زر الاستثمار تماماً)
         else if (isIdeaHolder) {
-            investButton.style.display = 'none'; // إخفاء الزر تماماً
+            investButton.style.display = 'none';
         }
-        // 4. إذا كان زائراً غير مسجل
+        // 4. إذا كان زائراً (يوجه للتسجيل كمستثمر)
         else {
             investButton.textContent = t('js-project-view-btn-invest-now');
             investButton.onclick = () => { window.location.href = 'signup.html?type=investor'; };
             investButton.style.display = 'block';
         }
     }
-    
+
     const heroTitle = document.querySelector('.hero-gradient h1');
     if (heroTitle) heroTitle.textContent = project.projectName;
 
@@ -337,8 +340,6 @@ function populatePage(project, baseUrl) {
     document.getElementById('minInvestment').textContent = `${(project.minInvestment || 0).toLocaleString()} ${currency}`;
     if (project.equityOffered != null) {
         document.getElementById('equityOffered').textContent = `${project.equityOffered}%`;
-    } else {
-        document.getElementById('equityOffered').textContent = t('js-project-view-not-specified');
     }
 
     const videoWrapper = document.getElementById('projectVideoWrapper');
