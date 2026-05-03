@@ -73,6 +73,8 @@ function populatePage(project, baseUrl) {
 
     const currentUser = JSON.parse(localStorage.getItem('user_data'));
     const isOwner = currentUser && project.owner && currentUser._id === project.owner._id;
+    const isInvestor = currentUser && currentUser.accountType === 'investor';
+    const isIdeaHolder = currentUser && currentUser.accountType === 'ideaHolder';
 
     const investorsCountEl = document.querySelector('#investorsCount');
     if (investorsCountEl) {
@@ -104,7 +106,10 @@ function populatePage(project, baseUrl) {
     const investButton = document.getElementById('investNowButton');
     const statusBadge = document.querySelector('.hero-gradient .bg-green-500');
 
-    const isFunded = project.status === 'funded' || project.status === 'completed';
+    // --- تحديث المنطق البرمجي للأزرار والحالات ---
+    
+    const isFunded = ['funded', 'completed'].includes(project.status);
+    const isLocked = ['published', 'funded', 'completed'].includes(project.status);
 
     if (statusBadge) {
         if (isFunded) {
@@ -119,30 +124,49 @@ function populatePage(project, baseUrl) {
     }
 
     if (investButton) {
-        if (isFunded) {
-            investButton.textContent = t('js-project-view-btn-funded');
-            investButton.disabled = true;
-            investButton.style.backgroundColor = '#6b7280';
-            investButton.style.cursor = 'not-allowed';
-            investButton.onclick = null;
-        } else if (isOwner) {
-            if (project.status === 'draft' || project.status === 'needs-revision') {
-                investButton.textContent = t('js-project-view-btn-complete-data');
+        // 1. إذا كان المستخدم هو صاحب المشروع
+        if (isOwner) {
+            if (isLocked) {
+                // المشروع نشط أو ممول: لا يمكن التعديل يدوياً
+                investButton.textContent = t('js-project-view-btn-contact-admin');
+                investButton.style.backgroundColor = '#4B5563'; // لون رمادي غامق
+                investButton.disabled = false;
+                investButton.onclick = () => { window.location.href = 'faq-support.html'; };
             } else {
-                investButton.textContent = t('js-project-view-btn-edit-project');
+                // المشروع مسودة أو يحتاج مراجعة: يمكن التعديل
+                investButton.textContent = (project.status === 'draft' || project.status === 'needs-revision') 
+                    ? t('js-project-view-btn-complete-data') 
+                    : t('js-project-view-btn-edit-project');
+                investButton.onclick = () => { window.location.href = `add-project-new.html?id=${project._id}`; };
             }
-            investButton.onclick = () => {
-                window.location.href = `add-project-new.html?id=${project._id}`;
-            };
-        } else {
+            investButton.style.display = 'block';
+        } 
+        // 2. إذا كان المستخدم مستثمراً
+        else if (isInvestor) {
+            if (isFunded) {
+                investButton.textContent = t('js-project-view-btn-funded');
+                investButton.disabled = true;
+                investButton.style.backgroundColor = '#9ca3af';
+                investButton.style.cursor = 'not-allowed';
+            } else {
+                investButton.textContent = t('js-project-view-btn-invest-now');
+                investButton.disabled = false;
+                investButton.onclick = () => { window.location.href = `invest.html?id=${project._id}`; };
+            }
+            investButton.style.display = 'block';
+        }
+        // 3. إذا كان المستخدم حامل فكرة آخر (ليس المالك)
+        else if (isIdeaHolder) {
+            investButton.style.display = 'none'; // إخفاء الزر تماماً
+        }
+        // 4. إذا كان زائراً غير مسجل
+        else {
             investButton.textContent = t('js-project-view-btn-invest-now');
-            investButton.disabled = false;
-            investButton.onclick = () => {
-                window.location.href = `invest.html?id=${project._id}`;
-            };
+            investButton.onclick = () => { window.location.href = 'signup.html?type=investor'; };
+            investButton.style.display = 'block';
         }
     }
-
+    
     const heroTitle = document.querySelector('.hero-gradient h1');
     if (heroTitle) heroTitle.textContent = project.projectName;
 
@@ -159,9 +183,7 @@ function populatePage(project, baseUrl) {
 
     const heroCategory = document.querySelector('.hero-gradient .bg-opacity-20');
     if (heroCategory && project.projectCategory) {
-        // ابحث عن مفتاح الترجمة المطابق لقيمة الفئة
         const translationKey = categoryTranslationKeys[project.projectCategory];
-        // استخدم الدالة t() لترجمة المفتاح، أو اعرض القيمة الأصلية إذا لم يتم العثور على مفتاح
         heroCategory.textContent = translationKey ? t(translationKey) : project.projectCategory;
     }
 
@@ -180,9 +202,6 @@ function populatePage(project, baseUrl) {
     if (progressBar) {
         setTimeout(() => { progressBar.style.width = `${progressPercent}%`; }, 300);
     }
-
-    // const heroReturn = document.getElementById('hero-expected-return');
-    // if (heroReturn) heroReturn.textContent = `${project.expectedReturn || 0}%`;
 
     const mainDesc = document.querySelector('.prose p:first-of-type');
     if (mainDesc) mainDesc.textContent = project.detailedDescription || project.projectDescription;
