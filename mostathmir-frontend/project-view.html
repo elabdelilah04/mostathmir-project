@@ -118,6 +118,31 @@
                     </div>
                 </div>
 
+                <!-- قسم معرض الصور (مخفي افتراضياً) -->
+                <div id="projectImagesWrapper" class="bg-white rounded-xl p-8 shadow-sm overflow-hidden"
+                    style="display: none;">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-images-title">معرض
+                        الصور</h2>
+
+                    <div class="relative group">
+                        <!-- زر التمرير لليمين -->
+                        <button onclick="scrollImages('right')" class="carousel-nav-btn right-2">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <!-- حاوية الصور القابلة للتمرير -->
+                        <div id="imagesCarousel"
+                            class="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory hide-scrollbar">
+                            <!-- الصور سيتم حقنها هنا عبر JS -->
+                        </div>
+
+                        <!-- زر التمرير لليسار -->
+                        <button onclick="scrollImages('left')" class="carousel-nav-btn left-2">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-xl p-8 shadow-sm">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n-key="project-view-features-title">
                         الميزات الرئيسية</h2>

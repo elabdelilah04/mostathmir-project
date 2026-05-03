@@ -149,3 +149,63 @@ body {
     border-left: 5px solid;
     transition: box-shadow 0.2s ease;
 }
+
+/* إخفاء شريط التمرير */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* أزرار التنقل في المعرض */
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1E3A8A;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    opacity: 0;
+    /* تختفي وتظهر عند مرور الفأرة */
+}
+
+.group:hover .carousel-nav-btn {
+    opacity: 1;
+}
+
+.carousel-nav-btn:hover {
+    background: #1E3A8A;
+    color: white;
+}
+
+/* بطاقة الصورة الفردية */
+.carousel-image-item {
+    min-width: 85%;
+    /* على الجوال تظهر صورة واحدة تقريباً */
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    scroll-snap-align: center;
+    border: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+    .carousel-image-item {
+        min-width: 48%;
+        /* على الحاسوب تظهر صورتين */
+        height: 400px;
+    }
+}

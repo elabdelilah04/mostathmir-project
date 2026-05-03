@@ -72,12 +72,12 @@ function populatePage(project, baseUrl) {
     document.title = `${project.projectName} - ${t('js-project-view-page-title-suffix')}`;
 
     const currentUser = JSON.parse(localStorage.getItem('user_data'));
-    
+
     // تعريف المتغيرات الأساسية للصلاحيات
     const isOwner = currentUser && project.owner && currentUser._id === project.owner._id;
     const isInvestor = currentUser && currentUser.accountType === 'investor';
     const isIdeaHolder = currentUser && currentUser.accountType === 'ideaHolder';
-    
+
     // الشرط الجوهري: هل المشروع مقفل بسبب وجود استثمارات؟
     const hasInvestment = (project.fundingAmountRaised || 0) > 0;
     const isFunded = ['funded', 'completed'].includes(project.status);
@@ -137,13 +137,13 @@ function populatePage(project, baseUrl) {
                 investButton.onclick = () => { window.location.href = 'faq-support.html'; };
             } else {
                 // المشروع قابل للتعديل (تمويل = 0): يظهر زر التعديل العادي
-                investButton.textContent = (project.status === 'draft' || project.status === 'needs-revision') 
-                    ? t('js-project-view-btn-complete-data') 
+                investButton.textContent = (project.status === 'draft' || project.status === 'needs-revision')
+                    ? t('js-project-view-btn-complete-data')
                     : t('js-project-view-btn-edit-project');
                 investButton.onclick = () => { window.location.href = `add-project-new.html?id=${project._id}`; };
             }
             investButton.style.display = 'block';
-        } 
+        }
         // 2. إذا كان المستخدم مستثمراً
         else if (isInvestor) {
             if (isFunded) {
@@ -208,6 +208,27 @@ function populatePage(project, baseUrl) {
 
     const mainDesc = document.querySelector('.prose p:first-of-type');
     if (mainDesc) mainDesc.textContent = project.detailedDescription || project.projectDescription;
+
+    // --- منطق معرض الصور ---
+    const imagesWrapper = document.getElementById('projectImagesWrapper');
+    const carousel = document.getElementById('imagesCarousel');
+
+    // نتحقق من وجود مصفوفة الصور وأنها ليست فارغة
+    if (project.projectImages && project.projectImages.length > 0) {
+        imagesWrapper.style.display = 'block';
+
+        carousel.innerHTML = project.projectImages.map(imgUrl => `
+            <div class="carousel-image-item shrink-0 shadow-sm">
+                <img src="${imgUrl}" 
+                     class="w-full h-full object-cover cursor-pointer" 
+                     onclick="window.open('${imgUrl}', '_blank')" 
+                     alt="Project Screenshot">
+            </div>
+        `).join('');
+    } else {
+        // إخفاء القسم بالكامل إذا لم توجد صور
+        imagesWrapper.style.display = 'none';
+    }
 
     const featuresContainer = document.getElementById('keyFeaturesContainer');
     if (featuresContainer && project.keyFeatures && project.keyFeatures.length > 0) {
@@ -644,3 +665,14 @@ function populateParticipatingInvestorsModal(investors) {
 
     openModal();
 }
+
+window.scrollImages = (direction) => {
+    const carousel = document.getElementById('imagesCarousel');
+    const scrollAmount = carousel.offsetWidth * 0.8; // تمرير 80% من عرض الشاشة
+
+    if (direction === 'right') {
+        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    } else {
+        carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
+};
