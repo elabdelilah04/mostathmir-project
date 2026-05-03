@@ -3416,7 +3416,7 @@
       "addproject-progress-documents": "Documents",
       // ==== Brand ====
       "brand.logoAlt": "MoustaThmir Logo",
-      "brand.name": "MoustaThmir",
+      "brandname": "MoustaThmir",
 
       // ==== Header ====
       "header.messages": "Messages",
