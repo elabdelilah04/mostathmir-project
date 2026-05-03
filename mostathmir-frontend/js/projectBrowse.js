@@ -145,9 +145,9 @@ function getAdvancedFilterValues() {
         ].filter(Boolean),
 
         statuses: [
-            document.getElementById('status1')?.checked ? 'active' : null,
-            document.getElementById('status2')?.checked ? 'seeking' : null,
-            document.getElementById('status3')?.checked ? 'funded' : null
+            document.getElementById('status1')?.checked ? 'active_invested' : null,
+            document.getElementById('status2')?.checked ? 'zero_funding' : null,
+            document.getElementById('status3')?.checked ? 'completed_funding' : null
         ].filter(Boolean),
 
         progressRanges: [
@@ -260,15 +260,27 @@ function applyFiltersAndSearch() {
             if (!match) return false; // إذا لم يطابق النطاق المختار، استبعد المشروع
         }
 
-        // ب- فحص حالة المشروع (الإصلاح هنا)
+        // ب- فحص حالة المشروع (التفرقة الدقيقة بين نشط ويبحث عن تمويل)
         if (advanced.statuses.length > 0) {
             let match = false;
-            // 'active' تعني منشور ويبحث عن تمويل
-            if (advanced.statuses.includes('active') && (status === 'published' || status === 'funding')) match = true;
-            // 'seeking' تعني منشور ولم يصل للهدف بعد
-            if (advanced.statuses.includes('seeking') && status === 'published' && raised < goal) match = true;
-            // 'funded' تعني وصل للهدف أو اكتمل
-            if (advanced.statuses.includes('funded') && (status === 'funded' || status === 'completed')) match = true;
+
+            // 1. "نشط" - قيد التمويل (تم نشر المشروع وحصل فعلاً على استثمارات > 0 لكن لم يكتمل بعد)
+            if (advanced.statuses.includes('active_invested') &&
+                status === 'published' && raised > 0 && raised < goal) {
+                match = true;
+            }
+
+            // 2. "يبحث عن تمويل" - (تم نشر المشروع لكنه لا يزال عند 0 تمويل)
+            if (advanced.statuses.includes('zero_funding') &&
+                status === 'published' && (raised === 0 || !raised)) {
+                match = true;
+            }
+
+            // 3. "مكتمل التمويل" - (وصل للهدف أو تم إغلاقه كمكتمل)
+            if (advanced.statuses.includes('completed_funding') &&
+                (status === 'funded' || status === 'completed' || raised >= goal)) {
+                match = true;
+            }
 
             if (!match) return false;
         }
