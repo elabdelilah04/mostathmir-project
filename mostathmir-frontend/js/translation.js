@@ -4,6 +4,10 @@
   // =========================
   const dict = {
     ar: {
+      "js-project-view-btn-contact-admin": "تواصل مع الإدارة للتعديل",
+      "js-project-view-btn-edit-project": "تعديل بيانات المشروع",
+      "js-project-view-btn-invest-now": "استثمر في المشروع الآن",
+      "js-project-view-btn-funded": "مشروع مكتمل التمويل",
       "js-my-projects-edit-locked-note": "لا يمكن التعديل أو الحذف بعد نشر المشروع أو بدء المراجعة.",
       "js-my-projects-contact-admin-btn": "طلب تعديل",
       "profile-view-public-hint": "معاينة ملفي كما يراه الآخرون",
@@ -1935,6 +1939,10 @@
     },
 
     en: {
+      "js-project-view-btn-contact-admin": "Contact Admin to Edit",
+      "js-project-view-btn-edit-project": "Edit Project Data",
+      "js-project-view-btn-invest-now": "Invest in Project Now",
+      "js-project-view-btn-funded": "Project Fully Funded",
       "js-my-projects-edit-locked-note": "لا يمكن التعديل أو الحذف بعد نشر المشروع أو بدء المراجعة.",
       "js-my-projects-contact-admin-btn": "طلب تعديل",
       "profile-view-public-hint": "Preview my public profile",
