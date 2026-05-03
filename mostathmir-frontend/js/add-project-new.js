@@ -396,24 +396,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.saveDraft = (buttonElement) => submitProject("draft", buttonElement);
     window.submitForReview = (buttonElement) => {
-        const requiredFields = ["projectName", "projectDescription", "projectCategory", "projectCountry", "projectCity", "fundingGoal", "minInvestment", , "equityOffered"];
+        // 1. التحقق من الحقول الإلزامية
+        const requiredFields = ["projectName", "projectDescription", "projectCategory", "projectCountry", "projectCity", "fundingGoal", "minInvestment", "equityOffered"];
         let isValid = true;
+
         requiredFields.forEach(id => {
             const field = document.getElementById(id);
-            if (!field.value.trim()) {
+            if (!field || !field.value.trim()) {
                 isValid = false;
-                field.classList.add("border-red-500");
+                if (field) field.classList.add("border-red-500");
             } else {
                 field.classList.remove("border-red-500");
             }
         });
+
         if (!isValid) return alert(t('js-addproject-alert-fill-required-fields'));
 
-        // --- بداية التحسينات المقترحة ---
-
+        // 2. التحقق من القيم الرقمية والحدود
         let errorMessages = [];
-
-        // 1. التحقق من القيم الرقمية والحدود
         const fundingGoal = parseInt(document.getElementById("fundingGoal").value, 10);
         if (isNaN(fundingGoal) || fundingGoal <= 0) {
             errorMessages.push(t("js-addproject-error-funding-positive"));
@@ -431,24 +431,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             errorMessages.push(t("js-addproject-error-equity-between-1-100"));
         }
 
-        // 2. التحقق من الملفات المرفوعة (إذا كانت مطلوبة عند الإرسال)
-        // const businessPlanFile = document.getElementById("businessPlan").files[0];
-        // if (!isEditMode && !businessPlanFile) { // مثال: إذا كانت خطة العمل مطلوبة فقط عند الإنشاء لأول مرة
-        //     errorMessages.push(t("js-addproject-error-business-plan-required"));
-        // }
-        // يمكن إضافة تحقق من امتداد الملفات هنا أيضاً
-
         if (errorMessages.length > 0) {
             alert(t("js-addproject-error-validation-summary") + "\n- " + errorMessages.join("\n- "));
             return;
         }
 
+        // 3. التحقق من توزيع الميزانية
         const total = expenseItems.reduce((sum, item) => sum + item.percent, 0);
         if (!isEditMode && total > 0 && total !== 100) {
-            const confirmMsg = `${t('js-addproject-confirm-percent-part1')} ${total}%. ${t('js-addproject-confirm-percent-part2')}`;
-            if (!confirm(confirmMsg)) return;
+            const budgetConfirm = `${t('js-addproject-confirm-percent-part1')} ${total}%. ${t('js-addproject-confirm-percent-part2')}`;
+            if (!confirm(budgetConfirm)) return;
         }
 
+        // --- 4. التعديل الجديد: رسالة التأكيد النهائية وقفل البيانات ---
+        const finalWarning = t('js-addproject-confirm-submit-body');
+        if (!confirm(finalWarning)) {
+            return; // توقف إذا الغى المستخدم العملية
+        }
+
+        // تنفيذ الإرسال بعد اجتياز كل التحققات وموافقة المستخدم
         submitProject("under-review", buttonElement);
     };
     window.previewProject = () => {

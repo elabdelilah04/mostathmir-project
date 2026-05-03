@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "js-addproject-confirm-submit-body": "تنبيه هام: يرجى التأكد من دقة واكتمال كافة البيانات (خاصة الأهداف المالية والنسب المعروضة). بمجرد الموافقة على المشروع وبدء أول عملية استثمار، لن تتمكن من تعديل هذه البيانات إلا عبر التواصل المباشر مع الإدارة. هل أنت متأكد من رغبتك في الإرسال الآن؟",
       "js-my-projects-edit-locked-funded": "لا يمكن التعديل أو الحذف لوجود استثمارات جارية.",
       "js-project-view-btn-contact-admin": "تواصل مع الإدارة للتعديل",
       "js-project-view-btn-edit-project": "تعديل بيانات المشروع",
@@ -1940,6 +1941,7 @@
     },
 
     en: {
+      "js-addproject-confirm-submit-body": "Important Warning: Please ensure all data is accurate and complete (especially financial goals and equity offered). Once the project is approved and the first investment is made, you will not be able to edit this data without contacting administration. Are you sure you want to submit now?",
       "js-my-projects-edit-locked-funded": "Editing is disabled as investments have already started.",
       "js-project-view-btn-contact-admin": "Contact Admin to Edit",
       "js-project-view-btn-edit-project": "Edit Project Data",
