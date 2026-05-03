@@ -122,4 +122,22 @@ const getAdminStats = async (req, res, next) => {
     }
 };
 
-module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats };
+const toggleFeaturedStatus = async (req, res, next) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ message: 'المشروع غير موجود' });
+
+        // عكس القيمة الحالية
+        project.isFeatured = !project.isFeatured;
+        await project.save();
+
+        res.json({
+            message: project.isFeatured ? 'تمت إضافة المشروع للمشاريع المميزة' : 'تمت إزالة المشروع من المميزة',
+            isFeatured: project.isFeatured
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus };

@@ -22,7 +22,10 @@ const projectSchema = new mongoose.Schema({
     owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     projectName: { type: String, trim: true },
     projectCategory: { type: String },
-
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
     projectStage: {
         type: String,
         enum: ['idea', 'in-progress', 'established'],

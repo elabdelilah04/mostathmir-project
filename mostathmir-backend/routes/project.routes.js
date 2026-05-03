@@ -14,7 +14,8 @@ const {
     getAllProjects,
     toggleFollowProject,
     deleteProjectFile,
-    getInvestmentsInMyProjects
+    getInvestmentsInMyProjects,
+    getFeaturedProjects
 } = require('../controllers/project.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 
@@ -85,5 +86,6 @@ router.put(
 router.delete('/:id/file', protect, deleteProjectFile);
 router.delete('/:id', protect, deleteProject);
 router.post('/:id/follow', protect, toggleFollowProject);
+router.get('/featured', getAuthUser, getFeaturedProjects);
 
 module.exports = router;

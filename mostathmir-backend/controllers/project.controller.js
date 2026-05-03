@@ -421,6 +421,65 @@ const getInvestmentsInMyProjects = async (req, res, next) => {
     }
 };
 
+// ==========================================
+// التعديلات الجديدة للأدمن (المشاريع المميزة)
+// ==========================================
+
+// 1. دالة للأدمن لتمييز المشروع أو إلغاء تمييزه
+const adminToggleFeatured = async (req, res, next) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ message: 'المشروع غير موجود' });
+
+        project.isFeatured = !project.isFeatured;
+        await project.save();
+
+        res.json({ 
+            message: project.isFeatured ? 'تم تمييز المشروع بنجاح' : 'تم إلغاء تمييز المشروع',
+            isFeatured: project.isFeatured 
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// 2. دالة لجلب المشاريع المميزة فقط للهوم بيج (مع مراعاة الخصوصية)
+const getFeaturedProjects = async (req, res, next) => {
+    try {
+        // المشاريع المميزة تظهر فقط للمسجلين لضمان تفاعل أعلى
+        if (!req.user) return res.json([]);
+
+        const user = req.user;
+        const query = {
+            isFeatured: true,
+            status: 'published',
+            $and: [
+                {
+                    $or: [
+                        { visibilityScope: 'public' },
+                        { visibilityScope: 'investors_only', $expr: { $eq: [user.accountType, 'investor'] } }
+                    ]
+                },
+                {
+                    $or: [
+                        { accessRestriction: 'all' },
+                        { accessRestriction: 'verified_only', $expr: { $eq: [user.isPhoneVerified, true] } }
+                    ]
+                }
+            ]
+        };
+
+        const projects = await Project.find(query)
+            .populate('owner', 'fullName profileTitle profilePicture')
+            .limit(6)
+            .sort({ updatedAt: -1 });
+
+        res.json(projects);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     createProject,
     getMyProjects,
@@ -431,4 +490,6 @@ module.exports = {
     toggleFollowProject,
     deleteProjectFile,
     getInvestmentsInMyProjects,
+    adminToggleFeatured, // تصدير الدالة الجديدة
+    getFeaturedProjects    // تصدير الدالة الجديدة
 };
