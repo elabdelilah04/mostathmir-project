@@ -307,14 +307,15 @@ function getAvatarColor(initial) {
     return colors[charCode % colors.length];
 }
 
-
 window.openProjectDetails = function (project) {
     if (!project) return;
     window.currentProject = project;
 
+    // 1. تعبئة بيانات المشروع الأساسية
     document.getElementById('modalTitle').textContent = project.projectName || t('js-modal-untitled-project');
     const categoryKey = categoryTranslationKeys[project.projectCategory] || 'js-modal-category-general';
-    document.getElementById('modalCategory').textContent = t(categoryKey); document.getElementById('modalDescription').textContent = (project.projectDescription || '').substring(0, 200) + '...';
+    document.getElementById('modalCategory').textContent = t(categoryKey);
+    document.getElementById('modalDescription').textContent = (project.projectDescription || '').substring(0, 200) + '...';
 
     const goal = project.fundingGoal ? project.fundingGoal.amount || 0 : 0;
     const raised = project.fundingAmountRaised || 0;
@@ -326,6 +327,7 @@ window.openProjectDetails = function (project) {
     document.getElementById('modalProgress').textContent = `${progress}% ${t('js-modal-completed')}`;
     document.getElementById('modalProgressBar').style.width = `${progress}%`;
 
+    // 2. تعبئة بيانات صاحب المشروع
     const ownerId = project.owner?._id || 'default';
     const ownerName = project.owner?.fullName || t('js-modal-entrepreneur');
 
@@ -345,15 +347,27 @@ window.openProjectDetails = function (project) {
     document.getElementById('modalOwnerAvatar').textContent = ownerInitial;
     document.getElementById('modalOwnerAvatar').className = `w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${avatarColor}`;
 
+    // 3. إعداد أزرار الإجراءات (التفاصيل والاستثمار)
     const fullDetailsButton = document.getElementById('btnOpenFullDetails');
     if (fullDetailsButton) {
         fullDetailsButton.href = `project-view.html?id=${project._id}`;
     }
+
+    // --- التعديل الجديد: إخفاء زر الاستثمار لحسابات أصحاب الأفكار ---
     const investButton = document.getElementById('btnInvestInProject');
+    const currentUser = JSON.parse(localStorage.getItem('user_data'));
+
     if (investButton) {
-        investButton.href = `invest.html?id=${project._id}`;
+        // التحقق مما إذا كان المستخدم مسجل الدخول ونوع حسابه "صاحب فكرة"
+        if (currentUser && currentUser.accountType === 'ideaHolder') {
+            investButton.style.display = 'none'; // إخفاء الزر
+        } else {
+            investButton.style.display = 'block'; // إظهاره للمستثمرين والزوار
+            investButton.href = `invest.html?id=${project._id}`;
+        }
     }
 
+    // إظهار المودال
     document.getElementById('projectModal').classList.remove('hidden');
 }
 
@@ -414,18 +428,12 @@ function applyBrowseLock() {
     if (!grid) return;
 
     if (grid.parentElement.querySelector('.browse-overlay')) return;
-
-    // wrapper
     const wrapper = document.createElement('div');
     wrapper.className = 'browse-wrapper';
 
     grid.parentNode.insertBefore(wrapper, grid);
     wrapper.appendChild(grid);
-
-    // blur فقط للكروت
     grid.classList.add('blurred');
-
-    // overlay
     const overlay = document.createElement('div');
     overlay.className = 'browse-overlay';
 
