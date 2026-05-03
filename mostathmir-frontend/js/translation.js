@@ -1423,7 +1423,7 @@
       "addproject-progress-documents": "المستندات",
       // ==== Brand ====
       "brand.logoAlt": "شعار مستثمر",
-      "brand.name": "مستثمر",
+      "brandname": "مستثمر",
 
       // ==== Header ====
       "header.messages": "الرسائل",
