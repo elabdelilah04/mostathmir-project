@@ -136,113 +136,27 @@ async function fetchProjects() {
     }
 }
 
-// function applyFiltersAndSearch() {
-//     let filtered = [...allProjectsData];
-
-//     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-//     if (searchTerm) {
-//         filtered = filtered.filter(p =>
-//             (p.projectName && p.projectName.toLowerCase().includes(searchTerm)) ||
-//             (p.projectDescription && p.projectDescription.toLowerCase().includes(searchTerm))
-//         );
-//     }
-
-//     const activeFilterBtn = document.querySelector('.filter-btn.active');
-//     const quickFilter = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
-
-//     if (quickFilter !== 'all') {
-//         filtered = filtered.filter(p => (p.projectCategory || t('js-browse-category-other')).toLowerCase() === quickFilter.toLowerCase());
-//     }
-
-//     const advancedFilters = getAdvancedFilterValues();
-
-//     if (advancedFilters.fundingRanges.length > 0 || advancedFilters.statuses.length > 0 || advancedFilters.progressRanges.length > 0) {
-//         filtered = filtered.filter(project => {
-//             const goal = project.fundingGoal ? project.fundingGoal.amount || 0 : 0;
-//             const progress = goal > 0 ? Math.round((project.fundingAmountRaised / goal) * 100) : 0;
-//             const status = project.status || 'draft';
-//             let passesFilter = true;
-
-//             if (advancedFilters.fundingRanges.length > 0) {
-//                 let matchesFunding = false;
-//                 if (advancedFilters.fundingRanges.includes('low') && goal < 100000) matchesFunding = true;
-//                 if (advancedFilters.fundingRanges.includes('medium') && goal >= 100000 && goal <= 200000) matchesFunding = true;
-//                 if (advancedFilters.fundingRanges.includes('high') && goal > 200000) matchesFunding = true;
-//                 if (!matchesFunding) passesFilter = false;
-//             }
-
-//             if (passesFilter && advancedFilters.statuses.length > 0) {
-//                 let matchesStatus = false;
-//                 if (advancedFilters.statuses.includes('active') && (status === 'published' || status === 'funding')) matchesStatus = true;
-//                 if (advancedFilters.statuses.includes('funding') && status === 'funding') matchesStatus = true;
-//                 if (advancedFilters.statuses.includes('completed') && status === 'completed') matchesStatus = true;
-
-//                 if (!matchesStatus) passesFilter = false;
-//             }
-
-//             if (passesFilter && advancedFilters.progressRanges.length > 0) {
-//                 let matchesProgress = false;
-//                 if (advancedFilters.progressRanges.includes('0-25') && progress >= 0 && progress <= 25) matchesProgress = true;
-//                 if (advancedFilters.progressRanges.includes('26-50') && progress >= 26 && progress <= 50) matchesProgress = true;
-//                 if (advancedFilters.progressRanges.includes('51-75') && progress >= 51 && progress <= 75) matchesProgress = true;
-//                 if (advancedFilters.progressRanges.includes('76-100') && progress >= 76 && progress <= 100) matchesProgress = true;
-//                 if (!matchesProgress) passesFilter = false;
-//             }
-
-//             return passesFilter;
-//         });
-//     }
-
-//     const sortBy = document.getElementById('sortBy')?.value;
-
-//     if (sortBy) {
-//         filtered.sort((a, b) => {
-//             const goalA = a.fundingGoal ? a.fundingGoal.amount || 0 : 0;
-//             const raisedA = a.fundingAmountRaised || 0;
-//             const progressA = goalA > 0 ? (raisedA / goalA) : 0;
-//             const viewsA = a.views || 0;
-//             const dateA = new Date(a.createdAt);
-
-//             const goalB = b.fundingGoal ? b.fundingGoal.amount || 0 : 0;
-//             const raisedB = b.fundingAmountRaised || 0;
-//             const progressB = goalB > 0 ? (raisedB / goalB) : 0;
-//             const viewsB = b.views || 0;
-//             const dateB = new Date(b.createdAt);
-
-//             switch (sortBy) {
-//                 case 'newest': return dateB - dateA;
-//                 case 'oldest': return dateA - dateB;
-//                 case 'funding-high': return goalB - goalA;
-//                 case 'funding-low': return goalA - goalB;
-//                 case 'progress-high': return progressB - progressA;
-//                 case 'progress-low': return progressA - progressB;
-//                 case 'views-high': return viewsB - viewsA;
-//                 default: return 0;
-//             }
-//         });
-//     }
-
-//     renderProjects(filtered);
-// }
-
 function getAdvancedFilterValues() {
-    const fundingRanges = [];
-    if (document.getElementById('range1')?.checked) fundingRanges.push('low');
-    if (document.getElementById('range2')?.checked) fundingRanges.push('medium');
-    if (document.getElementById('range3')?.checked) fundingRanges.push('high');
+    return {
+        fundingRanges: [
+            document.getElementById('range1')?.checked ? 'low' : null,
+            document.getElementById('range2')?.checked ? 'medium' : null,
+            document.getElementById('range3')?.checked ? 'high' : null
+        ].filter(Boolean),
 
-    const statuses = [];
-    if (document.getElementById('status1')?.checked) statuses.push('active');
-    if (document.getElementById('status2')?.checked) statuses.push('funding');
-    if (document.getElementById('status3')?.checked) statuses.push('completed');
+        statuses: [
+            document.getElementById('status1')?.checked ? 'active' : null,
+            document.getElementById('status2')?.checked ? 'seeking' : null,
+            document.getElementById('status3')?.checked ? 'funded' : null
+        ].filter(Boolean),
 
-    const progressRanges = [];
-    if (document.getElementById('progress1')?.checked) progressRanges.push('0-25');
-    if (document.getElementById('progress2')?.checked) progressRanges.push('26-50');
-    if (document.getElementById('progress3')?.checked) progressRanges.push('51-75');
-    if (document.getElementById('progress4')?.checked) progressRanges.push('76-100');
-
-    return { fundingRanges, statuses, progressRanges };
+        progressRanges: [
+            document.getElementById('progress1')?.checked ? '0-25' : null,
+            document.getElementById('progress2')?.checked ? '26-50' : null,
+            document.getElementById('progress3')?.checked ? '51-75' : null,
+            document.getElementById('progress4')?.checked ? '76-100' : null
+        ].filter(Boolean)
+    };
 }
 
 window.applyAdvancedFilter = function () {
@@ -285,22 +199,6 @@ window.closeAdvancedFilter = function () {
     document.getElementById('advancedFilterModal').classList.add('hidden');
 }
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     fetchProjects();
-//     document.querySelectorAll('.filter-btn').forEach(button => {
-//         button.addEventListener('click', function () {
-//             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-//             this.classList.add('active');
-//             applyFiltersAndSearch();
-//         });
-//     });
-//     document.getElementById('searchInput').addEventListener('input', applyFiltersAndSearch);
-//     document.addEventListener('click', function (e) {
-//         if (e.target.id === 'advancedFilterModal' && e.target.classList.contains('modal')) {
-//             window.closeAdvancedFilter();
-//         }
-//     });
-// });
 document.addEventListener('DOMContentLoaded', () => {
     // جلب المشاريع عند التحميل
     fetchProjects();
@@ -336,46 +234,69 @@ function applyFiltersAndSearch() {
         );
     }
 
-    // 2. فلتر التصنيف (من القائمة المنسدلة)
-    const categoryValue = document.getElementById('categoryFilter').value;
-    if (categoryValue !== 'all') {
+    // 2. فلتر التصنيف المنسدل
+    const categoryValue = document.getElementById('categoryFilter')?.value;
+    if (categoryValue && categoryValue !== 'all') {
         filtered = filtered.filter(p =>
-            (p.projectCategory || t('js-browse-category-other')).toLowerCase() === categoryValue.toLowerCase()
+            (p.projectCategory || '').toLowerCase() === categoryValue.toLowerCase()
         );
     }
 
-    // 3. الفلترة المتقدمة (الحالات، المبالغ، الإنجاز)
-    const advancedFilters = getAdvancedFilterValues();
-    if (advancedFilters.fundingRanges.length > 0 || advancedFilters.statuses.length > 0 || advancedFilters.progressRanges.length > 0) {
-        filtered = filtered.filter(project => {
-            const goal = project.fundingGoal ? project.fundingGoal.amount || 0 : 0;
-            const raised = project.fundingAmountRaised || 0;
-            const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
-            const status = project.status || 'draft';
+    // 3. تطبيق الفلترة المتقدمة
+    const advanced = getAdvancedFilterValues();
 
-            let passes = true;
-            if (advancedFilters.fundingRanges.length > 0) {
-                let m = false;
-                if (advancedFilters.fundingRanges.includes('low') && goal < 100000) m = true;
-                if (advancedFilters.fundingRanges.includes('medium') && goal >= 100000 && goal <= 200000) m = true;
-                if (advancedFilters.fundingRanges.includes('high') && goal > 200000) m = true;
-                if (!m) passes = false;
-            }
-            // ... (باقي شروط الحالات والتقدم كما هي)
-            return passes;
-        });
-    }
+    filtered = filtered.filter(project => {
+        const goal = project.fundingGoal?.amount || 0;
+        const raised = project.fundingAmountRaised || 0;
+        const progress = goal > 0 ? (raised / goal) * 100 : 0;
+        const status = project.status; // مثل 'published', 'funded'
 
-    // 4. الترتيب (من القائمة المنسدلة الخارجية)
-    const sortBy = document.getElementById('sortBy').value;
+        // أ- فحص نطاق التمويل
+        if (advanced.fundingRanges.length > 0) {
+            let match = false;
+            if (advanced.fundingRanges.includes('low') && goal < 100000) match = true;
+            if (advanced.fundingRanges.includes('medium') && goal >= 100000 && goal <= 200000) match = true;
+            if (advanced.fundingRanges.includes('high') && goal > 200000) match = true;
+            if (!match) return false; // إذا لم يطابق النطاق المختار، استبعد المشروع
+        }
+
+        // ب- فحص حالة المشروع (الإصلاح هنا)
+        if (advanced.statuses.length > 0) {
+            let match = false;
+            // 'active' تعني منشور ويبحث عن تمويل
+            if (advanced.statuses.includes('active') && (status === 'published' || status === 'funding')) match = true;
+            // 'seeking' تعني منشور ولم يصل للهدف بعد
+            if (advanced.statuses.includes('seeking') && status === 'published' && raised < goal) match = true;
+            // 'funded' تعني وصل للهدف أو اكتمل
+            if (advanced.statuses.includes('funded') && (status === 'funded' || status === 'completed')) match = true;
+
+            if (!match) return false;
+        }
+
+        // ج- فحص نسبة الإنجاز
+        if (advanced.progressRanges.length > 0) {
+            let match = false;
+            if (advanced.progressRanges.includes('0-25') && progress <= 25) match = true;
+            if (advanced.progressRanges.includes('26-50') && progress > 25 && progress <= 50) match = true;
+            if (advanced.progressRanges.includes('51-75') && progress > 50 && progress <= 75) match = true;
+            if (advanced.progressRanges.includes('76-100') && progress > 75) match = true;
+
+            if (!match) return false;
+        }
+
+        return true; // إذا اجتاز كل الفلاتر
+    });
+
+    // 4. الترتيب النهائي
+    const sortBy = document.getElementById('sortBy')?.value;
     if (sortBy) {
         filtered.sort((a, b) => {
             const goalA = a.fundingGoal?.amount || 0;
             const goalB = b.fundingGoal?.amount || 0;
-            const viewsA = a.views || 0;
-            const viewsB = b.views || 0;
             const dateA = new Date(a.createdAt);
             const dateB = new Date(b.createdAt);
+            const viewsA = a.views || 0;
+            const viewsB = b.views || 0;
 
             switch (sortBy) {
                 case 'newest': return dateB - dateA;
@@ -390,6 +311,7 @@ function applyFiltersAndSearch() {
 
     renderProjects(filtered);
 }
+
 function getAvatarColor(initial) {
     const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-orange-600', 'bg-red-600', 'bg-indigo-600'];
     const charCode = initial.charCodeAt(0);
