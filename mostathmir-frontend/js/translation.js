@@ -4,6 +4,19 @@
   // =========================
   const dict = {
     ar: {
+      "addproject-visibility-section-title": "خصوصية عرض المشروع",
+      "addproject-visibility-scope-label": "من يمكنه رؤية المشروع؟",
+      "addproject-visibility-public-title": "الجميع",
+      "addproject-visibility-public-desc": "رواد الأعمال والمستثمرون (المسجلون)",
+      "addproject-visibility-investors-title": "للمستثمرين فقط",
+      "addproject-visibility-investors-desc": "  لن يظهر المشروع لرواد الأعمال الأخرين",
+
+      "addproject-access-restriction-label": "تقييد الوصول حسب حالة الحساب",
+      "addproject-access-all-title": "لجميع المستخدمين",
+      "addproject-access-verified-title": "للحسابات الموثقة فقط",
+      "addproject-access-verified-desc": "للمستخدمين الذين أكدوا رقم الهاتف أو الوثائق",
+
+      "js-project-view-private-notice": "هذا المشروع متاح فقط للمستثمرين أو الحسابات الموثقة.",
       "project-view-images-title": "صور من المشروع",
       "js-addproject-confirm-submit-body": "تنبيه هام: يرجى التأكد من دقة واكتمال كافة البيانات (خاصة الأهداف المالية والنسب المعروضة). بمجرد الموافقة على المشروع وبدء أول عملية استثمار، لن تتمكن من تعديل هذه البيانات إلا عبر التواصل المباشر مع الإدارة. هل أنت متأكد من رغبتك في الإرسال الآن؟",
       "js-my-projects-edit-locked-funded": "لا يمكن التعديل أو الحذف لوجود استثمارات جارية.",
@@ -1942,6 +1955,20 @@
     },
 
     en: {
+
+      "addproject-visibility-section-title": "Project Visibility Privacy",
+      "addproject-visibility-scope-label": "Who can see the project?",
+      "addproject-visibility-public-title": "Everyone",
+      "addproject-visibility-public-desc": "Entrepreneurs and Investors (Registered)",
+      "addproject-visibility-investors-title": "Investors Only",
+      "addproject-visibility-investors-desc": "Protect your idea from competitors (other entrepreneurs)",
+
+      "addproject-access-restriction-label": "Access restriction by account status",
+      "addproject-access-all-title": "All registered users",
+      "addproject-access-verified-title": "Verified accounts only",
+      "addproject-access-verified-desc": "For users with verified phone numbers or documents",
+
+      "js-project-view-private-notice": "This project is only available to investors or verified accounts.",
       "project-view-images-title": "Project Gallery",
       "js-addproject-confirm-submit-body": "Important Warning: Please ensure all data is accurate and complete (especially financial goals and equity offered). Once the project is approved and the first investment is made, you will not be able to edit this data without contacting administration. Are you sure you want to submit now?",
       "js-my-projects-edit-locked-funded": "Editing is disabled as investments have already started.",

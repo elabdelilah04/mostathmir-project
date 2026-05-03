@@ -245,23 +245,68 @@ const deleteProject = async (req, res, next) => {
 
 const getAllProjects = async (req, res, next) => {
     try {
-        const publicCondition = { status: 'published', visibility: 'public' };
-        const query = { $or: [publicCondition] };
-        if (req.user && req.user.accountType === 'investor') {
-            const investedProjectIds = await Investment.find({ investor: req.user._id }).distinct('project');
-            if (investedProjectIds.length > 0) {
-                const investorFundedCondition = {
+        // 1. الحماية القصوى: إذا لم يكن هناك مستخدم مسجل (زائر)، نرسل مصفوفة فارغة فوراً
+        // هذا سيجعل الواجهة الأمامية تعرض "الضبابية" والقفل تلقائياً
+        if (!req.user) {
+            return res.json([]);
+        }
+
+        const user = req.user;
+
+        // 2. جلب معرفات المشاريع التي استثمر فيها المستخدم فعلياً (للمستثمرين فقط)
+        // هذا الجزء مستوحى من كودك القديم لضمان استمرارية رؤية الاستثمارات الخاصة
+        let investedProjectIds = [];
+        if (user.accountType === 'investor') {
+            investedProjectIds = await Investment.find({ investor: user._id }).distinct('project');
+        }
+
+        // 3. بناء الاستعلام (Query) ليناسب كل القواعد الجديدة والقديمة
+        const query = {
+            $or: [
+                // أ- المشاريع المنشورة التي تخضع لإعدادات الخصوصية
+                {
+                    status: 'published',
+                    $and: [
+                        // شرط "من يمكنه الرؤية"
+                        {
+                            $or: [
+                                { visibilityScope: 'public' },
+                                { 
+                                    visibilityScope: 'investors_only', 
+                                    $expr: { $eq: [user.accountType, 'investor'] } 
+                                }
+                            ]
+                        },
+                        // شرط "التوثيق"
+                        {
+                            $or: [
+                                { accessRestriction: 'all' },
+                                { 
+                                    accessRestriction: 'verified_only', 
+                                    $expr: { $eq: [user.isPhoneVerified, true] } 
+                                }
+                            ]
+                        }
+                    ]
+                },
+                // ب- المشاريع التي استثمر فيها المستخدم (تظهر له حتى لو كانت ممولة أو مكتملة)
+                {
                     _id: { $in: investedProjectIds },
                     status: { $in: ['funded', 'completed'] }
-                };
-                query.$or.push(investorFundedCondition);
-            }
-        }
+                },
+                // ج- صاحب المشروع يرى مشروعه دائماً مهما كانت حالته أو خصوصيته
+                { owner: user._id }
+            ]
+        };
+
         const projects = await Project.find(query)
-            .populate('owner', 'fullName profileTitle')
+            .populate('owner', 'fullName profileTitle profilePicture')
             .sort({ createdAt: -1 });
+
         res.json(projects);
+
     } catch (error) {
+        console.error("Error in getAllProjects:", error);
         next(error);
     }
 };

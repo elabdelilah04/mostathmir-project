@@ -77,6 +77,17 @@ const projectSchema = new mongoose.Schema({
     campaignDuration: { type: Number, default: 60 },
     campaignStartDate: { type: Date },
 
+    visibilityScope: {
+        type: String,
+        enum: ['public', 'investors_only'],
+        default: 'public'
+    },
+    accessRestriction: {
+        type: String,
+        enum: ['all', 'verified_only'],
+        default: 'all'
+    },
+
     teamMembers: [teamMemberSchema],
 
     status: {

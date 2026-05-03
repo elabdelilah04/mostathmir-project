@@ -324,7 +324,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("fundingGoal", JSON.stringify({ amount: document.getElementById("fundingGoal").value, currency: document.getElementById("currency").value }));
         formData.append("minInvestment", document.getElementById("minInvestment").value);
         formData.append("fundingDetails", JSON.stringify(expenseItems.map(item => ({ item: item.name, percentage: item.percent }))));
-
+        // أضف هذه الأسطر لجمع القيم من الـ Radio Buttons
+        formData.append("visibilityScope", document.querySelector('input[name="visibilityScope"]:checked').value);
+        formData.append("accessRestriction", document.querySelector('input[name="accessRestriction"]:checked').value);
         const financialProjections = [
             { year: 1, revenue: Number(document.getElementById("revenue1").value) || 0, expenses: Number(document.getElementById("expenses1").value) || 0, profit: Number(document.getElementById("profit1").textContent.replace(/[^\d.-]/g, "")) || 0 },
             { year: 2, revenue: Number(document.getElementById("revenue2").value) || 0, expenses: Number(document.getElementById("expenses2").value) || 0, profit: Number(document.getElementById("profit2").textContent.replace(/[^\d.-]/g, "")) || 0 },
@@ -509,6 +511,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             expenseItems = project.fundingDetails.map(d => ({ name: d.item, percent: d.percentage }));
             updateExpensesList();
             updateTotalPercentage();
+        }
+
+        // تعبئة الحالة المخزنة عند تعديل المشروع
+        if (project.visibilityScope) {
+            document.querySelector(`input[name="visibilityScope"][value="${project.visibilityScope}"]`).checked = true;
+        }
+        if (project.accessRestriction) {
+            document.querySelector(`input[name="accessRestriction"][value="${project.accessRestriction}"]`).checked = true;
         }
 
         if (project.businessPlan) {
