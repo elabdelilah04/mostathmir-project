@@ -205,6 +205,7 @@ async function loadFeaturedProjects() {
 
     const token = localStorage.getItem('user_token');
     if (!token) {
+        // إعادة النظام الضبابي للزوار كما كان في كودك الأصلي
         renderPlaceholderProjects(grid);
         applyProjectsLock();
         return;
@@ -220,11 +221,16 @@ async function loadFeaturedProjects() {
                 <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
             </div>`;
 
-        const response = await fetch(`${API_BASE_URL}/api/projects/public`);
+        // تعديل الرابط فقط لجلب المميزة
+        const response = await fetch(`${API_BASE_URL}/api/projects/featured`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
         if (!response.ok) throw new Error('Failed to fetch projects');
 
         let projects = await response.json();
-        // Filter active projects only
+
+        // الترتيب والفلترة (كما في كودك الأصلي)
         projects = projects.filter(p => ['published', 'funded', 'funding'].includes(p.status));
 
         // Sort by funding progress (highest first)
@@ -242,11 +248,10 @@ async function loadFeaturedProjects() {
             return;
         }
 
-        // === التصحيح: إضافة (project, index) هنا ===
         grid.innerHTML = featuredProjects.map((project, index) => {
             const goal = project.fundingGoal?.amount || 0;
             const raised = project.fundingAmountRaised || 0;
-            const currency = project.fundingGoal?.currency || 'USD'; // للحصول على العملة
+            const currency = project.fundingGoal?.currency || 'USD';
             const progress = goal > 0 ? Math.round((raised / goal) * 100) : 0;
             const clampedProgress = Math.min(progress, 100);
 
@@ -261,11 +266,9 @@ async function loadFeaturedProjects() {
             const viewsCount = project.views || 0;
             const ownerName = project.owner?.fullName || t('js-browse-entrepreneur');
 
-            // الآن المتغير index معرف بشكل صحيح
             return `
                 <div class="reveal fade-up group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full max-w-[350px] mx-auto w-full" style="transition-delay: ${index * 100}ms">
                     
-                    <!-- Image Header -->
                     <div class="relative h-44 overflow-hidden">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${imageSrc}');"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
@@ -280,7 +283,6 @@ async function loadFeaturedProjects() {
                         </div>
                     </div>
 
-                    <!-- Body Content -->
                     <div class="p-4 flex-1 flex flex-col">
                         <h3 class="text-base font-bold text-gray-900 mb-1.5 leading-tight line-clamp-1 group-hover:text-[#1E3A8A] transition-colors">
                             ${escapeHTML(project.projectName)}
@@ -289,7 +291,6 @@ async function loadFeaturedProjects() {
                             ${escapeHTML(description)}
                         </p>
                         
-                        <!-- Financial Grid -->
                         <div class="grid grid-cols-2 gap-2 mb-3">
                             <div class="bg-green-50/80 rounded-lg p-2 text-center border border-green-100">
                                 <div class="text-[10px] text-gray-500">${t('featured-raised')}</div>
@@ -301,7 +302,6 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- Progress Bar -->
                         <div class="mb-3">
                             <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-gray-400">${t('featured-funding-progress')}</span>
@@ -312,7 +312,6 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- Social Stats -->
                         <div class="flex justify-between items-center mb-4 pt-2 border-t border-gray-50 px-1">
                             <div class="flex items-center gap-1 text-[11px] text-gray-500" title="${t('featured-views')}">
                                 <i class="far fa-eye text-blue-400"></i>
@@ -324,7 +323,6 @@ async function loadFeaturedProjects() {
                             </div>
                         </div>
 
-                        <!-- Button -->
                         <a href="project-view.html?id=${project._id}" class="block w-full py-2.5 text-center rounded-lg font-bold text-xs transition-all duration-300 bg-gray-900 text-white hover:bg-[#1E3A8A] hover:shadow-lg">
                             ${t('featured-view-details')} 
                         </a>
@@ -333,14 +331,7 @@ async function loadFeaturedProjects() {
             `;
         }).join('');
 
-        setTimeout(() => {
-            observeScrollElements();
-        }, 100);
-
-        // تشغيل دالة مراقبة التمرير لإظهار العناصر
-        if (typeof observeScrollElements === 'function') {
-            observeScrollElements();
-        }
+        if (typeof observeScrollElements === 'function') observeScrollElements();
 
     } catch (error) {
         console.error("Error loading featured projects:", error);
