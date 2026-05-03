@@ -54,7 +54,7 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 1024 * 1024 * 15 }
 });
-
+router.get('/featured', getAuthUser, getFeaturedProjects);
 router.get('/public', getAuthUser, getAllProjects);
 router.get('/myprojects', protect, getMyProjects);
 router.get('/my-investments', protect, getInvestmentsInMyProjects);
@@ -86,6 +86,5 @@ router.put(
 router.delete('/:id/file', protect, deleteProjectFile);
 router.delete('/:id', protect, deleteProject);
 router.post('/:id/follow', protect, toggleFollowProject);
-router.get('/featured', getAuthUser, getFeaturedProjects);
 
 module.exports = router;
