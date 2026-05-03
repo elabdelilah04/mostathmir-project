@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستثمر - إدارة المشاريع المميزة</title>
+    <link rel="stylesheet" href="/css/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body>
+    <!-- شريط التنقل العلوي (نفس ستايل الآدمن السابق) -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="nav-links">
+                    <a href="#" class="nav-link">الإعدادات</a>
+                    <a href="/admin-featured.html" class="nav-link active">المشاريع المميزة</a>
+                    <a href="/admin-approval.html" class="nav-link">مصادقة المشاريع</a>
+                    <a href="#" class="nav-link">لوحة التحكم</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="admin-info">
+                    <span class="admin-name">مدير النظام</span>
+                    <i class="fas fa-user-shield admin-icon"></i>
+                </div>
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>مستثمر - الإدارة</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <div class="header-top">
+                    <h1 class="page-title">
+                        <i class="fas fa-star" style="color: #fbbf24;"></i>
+                        إدارة المشاريع المميزة
+                    </h1>
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-number" id="featuredCount">0</span>
+                            <span class="stat-label">مشروع مميز حالياً</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="limit-info">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>نصيحة: يفضل اختيار من 3 إلى 6 مشاريع كحد أقصى لعرضها في الصفحة الرئيسية لضمان أفضل تجربة مستخدم.</span>
+                </div>
+
+                <!-- شريط البحث -->
+                <div class="filters-section">
+                    <div class="filters">
+                        <div class="search-group" style="max-width: 100%;">
+                            <input type="text" class="search-input" placeholder="ابحث عن مشروع لتمييزه..." id="searchInput">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- شبكة المشاريع -->
+            <section class="projects-grid" id="featuredGrid">
+                <!-- سيتم تحميل المشاريع المنشورة (Published) هنا عبر JS -->
+            </section>
+        </div>
+    </main>
+
+    <!-- لودر بسيط -->
+    <div id="adminLoader" style="display: none; text-align: center; padding: 50px;">
+        <i class="fas fa-circle-notch fa-spin fa-3x" style="color: #1d4ed8;"></i>
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/admin-featured.js"></script>
+</body>
+
+</html>
