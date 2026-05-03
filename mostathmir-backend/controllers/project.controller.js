@@ -86,13 +86,11 @@ const updateProject = async (req, res, next) => {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
 
-        // القيد الجديد: التحقق من وجود تمويل
         if (project.fundingAmountRaised > 0) {
             return res.status(403).json({
                 message: 'لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.'
             });
         }
-        // --------
 
         if (project.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized to edit this project.' });
@@ -168,39 +166,71 @@ const getProjectById = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id)
             .populate('owner', 'fullName profileTitle profilePicture socialLinks');
+        
         if (!project) {
             return res.status(404).json({ message: 'Project not found' });
         }
-        let viewingUser = null;
-        let token;
-        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-            token = req.headers.authorization.split(' ')[1];
-        }
-        if (token) {
-            try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                viewingUser = await User.findById(decoded.id);
-            } catch (error) {
-                viewingUser = null;
+
+        // --- محاولة التعرف على المستخدم الزائر (سواء عبر middleware أو مانيوال) ---
+        let viewingUser = req.user;
+        if (!viewingUser) {
+            let token;
+            if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+                token = req.headers.authorization.split(' ')[1];
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                    viewingUser = await User.findById(decoded.id);
+                } catch (error) {
+                    viewingUser = null;
+                }
             }
         }
+
         const isOwner = viewingUser && project.owner._id.equals(viewingUser._id);
         const isAdmin = viewingUser && viewingUser.role === 'admin';
-        if (project.status !== 'published' && project.status !== 'funded' && project.status !== 'completed') {
+
+        // 1. حماية المشاريع غير المنشورة (Drafts / Review)
+        const publicStatuses = ['published', 'funded', 'completed'];
+        if (!publicStatuses.includes(project.status)) {
             if (!isOwner && !isAdmin) {
-                return res.status(403).json({ message: 'You are not authorized to view this project' });
+                return res.status(403).json({ message: 'هذا المشروع غير متاح للعرض العام حالياً.' });
             }
         }
-        if (viewingUser && !project.owner._id.equals(viewingUser._id)) {
+
+        // 2. تطبيق قيود الخصوصية والتوثيق (للروابط المباشرة)
+        // يتم تطبيق هذه القيود على الجميع ما عدا المالك والآدمن
+        if (!isOwner && !isAdmin) {
+            
+            // أ- المنع التام للزوار (يجب تسجيل الدخول لرؤية أي مشروع)
+            if (!viewingUser) {
+                return res.status(401).json({ message: 'يرجى تسجيل الدخول لمشاهدة تفاصيل المشروع.' });
+            }
+
+            // ب- فحص قيد "للمستثمرين فقط"
+            if (project.visibilityScope === 'investors_only' && viewingUser.accountType !== 'investor') {
+                return res.status(403).json({ message: 'عذراً، هذا المشروع مخصص للمستثمرين فقط ولا يمكن لرواد الأعمال الآخرين الاطلاع عليه.' });
+            }
+
+            // ج- فحص قيد "للحسابات الموثقة فقط" (توثيق الهاتف)
+            if (project.accessRestriction === 'verified_only' && !viewingUser.isPhoneVerified) {
+                return res.status(403).json({ message: 'يجب توثيق حسابك وتأكيد رقم الهاتف لتتمكن من رؤية تفاصيل هذا المشروع.' });
+            }
+        }
+
+        // 3. تحديث عدد المشاهدات (إذا كان المشاهد ليس المالك)
+        if (viewingUser && !isOwner) {
             project.views = (project.views || 0) + 1;
             await project.save({ timestamps: false });
         }
+
+        // 4. تجهيز البيانات للإرسال
         const projectObject = project.toObject();
         const investments = await Investment.find({ project: project._id })
             .populate('investor', 'fullName profilePicture profileTitle accountType');
 
         projectObject.investorsCount = investments.length;
 
+        // 5. منطق المالك (عرض تفاصيل المستثمرين وتحويل العملات)
         if (isOwner) {
             const projectCurrency = project.fundingGoal?.currency || 'USD';
             const projectRate = exchangeRatesToUSD[projectCurrency] || 1;
@@ -215,24 +245,24 @@ const getProjectById = async (req, res, next) => {
                 return invObj;
             });
         }
+
         res.json(projectObject);
+
     } catch (error) {
+        console.error("Error in getProjectById:", error);
         next(error);
     }
 };
+
 const deleteProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found' });
-
-        // القيد الجديد: منع الحذف إذا وجد تمويل
         if (project.fundingAmountRaised > 0) {
             return res.status(403).json({
                 message: 'لا يمكن حذف المشروع لأنه يحتوي على استثمارات قائمة.'
             });
         }
-        // ..
-
         if (project.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized' });
         }
@@ -245,29 +275,22 @@ const deleteProject = async (req, res, next) => {
 
 const getAllProjects = async (req, res, next) => {
     try {
-        // 1. الحماية القصوى: إذا لم يكن هناك مستخدم مسجل (زائر)، نرسل مصفوفة فارغة فوراً
-        // هذا سيجعل الواجهة الأمامية تعرض "الضبابية" والقفل تلقائياً
         if (!req.user) {
             return res.json([]);
         }
 
         const user = req.user;
 
-        // 2. جلب معرفات المشاريع التي استثمر فيها المستخدم فعلياً (للمستثمرين فقط)
-        // هذا الجزء مستوحى من كودك القديم لضمان استمرارية رؤية الاستثمارات الخاصة
         let investedProjectIds = [];
         if (user.accountType === 'investor') {
             investedProjectIds = await Investment.find({ investor: user._id }).distinct('project');
         }
 
-        // 3. بناء الاستعلام (Query) ليناسب كل القواعد الجديدة والقديمة
         const query = {
             $or: [
-                // أ- المشاريع المنشورة التي تخضع لإعدادات الخصوصية
                 {
                     status: 'published',
                     $and: [
-                        // شرط "من يمكنه الرؤية"
                         {
                             $or: [
                                 { visibilityScope: 'public' },
@@ -277,7 +300,6 @@ const getAllProjects = async (req, res, next) => {
                                 }
                             ]
                         },
-                        // شرط "التوثيق"
                         {
                             $or: [
                                 { accessRestriction: 'all' },
@@ -289,12 +311,10 @@ const getAllProjects = async (req, res, next) => {
                         }
                     ]
                 },
-                // ب- المشاريع التي استثمر فيها المستخدم (تظهر له حتى لو كانت ممولة أو مكتملة)
                 {
                     _id: { $in: investedProjectIds },
                     status: { $in: ['funded', 'completed'] }
                 },
-                // ج- صاحب المشروع يرى مشروعه دائماً مهما كانت حالته أو خصوصيته
                 { owner: user._id }
             ]
         };

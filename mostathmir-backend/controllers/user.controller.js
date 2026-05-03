@@ -48,7 +48,7 @@ const getUserProfile = async (req, res) => {
 const getPublicUserProfile = async (req, res, next) => {
     try {
         const userId = req.params.id;
-        
+
         // التعديل: إضافة حقول الخصوصية والبيانات الحساسة في الـ select
         const user = await User.findById(userId)
             .select('fullName profilePicture accountType bio profileTitle location socialLinks interests skills achievements professionalExperience education testimonials followers following isVisible showEmailPublicly showPhonePublicly email phone');
@@ -57,7 +57,6 @@ const getPublicUserProfile = async (req, res, next) => {
             return res.status(404).json({ message: 'المستخدم غير موجود' });
         }
 
-        // --- تطبيق منطق الخصوصية ---
         let userObj = user.toObject();
 
         if (userObj.showEmailPublicly !== true) {
@@ -66,7 +65,6 @@ const getPublicUserProfile = async (req, res, next) => {
         if (userObj.showPhonePublicly !== true) {
             delete userObj.phone;
         }
-        // ------------------------
 
         let projects = [];
         let investorsCount = 0;
@@ -178,7 +176,7 @@ const updateUserProfile = async (req, res, next) => {
             user.location = req.body.location || user.location;
             user.bio = req.body.bio || user.bio;
             user.profileTitle = req.body.profileTitle || user.profileTitle;
-            
+
             if (req.body.skills) user.skills = req.body.skills;
             if (req.body.socialLinks) user.socialLinks = req.body.socialLinks;
             if (req.body.interests) user.interests = req.body.interests;

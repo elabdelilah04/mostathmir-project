@@ -69,7 +69,7 @@ router.post(
     createProject
 );
 
-router.get('/:id', getProjectById);
+router.get('/:id', getAuthUser, getProjectById);
 
 router.put(
     '/:id',
