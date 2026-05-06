@@ -303,12 +303,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     icon: '★', link: 'settings.html',
                     container: document.getElementById('skillsCard')
                 },
-                {
-                    check: () => user.achievements && user.achievements.length > 0,
-                    title: t('js-investor-profile-step-achievements-title'), description: t('js-investor-profile-step-achievements-desc'),
-                    icon: '💪', link: 'settings.html',
-                    container: document.getElementById('keyAchievementsContainer')?.parentElement
-                }
             ];
             let stepsLeftCount = 0;
             profileSteps.forEach(step => {

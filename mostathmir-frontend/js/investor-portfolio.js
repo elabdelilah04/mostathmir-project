@@ -51,18 +51,14 @@ async function fetchPortfolioData() {
         allProposals = await proposalsRes.json();
         followedProjects = await followedRes.json();
 
-        if (window.translatePage) {
-            window.translatePage();
-        }
+        updateTabCounts();
+
+        applyFiltersAndRender();
+        if (window.translatePage) window.translatePage();
 
     } catch (error) {
+        console.error("Portfolio Fetch Error:", error);
         if (grid) grid.innerHTML = `<p class="text-center col-span-full text-red-500">${t('js-portfolio-error-generic')}: ${error.message}</p>`;
-    }
-    function updateTabCounts() {
-        const uniqueInvestedProjects = new Set(allInvestments.map(inv => inv.project?._id)).size;
-        document.getElementById('count-investments').textContent = uniqueInvestedProjects;
-        document.getElementById('count-proposals').textContent = allProposals.length;
-        document.getElementById('count-followed').textContent = followedProjects.length;
     }
 }
 
@@ -586,6 +582,22 @@ window.closeModal = () => {
         modal.classList.remove('flex');
     }
 };
+function updateTabCounts() {
+    const invBadge = document.getElementById('count-investments');
+    if (invBadge) {
+        const uniqueProjects = new Set(allInvestments.map(inv => inv.project?._id).filter(Boolean));
+        invBadge.textContent = uniqueProjects.size;
+    }
+
+    const propBadge = document.getElementById('count-proposals');
+    if (propBadge) {
+        propBadge.textContent = allProposals.length;
+    }
+    const followBadge = document.getElementById('count-followed');
+    if (followBadge) {
+        followBadge.textContent = followedProjects.length;
+    }
+}
 
 function escapeHTML(str) {
     if (!str) return '';
