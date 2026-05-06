@@ -496,3 +496,19 @@ body {
         flex-direction: column;
     }
 }
+
+.tab-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: inherit;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-inline-start: 8px;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.main-filter-btn.active .tab-badge {
+    background-color: white;
+    color: #1E3A8A;
+}

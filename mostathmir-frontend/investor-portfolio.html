@@ -34,12 +34,20 @@
     <section class="max-w-7xl mx-auto px-6 py-8">
         <div class="filter-section bg-white rounded-xl shadow-lg p-6">
             <div class="main-filter-group mb-6">
-                <button class="main-filter-btn active" data-filter="investments"
-                    data-i18n-key="portfolio-tab-investments">استثماراتي</button>
-                <button class="main-filter-btn" data-filter="proposals" data-i18n-key="portfolio-tab-proposals">شراكاتي
-                    المقترحة</button>
-                <button class="main-filter-btn" data-filter="followed" data-i18n-key="portfolio-tab-followed">مشاريع
-                    مهتم بها</button>
+                <button class="main-filter-btn active" data-filter="investments">
+                    <span data-i18n-key="portfolio-tab-investments">استثماراتي</span>
+                    <span id="count-investments" class="tab-badge">0</span>
+                </button>
+
+                <button class="main-filter-btn" data-filter="proposals">
+                    <span data-i18n-key="portfolio-tab-proposals">شراكاتي المقترحة</span>
+                    <span id="count-proposals" class="tab-badge">0</span>
+                </button>
+
+                <button class="main-filter-btn" data-filter="followed">
+                    <span data-i18n-key="portfolio-tab-followed">مشاريع مهتم بها</span>
+                    <span id="count-followed" class="tab-badge">0</span>
+                </button>
             </div>
 
             <div class="sub-filters-container">

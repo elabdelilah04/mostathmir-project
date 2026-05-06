@@ -58,6 +58,12 @@ async function fetchPortfolioData() {
     } catch (error) {
         if (grid) grid.innerHTML = `<p class="text-center col-span-full text-red-500">${t('js-portfolio-error-generic')}: ${error.message}</p>`;
     }
+    function updateTabCounts() {
+        const uniqueInvestedProjects = new Set(allInvestments.map(inv => inv.project?._id)).size;
+        document.getElementById('count-investments').textContent = uniqueInvestedProjects;
+        document.getElementById('count-proposals').textContent = allProposals.length;
+        document.getElementById('count-followed').textContent = followedProjects.length;
+    }
 }
 
 function setupFilters() {
