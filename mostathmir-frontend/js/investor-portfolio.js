@@ -502,7 +502,24 @@ window.openModal = (itemId) => {
         const project = item.projectId;
         modalTitle.textContent = `${t('js-portfolio-modal-proposal-title')}: ${project.projectName}`;
 
-        const typeMap = { 'strategic': t('js-portfolio-type-strategic'), 'expertise': t('js-portfolio-type-expertise'), 'advisory': t('js-portfolio-type-advisory'), 'hybrid': t('js-portfolio-type-hybrid') };
+        const typeMap = {
+            'strategic': t('js-portfolio-type-strategic'),
+            'expertise': t('js-portfolio-type-expertise'),
+            'advisory': t('js-portfolio-type-advisory'),
+            'hybrid': t('js-portfolio-type-hybrid')
+        };
+        let expertiseHTML = '';
+        if (item.expertiseAreas && item.expertiseAreas.length > 0) {
+            expertiseHTML = `
+                <div class="expertise-section mt-4 mb-4">
+                    <h4 class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <i class="fas fa-award text-blue-500"></i> ${t('proposal-details-expertise')}:
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${item.expertiseAreas.map(area => `<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[11px] font-bold border border-blue-100">${escapeHTML(area)}</span>`).join('')}
+                    </div>
+                </div>`;
+        }
         let responseBg = 'bg-gray-50';
         let responseBorder = 'border-gray-200';
         if (item.status === 'accepted') { responseBg = 'bg-green-50'; responseBorder = 'border-green-200'; }
@@ -519,6 +536,7 @@ window.openModal = (itemId) => {
                     <div class="value font-semibold">${item.status}</div>
                 </div>
             </div>
+            ${expertiseHTML} 
             <h4 class="text-sm font-bold text-gray-700 mt-4 mb-2 flex items-center gap-2">
                 <i class="fas fa-file-contract"></i> ${t('js-portfolio-modal-proposed-terms')}:
             </h4>
