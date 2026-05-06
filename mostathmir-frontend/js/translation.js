@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "view-as-public": "عرض ملفي للآخرين",
       "addproject-visibility-section-title": "خصوصية عرض المشروع",
       "addproject-visibility-scope-label": "من يمكنه رؤية المشروع؟",
       "addproject-visibility-public-title": "الجميع",
@@ -1955,7 +1956,7 @@
     },
 
     en: {
-
+      "view-as-public": "View public profile",
       "addproject-visibility-section-title": "Project Visibility Privacy",
       "addproject-visibility-scope-label": "Who can see the project?",
       "addproject-visibility-public-title": "Everyone",

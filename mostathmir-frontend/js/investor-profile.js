@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const partnersModal = document.getElementById('partnersModal');
     const closePartnersModalBtn = document.getElementById('closePartnersModalBtn');
     const partnersStatBtn = document.getElementById('partners-stat-button');
-    
+
     function convertToUSD(amount, fromCurrency) {
         const rateToUSD = 1 / (exchangeRatesFromUSD[fromCurrency] || 1);
         return amount * rateToUSD;
@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function updateAllFinancialDisplays(currency) {
         if (!originalStats) return;
-        
+
         const totalInvestmentUSD = originalStats.totalInvestment || 0;
         const convertedTotal = convertFromUSD(totalInvestmentUSD, currency);
-        
+
         const totalInvestmentEl = document.getElementById('stat-total-investment-amount');
         if (totalInvestmentEl) {
             if (convertedTotal >= 1000000) {
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (dashboardTotalInvestmentEl) {
             dashboardTotalInvestmentEl.textContent = `${Math.round(convertedTotal).toLocaleString()} ${currency}`;
         }
-        
+
         renderAndSortInvestments();
         populateFollowedProjects();
     }
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const avgReturnEl = document.getElementById('stat-avg-return');
         const partnersEl = document.getElementById('stat-partners-count');
         const followingEl = document.getElementById('stat-following-count');
-        
+
         updateAllFinancialDisplays(selectedCurrency);
 
         if (avgReturnEl) {
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             followedProjects = await followedRes.json();
             allProposals = await proposalsRes.json();
             const stats = await statsRes.json();
-            
+
             originalStats = stats;
 
             populateSidebarStats(stats, allInvestments, user);
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         updateAllFinancialDisplays(selectedCurrency);
     }
-    
+
     function createInvestmentCard(investment) {
         if (!investment || !investment.project) return '';
 
@@ -440,11 +440,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const displayRaised = convertFromUSD(raisedUSD, selectedCurrency);
         const displayPaid = convertFromUSD(paidUSD, selectedCurrency);
         const displayRemaining = convertFromUSD(remainingUSD, selectedCurrency);
-        
+
         const progress = displayGoal > 0 ? Math.round((displayRaised / displayGoal) * 100) : 0;
         const projectStatus = investment.project.status;
         const categoryKey = categoryTranslationKeys[investment.project.projectCategory] || 'js-investor-profile-category-general';
-        const projectCategory = t(categoryKey); 
+        const projectCategory = t(categoryKey);
         let statusText = t('js-investor-profile-status-not-specified');
         let statusClass = 'status-pending';
         if (projectStatus === 'published') {
@@ -561,13 +561,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function createFollowedProjectCard(project) {
         if (!project) return '';
-        
+
         const originalGoal = project.fundingGoal?.amount || 0;
         const originalCurrency = project.fundingGoal?.currency || 'USD';
-        
+
         const goalUSD = convertToUSD(originalGoal, originalCurrency);
         const displayGoal = convertFromUSD(goalUSD, selectedCurrency);
-        
+
         const categoryKey = categoryTranslationKeys[project.projectCategory] || 'js-investor-profile-category-general';
 
         return `
@@ -832,7 +832,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const currencySelector = document.getElementById('currencySelector');
-    if(currencySelector) {
+    if (currencySelector) {
         currencySelector.value = selectedCurrency; // Set default value
         currencySelector.addEventListener('change', (e) => {
             selectedCurrency = e.target.value;
@@ -840,10 +840,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateAllFinancialDisplays(selectedCurrency);
         });
     }
-    
+
     fetchAndPopulateData();
 });
-
+const btnViewPublic = document.getElementById('btnViewPublicProfile');
+if (btnViewPublic) {
+    btnViewPublic.onclick = () => {
+        const userId = localStorage.getItem('user_id');
+        if (userId) {
+            window.open(`public-profile.html?id=${userId}`, '_blank');
+        } else {
+            alert('تعذر الحصول على معرف المستخدم، يرجى إعادة تسجيل الدخول');
+        }
+    };
+}
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match]));

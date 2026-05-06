@@ -73,11 +73,21 @@
                                                     id="phone"></span></div>
                                         </div>
                                         <div id="socialLinksContainer" class="flex gap-3 justify-center mb-6"></div>
-                                        <a href="/settings.html"
-                                            class="border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-700 px-6 py-2.5 rounded-lg font-semibold"
-                                            data-i18n-key="investor-profile-edit-page-btn">
-                                            تعديل صفحتي
-                                        </a>
+                                        <div class="flex flex-col gap-3 justify-center mb-6">
+                                            <!-- زر التعديل الأصلي -->
+                                            <a href="/settings.html"
+                                                class="border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-700 px-6 py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"
+                                                data-i18n-key="investor-profile-edit-page-btn">
+                                                تعديل صفحتي
+                                            </a>
+
+                                            <!-- الزر الجديد: أيقونة العين للمعاينة العامة -->
+                                            <button id="btnViewPublicProfile"
+                                                class="text-slate-500 hover:text-emerald-600 text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                                                <i class="fas fa-eye"></i>
+                                                <span data-i18n-key="view-as-public">عرض ملفي العام</span>
+                                            </button>
+                                        </div>
 
                                         <div class="grid grid-cols-2 gap-4 pt-4 mt-6 border-t border-slate-200">
                                             <button id="partners-stat-button" class="text-center stat-card-interactive">
@@ -165,8 +175,8 @@
                                             <h3 class="profile-activity-title" data-i18n-key="investment-portfolio">
                                                 محفظة الاستثمارات</h3>
                                             <div class="flex items-center gap-2">
-                                                <label for="currencySelector"
-                                                    class="text-sm font-medium text-gray-600" data-i18n-key="addproject-currency-label"> </label>
+                                                <label for="currencySelector" class="text-sm font-medium text-gray-600"
+                                                    data-i18n-key="addproject-currency-label"> </label>
                                                 <select id="currencySelector"
                                                     class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
                                                     <option value="USD">USD</option>
@@ -416,7 +426,7 @@
     </div>
 
     <!-- Followers/Following Modal -->
-    <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 p-4 flex">
         <div class="bg-white rounded-xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="font-bold text-lg" data-i18n-key="investor-profile-follow-list-title">قائمة المتابعة</h3>

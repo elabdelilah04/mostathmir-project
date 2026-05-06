@@ -486,6 +486,13 @@ body {
 }
 
 .overflow-x-auto tfoot td {
-    background-color: #f0fdf4; /* خلفية خضراء فاتحة للمجموع */
+    background-color: #f0fdf4;
+    /* خلفية خضراء فاتحة للمجموع */
     font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .main-filter-group {
+        flex-direction: column;
+    }
 }
