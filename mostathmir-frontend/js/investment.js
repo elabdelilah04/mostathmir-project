@@ -61,7 +61,7 @@ async function loadProjectDetails(id, token) {
         const goal = currentProject.fundingGoal?.amount || 0;
         setText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
 
-        const minLabel = t('js-project-view-min-investment-label') || 'الحد الأدنى';
+        const minLabel = t('project-view-min-investment-label') || 'الحد الأدنى';
         setText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
 
         // ضبط القيمة الابتدائية للمبلغ

@@ -224,3 +224,8 @@ select#partnershipType {
     outline: none;
     cursor: pointer;
 }
+
+.textarea {
+    display: flex;
+    flex-direction: column;
+}
