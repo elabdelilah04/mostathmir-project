@@ -5,6 +5,7 @@
   const dict = {
     ar: {
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
+      "invest-max-available-label": "الحد الأقصى المتاح حالياً",
       "invest-custom-type-label": "تصنيف الشراكة المقترحة:",
       "js-portfolio-type-strategic": "شراكة استراتيجية (مال + خبرة)",
       "js-portfolio-type-expertise": "مساهمة بالخبرة الفنية فقط",
@@ -1991,6 +1992,7 @@
 
     en: {
       // --- New Official Investment Page Keys ---
+      "invest-max-available-label": "Current maximum available",
       "invest-custom-type-label": "Proposed Partnership Category:",
       "js-portfolio-type-strategic": "Strategic Partnership (Capital + Expertise)",
       "js-portfolio-type-expertise": "Technical Expertise Only",
