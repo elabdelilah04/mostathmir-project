@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n-key="invest-page-title">وثيقة تأكيد الاستثمار | منصة مستثمر</title>
+    <title data-i18n-key="invest-page-title">تأكيد الاستثمار | مستثمر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/header-styles.css">
-    <link rel="stylesheet" href="/css/investment-styles.css"> <!-- الحفاظ على المسمى القديم -->
+    <link rel="stylesheet" href="/css/investment-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -28,16 +28,19 @@
             <section class="doc-section">
                 <h2 class="section-num">01</h2>
                 <div class="section-body">
-                    <h3 class="section-title" data-i18n-key="invest-section-project">بيانات المشروع والملكية المعروضة
-                    </h3>
+                    <h3 class="section-title" data-i18n-key="invest-section-project">بيانات المشروع</h3>
                     <div class="minimal-info-grid">
                         <div class="info-row">
                             <span class="label" data-i18n-key="addproject-name-label">اسم المشروع:</span>
                             <span class="value" id="disp-project-name">...</span>
                         </div>
                         <div class="info-row">
-                            <span class="label" data-i18n-key="project-view-founder-label">صاحب المشروع:</span>
+                            <span class="label" data-i18n-key="project-view-founder-label">المؤسس:</span>
                             <span class="value" id="disp-project-owner">...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label" data-i18n-key="pd-status">الحالة:</span>
+                            <span class="value" id="disp-funding-status">...</span>
                         </div>
                         <div class="info-row highlight-blue">
                             <span class="label" data-i18n-key="project-view-equity-label">الملكية المعروضة:</span>
@@ -51,41 +54,36 @@
             <section class="doc-section">
                 <h2 class="section-num">02</h2>
                 <div class="section-body">
-                    <h3 class="section-title" data-i18n-key="invest-section-type">تحديد نوع المساهمة وقيمة الاستثمار
-                    </h3>
+                    <h3 class="section-title" data-i18n-key="invest-section-type">نوع ومبلغ المساهمة</h3>
 
                     <div class="investment-method-list">
                         <label class="method-item">
                             <input type="radio" name="investmentType" value="full" checked>
                             <div class="method-desc">
-                                <strong data-i18n-key="invest-type-full-title">استثمار مالي كامل (100%)</strong>
-                                <p data-i18n-key="invest-type-full-desc">سداد كامل مبلغ المساهمة فوراً لتأكيد الحصة
-                                    القانونية.</p>
+                                <strong data-i18n-key="invest-type-full-title">استثمار كامل (100%)</strong>
+                                <p data-i18n-key="invest-type-full-desc">سداد كامل مبلغ المساهمة فوراً.</p>
                             </div>
                         </label>
-
                         <label class="method-item">
                             <input type="radio" name="investmentType" value="reservation">
                             <div class="method-desc">
                                 <strong data-i18n-key="invest-type-reservation-title">حجز حصة (عربون 30%)</strong>
-                                <p data-i18n-key="invest-type-reservation-desc">دفع دفعة مقدمة لضمان المقعد، وسداد
-                                    المتبقي لاحقاً.</p>
+                                <p data-i18n-key="invest-type-reservation-desc">دفع دفعة مقدمة الآن، والباقي لاحقاً.</p>
                             </div>
                         </label>
-
                         <label class="method-item">
                             <input type="radio" name="investmentType" value="custom">
                             <div class="method-desc">
-                                <strong data-i18n-key="invest-type-custom-title">اقتراح شراكة استراتيجية</strong>
-                                <p data-i18n-key="invest-type-custom-desc">تقديم عرض يتضمن خبرات فنية أو إدارية بجانب
-                                    المساهمة المالية.</p>
+                                <strong data-i18n-key="invest-type-custom-title">شراكة استراتيجية</strong>
+                                <p data-i18n-key="invest-type-custom-desc">تقديم عرض يتضمن خبرات فنية أو إدارية.</p>
                             </div>
                         </label>
                     </div>
 
+                    <!-- منطقة إدخال المبلغ -->
                     <div id="financialInputArea">
                         <div class="input-minimal-group">
-                            <label data-i18n-key="invest-amount-label">مبلغ الاستثمار المرغوب:</label>
+                            <label data-i18n-key="invest-amount-label">مبلغ الاستثمار:</label>
                             <div class="input-wrapper">
                                 <input type="number" id="investAmount" placeholder="0.00">
                                 <span class="currency-tag" id="disp-currency">...</span>
@@ -101,22 +99,21 @@
                         </div>
                     </div>
 
+                    <!-- منطقة الشراكة المخصصة -->
                     <div id="customPartnershipArea" class="hidden">
                         <div class="input-minimal-group">
-                            <label data-i18n-key="invest-custom-expertise-label">مجالات الخبرة المضافة:</label>
+                            <label data-i18n-key="invest-custom-expertise-label">مجالات الخبرة:</label>
                             <div class="expertise-grid">
                                 <label><input type="checkbox" name="exp" value="تقنية"> <span
                                         data-i18n-key="addproject-category-tech">تقنية</span></label>
                                 <label><input type="checkbox" name="exp" value="تسويق"> <span
                                         data-i18n-key="invest-custom-expertise-marketing">تسويق</span></label>
-                                <label><input type="checkbox" name="exp" value="توسع"> <span
-                                        data-i18n-key="invest-custom-expertise-ops">توسع</span></label>
                                 <label><input type="checkbox" name="exp" value="إدارة"> <span
                                         data-i18n-key="invest-custom-expertise-hr">إدارة</span></label>
                             </div>
                         </div>
                         <div class="input-minimal-group">
-                            <label data-i18n-key="invest-custom-terms-label">تفاصيل العرض والقيمة المضافة:</label>
+                            <label data-i18n-key="invest-custom-terms-label">تفاصيل العرض:</label>
                             <textarea id="customTerms" rows="5"
                                 data-i18n-placeholder-key="invest-custom-terms-placeholder"></textarea>
                         </div>
@@ -128,7 +125,7 @@
             <section class="doc-section section-gray" id="financialSummarySection">
                 <h2 class="section-num">03</h2>
                 <div class="section-body">
-                    <h3 class="section-title" data-i18n-key="invest-payment-title">البيان المالي المستحق</h3>
+                    <h3 class="section-title" data-i18n-key="invest-payment-title">البيان المالي</h3>
                     <div class="official-invoice-table">
                         <div class="inv-line">
                             <span data-i18n-key="invest-summary-amount-label">قيمة المساهمة:</span>
@@ -139,15 +136,15 @@
                             <span id="sum-pay-now">0.00</span>
                         </div>
                         <div class="inv-line text-red" id="row-remaining" style="display:none;">
-                            <span data-i18n-key="invest-reservation-remaining-label">المبلغ المتبقي (70%):</span>
+                            <span data-i18n-key="invest-reservation-remaining-label">المتبقي لاحقاً:</span>
                             <span id="sum-remaining">0.00</span>
                         </div>
                         <div class="inv-line">
-                            <span data-i18n-key="invest-summary-platform-fee-label">رسوم المنصة (2%):</span>
+                            <span data-i18n-key="invest-summary-platform-fee-label">رسوم المنصة:</span>
                             <span id="sum-platform-fees">0.00</span>
                         </div>
                         <div class="inv-line total-line">
-                            <span data-i18n-key="invest-summary-total-label">إجمالي المطلوب الآن:</span>
+                            <span data-i18n-key="invest-summary-total-label">المطلوب الآن:</span>
                             <span id="sum-final-total">0.00</span>
                         </div>
                     </div>
@@ -158,12 +155,12 @@
             <section class="doc-section">
                 <h2 class="section-num">04</h2>
                 <div class="section-body">
-                    <h3 class="section-title" data-i18n-key="invest-terms-title">التعهد القانوني</h3>
+                    <h3 class="section-title" data-i18n-key="invest-terms-title">التعهد</h3>
                     <div class="legal-acknowledgment">
                         <label class="check-container">
                             <input type="checkbox" id="check-legal-confirm" required>
-                            <span class="check-text" data-i18n-key="invest-terms-check1">أوافق على كافة الشروط المالية
-                                والقانونية المذكورة أعلاه.</span>
+                            <span class="check-text" data-i18n-key="invest-terms-check1">أوافق على الشروط المالية
+                                والقانونية.</span>
                         </label>
                     </div>
                 </div>
@@ -171,7 +168,7 @@
 
             <div class="doc-footer">
                 <button type="submit" id="submitBtn" class="btn-official-primary" disabled
-                    data-i18n-key="invest-proceed-btn">تأكيد وإرسال الطلب</button>
+                    data-i18n-key="invest-proceed-btn">تأكيد وإرسال</button>
                 <button type="button" onclick="window.history.back()" class="btn-official-secondary"
                     data-i18n-key="profile-contact-cancel-btn">إلغاء</button>
             </div>
@@ -179,7 +176,7 @@
     </main>
     <script src="/js/header.js"></script>
     <script src="/js/script.js"></script>
-    <script src="/js/investment.js"></script> <!-- الحفاظ على المسمى القديم -->
+    <script src="/js/investment.js"></script>
     <script src="/js/translation.js"></script>
 </body>
 
