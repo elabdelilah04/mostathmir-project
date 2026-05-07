@@ -70,7 +70,7 @@ async function loadProjectDetails(id, token) {
 
         // ملاحظة الحد الأقصى (تأكد من وجود ID: max-invest-note في الـ HTML)
         const maxLabel = t('invest-max-available-label') || 'الحد الأقصى المتاح حالياً';
-        safeSetText('max-invest-note', `* الحد الأقصى المتاح حالياً: ${remainingAvailable.toLocaleString()} ${currency}`);
+        safeSetText('max-invest-note', `* ${maxLabel}: ${remainingAvailable.toLocaleString()} ${currency}`);
 
         // هـ. ضبط خصائص حقل الإدخال
         const investInput = document.getElementById('investAmount');
