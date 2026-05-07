@@ -1,5 +1,6 @@
 /**
  * MOSTATHMIR - OFFICIAL INVESTMENT ENGINE (investment.js)
+ * النسخة النهائية المعتمدة: إدارة استثمار، حساب ملكية تناسبية، وتقييد الحدود المالية.
  */
 
 let currentProject = null;
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get('id');
 
-    // 1. التحقق من الصلاحيات والبيانات الأساسية
+    // 1. التحقق من الصلاحيات
     if (!token) {
         window.location.href = 'login.html';
         return;
@@ -20,13 +21,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 2. انطلاق المحرك: جلب البيانات وتهيئة الواجهة
+    // 2. تحميل البيانات وتهيئة المحرك
     await loadProjectDetails(projectId, token);
     setupEventListeners();
 });
 
 /**
- * جلب بيانات المشروع من السيرفر وحقنها في الوثيقة
+ * جلب بيانات المشروع وحساب الحدود المالية المتاحة
  */
 async function loadProjectDetails(id, token) {
     try {
@@ -41,34 +42,51 @@ async function loadProjectDetails(id, token) {
 
         currentProject = await response.json();
 
-        if (!currentProject || !currentProject.owner) throw new Error('Incomplete data');
+        if (!currentProject || !currentProject.owner) throw new Error('Data incomplete');
 
-        // دالة مساعدة لتحديث النصوص بأمان
-        const setText = (id, text) => {
+        const safeSetText = (id, text) => {
             const el = document.getElementById(id);
             if (el) el.textContent = text;
         };
 
-        // ملء بيانات القسم الأول (01)
-        setText('disp-project-name', currentProject.projectName);
-        setText('disp-project-owner', currentProject.owner.fullName);
-        setText('disp-total-equity', `${currentProject.equityOffered || 0}%`);
-
-        const currency = currentProject.fundingGoal?.currency || 'USD';
-        setText('disp-currency', currency);
-
+        // أ. استخراج البيانات المالية الأساسية
         const raised = currentProject.fundingAmountRaised || 0;
         const goal = currentProject.fundingGoal?.amount || 0;
-        setText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
+        const currency = currentProject.fundingGoal?.currency || 'USD';
 
-        const minLabel = t('project-view-min-investment-label') || 'الحد الأدنى';
-        setText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
+        // ب. حساب المبلغ المتبقي المتاح للاستثمار (الحد الأقصى)
+        const remainingAvailable = Math.max(0, goal - raised);
 
-        // ضبط القيمة الابتدائية للمبلغ
+        // ج. حقن البيانات في القسم الأول (01)
+        safeSetText('disp-project-name', currentProject.projectName);
+        safeSetText('disp-project-owner', currentProject.owner.fullName);
+        safeSetText('disp-total-equity', `${currentProject.equityOffered || 0}%`);
+        safeSetText('disp-currency', currency);
+        safeSetText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
+
+        // د. تحديث ملاحظات الحدود (الحد الأدنى والحد الأقصى)
+        const minLabel = t('js-project-view-min-investment-label') || 'الحد الأدنى';
+        safeSetText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
+
+        // ملاحظة الحد الأقصى (تأكد من وجود ID: max-invest-note في الـ HTML)
+        safeSetText('max-invest-note', `* الحد الأقصى المتاح حالياً: ${remainingAvailable.toLocaleString()} ${currency}`);
+
+        // هـ. ضبط خصائص حقل الإدخال
         const investInput = document.getElementById('investAmount');
         if (investInput) {
-            investInput.value = currentProject.minInvestment || 0;
-            investInput.min = currentProject.minInvestment || 0;
+            const minRequired = currentProject.minInvestment || 0;
+            investInput.min = minRequired;
+            investInput.max = remainingAvailable;
+
+            // تعيين القيمة الابتدائية: الحد الأدنى بشرط ألا يتجاوز المتاح
+            investInput.value = Math.min(minRequired, remainingAvailable);
+
+            // إذا كان التمويل مكتملاً
+            if (remainingAvailable <= 0) {
+                investInput.value = 0;
+                investInput.disabled = true;
+                safeSetText('max-invest-note', 'اكتمل الهدف التمويلي لهذا المشروع.');
+            }
         }
 
         updateCalculations();
@@ -80,7 +98,7 @@ async function loadProjectDetails(id, token) {
 }
 
 /**
- * المحرك المالي: حساب الملكية، المبالغ المتبقية، والرسوم
+ * المحرك المالي: حساب الملكية المقدرة والرسوم والمتبقي
  */
 function updateCalculations() {
     if (!currentProject || !currentProject.fundingGoal) return;
@@ -95,51 +113,46 @@ function updateCalculations() {
     const totalOffered = currentProject.equityOffered || 0;
     const curr = currentProject.fundingGoal.currency || '';
 
-    // أ. حساب حصة الملكية التناسبية (حسب المبلغ المدخل)
+    // 1. حساب حصة الملكية التناسبية بدقة 4 خانات
     const userEquity = (amount / goal) * totalOffered;
     const equityDisplay = document.getElementById('calculated-user-equity');
     if (equityDisplay) equityDisplay.textContent = `${userEquity.toFixed(4)}%`;
 
-    // ب. حساب البيانات المالية للفاتورة
-    const setText = (id, text) => {
+    // 2. تحديث جدول الخلاصة المالية
+    const safeSetText = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
     };
 
-    setText('sum-base-amount', `${amount.toLocaleString()} ${curr}`);
+    safeSetText('sum-base-amount', `${amount.toLocaleString()} ${curr}`);
 
     const platformFee = amount * 0.02; // رسوم المنصة 2%
-    setText('sum-platform-fees', `${platformFee.toLocaleString()} ${curr}`);
+    safeSetText('sum-platform-fees', `${platformFee.toLocaleString()} ${curr}`);
 
     const resRow = document.getElementById('row-reservation');
     const remRow = document.getElementById('row-remaining');
 
     if (type === 'reservation') {
-        // حالة الحجز: 30% الآن، 70% لاحقاً
         const payNow = amount * 0.30;
         const remaining = amount - payNow;
-
         if (resRow) resRow.style.display = 'flex';
         if (remRow) remRow.style.display = 'flex';
-
-        setText('sum-pay-now', `${payNow.toLocaleString()} ${curr}`);
-        setText('sum-remaining', `${remaining.toLocaleString()} ${curr}`);
-        setText('sum-final-total', `${(payNow + platformFee).toLocaleString()} ${curr}`);
+        safeSetText('sum-pay-now', `${payNow.toLocaleString()} ${curr}`);
+        safeSetText('sum-remaining', `${remaining.toLocaleString()} ${curr}`);
+        safeSetText('sum-final-total', `${(payNow + platformFee).toLocaleString()} ${curr}`);
     } else {
-        // حالة الاستثمار الكامل
         if (resRow) resRow.style.display = 'none';
         if (remRow) remRow.style.display = 'none';
-        setText('sum-final-total', `${(amount + platformFee).toLocaleString()} ${curr}`);
+        safeSetText('sum-final-total', `${(amount + platformFee).toLocaleString()} ${curr}`);
     }
 
     validateForm();
 }
 
 /**
- * تهيئة مستمعي الأحداث لمراقبة التفاعلات
+ * مراقبة كافة التفاعلات والمدخلات
  */
 function setupEventListeners() {
-    // مراقبة تغيير نوع الاستثمار
     document.querySelectorAll('input[name="investmentType"]').forEach(r => {
         r.addEventListener('change', () => {
             const isCustom = r.value === 'custom';
@@ -155,11 +168,9 @@ function setupEventListeners() {
         });
     });
 
-    // مراقبة القائمة المنسدلة لنوع الشراكة
     const partTypeSelect = document.getElementById('partnershipType');
     if (partTypeSelect) partTypeSelect.addEventListener('change', validateForm);
 
-    // مراقبة المدخلات والتحقق
     const investInput = document.getElementById('investAmount');
     if (investInput) investInput.addEventListener('input', updateCalculations);
 
@@ -169,20 +180,20 @@ function setupEventListeners() {
     const customTerms = document.getElementById('customTerms');
     if (customTerms) customTerms.addEventListener('input', validateForm);
 
-    // معالجة الإرسال
     const form = document.getElementById('investForm');
     if (form) form.onsubmit = handleFinalSubmission;
 }
 
 /**
- * التحقق من استيفاء الشروط قبل تفعيل زر الإرسال
+ * التحقق من صحة البيانات (الحد الأدنى والحد الأقصى المتاح)
  */
 function validateForm() {
     const typeElement = document.querySelector('input[name="investmentType"]:checked');
     const type = typeElement ? typeElement.value : 'full';
-
     const checkEl = document.getElementById('check-legal-confirm');
     const isChecked = checkEl ? checkEl.checked : false;
+    const amountInput = document.getElementById('investAmount');
+    const amount = amountInput ? parseFloat(amountInput.value) || 0 : 0;
 
     let isValid = false;
 
@@ -190,9 +201,22 @@ function validateForm() {
         const terms = document.getElementById('customTerms')?.value.trim() || "";
         isValid = isChecked && terms.length >= 15;
     } else {
-        const amount = parseFloat(document.getElementById('investAmount')?.value) || 0;
         const minRequired = currentProject?.minInvestment || 0;
-        isValid = isChecked && amount >= minRequired && amount > 0;
+        const goal = currentProject?.fundingGoal?.amount || 0;
+        const raised = currentProject?.fundingAmountRaised || 0;
+        const maxAvailable = goal - raised;
+
+        // التحقق من أن المبلغ يقع في النطاق المسموح به
+        isValid = isChecked && amount >= minRequired && amount <= maxAvailable && amount > 0;
+
+        // تنبيه بصري في حال تجاوز الحد
+        if (amountInput) {
+            if (amount > maxAvailable || (amount > 0 && amount < minRequired)) {
+                amountInput.style.borderColor = "#ef4444";
+            } else {
+                amountInput.style.borderColor = "#cbd5e1";
+            }
+        }
     }
 
     const submitBtn = document.getElementById('submitBtn');
@@ -200,7 +224,7 @@ function validateForm() {
 }
 
 /**
- * إرسال الطلب النهائي للسيرفر (API)
+ * إرسال البيانات النهائية للسيرفر
  */
 async function handleFinalSubmission(e) {
     e.preventDefault();
@@ -212,7 +236,6 @@ async function handleFinalSubmission(e) {
     btn.disabled = true;
     btn.textContent = t('js-messages-sending-text') || '...';
 
-    // تجهيز البيانات
     let payload = {
         projectId: currentProject._id,
         investmentType: type,
@@ -223,7 +246,6 @@ async function handleFinalSubmission(e) {
 
     let endpoint = `${API_BASE_URL}/api/investments`;
 
-    // إذا كانت شراكة مخصصة
     if (type === 'custom') {
         endpoint = `${API_BASE_URL}/api/proposals`;
         payload.partnershipType = document.getElementById('partnershipType')?.value || 'hybrid';
@@ -246,11 +268,10 @@ async function handleFinalSubmission(e) {
             body: JSON.stringify(payload)
         });
 
-        if (res.ok) {
-            renderSuccessUI(type);
-        } else {
+        if (res.ok) renderSuccessUI(type);
+        else {
             const errData = await res.json();
-            throw new Error(errData.message || 'Error processing request');
+            throw new Error(errData.message || 'Error');
         }
     } catch (err) {
         alert(err.message);
@@ -260,14 +281,14 @@ async function handleFinalSubmission(e) {
 }
 
 /**
- * عرض شاشة النجاح الرسمية بعد الإرسال
+ * واجهة النجاح الرسمية
  */
 function renderSuccessUI(type) {
     const main = document.querySelector('.invest-official-container');
     if (main) {
         const successMsg = type === 'custom'
             ? t('js-public-profile-success-message-sent')
-            : 'تم اعتماد طلب المساهمة المالية بنجاح في سجلات المشروع.';
+            : 'تم اعتماد مساهمتكم المالية بنجاح في سجلات المشروع.';
 
         main.innerHTML = `
             <div style="text-align: center; padding: 60px 0; animation: fadeIn 0.8s ease;">
