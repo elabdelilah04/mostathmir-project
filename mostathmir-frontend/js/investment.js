@@ -65,7 +65,7 @@ async function loadProjectDetails(id, token) {
         safeSetText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
 
         // د. تحديث ملاحظات الحدود (الحد الأدنى والحد الأقصى)
-        const minLabel = t('js-project-view-min-investment-label') || 'الحد الأدنى';
+        const minLabel = t('project-view-min-investment-label') || 'الحد الأدنى';
         safeSetText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
 
         // ملاحظة الحد الأقصى (تأكد من وجود ID: max-invest-note في الـ HTML)
