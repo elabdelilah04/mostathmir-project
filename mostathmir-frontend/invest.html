@@ -101,8 +101,23 @@
 
                     <!-- منطقة الشراكة المخصصة -->
                     <div id="customPartnershipArea" class="hidden">
+                        <!-- إضافة اختيار نوع الشراكة -->
                         <div class="input-minimal-group">
-                            <label data-i18n-key="invest-custom-expertise-label">مجالات الخبرة:</label>
+                            <label data-i18n-key="invest-custom-type-label">تصنيف الشراكة المقترحة:</label>
+                            <select id="partnershipType" class="doc-input-style">
+                                <option value="strategic" data-i18n-key="js-portfolio-type-strategic">شراكة استراتيجية
+                                    (مال + خبرة)</option>
+                                <option value="expertise" data-i18n-key="js-portfolio-type-expertise">مساهمة بالخبرة
+                                    الفنية فقط</option>
+                                <option value="advisory" data-i18n-key="js-portfolio-type-advisory">مستشار تنفيذي /
+                                    إرشاد</option>
+                                <option value="hybrid" data-i18n-key="js-portfolio-type-hybrid">شراكة مختلطة (تخصيص
+                                    كامل)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-minimal-group">
+                            <label data-i18n-key="invest-custom-expertise-label">مجالات الخبرة المضافة:</label>
                             <div class="expertise-grid">
                                 <label><input type="checkbox" name="exp" value="تقنية"> <span
                                         data-i18n-key="addproject-category-tech">تقنية</span></label>
@@ -110,10 +125,13 @@
                                         data-i18n-key="invest-custom-expertise-marketing">تسويق</span></label>
                                 <label><input type="checkbox" name="exp" value="إدارة"> <span
                                         data-i18n-key="invest-custom-expertise-hr">إدارة</span></label>
+                                <label><input type="checkbox" name="exp" value="توسع"> <span
+                                        data-i18n-key="invest-custom-expertise-ops">توسع</span></label>
                             </div>
                         </div>
+
                         <div class="input-minimal-group">
-                            <label data-i18n-key="invest-custom-terms-label">تفاصيل العرض:</label>
+                            <label data-i18n-key="invest-custom-terms-label">تفاصيل العرض والقيمة المضافة:</label>
                             <textarea id="customTerms" rows="5"
                                 data-i18n-placeholder-key="invest-custom-terms-placeholder"></textarea>
                         </div>

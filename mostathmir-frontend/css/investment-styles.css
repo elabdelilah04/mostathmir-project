@@ -210,3 +210,17 @@
         flex-direction: column;
     }
 }
+
+.doc-input-style,
+select#partnershipType {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #cbd5e1;
+    background-color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    color: #1E3A8A;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}

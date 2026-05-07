@@ -1,6 +1,5 @@
 /**
- * MOSTATHMIR - INVESTMENT LOGIC (investment.js)
- * النسخة المصلحة والمحمية من أخطاء الـ Null
+ * MOSTATHMIR - OFFICIAL INVESTMENT ENGINE (investment.js)
  */
 
 let currentProject = null;
@@ -10,13 +9,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get('id');
 
-    if (!token) { window.location.href = 'login.html'; return; }
-    if (!projectId) { window.location.href = 'browse-projects.html'; return; }
+    // 1. التحقق من الصلاحيات والبيانات الأساسية
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
 
+    if (!projectId) {
+        window.location.href = 'browse-projects.html';
+        return;
+    }
+
+    // 2. انطلاق المحرك: جلب البيانات وتهيئة الواجهة
     await loadProjectDetails(projectId, token);
     setupEventListeners();
 });
 
+/**
+ * جلب بيانات المشروع من السيرفر وحقنها في الوثيقة
+ */
 async function loadProjectDetails(id, token) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
@@ -26,32 +37,34 @@ async function loadProjectDetails(id, token) {
             }
         });
 
-        if (!response.ok) throw new Error('فشل جلب بيانات المشروع.');
+        if (!response.ok) throw new Error('Failed to fetch project data');
 
         currentProject = await response.json();
 
-        if (!currentProject || !currentProject.owner) throw new Error('بيانات المشروع غير مكتملة.');
+        if (!currentProject || !currentProject.owner) throw new Error('Incomplete data');
 
-        // تحديث النصوص مع التأكد من وجود العناصر
-        const safeSetText = (id, text) => {
+        // دالة مساعدة لتحديث النصوص بأمان
+        const setText = (id, text) => {
             const el = document.getElementById(id);
             if (el) el.textContent = text;
         };
 
-        safeSetText('disp-project-name', currentProject.projectName);
-        safeSetText('disp-project-owner', currentProject.owner.fullName);
-        safeSetText('disp-total-equity', `${currentProject.equityOffered || 0}%`);
+        // ملء بيانات القسم الأول (01)
+        setText('disp-project-name', currentProject.projectName);
+        setText('disp-project-owner', currentProject.owner.fullName);
+        setText('disp-total-equity', `${currentProject.equityOffered || 0}%`);
 
         const currency = currentProject.fundingGoal?.currency || 'USD';
-        safeSetText('disp-currency', currency);
+        setText('disp-currency', currency);
 
         const raised = currentProject.fundingAmountRaised || 0;
         const goal = currentProject.fundingGoal?.amount || 0;
-        safeSetText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
+        setText('disp-funding-status', `${raised.toLocaleString()} / ${goal.toLocaleString()} ${currency}`);
 
         const minLabel = t('js-project-view-min-investment-label') || 'الحد الأدنى';
-        safeSetText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
+        setText('min-invest-note', `* ${minLabel}: ${(currentProject.minInvestment || 0).toLocaleString()} ${currency}`);
 
+        // ضبط القيمة الابتدائية للمبلغ
         const investInput = document.getElementById('investAmount');
         if (investInput) {
             investInput.value = currentProject.minInvestment || 0;
@@ -61,11 +74,14 @@ async function loadProjectDetails(id, token) {
         updateCalculations();
 
     } catch (err) {
-        console.error("Fetch Error:", err);
-        alert(err.message);
+        console.error("Critical Load Error:", err);
+        alert(t('js-project-view-error-fetch-failed'));
     }
 }
 
+/**
+ * المحرك المالي: حساب الملكية، المبالغ المتبقية، والرسوم
+ */
 function updateCalculations() {
     if (!currentProject || !currentProject.fundingGoal) return;
 
@@ -79,39 +95,51 @@ function updateCalculations() {
     const totalOffered = currentProject.equityOffered || 0;
     const curr = currentProject.fundingGoal.currency || '';
 
-    // حساب الحصة
+    // أ. حساب حصة الملكية التناسبية (حسب المبلغ المدخل)
     const userEquity = (amount / goal) * totalOffered;
-    const safeSetText = (id, text) => {
+    const equityDisplay = document.getElementById('calculated-user-equity');
+    if (equityDisplay) equityDisplay.textContent = `${userEquity.toFixed(4)}%`;
+
+    // ب. حساب البيانات المالية للفاتورة
+    const setText = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
     };
 
-    safeSetText('calculated-user-equity', `${userEquity.toFixed(4)}%`);
-    safeSetText('sum-base-amount', `${amount.toLocaleString()} ${curr}`);
+    setText('sum-base-amount', `${amount.toLocaleString()} ${curr}`);
 
-    const platformFee = amount * 0.02;
-    safeSetText('sum-platform-fees', `${platformFee.toLocaleString()} ${curr}`);
+    const platformFee = amount * 0.02; // رسوم المنصة 2%
+    setText('sum-platform-fees', `${platformFee.toLocaleString()} ${curr}`);
 
     const resRow = document.getElementById('row-reservation');
     const remRow = document.getElementById('row-remaining');
 
     if (type === 'reservation') {
+        // حالة الحجز: 30% الآن، 70% لاحقاً
         const payNow = amount * 0.30;
         const remaining = amount - payNow;
+
         if (resRow) resRow.style.display = 'flex';
         if (remRow) remRow.style.display = 'flex';
-        safeSetText('sum-pay-now', `${payNow.toLocaleString()} ${curr}`);
-        safeSetText('sum-remaining', `${remaining.toLocaleString()} ${curr}`);
-        safeSetText('sum-final-total', `${(payNow + platformFee).toLocaleString()} ${curr}`);
+
+        setText('sum-pay-now', `${payNow.toLocaleString()} ${curr}`);
+        setText('sum-remaining', `${remaining.toLocaleString()} ${curr}`);
+        setText('sum-final-total', `${(payNow + platformFee).toLocaleString()} ${curr}`);
     } else {
+        // حالة الاستثمار الكامل
         if (resRow) resRow.style.display = 'none';
         if (remRow) remRow.style.display = 'none';
-        safeSetText('sum-final-total', `${(amount + platformFee).toLocaleString()} ${curr}`);
+        setText('sum-final-total', `${(amount + platformFee).toLocaleString()} ${curr}`);
     }
+
     validateForm();
 }
 
+/**
+ * تهيئة مستمعي الأحداث لمراقبة التفاعلات
+ */
 function setupEventListeners() {
+    // مراقبة تغيير نوع الاستثمار
     document.querySelectorAll('input[name="investmentType"]').forEach(r => {
         r.addEventListener('change', () => {
             const isCustom = r.value === 'custom';
@@ -122,10 +150,16 @@ function setupEventListeners() {
             if (amountArea) amountArea.classList.toggle('hidden', isCustom);
             if (customArea) customArea.classList.toggle('hidden', !isCustom);
             if (summaryArea) summaryArea.style.display = isCustom ? 'none' : 'block';
+
             updateCalculations();
         });
     });
 
+    // مراقبة القائمة المنسدلة لنوع الشراكة
+    const partTypeSelect = document.getElementById('partnershipType');
+    if (partTypeSelect) partTypeSelect.addEventListener('change', validateForm);
+
+    // مراقبة المدخلات والتحقق
     const investInput = document.getElementById('investAmount');
     if (investInput) investInput.addEventListener('input', updateCalculations);
 
@@ -135,32 +169,40 @@ function setupEventListeners() {
     const customTerms = document.getElementById('customTerms');
     if (customTerms) customTerms.addEventListener('input', validateForm);
 
+    // معالجة الإرسال
     const form = document.getElementById('investForm');
-    if (form) form.onsubmit = handleSubmission;
+    if (form) form.onsubmit = handleFinalSubmission;
 }
 
+/**
+ * التحقق من استيفاء الشروط قبل تفعيل زر الإرسال
+ */
 function validateForm() {
-    const amountInput = document.getElementById('investAmount');
-    const amount = amountInput ? parseFloat(amountInput.value) || 0 : 0;
     const typeElement = document.querySelector('input[name="investmentType"]:checked');
     const type = typeElement ? typeElement.value : 'full';
+
     const checkEl = document.getElementById('check-legal-confirm');
     const isChecked = checkEl ? checkEl.checked : false;
-    const minRequired = currentProject?.minInvestment || 0;
 
-    let isValid = isChecked;
-    if (type !== 'custom') {
-        isValid = isChecked && amount >= minRequired && amount > 0;
+    let isValid = false;
+
+    if (type === 'custom') {
+        const terms = document.getElementById('customTerms')?.value.trim() || "";
+        isValid = isChecked && terms.length >= 15;
     } else {
-        const termsEl = document.getElementById('customTerms');
-        const terms = termsEl ? termsEl.value.trim() : "";
-        isValid = isChecked && terms.length > 15;
+        const amount = parseFloat(document.getElementById('investAmount')?.value) || 0;
+        const minRequired = currentProject?.minInvestment || 0;
+        isValid = isChecked && amount >= minRequired && amount > 0;
     }
+
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) submitBtn.disabled = !isValid;
 }
 
-async function handleSubmission(e) {
+/**
+ * إرسال الطلب النهائي للسيرفر (API)
+ */
+async function handleFinalSubmission(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     const token = localStorage.getItem('user_token');
@@ -170,7 +212,7 @@ async function handleSubmission(e) {
     btn.disabled = true;
     btn.textContent = t('js-messages-sending-text') || '...';
 
-    let endpoint = `${API_BASE_URL}/api/investments`;
+    // تجهيز البيانات
     let payload = {
         projectId: currentProject._id,
         investmentType: type,
@@ -179,11 +221,14 @@ async function handleSubmission(e) {
         equityObtained: (amount / currentProject.fundingGoal.amount) * currentProject.equityOffered
     };
 
+    let endpoint = `${API_BASE_URL}/api/investments`;
+
+    // إذا كانت شراكة مخصصة
     if (type === 'custom') {
         endpoint = `${API_BASE_URL}/api/proposals`;
+        payload.partnershipType = document.getElementById('partnershipType')?.value || 'hybrid';
         payload.proposedTerms = document.getElementById('customTerms').value;
         payload.expertiseAreas = Array.from(document.querySelectorAll('input[name="exp"]:checked')).map(c => c.value);
-        payload.partnershipType = 'hybrid';
     } else {
         const payNow = (type === 'reservation') ? amount * 0.30 : amount;
         payload.amountPaidNow = payNow;
@@ -194,12 +239,19 @@ async function handleSubmission(e) {
     try {
         const res = await fetch(endpoint, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify(payload)
         });
 
-        if (res.ok) renderSuccessUI(type);
-        else throw new Error('فشل تسجيل الطلب');
+        if (res.ok) {
+            renderSuccessUI(type);
+        } else {
+            const errData = await res.json();
+            throw new Error(errData.message || 'Error processing request');
+        }
     } catch (err) {
         alert(err.message);
         btn.disabled = false;
@@ -207,18 +259,26 @@ async function handleSubmission(e) {
     }
 }
 
+/**
+ * عرض شاشة النجاح الرسمية بعد الإرسال
+ */
 function renderSuccessUI(type) {
-    const container = document.querySelector('.invest-official-container');
-    if (container) {
-        const successMsg = type === 'custom' ? t('js-public-profile-success-message-sent') : 'تم تسجيل مساهمتكم بنجاح.';
-        container.innerHTML = `
-            <div style="text-align: center; padding: 60px 0;">
-                <i class="fas fa-check-double" style="font-size: 4rem; color: #10b981; margin-bottom: 25px;"></i>
-                <h1 style="color: #1E3A8A;">تم إعتماد الطلب</h1>
-                <p style="color: #64748b; line-height: 1.8;">${successMsg}</p>
+    const main = document.querySelector('.invest-official-container');
+    if (main) {
+        const successMsg = type === 'custom'
+            ? t('js-public-profile-success-message-sent')
+            : 'تم اعتماد طلب المساهمة المالية بنجاح في سجلات المشروع.';
+
+        main.innerHTML = `
+            <div style="text-align: center; padding: 60px 0; animation: fadeIn 0.8s ease;">
+                <i class="fas fa-check-double" style="font-size: 4.5rem; color: #10b981; margin-bottom: 25px;"></i>
+                <h1 style="color: #1E3A8A; font-weight: 800;">تم إتمام الإجراء بنجاح</h1>
+                <p style="color: #64748b; font-size: 1.1rem; line-height: 1.8; max-width: 550px; margin: 0 auto 40px;">
+                    ${successMsg} يمكنك الآن متابعة التطورات عبر محفظتك الاستثمارية.
+                </p>
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                    <a href="investor-portfolio.html" class="btn-official-primary" style="text-decoration:none;">${t('nav-my-investments')}</a>
-                    <a href="index.html" class="btn-official-secondary" style="text-decoration:none;">الرئيسية</a>
+                    <a href="investor-portfolio.html" class="btn-official-primary" style="text-decoration:none; padding: 15px 40px;">${t('nav-my-investments')}</a>
+                    <a href="index.html" class="btn-official-secondary" style="text-decoration:none; padding: 15px 40px;">${t('nav-home')}</a>
                 </div>
             </div>`;
     }

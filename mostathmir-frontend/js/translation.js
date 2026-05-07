@@ -5,6 +5,11 @@
   const dict = {
     ar: {
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
+      "invest-custom-type-label": "تصنيف الشراكة المقترحة:",
+      "js-portfolio-type-strategic": "شراكة استراتيجية (مال + خبرة)",
+      "js-portfolio-type-expertise": "مساهمة بالخبرة الفنية فقط",
+      "js-portfolio-type-advisory": "مستشار تنفيذي / إرشاد",
+      "js-portfolio-type-hybrid": "شراكة مختلطة (تخصيص كامل)",
       "invest-page-title": "وثيقة تأكيد الاستثمار | منصة مستثمر",
       "invest-watermark": "إجراء رسمي",
       "invest-doc-title": "مراجعة وتأكيد طلب المساهمة",
@@ -1986,6 +1991,11 @@
 
     en: {
       // --- New Official Investment Page Keys ---
+      "invest-custom-type-label": "Proposed Partnership Category:",
+      "js-portfolio-type-strategic": "Strategic Partnership (Capital + Expertise)",
+      "js-portfolio-type-expertise": "Technical Expertise Only",
+      "js-portfolio-type-advisory": "Executive Advisory / Mentorship",
+      "js-portfolio-type-hybrid": "Hybrid Partnership (Full Customization)",
       "invest-page-title": "Investment Confirmation | Mostathmir",
       "invest-watermark": "OFFICIAL ACTION",
       "invest-doc-title": "Contribution Review & Confirmation",
