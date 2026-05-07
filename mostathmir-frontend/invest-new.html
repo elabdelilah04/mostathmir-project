@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تأكيد طلب الاستثمار | مستثمر</title>
+    <title data-i18n-key="invest-page-title">وثيقة تأكيد الاستثمار | منصة مستثمر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/header-styles.css">
     <link rel="stylesheet" href="/css/invest-new.css">
@@ -15,138 +15,171 @@
 <body>
     <div id="header-placeholder"></div>
 
-    <main class="invest-document-container">
-        <!-- رأس الوثيقة -->
-        <header class="document-header">
-            <h1 class="doc-title">مراجعة وتأكيد طلب الاستثمار</h1>
-            <p class="doc-subtitle">يرجى مراجعة تفاصيل العرض والشروط القانونية قبل المتابعة.</p>
+    <main class="invest-official-container">
+        <div class="doc-watermark" data-i18n-key="invest-watermark">إجراء رسمي</div>
+
+        <header class="doc-header">
+            <h1 data-i18n-key="invest-doc-title">مراجعة وتأكيد طلب المساهمة</h1>
+            <p data-i18n-key="invest-doc-subtitle">يرجى مراجعة التفاصيل المالية وحصة الملكية قبل الاعتماد النهائي.</p>
         </header>
 
-        <!-- القسم الأول: ملخص المشروع -->
-        <section class="doc-section">
-            <h2 class="section-heading">01. بيانات المشروع المستهدف</h2>
-            <div class="project-info-minimal">
-                <div class="info-row">
-                    <span class="label">اسم المشروع:</span>
-                    <span class="value" id="projectName">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">رائد الأعمال:</span>
-                    <span class="value" id="projectOwner">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">الحالة الحالية للتمويل:</span>
-                    <span class="value" id="currentRaised">-</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- القسم الثاني: اختيار نوع الاستثمار -->
-        <section class="doc-section">
-            <h2 class="section-heading">02. تفاصيل المساهمة</h2>
-
-            <div class="investment-options-list">
-                <label class="option-item">
-                    <input type="radio" name="investType" value="full" checked onchange="updateView()">
-                    <div class="option-content">
-                        <strong>استثمار كامل (100%)</strong>
-                        <span>دفع كامل مبلغ المساهمة فورياً لتأكيد حصة الملكية.</span>
+        <form id="investForm">
+            <!-- 01. بيانات المشروع -->
+            <section class="doc-section">
+                <h2 class="section-num">01</h2>
+                <div class="section-body">
+                    <h3 class="section-title" data-i18n-key="invest-section-project">بيانات المشروع والملكية المعروضة
+                    </h3>
+                    <div class="minimal-info-grid">
+                        <div class="info-row">
+                            <span class="label" data-i18n-key="addproject-name-label">اسم المشروع:</span>
+                            <span class="value" id="disp-project-name">...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label" data-i18n-key="project-view-founder-label">صاحب المشروع:</span>
+                            <span class="value" id="disp-project-owner">...</span>
+                        </div>
+                        <div class="info-row highlight-blue">
+                            <span class="label" data-i18n-key="project-view-equity-label">الملكية المعروضة:</span>
+                            <span class="value" id="disp-total-equity">0%</span>
+                        </div>
                     </div>
-                </label>
+                </div>
+            </section>
 
-                <label class="option-item">
-                    <input type="radio" name="investType" value="reservation" onchange="updateView()">
-                    <div class="option-content">
-                        <strong>حجز مقعد استثماري (30%)</strong>
-                        <span>دفع عربون جدية، مع التزام بسداد المتبقي عند اكتمال الجولة.</span>
+            <!-- 02. تفاصيل المساهمة -->
+            <section class="doc-section">
+                <h2 class="section-num">02</h2>
+                <div class="section-body">
+                    <h3 class="section-title" data-i18n-key="invest-section-type">تحديد نوع المساهمة وقيمة الاستثمار
+                    </h3>
+
+                    <div class="investment-method-list">
+                        <label class="method-item">
+                            <input type="radio" name="investmentType" value="full" checked>
+                            <div class="method-desc">
+                                <strong data-i18n-key="invest-type-full-title">استثمار مالي كامل (100%)</strong>
+                                <p data-i18n-key="invest-type-full-desc">سداد كامل مبلغ المساهمة فوراً لتأكيد الحصة
+                                    القانونية.</p>
+                            </div>
+                        </label>
+
+                        <label class="method-item">
+                            <input type="radio" name="investmentType" value="reservation">
+                            <div class="method-desc">
+                                <strong data-i18n-key="invest-type-reservation-title">حجز حصة (عربون 30%)</strong>
+                                <p data-i18n-key="invest-type-reservation-desc">دفع دفعة مقدمة لضمان المقعد، وسداد
+                                    المتبقي لاحقاً.</p>
+                            </div>
+                        </label>
+
+                        <label class="method-item">
+                            <input type="radio" name="investmentType" value="custom">
+                            <div class="method-desc">
+                                <strong data-i18n-key="invest-type-custom-title">اقتراح شراكة استراتيجية</strong>
+                                <p data-i18n-key="invest-type-custom-desc">تقديم عرض يتضمن خبرات فنية أو إدارية بجانب
+                                    المساهمة المالية.</p>
+                            </div>
+                        </label>
                     </div>
-                </label>
 
-                <label class="option-item">
-                    <input type="radio" name="investType" value="custom" onchange="updateView()">
-                    <div class="option-content">
-                        <strong>شراكة استراتيجية / مخصصة</strong>
-                        <span>تقديم عرض يتضمن خبرات فنية أو إدارية بجانب أو بدلاً من الدعم المالي.</span>
+                    <div id="financialInputArea">
+                        <div class="input-minimal-group">
+                            <label data-i18n-key="invest-amount-label">مبلغ الاستثمار المرغوب:</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="investAmount" placeholder="0.00">
+                                <span class="currency-tag" id="disp-currency">...</span>
+                            </div>
+                            <p class="input-note" id="min-invest-note"></p>
+                        </div>
+
+                        <div class="equity-preview-box">
+                            <div class="flex justify-between items-center">
+                                <span data-i18n-key="invest-ownership-calculated">حصة ملكيتك المقدرة:</span>
+                                <span class="equity-value" id="calculated-user-equity">0%</span>
+                            </div>
+                        </div>
                     </div>
-                </label>
-            </div>
 
-            <!-- مدخلات المبالغ -->
-            <div id="amountInputArea" class="input-group-minimal">
-                <label for="investmentAmount">مبلغ الاستثمار المقترح:</label>
-                <div class="input-with-symbol">
-                    <input type="number" id="investmentAmount" placeholder="0.00">
-                    <span class="currency-label" id="docCurrency">MAD</span>
+                    <div id="customPartnershipArea" class="hidden">
+                        <div class="input-minimal-group">
+                            <label data-i18n-key="invest-custom-expertise-label">مجالات الخبرة المضافة:</label>
+                            <div class="expertise-grid">
+                                <label><input type="checkbox" name="exp" value="تقنية"> <span
+                                        data-i18n-key="addproject-category-tech">تقنية</span></label>
+                                <label><input type="checkbox" name="exp" value="تسويق"> <span
+                                        data-i18n-key="invest-custom-expertise-marketing">تسويق</span></label>
+                                <label><input type="checkbox" name="exp" value="إدارة"> <span
+                                        data-i18n-key="invest-custom-expertise-hr">إدارة</span></label>
+                                <label><input type="checkbox" name="exp" value="توسع"> <span
+                                        data-i18n-key="invest-custom-expertise-ops">توسع</span></label>
+                            </div>
+                        </div>
+                        <div class="input-minimal-group">
+                            <label data-i18n-key="invest-custom-terms-label">تفاصيل العرض والقيمة المضافة:</label>
+                            <textarea id="customTerms" rows="5"
+                                data-i18n-placeholder-key="invest-custom-terms-placeholder"></textarea>
+                        </div>
+                    </div>
                 </div>
-                <p class="input-hint" id="minInvestHint"></p>
-            </div>
+            </section>
 
-            <!-- نموذج الشراكة المخصصة -->
-            <div id="customPartnershipArea" class="hidden-section">
-                <div class="input-group-minimal">
-                    <label>نوع الشراكة المقترحة:</label>
-                    <select id="partnershipType">
-                        <option value="strategic">شراكة استراتيجية</option>
-                        <option value="expertise">مساهمة بالخبرة</option>
-                        <option value="advisory">مستشار تنفيذي</option>
-                        <option value="hybrid">مزيج مالي وفني</option>
-                    </select>
+            <!-- 03. الخلاصة المالية -->
+            <section class="doc-section section-gray" id="financialSummarySection">
+                <h2 class="section-num">03</h2>
+                <div class="section-body">
+                    <h3 class="section-title" data-i18n-key="invest-payment-title">البيان المالي المستحق</h3>
+                    <div class="official-invoice-table">
+                        <div class="inv-line">
+                            <span data-i18n-key="invest-summary-amount-label">قيمة المساهمة:</span>
+                            <span id="sum-base-amount">0.00</span>
+                        </div>
+                        <div class="inv-line text-blue" id="row-reservation" style="display:none;">
+                            <span data-i18n-key="invest-reservation-downpayment-label">دفعة الحجز (30%):</span>
+                            <span id="sum-pay-now">0.00</span>
+                        </div>
+                        <div class="inv-line text-red" id="row-remaining" style="display:none;">
+                            <span data-i18n-key="invest-reservation-remaining-label">المبلغ المتبقي (70%):</span>
+                            <span id="sum-remaining">0.00</span>
+                        </div>
+                        <div class="inv-line">
+                            <span data-i18n-key="invest-summary-platform-fee-label">رسوم المنصة (2%):</span>
+                            <span id="sum-platform-fees">0.00</span>
+                        </div>
+                        <div class="inv-line total-line">
+                            <span data-i18n-key="invest-summary-total-label">إجمالي المطلوب الآن:</span>
+                            <span id="sum-final-total">0.00</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group-minimal">
-                    <label>تفاصيل العرض والمقترحات:</label>
-                    <textarea id="proposedTerms" rows="5"
-                        placeholder="اكتب شروطك أو القيمة المضافة التي ستقدمها..."></textarea>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- القسم الثالث: ملخص مالي -->
-        <section class="doc-section financial-summary">
-            <h2 class="section-heading">03. الخلاصة المالية</h2>
-            <div class="summary-table">
-                <div class="summary-row">
-                    <span>قيمة الاستثمار:</span>
-                    <span id="sumAmount">0.00</span>
+            <!-- 04. الإقرار -->
+            <section class="doc-section">
+                <h2 class="section-num">04</h2>
+                <div class="section-body">
+                    <h3 class="section-title" data-i18n-key="invest-terms-title">التعهد القانوني</h3>
+                    <div class="legal-acknowledgment">
+                        <label class="check-container">
+                            <input type="checkbox" id="check-legal-confirm" required>
+                            <span class="check-text" data-i18n-key="invest-terms-check1">أوافق على كافة الشروط المالية
+                                والقانونية المذكورة أعلاه.</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="summary-row" id="reservationFeeRow" style="display: none;">
-                    <span>دفعة الحجز (30%):</span>
-                    <span id="resAmount">0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span>رسوم المنصة الإدارية:</span>
-                    <span id="platformFees">0.00</span>
-                </div>
-                <div class="summary-row total">
-                    <span>إجمالي المبلغ المطلوب الآن:</span>
-                    <span id="totalDue">0.00</span>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- القسم الرابع: الإقرار القانوني -->
-        <section class="doc-section legal-terms">
-            <h2 class="section-heading">04. الإقرارات والتعهدات</h2>
-            <div class="legal-box">
-                <label class="checkbox-item">
-                    <input type="checkbox" id="legal1">
-                    <span>أقر بأنني قمت بدراسة المشروع ومخاطره، وأتحمل المسؤولية الكاملة عن قراري الاستثماري.</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" id="legal2">
-                    <span>أوافق على سياسة الاستثمار في منصة مستثمر والالتزام بجدول الدفعات المحدد.</span>
-                </label>
+            <div class="doc-footer">
+                <button type="submit" id="submitBtn" class="btn-official-primary" disabled
+                    data-i18n-key="invest-proceed-btn">تأكيد وإرسال الطلب</button>
+                <button type="button" onclick="window.history.back()" class="btn-official-secondary"
+                    data-i18n-key="profile-contact-cancel-btn">إلغاء</button>
             </div>
-        </section>
-
-        <!-- أزرار الإجراءات -->
-        <div class="document-footer">
-            <button id="btnSubmitRequest" class="btn-doc-primary" disabled>تأكيد وإرسال الطلب</button>
-            <button onclick="window.history.back()" class="btn-doc-secondary">إلغاء الطلب</button>
-        </div>
+        </form>
     </main>
 
     <script src="/js/script.js"></script>
-    <!-- <script src="/js/invest-new.js"></script> -->
+    <script src="/js/invest-new.js"></script>
     <script src="/js/translation.js"></script>
 </body>
 

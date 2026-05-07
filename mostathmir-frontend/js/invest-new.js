@@ -1,88 +1,185 @@
 // js/invest-new.js
-let projectData = null;
+let currentProject = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('user_token');
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get('id');
-    if (!projectId) return window.location.href = 'browse-projects.html';
 
-    await loadProject(projectId);
-    setupEventListeners();
+    if (!token) {
+        alert(t('js-portfolio-login-required'));
+        window.location.href = 'login.html';
+        return;
+    }
+
+    if (!projectId) {
+        window.location.href = 'browse-projects.html';
+        return;
+    }
+
+    await fetchProjectData(projectId);
+    initFormInteractions();
 });
 
-async function loadProject(id) {
+async function fetchProjectData(id) {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/projects/${id}`);
-        projectData = await res.json();
+        const response = await fetch(`${API_BASE_URL}/api/projects/${id}`);
+        currentProject = await response.json();
 
-        document.getElementById('projectName').textContent = projectData.projectName;
-        document.getElementById('projectOwner').textContent = projectData.owner.fullName;
-        document.getElementById('docCurrency').textContent = projectData.fundingGoal.currency;
+        document.getElementById('disp-project-name').textContent = currentProject.projectName;
+        document.getElementById('disp-project-owner').textContent = currentProject.owner.fullName;
+        document.getElementById('disp-total-equity').textContent = `${currentProject.equityOffered}%`;
+        document.getElementById('disp-currency').textContent = currentProject.fundingGoal.currency;
 
-        const raised = projectData.fundingAmountRaised || 0;
-        const goal = projectData.fundingGoal.amount;
-        document.getElementById('currentRaised').textContent = `${raised.toLocaleString()} / ${goal.toLocaleString()} ${projectData.fundingGoal.currency}`;
+        const raised = currentProject.fundingAmountRaised || 0;
+        const goal = currentProject.fundingGoal.amount;
+        const curr = currentProject.fundingGoal.currency;
 
-        document.getElementById('minInvestHint').textContent = `الحد الأدنى للمساهمة: ${projectData.minInvestment} ${projectData.fundingGoal.currency}`;
+        document.getElementById('disp-funding-status').textContent = `${raised.toLocaleString()} / ${goal.toLocaleString()} ${curr}`;
+
+        // استخدام الترجمة للملاحظة
+        const minNote = t('js-project-view-min-investment-label');
+        document.getElementById('min-invest-note').textContent = `* ${minNote}: ${currentProject.minInvestment.toLocaleString()} ${curr}`;
+
+        document.getElementById('investAmount').value = currentProject.minInvestment;
+        updateCalculations();
+
     } catch (err) {
-        console.error("Error loading project", err);
+        console.error("Fetch Error", err);
     }
 }
 
-function updateView() {
-    const type = document.querySelector('input[name="investType"]:checked').value;
-    const amountArea = document.getElementById('amountInputArea');
-    const customArea = document.getElementById('customPartnershipArea');
-    const resRow = document.getElementById('reservationFeeRow');
+function updateCalculations() {
+    if (!currentProject) return;
 
-    if (type === 'custom') {
-        amountArea.style.display = 'none';
-        customArea.style.display = 'block';
-    } else {
-        amountArea.style.display = 'block';
-        customArea.style.display = 'none';
-        resRow.style.display = (type === 'reservation') ? 'flex' : 'none';
-    }
-    calculateTotals();
-}
+    const type = document.querySelector('input[name="investmentType"]:checked').value;
+    const amount = parseFloat(document.getElementById('investAmount').value) || 0;
+    const goal = currentProject.fundingGoal.amount || 1;
+    const totalOffered = currentProject.equityOffered || 0;
+    const curr = currentProject.fundingGoal.currency;
 
-function calculateTotals() {
-    const type = document.querySelector('input[name="investType"]:checked').value;
-    const amount = parseFloat(document.getElementById('investmentAmount').value) || 0;
-    const currency = projectData?.fundingGoal?.currency || '';
+    const userEquity = (amount / goal) * totalOffered;
+    document.getElementById('calculated-user-equity').textContent = `${userEquity.toFixed(4)}%`;
 
-    let platformFee = amount * 0.02; // 2% رسوم
-    let total = amount + platformFee;
+    const platformFee = amount * 0.02;
+    document.getElementById('sum-base-amount').textContent = `${amount.toLocaleString()} ${curr}`;
+    document.getElementById('sum-platform-fees').textContent = `${platformFee.toLocaleString()} ${curr}`;
 
-    document.getElementById('sumAmount').textContent = `${amount.toLocaleString()} ${currency}`;
-    document.getElementById('platformFees').textContent = `${platformFee.toLocaleString()} ${currency}`;
+    const resRow = document.getElementById('row-reservation');
+    const remRow = document.getElementById('row-remaining');
 
     if (type === 'reservation') {
-        const resAmount = amount * 0.30;
-        document.getElementById('resAmount').textContent = `${resAmount.toLocaleString()} ${currency}`;
-        document.getElementById('totalDue').textContent = `${(resAmount + platformFee).toLocaleString()} ${currency}`;
+        const payNow = amount * 0.30;
+        const remaining = amount - payNow;
+        resRow.style.display = 'flex';
+        remRow.style.display = 'flex';
+        document.getElementById('sum-pay-now').textContent = `${payNow.toLocaleString()} ${curr}`;
+        document.getElementById('sum-remaining').textContent = `${remaining.toLocaleString()} ${curr}`;
+        document.getElementById('sum-final-total').textContent = `${(payNow + platformFee).toLocaleString()} ${curr}`;
     } else {
-        document.getElementById('totalDue').textContent = `${total.toLocaleString()} ${currency}`;
+        resRow.style.display = 'none';
+        remRow.style.display = 'none';
+        document.getElementById('sum-final-total').textContent = `${(amount + platformFee).toLocaleString()} ${curr}`;
     }
-    checkValidation();
+
+    validateForm();
 }
 
-function setupEventListeners() {
-    document.getElementById('investmentAmount').addEventListener('input', calculateTotals);
-    document.querySelectorAll('input[type="checkbox"]').forEach(i => i.addEventListener('change', checkValidation));
+function initFormInteractions() {
+    document.querySelectorAll('input[name="investmentType"]').forEach(r => {
+        r.addEventListener('change', (e) => {
+            const isCustom = e.target.value === 'custom';
+            document.getElementById('financialInputArea').className = isCustom ? 'hidden' : '';
+            document.getElementById('customPartnershipArea').className = isCustom ? '' : 'hidden';
+            document.getElementById('financialSummarySection').style.display = isCustom ? 'none' : 'block';
+            updateCalculations();
+        });
+    });
+
+    document.getElementById('investAmount').addEventListener('input', updateCalculations);
+    document.getElementById('check-legal-confirm').addEventListener('change', validateForm);
+    document.getElementById('customTerms').addEventListener('input', validateForm);
+    document.getElementById('investForm').onsubmit = handleSubmission;
 }
 
-function checkValidation() {
-    const amount = parseFloat(document.getElementById('investmentAmount').value) || 0;
-    const type = document.querySelector('input[name="investType"]:checked').value;
-    const legals = document.getElementById('legal1').checked && document.getElementById('legal2').checked;
+function validateForm() {
+    const amount = parseFloat(document.getElementById('investAmount').value) || 0;
+    const type = document.querySelector('input[name="investmentType"]:checked').value;
+    const isChecked = document.getElementById('check-legal-confirm').checked;
+    const minRequired = currentProject?.minInvestment || 0;
 
-    let isValid = legals;
+    let isValid = isChecked;
     if (type !== 'custom') {
-        isValid = legals && amount >= (projectData?.minInvestment || 0);
+        isValid = isChecked && amount >= minRequired;
     } else {
-        isValid = legals && document.getElementById('proposedTerms').value.length > 10;
+        isValid = isChecked && document.getElementById('customTerms').value.trim().length > 15;
+    }
+    document.getElementById('submitBtn').disabled = !isValid;
+}
+
+async function handleSubmission(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const type = document.querySelector('input[name="investmentType"]:checked').value;
+    const amount = parseFloat(document.getElementById('investAmount').value) || 0;
+    const token = localStorage.getItem('user_token');
+
+    btn.disabled = true;
+    btn.textContent = t('js-messages-sending-text'); // "جاري الإرسال..."
+
+    let payload = {
+        projectId: currentProject._id,
+        investmentType: type,
+        investmentAmount: amount,
+        currency: currentProject.fundingGoal.currency,
+        equityObtained: (amount / currentProject.fundingGoal.amount) * currentProject.equityOffered
+    };
+
+    let endpoint = `${API_BASE_URL}/api/investments`;
+
+    if (type === 'custom') {
+        endpoint = `${API_BASE_URL}/api/proposals`;
+        const exps = Array.from(document.querySelectorAll('input[name="exp"]:checked')).map(c => c.value);
+        payload.proposedTerms = document.getElementById('customTerms').value;
+        payload.expertiseAreas = exps;
+        payload.partnershipType = 'hybrid';
+    } else {
+        const payNow = (type === 'reservation') ? amount * 0.30 : amount;
+        payload.amountPaidNow = payNow;
+        payload.amountRemaining = amount - payNow;
+        payload.isReservation = (type === 'reservation');
     }
 
-    document.getElementById('btnSubmitRequest').disabled = !isValid;
+    try {
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) renderSuccessMessage(type);
+        else throw new Error();
+    } catch (err) {
+        alert(t('js-settings-error-save'));
+        btn.disabled = false;
+        btn.textContent = t('invest-proceed-btn');
+    }
+}
+
+function renderSuccessMessage(type) {
+    const main = document.querySelector('.invest-official-container');
+    const msg = type === 'custom'
+        ? t('js-public-profile-success-message-sent')
+        : t('js-phone-verify-success');
+
+    main.innerHTML = `
+        <div style="text-align: center; padding: 60px 0;">
+            <i class="fas fa-check-double" style="font-size: 4rem; color: #10b981; margin-bottom: 25px;"></i>
+            <h1 style="color: #1E3A8A;">${t('js-investor-profile-proposal-status-accepted')}</h1>
+            <p style="color: #475569; max-width: 500px; margin: 0 auto 35px; line-height: 1.8;">${msg}</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <a href="investor-portfolio.html" class="btn-official-primary" style="text-decoration:none;">${t('nav-my-investments')}</a>
+                <a href="index.html" class="btn-official-secondary" style="text-decoration:none;">${t('nav-home')}</a>
+            </div>
+        </div>`;
 }

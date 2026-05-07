@@ -1,212 +1,272 @@
-/* css/invest-new.css */
-body {
-    background-color: #fcfcfc;
-    color: #2d3748;
-    line-height: 1.6;
-}
-
-.invest-document-container {
-    max-width: 800px;
+/* تنسيقات الوثيقة الرسمية */
+.invest-official-container {
+    max-width: 850px;
     margin: 40px auto;
-    background: #fff;
-    padding: 50px;
+    background: #ffffff;
+    padding: 60px;
     border: 1px solid #e2e8f0;
+    position: relative;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.document-header {
-    border-bottom: 2px solid #1E3A8A;
-    padding-bottom: 20px;
-    margin-bottom: 40px;
+.doc-watermark {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    padding: 3px 10px;
+    letter-spacing: 2px;
 }
 
-.doc-title {
+.doc-header {
+    text-align: center;
+    margin-bottom: 50px;
+    border-bottom: 2px solid #1E3A8A;
+    padding-bottom: 25px;
+}
+
+.doc-header h1 {
     font-size: 1.8rem;
     color: #1E3A8A;
-    font-weight: 700;
+    margin-bottom: 8px;
 }
 
-.doc-subtitle {
-    color: #718096;
+.doc-header p {
+    color: #64748b;
     font-size: 0.95rem;
 }
 
 .doc-section {
-    margin-bottom: 40px;
+    display: flex;
+    gap: 30px;
+    margin-bottom: 45px;
 }
 
-.section-heading {
+.section-num {
+    font-size: 2.2rem;
+    font-weight: 200;
+    color: #cbd5e1;
+    line-height: 1;
+}
+
+.section-body {
+    flex: 1;
+}
+
+.section-title {
     font-size: 1.1rem;
     font-weight: 700;
-    text-transform: uppercase;
-    color: #4a5568;
-    margin-bottom: 20px;
-    letter-spacing: 0.5px;
+    color: #334155;
+    margin-bottom: 18px;
+    border-right: 4px solid #D4AF37;
+    padding-right: 15px;
 }
 
-/* جداول المعلومات البسيطة */
 .info-row {
     display: flex;
     justify-content: space-between;
     padding: 12px 0;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .info-row .label {
-    color: #718096;
+    color: #64748b;
     font-size: 0.9rem;
 }
 
 .info-row .value {
-    font-weight: 600;
-    color: #2d3748;
+    font-weight: 700;
+    color: #1e293b;
 }
 
-/* خيارات الاستثمار */
-.investment-options-list {
+.highlight-blue {
+    background-color: #f8fafc;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.highlight-blue .value {
+    color: #1E3A8A;
+}
+
+.investment-method-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
-.option-item {
+.method-item {
     display: flex;
     gap: 15px;
-    padding: 15px;
+    padding: 18px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: 0.2s;
+    border-radius: 4px;
 }
 
-.option-item:has(input:checked) {
-    border-color: #1E3A8A;
+.method-item:hover {
     background-color: #f8fafc;
 }
 
-.option-content strong {
+.method-item:has(input:checked) {
+    border-color: #1E3A8A;
+    background-color: #f0f7ff;
+}
+
+.method-desc strong {
     display: block;
+    margin-bottom: 4px;
     color: #1E3A8A;
-    font-size: 1rem;
 }
 
-.option-content span {
+.method-desc p {
     font-size: 0.85rem;
-    color: #718096;
+    color: #64748b;
+    margin: 0;
 }
 
-/* المدخلات */
-.input-group-minimal {
-    margin-top: 20px;
-}
-
-.input-group-minimal label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-}
-
-.input-with-symbol {
+.input-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
 }
 
-.input-with-symbol input,
-.input-group-minimal select,
-.input-group-minimal textarea {
+.input-wrapper input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #cbd5e1;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1E3A8A;
+    outline: none;
+}
+
+.currency-tag {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.input-note {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 8px;
+}
+
+.equity-preview-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+}
+
+.equity-value {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #059669;
+}
+
+.expertise-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    background: #f8fafc;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-    font-size: 1rem;
+    border: 1px solid #cbd5e1;
+    font-family: inherit;
 }
 
-.currency-label {
-    position: absolute;
-    left: 12px;
-    color: #a0aec0;
-    font-weight: 600;
-}
-
-/* الخلاصة المالية */
-.financial-summary {
+.section-gray {
     background-color: #f8fafc;
     padding: 30px;
     border-radius: 8px;
 }
 
-.summary-table .summary-row {
+.official-invoice-table .inv-line {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    padding: 8px 0;
     font-size: 0.95rem;
 }
 
-.summary-row.total {
+.total-line {
     margin-top: 15px;
-    padding-top: 15px;
-    border-top: 2px solid #e2e8f0;
-    font-weight: 700;
-    font-size: 1.2rem;
+    padding-top: 15px !important;
+    border-top: 2px solid #1E3A8A;
+    font-weight: 800;
+    font-size: 1.4rem;
     color: #1E3A8A;
 }
 
-/* الإقرارات */
-.legal-box {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.checkbox-item {
-    display: flex;
-    gap: 12px;
-    font-size: 0.9rem;
-    color: #4a5568;
-    cursor: pointer;
-}
-
-/* الأزرار */
-.document-footer {
-    display: flex;
-    gap: 20px;
-    margin-top: 50px;
-}
-
-.btn-doc-primary {
+.btn-official-primary {
     flex: 2;
     background: #1E3A8A;
     color: #fff;
-    padding: 15px;
-    border-radius: 6px;
+    padding: 18px;
+    border: none;
     font-weight: 700;
-    transition: opacity 0.2s;
+    cursor: pointer;
 }
 
-.btn-doc-primary:disabled {
-    opacity: 0.5;
+.btn-official-primary:disabled {
+    background: #cbd5e1;
     cursor: not-allowed;
 }
 
-.btn-doc-secondary {
+.btn-official-secondary {
     flex: 1;
-    border: 1px solid #cbd5e0;
-    color: #4a5568;
-    padding: 15px;
-    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    padding: 18px;
+    color: #64748b;
     font-weight: 600;
+    background: #fff;
+    cursor: pointer;
 }
 
-@media (max-width: 600px) {
-    .invest-document-container {
-        padding: 25px;
-        margin: 10px;
+.hidden {
+    display: none;
+}
+
+.text-blue {
+    color: #1E3A8A;
+}
+
+.text-red {
+    color: #ef4444;
+}
+
+.doc-footer {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .invest-official-container {
+        padding: 30px;
+        margin: 15px;
     }
 
-    .document-footer {
+    .doc-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .doc-footer {
         flex-direction: column;
     }
 }
