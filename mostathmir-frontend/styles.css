@@ -6391,5 +6391,7 @@ body.loaded {
 
     .Backgroundnew1 {
         background: none;
+        background-color: none;
+
     }
 }
