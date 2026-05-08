@@ -188,7 +188,7 @@
       // indexpage
       // about section
       "shared-growth-slogan": "ننمو معاً",
-      "hero-badge-text": "🚀 مستثمر: أول وسيط بين الفكرة والإستثمار",
+      "hero-badge-text": "  أول وسيط بين الفكرة والإستثمار",
       "hero-user-count": "+80 مستخدم",
       "about-card1-title": "ابتكار بلا حدود",
       "about-card1-desc": "نجمع ألمع العقول مع أجرأ المستثمرين لتحويل الأفكار الورقية إلى مشاريع تغير الواقع.",
@@ -2180,7 +2180,7 @@
       // indexpage
       // abot section
       "shared-growth-slogan": "Growing Together",
-      "hero-badge-text": "🚀 Mostathmir: The First Bridge Between Ideas and Investment",
+      "hero-badge-text": " The First Bridge Between Ideas and Investment",
       "hero-user-count": "+80 Users",
       "about-card1-title": "Limitless Innovation",
       "about-card1-desc": "We bring together the brightest minds with the boldest investors to turn paper ideas into reality-changing projects.",
