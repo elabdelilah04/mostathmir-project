@@ -5,6 +5,11 @@
   const dict = {
     ar: {
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
+      "invest-success-title": "تم إعتماد الطلب بنجاح",
+      "invest-success-msg-finance": "تم تسجيل مساهمتكم المالية بنجاح في سجلات المشروع. يمكنك الآن متابعة التطورات عبر محفظتك الاستثمارية.",
+      "invest-success-msg-custom": "تم إيداع مقترح الشراكة الاستراتيجية بنجاح. سيقوم صاحب المشروع بمراجعة العرض والرد عليك عبر النظام.",
+      "invest-success-btn-portfolio": "الانتقال إلى محفظتي",
+      "invest-success-btn-home": "الرئيسية",
       "invest-max-available-label": "الحد الأقصى المتاح حالياً",
       "invest-custom-type-label": "تصنيف الشراكة المقترحة:",
       "js-portfolio-type-strategic": "شراكة استراتيجية (مال + خبرة)",
@@ -1992,6 +1997,11 @@
 
     en: {
       // --- New Official Investment Page Keys ---
+      "invest-success-title": "Request Successfully Confirmed",
+      "invest-success-msg-finance": "Your financial contribution has been successfully recorded. You can now follow the updates via your investment portfolio.",
+      "invest-success-msg-custom": "Strategic partnership proposal submitted successfully. The project owner will review the offer and respond through the system.",
+      "invest-success-btn-portfolio": "Go to My Portfolio",
+      "invest-success-btn-home": "Home",
       "invest-max-available-label": "Current maximum available",
       "invest-custom-type-label": "Proposed Partnership Category:",
       "js-portfolio-type-strategic": "Strategic Partnership (Capital + Expertise)",

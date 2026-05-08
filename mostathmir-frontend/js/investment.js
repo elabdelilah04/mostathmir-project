@@ -282,25 +282,30 @@ async function handleFinalSubmission(e) {
 }
 
 /**
- * واجهة النجاح الرسمية
+ * واجهة النجاح الرسمية المترجمة بالكامل
  */
 function renderSuccessUI(type) {
     const main = document.querySelector('.invest-official-container');
     if (main) {
-        const successMsg = type === 'custom'
-            ? t('js-public-profile-success-message-sent')
-            : 'تم اعتماد مساهمتكم المالية بنجاح في سجلات المشروع.';
+        // تحديد الرسالة بناءً على نوع العملية (مالية أم شراكة)
+        const successMsgKey = (type === 'custom')
+            ? 'invest-success-msg-custom'
+            : 'invest-success-msg-finance';
 
         main.innerHTML = `
             <div style="text-align: center; padding: 60px 0; animation: fadeIn 0.8s ease;">
                 <i class="fas fa-check-double" style="font-size: 4.5rem; color: #10b981; margin-bottom: 25px;"></i>
-                <h1 style="color: #1E3A8A; font-weight: 800;">تم إتمام الإجراء بنجاح</h1>
+                <h1 style="color: #1E3A8A; font-weight: 800;">${t('invest-success-title')}</h1>
                 <p style="color: #64748b; font-size: 1.1rem; line-height: 1.8; max-width: 550px; margin: 0 auto 40px;">
-                    ${successMsg} يمكنك الآن متابعة التطورات عبر محفظتك الاستثمارية.
+                    ${t(successMsgKey)}
                 </p>
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                    <a href="investor-portfolio.html" class="btn-official-primary" style="text-decoration:none; padding: 15px 40px;">${t('nav-my-investments')}</a>
-                    <a href="index.html" class="btn-official-secondary" style="text-decoration:none; padding: 15px 40px;">${t('nav-home')}</a>
+                    <a href="investor-portfolio.html" class="btn-official-primary" style="text-decoration:none; padding: 15px 40px;">
+                        ${t('invest-success-btn-portfolio')}
+                    </a>
+                    <a href="index.html" class="btn-official-secondary" style="text-decoration:none; padding: 15px 40px;">
+                        ${t('invest-success-btn-home')}
+                    </a>
                 </div>
             </div>`;
     }
