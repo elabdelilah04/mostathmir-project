@@ -4,7 +4,6 @@
 
 /* ----- Main Header Container ----- */
 .header {
-
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -568,64 +567,4 @@
 
 body.mobile-menu-open {
     overflow: hidden;
-}
-
-/* Desktop & Large Tablets Only */
-@media (min-width: 992px) {
-
-    .hero-section {
-        background:
-            radial-gradient(circle at top left, rgba(59, 130, 246, 0.25), transparent 30%),
-            radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.20), transparent 35%),
-            linear-gradient(135deg,
-                #061534 0%,
-                #0A2472 40%,
-                #123FAF 75%,
-                #1D4ED8 100%);
-
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-section::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-
-        background-size: 40px 40px;
-        opacity: 0.15;
-        pointer-events: none;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .hero-image {
-        filter:
-            drop-shadow(0 25px 50px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 40px rgba(59, 130, 246, 0.25));
-    }
-
-    .browse-btn {
-        background: #ffffff;
-        color: #123FAF;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .browse-btn:hover {
-        transform: translateY(-2px);
-        transition: 0.3s ease;
-    }
-
-}
-
-@media (max-width: 991px) {
-    .hero-section {
-        background: #ffffff;
-    }
 }
