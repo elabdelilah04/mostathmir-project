@@ -630,81 +630,78 @@ function observeScrollElements() {
 }
 // --- 3.4. Platform Stats Section (Real Data) ---
 async function fetchPlatformStats() {
-    const statsSection = document.getElementById('stats-section');
-    if (!statsSection) return;
-
     try {
         const [projectsRes, statsRes] = await Promise.all([
             fetch(`${API_BASE_URL}/api/projects/public`),
             fetch(`${API_BASE_URL}/api/users/platform-stats`)
         ]);
 
-        if (!projectsRes.ok) throw new Error('Failed to fetch data');
-
-        const projects = await projectsRes.json();
+        const projects = projectsRes.ok ? await projectsRes.json() : [];
         const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
 
-        // Calculations
+        // 1. حساب إجمالي المشاريع
         const totalProjects = projects.length;
-        const activeOpportunities = projects.filter(p => ['funded', 'completed', 'published'].includes(p.status)).length;
 
+        // 2. حساب الفرص النشطة (قيد التمويل أو مكتملة)
+        const activeOpportunities = projects.filter(p =>
+            ['published', 'funded', 'completed', 'funding'].includes(p.status)
+        ).length;
+
+        // 3. حساب حجم الاستثمارات الكلي بالدرهم المغربي
         let totalCapitalMAD = 0;
         projects.forEach(p => {
             const amount = p.fundingAmountRaised || 0;
             const currency = p.fundingGoal?.currency || 'USD';
             totalCapitalMAD += convertToMAD(amount, currency);
         });
+
+        // تحويل المجموع إلى "مليون" (مثلاً 1.5 مليون)
         const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
-        const totalInvestors = statsData.investorCount || 0;
 
-        // Update DOM
-        const statElements = document.querySelectorAll('.stat-item .font-mono');
-        if (statElements.length >= 4) {
-            statElements[0].setAttribute('data-target', totalProjects);
-            statElements[1].setAttribute('data-target', totalInvestors);
-            statElements[2].setAttribute('data-target', activeOpportunities);
-            statElements[3].setAttribute('data-target', capitalInMillions);
-        }
+        // 4. تحديث القيم في الـ DOM (data-target) لكي يبدأ العداد
+        const updateEl = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.setAttribute('data-target', value);
+        };
 
+        updateEl('stat-count-projects', totalProjects);
+        updateEl('stat-count-investors', statsData.investorCount || 0);
+        updateEl('stat-count-active', activeOpportunities);
+        updateEl('stat-count-capital', capitalInMillions);
+
+        // إطلاق العداد بعد جلب البيانات بنجاح
         startStatsCounter();
+
     } catch (error) {
-        console.error("Stats Error:", error);
-        startStatsCounter(); // Run with zeros if error
+        console.error("Stats Update Error:", error);
+        // في حال الخطأ، ابدأ العداد بالقيم الافتراضية
+        startStatsCounter();
     }
 }
 
 function startStatsCounter() {
-    const statsSection = document.getElementById('stats-section');
-    if (!statsSection) return;
     const counters = document.querySelectorAll('.stat-item [data-target]');
-    let started = false;
 
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !started) {
-            started = true;
-            counters.forEach(counter => {
-                const target = parseFloat(counter.getAttribute('data-target'));
-                const isFloat = target % 1 !== 0;
-                if (target === 0) { counter.innerText = "0"; return; }
+    counters.forEach(counter => {
+        const target = parseFloat(counter.getAttribute('data-target'));
+        const isFloat = target % 1 !== 0; // هل الرقم عشري (مثل حجم الاستثمارات)؟
 
-                const duration = 2000;
-                const increment = target / (duration / 16);
+        let current = 0;
+        const duration = 2000; // مدة الأنيميشن (2 ثانية)
+        const increment = target / (duration / 20); // مقدار الزيادة في كل إطار
 
-                let current = 0;
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.innerText = isFloat ? current.toFixed(1) : Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.innerText = target;
-                    }
-                };
-                updateCounter();
-            });
-        }
-    }, { threshold: 0.5 });
-    observer.observe(statsSection);
+        const updateCount = () => {
+            current += increment;
+            if (current < target) {
+                counter.innerText = isFloat ? current.toFixed(1) : Math.ceil(current);
+                setTimeout(updateCount, 20);
+            } else {
+                counter.innerText = target;
+            }
+        };
+
+        updateCount();
+    });
 }
 
 // --- 3.5. Mobile Scroll Effects ---
