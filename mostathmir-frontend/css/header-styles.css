@@ -568,3 +568,18 @@
 body.mobile-menu-open {
     overflow: hidden;
 }
+
+
+@media (max-width: 991px) {
+    .header-placeholder {
+        
+        padding: 10px;
+    }
+
+    .header {
+        border-radius: 15px;
+        width: 90%;
+        margin: auto;
+    }
+
+}
