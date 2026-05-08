@@ -570,9 +570,9 @@ body.mobile-menu-open {
 }
 
 
-@media (max-width: 991px) {
+@media (min-width: 992px) {
     .header-placeholder {
-        
+
         padding: 10px;
     }
 
