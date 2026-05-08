@@ -6378,11 +6378,21 @@ body.loaded {
 
 
 
+.Backgroundnew1 {
+    background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.25), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.20), transparent 35%),
+        linear-gradient(135deg,
+            #061534 0%,
+            #0A2472 40%,
+            #123FAF 75%,
+            #1D4ED8 100%);
+}
+
 .Backgroundnew {
 
     background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.25), transparent 30%), radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.20), transparent 35%), linear-gradient(178deg, #061534 0%, #0A2472 40%, #123FAF 75%, #1D4ED8 100%);
 }
-
 
 
 @media (min-width: 992px) {
