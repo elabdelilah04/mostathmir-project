@@ -6377,7 +6377,7 @@ body.loaded {
 
 
 
-@media (min-width: 992px) {
+
     .Backgroundnew {
         background:
             radial-gradient(circle at top left, rgba(59, 130, 246, 0.25), transparent 30%),
@@ -6389,9 +6389,4 @@ body.loaded {
                 #1D4ED8 100%);
     }
 
-    .Backgroundnew1 {
-        background: none;
-        background-color: none;
-
-    }
-}
+ 
