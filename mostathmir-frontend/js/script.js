@@ -631,50 +631,34 @@ function observeScrollElements() {
 // --- 3.4. Platform Stats Section (Real Data) ---
 async function fetchPlatformStats() {
     try {
-        const [projectsRes, statsRes] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/projects/public`),
-            fetch(`${API_BASE_URL}/api/users/platform-stats`)
-        ]);
+        // نطلب الإحصائيات الجاهزة من السيرفر
+        const response = await fetch(`${API_BASE_URL}/api/users/platform-stats`);
+        if (!response.ok) throw new Error('Failed to fetch stats');
 
-        const projects = projectsRes.ok ? await projectsRes.json() : [];
-        const statsData = statsRes.ok ? await statsRes.json() : { investorCount: 0 };
+        const data = await response.json();
 
-        // 1. حساب إجمالي المشاريع
-        const totalProjects = projects.length;
-
-        // 2. حساب الفرص النشطة (قيد التمويل أو مكتملة)
-        const activeOpportunities = projects.filter(p =>
-            ['published', 'funded', 'completed', 'funding'].includes(p.status)
-        ).length;
-
-        // 3. حساب حجم الاستثمارات الكلي بالدرهم المغربي
-        let totalCapitalMAD = 0;
-        projects.forEach(p => {
-            const amount = p.fundingAmountRaised || 0;
-            const currency = p.fundingGoal?.currency || 'USD';
-            totalCapitalMAD += convertToMAD(amount, currency);
-        });
-
-        // تحويل المجموع إلى "مليون" (مثلاً 1.5 مليون)
-        const capitalInMillions = (totalCapitalMAD / 1000000).toFixed(1);
-
-        // 4. تحديث القيم في الـ DOM (data-target) لكي يبدأ العداد
-        const updateEl = (id, value) => {
+        // تحديث العناصر في الصفحة باستخدام المعرفات (IDs)
+        const setTarget = (id, val) => {
             const el = document.getElementById(id);
-            if (el) el.setAttribute('data-target', value);
+            if (el) el.setAttribute('data-target', val);
         };
 
-        updateEl('stat-count-projects', totalProjects);
-        updateEl('stat-count-investors', statsData.investorCount || 0);
-        updateEl('stat-count-active', activeOpportunities);
-        updateEl('stat-count-capital', capitalInMillions);
+        // 1. مشاريع مسجلة
+        setTarget('stat-count-projects', data.projectCount);
+        // 2. مستثمر مسجل
+        setTarget('stat-count-investors', data.investorCount);
+        // 3. فرصة نشطة
+        setTarget('stat-count-active', data.activeOpportunities);
+        // 4. حجم الاستثمارات (تحويل المجموع لـ "مليون" درهم مثلاً)
+        // إذا كنت تريد عرض الرقم كما هو، احذف القسمة على مليون
+        const investmentVolume = (data.totalInvestmentValue / 1000000).toFixed(1);
+        setTarget('stat-count-capital', investmentVolume);
 
-        // إطلاق العداد بعد جلب البيانات بنجاح
+        // إطلاق العداد
         startStatsCounter();
 
     } catch (error) {
-        console.error("Stats Update Error:", error);
-        // في حال الخطأ، ابدأ العداد بالقيم الافتراضية
+        console.error("Stats UI Update Error:", error);
         startStatsCounter();
     }
 }

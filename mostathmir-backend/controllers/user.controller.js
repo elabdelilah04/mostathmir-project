@@ -569,12 +569,32 @@ const updateTestimonial = async (req, res, next) => {
     }
 };
 
-// جلب إحصائيات عامة للمنصة
 const getPublicPlatformStats = async (req, res, next) => {
     try {
+        // 1. عدد المستثمرين المسجلين
         const investorCount = await User.countDocuments({ accountType: 'investor' });
+
+        // 2. عدد المشاريع المسجلة (كل ما هو ليس مسودة)
+        const totalProjects = await Project.countDocuments({ status: { $ne: 'draft' } });
+
+        // 3. الفرص النشطة (المنشورة والممولة حالياً)
+        const activeOpportunities = await Project.countDocuments({
+            status: { $in: ['published', 'funded', 'funding'] }
+        });
+
+        // 4. حجم الاستثمارات (مجموع المبالغ التي جُمعت في كل المشاريع)
+        const totalInvestmentData = await Project.aggregate([
+            { $match: { status: { $ne: 'draft' } } },
+            { $group: { _id: null, total: { $sum: "$fundingAmountRaised" } } }
+        ]);
+
+        const totalInvestmentValue = totalInvestmentData.length > 0 ? totalInvestmentData[0].total : 0;
+
         res.json({
-            investorCount: investorCount
+            investorCount: investorCount,
+            projectCount: totalProjects,
+            activeOpportunities: activeOpportunities,
+            totalInvestmentValue: totalInvestmentValue
         });
     } catch (error) {
         console.error("Error fetching public stats:", error);
