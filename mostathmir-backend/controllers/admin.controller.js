@@ -159,5 +159,29 @@ const getAllProposalsForAdmin = async (req, res, next) => {
         next(error);
     }
 };
+// دالة إرسال إشعار إداري يدوي
+const sendAdminNotification = async (req, res, next) => {
+    const { recipientId, message, projectId } = req.body;
 
-module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin };
+    try {
+        await createNotification({
+            recipient: recipientId,
+            sender: req.user._id, // معرف الآدمن
+            type: 'PROJECT_STATUS_UPDATE', 
+            messageKey: 'notification_admin_direct_message',
+            messageParams: { adminMessage: message },
+            note: message,
+            projectId: projectId,
+            link: `/project-view.html?id=${projectId}`
+        });
+
+        res.json({ success: true, message: 'تم إرسال الإشعار بنجاح' });
+    } catch (error) {
+        console.error("Admin: Error sending notification:", error);
+        next(error);
+    }
+};
+
+// أضف sendAdminNotification إلى module.exports
+
+module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin,sendAdminNotification };

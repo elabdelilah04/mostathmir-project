@@ -180,47 +180,70 @@ window.openProposalModal = (proposalId) => {
     const modal = document.getElementById('proposalDetailModal');
     const modalBody = document.getElementById('modalBody');
 
-    let expertiseHTML = (prop.expertiseAreas && prop.expertiseAreas.length > 0)
-        ? prop.expertiseAreas.map(area => `<span class="skill-tag">${area}</span>`).join('')
-        : '<span class="text-gray-400">لم يتم تحديد خبرات</span>';
-
     modalBody.innerHTML = `
         <div class="proposal-full-details">
-            <div class="detail-section" style="background: #f1f5f9; border: none;">
-                <h4 style="margin-bottom:15px;"><i class="fas fa-user-shield"></i> إجراءات إدارية</h4>
-                <div style="display: flex; gap: 12px;">
-                    <a href="mailto:${prop.investorId?.email}" class="action-btn btn-secondary" style="background: #fff;">
-                        <i class="fas fa-envelope"></i> مراسلة المستثمر
-                    </a>
-                    <button class="action-btn btn-danger" onclick="handleDeleteProposal('${prop._id}')">
-                        <i class="fas fa-trash"></i> حذف العرض (Spam)
+            <!-- قسم الإجراءات الإدارية الجديد -->
+            <div class="detail-section" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 12px;">
+                <h4 style="color: #1e3a8a; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> توجيه إشعار داخلي من الإدارة</h4>
+                <textarea id="adminNotifyText" placeholder="اكتب رسالة التوجيه هنا (تظهر كإشعار للمستخدم)..." 
+                    style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;"></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn btn-primary" style="flex:1" onclick="sendQuickNotify('${prop.investorId?._id}', '${prop.projectId?._id}')">
+                        <i class="fas fa-paper-plane"></i> إشعار للمستثمر
+                    </button>
+                    <button class="action-btn btn-success" style="flex:1" onclick="sendQuickNotify('${prop.projectId?.owner?._id}', '${prop.projectId?._id}')">
+                        <i class="fas fa-paper-plane"></i> إشعار لصاحب الفكرة
                     </button>
                 </div>
             </div>
 
-            <div class="detail-section">
-                <h4><i class="fas fa-award"></i> مجالات القيمة المضافة</h4>
-                <div class="skills-container-public mt-2" style="display:flex; flex-wrap:wrap; gap:8px;">
-                    ${expertiseHTML}
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h4><i class="fas fa-file-alt"></i> نص العرض والشروط المقترحة</h4>
-                <div class="description-box" style="white-space: pre-wrap; background: #fff; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <!-- عرض بيانات العرض الأصلية -->
+            <div class="detail-section mt-6">
+                <h4><i class="fas fa-file-alt"></i> نص العرض المقدم</h4>
+                <div class="description-box" style="white-space: pre-wrap; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
                     ${escapeHTML(prop.proposedTerms)}
                 </div>
             </div>
-
-            ${prop.responseMessage ? `
-            <div class="detail-section" style="border-right: 4px solid #10b981; background: #f0fdf4;">
-                <h4><i class="fas fa-reply"></i> رد صاحب المشروع</h4>
-                <p style="padding:10px 0;">${escapeHTML(prop.responseMessage)}</p>
-            </div>` : ''}
+            
+            <div class="detail-section">
+                <h4><i class="fas fa-user-friends"></i> الأطراف</h4>
+                <p><strong>المستثمر:</strong> ${prop.investorId?.fullName} <a href="mailto:${prop.investorId?.email}"><i class="fas fa-envelope"></i></a></p>
+                <p><strong>صاحب الفكرة:</strong> ${prop.projectId?.owner?.fullName} <a href="mailto:${prop.projectId?.owner?.email}"><i class="fas fa-envelope"></i></a></p>
+            </div>
         </div>
     `;
 
     modal.classList.add('show');
+}
+
+/**
+ * دالة إرسال الإشعار الفعلي للسيرفر
+ */
+window.sendQuickNotify = async (userId, projectId) => {
+    const message = document.getElementById('adminNotifyText').value.trim();
+    const token = localStorage.getItem('user_token');
+
+    if (!message) return alert("يرجى كتابة نص الرسالة أولاً.");
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/notify-user`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ recipientId: userId, message, projectId })
+        });
+
+        if (response.ok) {
+            alert("تم إرسال الإشعار بنجاح!");
+            document.getElementById('adminNotifyText').value = ""; // تفريغ النص
+        } else {
+            throw new Error("فشل الإرسال");
+        }
+    } catch (error) {
+        alert("حدث خطأ أثناء محاولة الإرسال.");
+    }
 }
 
 /**
