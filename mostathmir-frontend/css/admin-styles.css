@@ -826,3 +826,22 @@ body {
     gap: 10px;
     font-weight: 600;
 }
+
+.view-project-icon {
+    color: #64748b;
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.view-project-icon:hover {
+    color: #1d4ed8;
+    background: #dbeafe;
+    transform: scale(1.1);
+}
