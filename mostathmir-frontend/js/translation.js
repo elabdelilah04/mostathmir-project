@@ -6,7 +6,7 @@
     ar: {
       "notification_admin_proposal_official": "إشعار من الإدارة بخصوص اقتراح الشراكة مرسل لمشروع {projectName}: \n\n {adminNote}",
 
-      "notification_admin_proposal_msg": "إشعار من الإدارة بخصوص اقتراح الشراكة المرسل من {senderName}: {adminNote}",
+      // "notification_admin_proposal_msg": "إشعار من الإدارة بخصوص اقتراح الشراكة المرسل من {senderName}: {adminNote}",
       "notification_admin_direct_message": "رسالة إدارية بخصوص مشروعك: {adminMessage}",
       "stats-success": "عملية استثمار وشراكة",
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
