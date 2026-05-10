@@ -167,7 +167,7 @@ const sendAdminNotification = async (req, res, next) => {
         await createNotification({
             recipient: recipientId,
             sender: req.user._id, // معرف الآدمن
-            type: 'PROJECT_STATUS_UPDATE', 
+            type: 'PROJECT_STATUS_UPDATE',
             messageKey: 'notification_admin_direct_message',
             messageParams: { adminMessage: message },
             note: message,
@@ -181,7 +181,38 @@ const sendAdminNotification = async (req, res, next) => {
         next(error);
     }
 };
+// 1. دالة إرسال إشعار إداري بخصوص اقتراح محدد
+const notifyProposalParty = async (req, res, next) => {
+    const { recipientId, adminNote, proposalId, senderName, projectId } = req.body;
 
-// أضف sendAdminNotification إلى module.exports
+    try {
+        await createNotification({
+            recipient: recipientId,
+            sender: req.user._id, // الآدمن
+            type: 'PROJECT_STATUS_UPDATE',
+            messageKey: 'notification_admin_proposal_msg',
+            messageParams: { senderName, adminNote },
+            note: adminNote,
+            projectId: projectId,
+            referenceId: proposalId,
+            link: '/messages.html#notifications' // سيوجهه لمكان رؤية تفاصيل الإشعار
+        });
 
-module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin,sendAdminNotification };
+        res.json({ success: true, message: 'تم توجيه الإشعار بنجاح' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// 2. دالة حذف الاقتراح نهائياً
+const deleteProposal = async (req, res, next) => {
+    try {
+        await Proposal.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'تم حذف الاقتراح نهائياً' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin, sendAdminNotification, notifyProposalParty, deleteProposal };

@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "notification_admin_proposal_msg": "إشعار من الإدارة بخصوص اقتراح الشراكة المرسل من {senderName}: {adminNote}",
       "notification_admin_direct_message": "رسالة إدارية بخصوص مشروعك: {adminMessage}",
       "stats-success": "عملية استثمار وشراكة",
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
@@ -1998,6 +1999,7 @@
     },
 
     en: {
+      "notification_admin_proposal_msg": "Admin notice regarding the partnership proposal from {senderName}: {adminNote}",
       "notification_admin_direct_message": "Admin message regarding your project: {adminMessage}",
       "stats-success": "Investments & Partnerships",
       // --- New Official Investment Page Keys ---
