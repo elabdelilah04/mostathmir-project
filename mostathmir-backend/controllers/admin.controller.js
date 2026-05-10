@@ -1,5 +1,7 @@
 const Project = require('../models/project.model');
 const { createNotification } = require('./notification.controller.js');
+const Proposal = require('../models/proposal.model');
+
 
 const getProjectsForAdmin = async (req, res, next) => {
     try {
@@ -140,4 +142,22 @@ const toggleFeaturedStatus = async (req, res, next) => {
     }
 };
 
-module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus };
+const getAllProposalsForAdmin = async (req, res, next) => {
+    try {
+        const proposals = await Proposal.find()
+            .populate('investorId', 'fullName email profilePicture') // بيانات مرسل العرض
+            .populate({
+                path: 'projectId',
+                select: 'projectName owner',
+                populate: { path: 'owner', select: 'fullName email' } // بيانات صاحب المشروع
+            })
+            .sort({ createdAt: -1 });
+
+        res.json(proposals);
+    } catch (error) {
+        console.error("Admin: Error fetching proposals:", error);
+        next(error);
+    }
+};
+
+module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin };

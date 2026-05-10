@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة عروض الشراكة | لوحة التحكم</title>
+    <link rel="stylesheet" href="/css/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- نستخدم نفس الهيدر الخاص بالآدمن -->
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-right">
+                <div class="logo"><i class="fas fa-handshake"></i> <span>مستثمر - إدارة الشراكات</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="admin-approval.html" class="nav-link">مصادقة المشاريع</a>
+                <a href="admin-proposals.html" class="nav-link active">عروض الشراكة</a>
+                <a href="index.html" class="nav-link">الموقع الرئيسي</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <h1 class="page-title"><i class="fas fa-file-signature"></i> كافة عروض الشراكة والمقترحات</h1>
+                <p class="text-gray-500">مراقبة التفاعل بين المستثمرين وأصحاب المشاريع وضمان جودة العروض.</p>
+            </header>
+
+            <!-- شبكة العروض -->
+            <section class="proposals-grid" id="adminProposalsGrid">
+                <div class="text-center py-10"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
+            </section>
+        </div>
+    </main>
+
+    <!-- مودال التفاصيل الكاملة -->
+    <div class="modal" id="proposalDetailModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalTitle">تفاصيل العرض</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- المحتوى سيُحقن هنا عبر JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/admin-proposals.js"></script>
+</body>
+</html>
