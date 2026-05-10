@@ -1,31 +1,31 @@
 /**
- * MOSTATHMIR - ADMIN PROPOSALS MANAGEMENT (Official Version)
- * إدارة عروض الشراكة والمقترحات - لوحة تحكم الإدارة
+ * MOSTATHMIR - ADMIN PROPOSALS MANAGEMENT (Final Professional Version)
+ * نظام إدارة عروض الشراكة - لوحة تحكم الإدارة
  */
 
-// الرابط الأساسي للـ API (يتغير حسب بيئة العمل)
+// الرابط الأساسي للـ API (يُفترض أنه معرف عالمياً في CONFIG، وإلا سيستخدم الافتراضي)
 // const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 
-let allProposals = []; // لتخزين البيانات الأصلية للفلترة السريعة
+let allProposals = []; // مخزن البيانات الأصلي
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('user_token');
 
-    // 1. حماية المسار
+    // 1. حماية المسار (تأكد أن المستخدم آدمن)
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    // 2. جلب البيانات الأولية
+    // 2. جلب البيانات الأولية من السيرفر
     await fetchAllProposals();
 
-    // 3. ربط الفلاتر والبحث
+    // 3. ربط أحداث الفلاتر والبحث
     setupEventListeners();
 });
 
 /**
- * جلب كافة العروض من السيرفر
+ * جلب كافة عروض الشراكة مع بيانات الأطراف والمشاريع
  */
 async function fetchAllProposals() {
     const grid = document.getElementById('adminProposalsGrid');
@@ -39,11 +39,11 @@ async function fetchAllProposals() {
             }
         });
 
-        if (!response.ok) throw new Error('فشل جلب البيانات');
+        if (!response.ok) throw new Error('فشل جلب البيانات من السيرفر');
 
         allProposals = await response.json();
 
-        // عرض البيانات فور وصولها
+        // عرض البيانات فور وصولها بناءً على الفلاتر الافتراضية
         applyFiltersAndRender();
 
     } catch (error) {
@@ -55,7 +55,7 @@ async function fetchAllProposals() {
 }
 
 /**
- * المحرك الموحد: بحث + حالة + ترتيب
+ * المحرك الموحد للتصفية والبحث والترتيب
  */
 function applyFiltersAndRender() {
     const searchInput = document.getElementById('searchInput');
@@ -66,32 +66,32 @@ function applyFiltersAndRender() {
     const statusVal = statusFilter ? statusFilter.value : 'all';
     const sortVal = sortFilter ? sortFilter.value : 'newest';
 
-    // أ. التصفية بناءً على النص والحالة
-    let filtered = allProposals.filter(prop => {
-        const investorName = prop.investorId?.fullName || '';
-        const projectName = prop.projectId?.projectName || '';
+    // 1. التصفية (البحث في اسم المستثمر أو المشروع + الحالة)
+    let filtered = allProposals.filter(p => {
+        const investorName = p.investorId?.fullName || '';
+        const projectName = p.projectId?.projectName || '';
 
         const matchesSearch = investorName.toLowerCase().includes(searchTerm) ||
             projectName.toLowerCase().includes(searchTerm);
 
-        const matchesStatus = (statusVal === 'all') ? true : (prop.status === statusVal);
+        const matchesStatus = (statusVal === 'all') ? true : (p.status === statusVal);
 
         return matchesSearch && matchesStatus;
     });
 
-    // ب. الترتيب الزمني
+    // 2. الترتيب الزمني
     filtered.sort((a, b) => {
         const dateA = new Date(a.createdAt);
         const dateB = new Date(b.createdAt);
         return (sortVal === 'newest') ? dateB - dateA : dateA - dateB;
     });
 
-    // ج. الرسم في الصفحة
+    // 3. الرسم في الصفحة
     renderProposals(filtered);
 }
 
 /**
- * بناء بطاقات العروض
+ * حقن بطاقات العروض في حاوية الشبكة
  */
 function renderProposals(proposals) {
     const grid = document.getElementById('adminProposalsGrid');
@@ -106,11 +106,11 @@ function renderProposals(proposals) {
         return;
     }
 
-    grid.innerHTML = proposals.map(prop => createProposalCard(prop)).join('');
+    grid.innerHTML = proposals.map(p => createProposalCard(p)).join('');
 }
 
 /**
- * هيكل البطاقة الفردية (مع الروابط وأيقونة المعاينة)
+ * إنشاء هيكل بطاقة العرض الواحدة
  */
 function createProposalCard(prop) {
     const statusMap = {
@@ -133,7 +133,7 @@ function createProposalCard(prop) {
                     </a>
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="project-view.html?id=${projectId}" target="_blank" class="view-project-icon" title="مشاهدة صفحة المشروع">
+                    <a href="project-view.html?id=${projectId}" target="_blank" class="view-project-icon" title="معاينة صفحة المشروع">
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                     <span class="project-status ${status.class}">${status.text}</span>
@@ -142,7 +142,7 @@ function createProposalCard(prop) {
             <div class="project-info">
                 <div class="info-row">
                     <span class="label">المشروع المستهدف:</span>
-                    <span class="value font-bold">${escapeHTML(prop.projectId?.projectName || 'مشروع محذوف')}</span>
+                    <span class="value font-bold text-blue-600">${escapeHTML(prop.projectId?.projectName || 'مشروع محذوف')}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">صاحب المشروع:</span>
@@ -157,13 +157,13 @@ function createProposalCard(prop) {
                     <span class="value font-bold">${prop.partnershipType}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">تاريخ العرض:</span>
+                    <span class="label">تاريخ التقديم:</span>
                     <span class="value">${new Date(prop.createdAt).toLocaleDateString('ar-SA')}</span>
                 </div>
             </div>
             <div class="project-actions">
                 <button class="action-btn btn-primary" onclick="openProposalModal('${prop._id}')">
-                    <i class="fas fa-search-plus"></i> التفاصيل والخبرات
+                    <i class="fas fa-tools"></i> إجراءات الإدارة والتفاصيل
                 </button>
             </div>
         </div>
@@ -171,7 +171,7 @@ function createProposalCard(prop) {
 }
 
 /**
- * فتح المودال مع إجراءات الآدمن (إيميل وحذف)
+ * فتح المودال مع لوحة التحكم في العرض (إرسال إشعارات + حذف)
  */
 window.openProposalModal = (proposalId) => {
     const prop = allProposals.find(p => p._id === proposalId);
@@ -180,36 +180,51 @@ window.openProposalModal = (proposalId) => {
     const modal = document.getElementById('proposalDetailModal');
     const modalBody = document.getElementById('modalBody');
 
+    // تجهيز مجالات الخبرة
+    let expertiseHTML = (prop.expertiseAreas && prop.expertiseAreas.length > 0)
+        ? prop.expertiseAreas.map(area => `<span class="skill-tag">${area}</span>`).join('')
+        : '<span class="text-gray-400 font-normal">لم يتم تحديد خبرات معينة</span>';
+
     modalBody.innerHTML = `
         <div class="proposal-full-details">
-            <!-- قسم الإجراءات الإدارية الجديد -->
-            <div class="detail-section" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 12px;">
-                <h4 style="color: #1e3a8a; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> توجيه إشعار داخلي من الإدارة</h4>
-                <textarea id="adminNotifyText" placeholder="اكتب رسالة التوجيه هنا (تظهر كإشعار للمستخدم)..." 
-                    style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;"></textarea>
-                <div style="display: flex; gap: 10px;">
-                    <button class="action-btn btn-primary" style="flex:1" onclick="sendQuickNotify('${prop.investorId?._id}', '${prop.projectId?._id}')">
+            <!-- 1. لوحة تحكم الإدارة (رسائل وحذف) -->
+            <div class="detail-section" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px;">
+                <h4 style="color:#1e3a8a; margin-bottom:15px;"><i class="fas fa-shield-alt"></i> لوحة الإجراءات الإدارية</h4>
+                <textarea id="adminNote" placeholder="اكتب ملاحظة الإدارة هنا (سيتم تضمينها في الإشعار)..." 
+                    style="width:100%; padding:12px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:15px; min-height:80px;"></textarea>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="action-btn btn-primary" style="flex:1" onclick="sendAdminNotice('${prop.investorId?._id}', '${prop._id}', '${prop.investorId?.fullName}', '${prop.projectId?._id}')">
                         <i class="fas fa-paper-plane"></i> إشعار للمستثمر
                     </button>
-                    <button class="action-btn btn-success" style="flex:1" onclick="sendQuickNotify('${prop.projectId?.owner?._id}', '${prop.projectId?._id}')">
-                        <i class="fas fa-paper-plane"></i> إشعار لصاحب الفكرة
+                    <button class="action-btn btn-success" style="flex:1" onclick="sendAdminNotice('${prop.projectId?.owner?._id}', '${prop._id}', '${prop.investorId?.fullName}', '${prop.projectId?._id}')">
+                        <i class="fas fa-paper-plane"></i> إشعار للمؤسس
                     </button>
+                    <button class="action-btn btn-danger" style="padding: 10px 20px;" onclick="deleteProposalProcess('${prop._id}')">
+                        <i class="fas fa-trash"></i> حذف نهائي
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">* سيصل الإشعار للطرف المختار متضمناً ملاحظتك واسم مرسل العرض.</p>
+            </div>
+
+            <!-- 2. تفاصيل العرض والخبرات -->
+            <div class="detail-section mt-6">
+                <h4><i class="fas fa-file-contract"></i> بنود مقترح الشراكة</h4>
+                <div class="description-box" style="white-space: pre-wrap; background: #fff; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    ${escapeHTML(prop.proposedTerms)}
+                </div>
+                <div class="mt-4">
+                    <h5 class="text-sm font-bold text-gray-500 mb-2">مجالات القيمة المضافة المقترحة:</h5>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">${expertiseHTML}</div>
                 </div>
             </div>
 
-            <!-- عرض بيانات العرض الأصلية -->
-            <div class="detail-section mt-6">
-                <h4><i class="fas fa-file-alt"></i> نص العرض المقدم</h4>
-                <div class="description-box" style="white-space: pre-wrap; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    ${escapeHTML(prop.proposedTerms)}
-                </div>
-            </div>
-            
-            <div class="detail-section">
-                <h4><i class="fas fa-user-friends"></i> الأطراف</h4>
-                <p><strong>المستثمر:</strong> ${prop.investorId?.fullName} <a href="mailto:${prop.investorId?.email}"><i class="fas fa-envelope"></i></a></p>
-                <p><strong>صاحب الفكرة:</strong> ${prop.projectId?.owner?.fullName} <a href="mailto:${prop.projectId?.owner?.email}"><i class="fas fa-envelope"></i></a></p>
-            </div>
+            <!-- 3. تتبع الرد (إن وجد) -->
+            ${prop.responseMessage ? `
+            <div class="detail-section" style="border-right: 4px solid #10b981; background: #f0fdf4;">
+                <h4><i class="fas fa-reply"></i> رد صاحب المشروع النهائي</h4>
+                <p style="padding:10px 0; color: #166534;">${escapeHTML(prop.responseMessage)}</p>
+            </div>` : ''}
         </div>
     `;
 
@@ -217,62 +232,99 @@ window.openProposalModal = (proposalId) => {
 }
 
 /**
- * دالة إرسال الإشعار الفعلي للسيرفر
+ * إرسال الإشعار المخصص للسيرفر
  */
-window.sendQuickNotify = async (userId, projectId) => {
-    const message = document.getElementById('adminNotifyText').value.trim();
+window.sendAdminNotice = async (userId, propId, investorName, projId) => {
+    const adminNote = document.getElementById('adminNote').value.trim();
+    if (!adminNote) return alert("يرجى كتابة الملاحظة المراد إرسالها.");
+
     const token = localStorage.getItem('user_token');
 
-    if (!message) return alert("يرجى كتابة نص الرسالة أولاً.");
-
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/notify-user`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/proposals/notify`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ recipientId: userId, message, projectId })
+            body: JSON.stringify({
+                recipientId: userId,
+                adminNote,
+                proposalId: propId,
+                senderName: investorName,
+                projectId: projId
+            })
         });
 
         if (response.ok) {
-            alert("تم إرسال الإشعار بنجاح!");
-            document.getElementById('adminNotifyText').value = ""; // تفريغ النص
+            alert("✅ تم توجيه الإشعار للطرف المعني بنجاح.");
+            document.getElementById('adminNote').value = ""; // مسح النص
         } else {
-            throw new Error("فشل الإرسال");
+            throw new Error("فشل إرسال الإشعار.");
         }
-    } catch (error) {
-        alert("حدث خطأ أثناء محاولة الإرسال.");
+    } catch (err) {
+        alert("⚠️ خطأ: " + err.message);
     }
 }
 
 /**
- * إجراء الحذف (تنبيه)
+ * إجراء الحذف النهائي (Spam)
  */
-window.handleDeleteProposal = async (id) => {
-    if (confirm("تحذير: هل أنت متأكد من حذف هذا العرض نهائياً من النظام؟ لا يمكن التراجع.")) {
-        // هنا يمكن ربط الـ API الخاص بالحذف مستقبلاً
-        alert("تم إرسال طلب الحذف (قيد البرمجة في Backend)");
+window.deleteProposalProcess = async (id) => {
+    if (!confirm("تحذير: هل أنت متأكد من حذف هذا الاقتراح نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.")) return;
+
+    const token = localStorage.getItem('user_token');
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/proposals/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            alert("✅ تم حذف الاقتراح بنجاح.");
+            closeModal();
+            fetchAllProposals(); // إعادة تحميل القائمة
+        } else {
+            throw new Error("فشل الحذف.");
+        }
+    } catch (err) {
+        alert("⚠️ خطأ في عملية الحذف.");
     }
 }
 
+/**
+ * إغلاق المودال
+ */
 window.closeModal = () => {
-    document.getElementById('proposalDetailModal').classList.remove('show');
+    const modal = document.getElementById('proposalDetailModal');
+    if (modal) modal.classList.remove('show');
 }
 
+/**
+ * تهيئة مستمعي الأحداث
+ */
 function setupEventListeners() {
-    document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
-    document.getElementById('statusFilter').addEventListener('change', applyFiltersAndRender);
-    document.getElementById('sortFilter').addEventListener('change', applyFiltersAndRender);
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortFilter = document.getElementById('sortFilter');
 
-    // إغلاق عند الضغط خارج المودال
+    if (searchInput) searchInput.addEventListener('input', applyFiltersAndRender);
+    if (statusFilter) statusFilter.addEventListener('change', applyFiltersAndRender);
+    if (sortFilter) sortFilter.addEventListener('change', applyFiltersAndRender);
+
+    // إغلاق المودال عند الضغط خارجه
     window.onclick = (e) => {
         const modal = document.getElementById('proposalDetailModal');
         if (e.target === modal) closeModal();
     };
 }
 
+/**
+ * دالة حماية من هجمات XSS
+ */
 function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m]));
 }
