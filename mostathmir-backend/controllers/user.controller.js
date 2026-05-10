@@ -571,33 +571,37 @@ const updateTestimonial = async (req, res, next) => {
 
 const getPublicPlatformStats = async (req, res, next) => {
     try {
-        // 1. عدد المستثمرين المسجلين
+        // 1. عدد المستثمرين والخبراء
         const investorCount = await User.countDocuments({ accountType: 'investor' });
 
-        // 2. عدد المشاريع المسجلة (كل ما هو ليس مسودة)
+        // 2. إجمالي المشاريع المسجلة
         const totalProjects = await Project.countDocuments({ status: { $ne: 'draft' } });
 
-        // 3. الفرص النشطة (المنشورة والممولة حالياً)
-        const activeOpportunities = await Project.countDocuments({
-            status: { $in: ['published', 'funded', 'funding'] }
-        });
+        // --- الحساب الجديد للنجاحات (العمليات) ---
+        // أ. عدد كافة عمليات الاستثمار المالي (Full & Reservation)
+        const financialInvestmentsCount = await Investment.countDocuments({});
 
-        // 4. حجم الاستثمارات (مجموع المبالغ التي جُمعت في كل المشاريع)
+        // ب. عدد عروض الشراكة التي تم قبولها فعلياً (Accepted Proposals)
+        const acceptedProposalsCount = await Proposal.countDocuments({ status: 'accepted' });
+
+        // ج. المجموع الكلي للعمليات الناجحة
+        const totalSuccessActions = financialInvestmentsCount + acceptedProposalsCount;
+
+        // 4. حجم الاستثمارات الكلي
         const totalInvestmentData = await Project.aggregate([
             { $match: { status: { $ne: 'draft' } } },
             { $group: { _id: null, total: { $sum: "$fundingAmountRaised" } } }
         ]);
-
         const totalInvestmentValue = totalInvestmentData.length > 0 ? totalInvestmentData[0].total : 0;
 
         res.json({
             investorCount: investorCount,
             projectCount: totalProjects,
-            activeOpportunities: activeOpportunities,
+            successCount: totalSuccessActions, // الرقم المدمج الجديد
             totalInvestmentValue: totalInvestmentValue
         });
     } catch (error) {
-        console.error("Error fetching public stats:", error);
+        console.error("Stats API Error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };

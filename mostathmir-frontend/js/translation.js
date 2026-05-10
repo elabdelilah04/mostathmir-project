@@ -4,6 +4,7 @@
   // =========================
   const dict = {
     ar: {
+      "stats-success": "عملية استثمار وشراكة",
       // --- مفاتيح صفحة الاستثمار الرسمية الجديدة ---
       "invest-success-title": "تم إعتماد الطلب بنجاح",
       "invest-success-msg-finance": "تم تسجيل مساهمتكم المالية بنجاح في سجلات المشروع. يمكنك الآن متابعة التطورات عبر محفظتك الاستثمارية.",
@@ -1996,6 +1997,7 @@
     },
 
     en: {
+      "stats-success": "Investments & Partnerships",
       // --- New Official Investment Page Keys ---
       "invest-success-title": "Request Successfully Confirmed",
       "invest-success-msg-finance": "Your financial contribution has been successfully recorded. You can now follow the updates via your investment portfolio.",

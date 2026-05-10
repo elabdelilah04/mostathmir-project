@@ -648,7 +648,7 @@ async function fetchPlatformStats() {
         // 2. مستثمر مسجل
         setTarget('stat-count-investors', data.investorCount);
         // 3. فرصة نشطة
-        setTarget('stat-count-active', data.activeOpportunities);
+        setTarget('stat-count-success', data.successCount); // هذا سيربط مجموع (Investments + Accepted Proposals)
         // 4. حجم الاستثمارات (تحويل المجموع لـ "مليون" درهم مثلاً)
         // إذا كنت تريد عرض الرقم كما هو، احذف القسمة على مليون
         const investmentVolume = (data.totalInvestmentValue / 1000000).toFixed(1);
