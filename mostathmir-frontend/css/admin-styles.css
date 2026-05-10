@@ -845,3 +845,15 @@ body {
     background: #dbeafe;
     transform: scale(1.1);
 }
+
+.admin-user-link {
+    color: #1e40af;
+    text-decoration: none;
+    border-bottom: 1px dashed #1e40af;
+    font-weight: 600;
+}
+
+.admin-user-link:hover {
+    color: #d97706;
+    border-bottom-style: solid;
+}
