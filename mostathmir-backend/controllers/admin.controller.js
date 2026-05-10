@@ -190,8 +190,8 @@ const notifyProposalParty = async (req, res, next) => {
             recipient: recipientId,
             sender: req.user._id, // الآدمن
             type: 'PROJECT_STATUS_UPDATE',
-            messageKey: 'notification_admin_proposal_msg',
-            messageParams: { senderName, adminNote },
+            messageKey: 'notification_admin_proposal_official', // مفتاح الترجمة الجديد
+            messageParams: { projectName, adminNote }, // إرسال اسم المشروع والملاحظة
             note: adminNote,
             projectId: projectId,
             referenceId: proposalId,

@@ -1,17 +1,17 @@
 /**
- * MOSTATHMIR - ADMIN PROPOSALS MANAGEMENT (Final Professional Version)
+ * MOSTATHMIR - ADMIN PROPOSALS MANAGEMENT (Official Final Version)
  * نظام إدارة عروض الشراكة - لوحة تحكم الإدارة
  */
 
-// الرابط الأساسي للـ API (يُفترض أنه معرف عالمياً في CONFIG، وإلا سيستخدم الافتراضي)
+// الرابط الأساسي للـ API (يُفترض أنه معرف عالمياً في سكريبت خارجي أو استبدله بالرابط المباشر)
 // const API_BASE_URL = 'https://mostathmir-api.onrender.com';
 
-let allProposals = []; // مخزن البيانات الأصلي
+let allProposals = []; // مخزن البيانات للفلترة اللحظية
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('user_token');
 
-    // 1. حماية المسار (تأكد أن المستخدم آدمن)
+    // 1. حماية المسار (تأكد أن المستخدم سجل دخوله)
     if (!token) {
         window.location.href = 'login.html';
         return;
@@ -43,7 +43,7 @@ async function fetchAllProposals() {
 
         allProposals = await response.json();
 
-        // عرض البيانات فور وصولها بناءً على الفلاتر الافتراضية
+        // عرض البيانات فور وصولها
         applyFiltersAndRender();
 
     } catch (error) {
@@ -133,7 +133,7 @@ function createProposalCard(prop) {
                     </a>
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="project-view.html?id=${projectId}" target="_blank" class="view-project-icon" title="معاينة صفحة المشروع">
+                    <a href="project-view.html?id=${projectId}" target="_blank" class="view-project-icon" title="مشاهدة صفحة المشروع">
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                     <span class="project-status ${status.class}">${status.text}</span>
@@ -171,7 +171,7 @@ function createProposalCard(prop) {
 }
 
 /**
- * فتح المودال مع لوحة التحكم في العرض (إرسال إشعارات + حذف)
+ * فتح المودال مع لوحة التحكم في العرض (إرسال إشعارات رسمية + حذف)
  */
 window.openProposalModal = (proposalId) => {
     const prop = allProposals.find(p => p._id === proposalId);
@@ -180,31 +180,29 @@ window.openProposalModal = (proposalId) => {
     const modal = document.getElementById('proposalDetailModal');
     const modalBody = document.getElementById('modalBody');
 
-    // تجهيز مجالات الخبرة
     let expertiseHTML = (prop.expertiseAreas && prop.expertiseAreas.length > 0)
         ? prop.expertiseAreas.map(area => `<span class="skill-tag">${area}</span>`).join('')
-        : '<span class="text-gray-400 font-normal">لم يتم تحديد خبرات معينة</span>';
+        : '<span class="text-gray-400 font-normal">لم يتم تحديد مجالات خبرة معينة</span>';
 
     modalBody.innerHTML = `
         <div class="proposal-full-details">
-            <!-- 1. لوحة تحكم الإدارة (رسائل وحذف) -->
+            <!-- 1. لوحة تحكم الإدارة (رسائل رسمية وحذف) -->
             <div class="detail-section" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px;">
-                <h4 style="color:#1e3a8a; margin-bottom:15px;"><i class="fas fa-shield-alt"></i> لوحة الإجراءات الإدارية</h4>
-                <textarea id="adminNote" placeholder="اكتب ملاحظة الإدارة هنا (سيتم تضمينها في الإشعار)..." 
+                <h4 style="color:#1e3a8a; margin-bottom:15px;"><i class="fas fa-bullhorn"></i> توجيه إشعار رسمي بخصوص هذا العرض</h4>
+                <textarea id="adminNote" placeholder="اكتب ملاحظة الإدارة هنا..." 
                     style="width:100%; padding:12px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:15px; min-height:80px;"></textarea>
                 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="action-btn btn-primary" style="flex:1" onclick="sendAdminNotice('${prop.investorId?._id}', '${prop._id}', '${prop.investorId?.fullName}', '${prop.projectId?._id}')">
+                    <button class="action-btn btn-primary" style="flex:1" onclick="sendAdminNotice('${prop.investorId?._id}', '${prop._id}', '${prop.projectId?.projectName}', '${prop.projectId?._id}')">
                         <i class="fas fa-paper-plane"></i> إشعار للمستثمر
                     </button>
-                    <button class="action-btn btn-success" style="flex:1" onclick="sendAdminNotice('${prop.projectId?.owner?._id}', '${prop._id}', '${prop.investorId?.fullName}', '${prop.projectId?._id}')">
+                    <button class="action-btn btn-success" style="flex:1" onclick="sendAdminNotice('${prop.projectId?.owner?._id}', '${prop._id}', '${prop.projectId?.projectName}', '${prop.projectId?._id}')">
                         <i class="fas fa-paper-plane"></i> إشعار للمؤسس
                     </button>
                     <button class="action-btn btn-danger" style="padding: 10px 20px;" onclick="deleteProposalProcess('${prop._id}')">
-                        <i class="fas fa-trash"></i> حذف نهائي
+                        <i class="fas fa-trash"></i> حذف العرض
                     </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">* سيصل الإشعار للطرف المختار متضمناً ملاحظتك واسم مرسل العرض.</p>
             </div>
 
             <!-- 2. تفاصيل العرض والخبرات -->
@@ -232,9 +230,9 @@ window.openProposalModal = (proposalId) => {
 }
 
 /**
- * إرسال الإشعار المخصص للسيرفر
+ * إرسال الإشعار الرسمي المنسق للسيرفر
  */
-window.sendAdminNotice = async (userId, propId, investorName, projId) => {
+window.sendAdminNotice = async (userId, propId, projectName, projId) => {
     const adminNote = document.getElementById('adminNote').value.trim();
     if (!adminNote) return alert("يرجى كتابة الملاحظة المراد إرسالها.");
 
@@ -251,16 +249,16 @@ window.sendAdminNotice = async (userId, propId, investorName, projId) => {
                 recipientId: userId,
                 adminNote,
                 proposalId: propId,
-                senderName: investorName,
+                projectName: projectName,
                 projectId: projId
             })
         });
 
         if (response.ok) {
-            alert("✅ تم توجيه الإشعار للطرف المعني بنجاح.");
-            document.getElementById('adminNote').value = ""; // مسح النص
+            alert(`✅ تم توجيه الإشعار بنجاح بخصوص مشروع: ${projectName}`);
+            document.getElementById('adminNote').value = ""; // مسح النص بعد الإرسال
         } else {
-            throw new Error("فشل إرسال الإشعار.");
+            throw new Error("فشل إرسال الإشعار من السيرفر.");
         }
     } catch (err) {
         alert("⚠️ خطأ: " + err.message);
@@ -268,10 +266,10 @@ window.sendAdminNotice = async (userId, propId, investorName, projId) => {
 }
 
 /**
- * إجراء الحذف النهائي (Spam)
+ * إجراء الحذف النهائي للاقتراح
  */
 window.deleteProposalProcess = async (id) => {
-    if (!confirm("تحذير: هل أنت متأكد من حذف هذا الاقتراح نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.")) return;
+    if (!confirm("تحذير: هل أنت متأكد من حذف هذا الاقتراح نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
 
     const token = localStorage.getItem('user_token');
     try {
@@ -281,9 +279,9 @@ window.deleteProposalProcess = async (id) => {
         });
 
         if (res.ok) {
-            alert("✅ تم حذف الاقتراح بنجاح.");
+            alert("✅ تم حذف الاقتراح بنجاح من النظام.");
             closeModal();
-            fetchAllProposals(); // إعادة تحميل القائمة
+            fetchAllProposals(); // إعادة تحميل القائمة بعد الحذف
         } else {
             throw new Error("فشل الحذف.");
         }
@@ -301,7 +299,7 @@ window.closeModal = () => {
 }
 
 /**
- * تهيئة مستمعي الأحداث
+ * تهيئة مستمعي الأحداث للفلاتر والبحث
  */
 function setupEventListeners() {
     const searchInput = document.getElementById('searchInput');
@@ -320,11 +318,15 @@ function setupEventListeners() {
 }
 
 /**
- * دالة حماية من هجمات XSS
+ * دالة حماية من هجمات XSS عبر تعقيم النصوص
  */
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
     }[m]));
 }
