@@ -211,6 +211,30 @@ const deleteProposal = async (req, res, next) => {
     }
 };
 
+const Support = require('../models/support.model');
+
+// إرسال تذكرة دعم (من قبل المستخدم)
+const submitSupportTicket = async (req, res) => {
+    try {
+        const { name, email, type, message } = req.body;
+        await Support.create({ name, email, type, message });
+        res.status(201).json({ success: true, message: 'تم استلام رسالتك بنجاح' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'فشل إرسال الرسالة' });
+    }
+};
+
+// جلب كافة التذاكر (للآدمن)
+const getAllSupportTickets = async (req, res) => {
+    try {
+        const tickets = await Support.find().sort({ createdAt: -1 });
+        res.json(tickets);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching tickets' });
+    }
+};
+
+
 module.exports = {
     getProjectsForAdmin,
     updateProjectStatus,
@@ -219,5 +243,7 @@ module.exports = {
     getAllProposalsForAdmin,
     sendAdminNotification,
     notifyProposalParty,
-    deleteProposal
+    deleteProposal,
+    submitSupportTicket,
+    getAllSupportTickets,
 };

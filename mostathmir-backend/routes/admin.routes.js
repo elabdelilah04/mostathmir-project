@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // استيراد كافة المتحكمات من admin.controller
-const { 
+const {
     getProjectsForAdmin,
     updateProjectStatus,
     getAdminStats,
@@ -10,12 +10,15 @@ const {
     getAllProposalsForAdmin,
     notifyProposalParty,
     sendAdminNotification,
-    deleteProposal 
+    deleteProposal,
+    submitSupportTicket,
+    getAllSupportTickets
 } = require('../controllers/admin.controller.js');
 
 // استيراد برمجيات الحماية (Middleware)
 const { protect } = require('../middleware/auth.middleware.js');
 const { admin } = require('../middleware/admin.middleware.js');
+
 
 /**
  * ملاحظة: جميع المسارات أدناه محمية.
@@ -35,5 +38,12 @@ router.delete('/proposals/:id', protect, admin, deleteProposal);
 
 // --- ثالثاً: مسارات الإشعارات الإدارية المباشرة ---
 router.post('/notify-user', protect, admin, sendAdminNotification);
+
+
+// مسار عام (لا يحتاج تسجيل دخول) لإرسال الشكوى
+router.post('/support/submit', submitSupportTicket);
+
+// مسار خاص للآدمن لجلب الرسائل
+router.get('/support/tickets', protect, admin, getAllSupportTickets);
 
 module.exports = router;
