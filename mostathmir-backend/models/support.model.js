@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 
 const supportSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, 
     name: { type: String, required: true },
     email: { type: String, required: true },
-    type: { 
-        type: String, 
+    type: {
+        type: String,
         enum: ['tech', 'inquiry', 'suggestion', 'other'],
-        required: true 
+        required: true
     },
     message: { type: String, required: true },
-    status: { 
-        type: String, 
-        enum: ['pending', 'replied', 'closed'], 
-        default: 'pending' 
+    status: {
+        type: String,
+        enum: ['pending', 'replied', 'closed'],
+        default: 'pending'
     }
 }, { timestamps: true });
 

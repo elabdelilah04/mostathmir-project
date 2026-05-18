@@ -161,6 +161,7 @@ const sendAdminNotification = async (req, res, next) => {
 const submitSupportTicket = async (req, res, next) => {
     try {
         const { name, email, type, message } = req.body;
+        const userId = req.user ? req.user._id : null;
         const ticket = await Support.create({ name, email, type, message });
         res.status(201).json({ success: true, ticket });
     } catch (error) {
@@ -170,7 +171,9 @@ const submitSupportTicket = async (req, res, next) => {
 
 const getAllSupportTickets = async (req, res, next) => {
     try {
-        const tickets = await Support.find().sort({ createdAt: -1 });
+        const tickets = await Support.find()
+            .populate('user', 'fullName profilePicture')
+            .sort({ createdAt: -1 });
         res.json(tickets);
     } catch (error) {
         next(error);
