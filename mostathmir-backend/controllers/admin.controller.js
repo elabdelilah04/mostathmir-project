@@ -1,13 +1,14 @@
 const Project = require('../models/project.model');
-const { createNotification } = require('./notification.controller.js');
 const Proposal = require('../models/proposal.model');
+const User = require('../models/user.model');
+const { createNotification } = require('./notification.controller.js');
 
-
+/**
+ * 1. جلب المشاريع للمراجعة (مع الفلاتر والبحث)
+ */
 const getProjectsForAdmin = async (req, res, next) => {
     try {
-        const query = {
-            status: { $ne: 'draft' }
-        };
+        const query = { status: { $ne: 'draft' } };
 
         if (req.query.status) {
             query.status = req.query.status === 'pending' ? 'under-review' : req.query.status;
@@ -22,33 +23,32 @@ const getProjectsForAdmin = async (req, res, next) => {
             sortOrder = { createdAt: 1 };
         }
 
-        const projects = await Project.find(query).populate('owner', 'fullName').sort(sortOrder);
+        const projects = await Project.find(query).populate('owner', 'fullName email').sort(sortOrder);
         res.json(projects);
-
     } catch (error) {
         console.error("Admin: Error fetching projects:", error);
         next(error);
     }
 };
 
+/**
+ * 2. تحديث حالة المشروع (قبول/رفض/طلب مراجعة) مع إشعار آلي
+ */
 const updateProjectStatus = async (req, res, next) => {
     try {
         const { status, adminNotes } = req.body;
         const project = await Project.findById(req.params.id);
 
-        if (!project) {
-            return res.status(404).json({ message: 'المشروع غير موجود' });
-        }
+        if (!project) return res.status(404).json({ message: 'المشروع غير موجود' });
 
         const oldStatus = project.status;
-        const oldAdminNotes = project.adminNotes;
-
         project.status = status;
         project.adminNotes = adminNotes || '';
 
         await project.save();
 
-        if (oldStatus !== status || (oldStatus === status && oldAdminNotes !== adminNotes && adminNotes)) {
+        // إرسال إشعار لصاحب المشروع عند تغيير الحالة
+        if (oldStatus !== status) {
             let messageKey = '';
             const params = { projectName: `"${project.projectName}"` };
 
@@ -61,11 +61,6 @@ const updateProjectStatus = async (req, res, next) => {
                     break;
                 case 'needs-revision':
                     messageKey = adminNotes ? 'notification_project_revision_with_notes' : 'notification_project_revision';
-                    break;
-                default:
-                    if (oldStatus === status && adminNotes) {
-                        messageKey = 'notification_admin_new_notes';
-                    }
                     break;
             }
 
@@ -82,74 +77,60 @@ const updateProjectStatus = async (req, res, next) => {
             }
         }
 
-        res.json({ message: `تم تحديث حالة المشروع إلى ${status}` });
+        res.json({ message: `تم تحديث الحالة بنجاح إلى ${status}` });
     } catch (error) {
-        console.error("Admin: Error updating project status:", error);
         next(error);
     }
 };
 
+/**
+ * 3. جلب إحصائيات لوحة تحكم الآدمن
+ */
 const getAdminStats = async (req, res, next) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const pendingCount = Project.countDocuments({ status: 'under-review' });
-
-        const approvedToday = Project.countDocuments({
-            status: 'published',
-            updatedAt: { $gte: today }
-        });
-
-        const rejectedToday = Project.countDocuments({
-            status: 'closed',
-            updatedAt: { $gte: today }
-        });
-
-        const [pending, approved, rejected] = await Promise.all([
-            pendingCount,
-            approvedToday,
-            rejectedToday
+        const [pending, approvedToday, rejectedToday] = await Promise.all([
+            Project.countDocuments({ status: 'under-review' }),
+            Project.countDocuments({ status: 'published', updatedAt: { $gte: today } }),
+            Project.countDocuments({ status: 'closed', updatedAt: { $gte: today } })
         ]);
 
-        res.json({
-            pendingCount: pending,
-            approvedToday: approved,
-            rejectedToday: rejected
-        });
-
+        res.json({ pendingCount: pending, approvedToday, rejectedToday });
     } catch (error) {
-        console.error("Admin: Error getting stats:", error);
         next(error);
     }
 };
 
+/**
+ * 4. تبديل حالة المشروع "كمميز" (Featured) لعرضه في الصفحة الرئيسية
+ */
 const toggleFeaturedStatus = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'المشروع غير موجود' });
 
-        // عكس القيمة الحالية
         project.isFeatured = !project.isFeatured;
         await project.save();
 
-        res.json({
-            message: project.isFeatured ? 'تمت إضافة المشروع للمشاريع المميزة' : 'تمت إزالة المشروع من المميزة',
-            isFeatured: project.isFeatured
-        });
+        res.json({ success: true, isFeatured: project.isFeatured });
     } catch (error) {
         next(error);
     }
 };
 
+/**
+ * 5. جلب كافة عروض الشراكة (Proposals) لإدارتها
+ */
 const getAllProposalsForAdmin = async (req, res, next) => {
     try {
         const proposals = await Proposal.find()
-            .populate('investorId', 'fullName email profilePicture') // بيانات مرسل العرض
+            .populate('investorId', 'fullName email profilePicture')
             .populate({
                 path: 'projectId',
                 select: 'projectName owner',
-                populate: { path: 'owner', select: 'fullName email' } // بيانات صاحب المشروع
+                populate: { path: 'owner', select: 'fullName email' }
             })
             .sort({ createdAt: -1 });
 
@@ -159,14 +140,51 @@ const getAllProposalsForAdmin = async (req, res, next) => {
         next(error);
     }
 };
-// دالة إرسال إشعار إداري يدوي
+
+/**
+ * 6. إرسال إشعار إداري رسمي بخصوص "عرض شراكة" محدد (الصيغة المطلوبة)
+ */
+const notifyProposalParty = async (req, res, next) => {
+    const { recipientId, adminNote, proposalId, projectName, projectId } = req.body;
+
+    try {
+        // التحقق من البيانات الأساسية
+        if (!recipientId || !adminNote) {
+            return res.status(400).json({ message: 'نقص في بيانات الإشعار' });
+        }
+
+        await createNotification({
+            recipient: recipientId,
+            sender: req.user._id, // الآدمن
+            type: 'PROJECT_STATUS_UPDATE',
+            // هذا المفتاح يتم تعريفه في translation.js ليظهر الصيغة التي طلبتها
+            messageKey: 'notification_admin_proposal_official',
+            messageParams: {
+                projectName: projectName || 'المشروع',
+                adminNote: adminNote
+            },
+            note: adminNote,
+            projectId: projectId,
+            referenceId: proposalId,
+            link: '/messages.html#notifications'
+        });
+
+        res.json({ success: true, message: 'تم إرسال الإشعار الرسمي بنجاح' });
+    } catch (error) {
+        console.error("Error in notifyProposalParty:", error);
+        res.status(500).json({ message: 'فشل إرسال الإشعار من السيرفر' });
+    }
+};
+
+/**
+ * 7. إرسال إشعار إداري عام لأي مستخدم
+ */
 const sendAdminNotification = async (req, res, next) => {
     const { recipientId, message, projectId } = req.body;
-
     try {
         await createNotification({
             recipient: recipientId,
-            sender: req.user._id, // معرف الآدمن
+            sender: req.user._id,
             type: 'PROJECT_STATUS_UPDATE',
             messageKey: 'notification_admin_direct_message',
             messageParams: { adminMessage: message },
@@ -174,45 +192,32 @@ const sendAdminNotification = async (req, res, next) => {
             projectId: projectId,
             link: `/project-view.html?id=${projectId}`
         });
-
-        res.json({ success: true, message: 'تم إرسال الإشعار بنجاح' });
-    } catch (error) {
-        console.error("Admin: Error sending notification:", error);
-        next(error);
-    }
-};
-// 1. دالة إرسال إشعار إداري بخصوص اقتراح محدد
-const notifyProposalParty = async (req, res, next) => {
-    const { recipientId, adminNote, proposalId, senderName, projectId } = req.body;
-
-    try {
-        await createNotification({
-            recipient: recipientId,
-            sender: req.user._id, // الآدمن
-            type: 'PROJECT_STATUS_UPDATE',
-            messageKey: 'notification_admin_proposal_official', // مفتاح الترجمة الجديد
-            messageParams: { projectName, adminNote }, // إرسال اسم المشروع والملاحظة
-            note: adminNote,
-            projectId: projectId,
-            referenceId: proposalId,
-            link: '/messages.html#notifications' // سيوجهه لمكان رؤية تفاصيل الإشعار
-        });
-
-        res.json({ success: true, message: 'تم توجيه الإشعار بنجاح' });
+        res.json({ success: true, message: 'تم إرسال الإشعار' });
     } catch (error) {
         next(error);
     }
 };
 
-// 2. دالة حذف الاقتراح نهائياً
+/**
+ * 8. حذف عرض شراكة نهائياً (في حالات Spam)
+ */
 const deleteProposal = async (req, res, next) => {
     try {
-        await Proposal.findByIdAndDelete(req.params.id);
-        res.json({ success: true, message: 'تم حذف الاقتراح نهائياً' });
+        const deleted = await Proposal.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'العرض غير موجود' });
+        res.json({ success: true, message: 'تم حذف العرض نهائياً' });
     } catch (error) {
         next(error);
     }
 };
 
-
-module.exports = { getProjectsForAdmin, updateProjectStatus, getAdminStats, toggleFeaturedStatus, getAllProposalsForAdmin, sendAdminNotification, notifyProposalParty, deleteProposal };
+module.exports = {
+    getProjectsForAdmin,
+    updateProjectStatus,
+    getAdminStats,
+    toggleFeaturedStatus,
+    getAllProposalsForAdmin,
+    sendAdminNotification,
+    notifyProposalParty,
+    deleteProposal
+};
