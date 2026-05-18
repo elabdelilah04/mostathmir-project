@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة طلبات الدعم | لوحة التحكم</title>
+    <link rel="stylesheet" href="/css/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-right">
+                <div class="logo"><i class="fas fa-headset"></i> <span>مستثمر - مركز الدعم</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="admin-approval.html" class="nav-link">المشاريع</a>
+                <a href="/admin-featured.html" class="nav-link ">المشاريع المميزة</a>
+                <a href="admin-proposals.html" class="nav-link">عروض الشراكة</a>
+                <a href="admin-support.html" class="nav-link active">طلبات الدعم</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <div class="header-top">
+                    <h1 class="page-title"><i class="fas fa-ticket-alt"></i> تذاكر الدعم المباشر</h1>
+                </div>
+
+                <div class="filters-section">
+                    <div class="filters">
+                        <select class="filter-select" id="typeFilter">
+                            <option value="all">كل الأنواع</option>
+                            <option value="tech">دعم تقني</option>
+                            <option value="inquiry">استفسار</option>
+                            <option value="suggestion">اقتراح</option>
+                        </select>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="all">كل الحالات</option>
+                            <option value="pending">قيد الانتظار</option>
+                            <option value="closed">تم الحل/مغلقة</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- جدول أو شبكة التذاكر -->
+            <section class="projects-grid" id="ticketsGrid">
+                <div class="text-center py-10">جاري تحميل الرسائل...</div>
+            </section>
+        </div>
+    </main>
+
+    <!-- مودال قراءة الرسالة والرد -->
+    <div class="modal" id="ticketModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">تفاصيل طلب الدعم</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- المحتوى هنا -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/admin-support.js"></script>
+</body>
+
+</html>
