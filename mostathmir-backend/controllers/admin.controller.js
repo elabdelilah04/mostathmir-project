@@ -124,7 +124,7 @@ const notifyProposalParty = async (req, res, next) => {
             referenceId: proposalId,
             link: '/messages.html#notifications'
         });
-        res.json({ success: true, message: 'تم إرسال الإشعار بنجاح' });
+        res.json({ success: true });
     } catch (error) {
         next(error);
     }
@@ -133,7 +133,7 @@ const notifyProposalParty = async (req, res, next) => {
 const deleteProposal = async (req, res, next) => {
     try {
         await Proposal.findByIdAndDelete(req.params.id);
-        res.json({ success: true, message: 'تم الحذف بنجاح' });
+        res.json({ success: true });
     } catch (error) {
         next(error);
     }
@@ -162,7 +162,7 @@ const submitSupportTicket = async (req, res, next) => {
     try {
         const { name, email, type, message } = req.body;
         const userId = req.user ? req.user._id : null;
-        const ticket = await Support.create({ name, email, type, message });
+        const ticket = await Support.create({ user: userId, name, email, type, message });
         res.status(201).json({ success: true, ticket });
     } catch (error) {
         next(error);
@@ -182,8 +182,7 @@ const getAllSupportTickets = async (req, res, next) => {
 
 const updateTicketStatus = async (req, res, next) => {
     try {
-        const { status } = req.body;
-        const ticket = await Support.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        const ticket = await Support.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
         res.json({ success: true, ticket });
     } catch (error) {
         next(error);

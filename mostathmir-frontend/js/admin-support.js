@@ -29,22 +29,15 @@ async function fetchTickets() {
 
 function renderTickets(tickets) {
     const grid = document.getElementById('ticketsGrid');
-    grid.innerHTML = tickets.map(t => {
-        // تحديد ما إذا كان الحساب مسجلاً أم زائراً
-        const isRegistered = t.user !== null;
-        const userTypeBadge = isRegistered 
-            ? `<span class="user-badge-registered">مسجل</span>` 
-            : `<span class="user-badge-guest">زائر</span>`;
-        
-        // جعل الاسم قابلاً للنقر إذا كان مسجلاً
-        const nameDisplay = isRegistered 
-            ? `<a href="public-profile.html?id=${t.user._id}" target="_blank" class="admin-user-link">${escapeHTML(t.name)}</a>`
-            : escapeHTML(t.name);
+    if (tickets.length === 0) {
+        grid.innerHTML = "<h3>لا توجد تذاكر حالياً.</h3>";
+        return;
+    }
 
-        return `
+    grid.innerHTML = tickets.map(t => `
         <div class="project-card">
             <div class="project-header">
-                <h3 class="project-title">${nameDisplay} ${userTypeBadge}</h3>
+                <h3 class="project-title">${escapeHTML(t.name)}</h3>
                 <span class="project-status ${t.status === 'pending' ? 'status-pending' : 'status-approved'}">
                     ${t.status === 'pending' ? 'قيد الانتظار' : 'محلولة'}
                 </span>
@@ -56,11 +49,11 @@ function renderTickets(tickets) {
             </div>
             <p class="project-description">${escapeHTML(t.message.substring(0, 80))}...</p>
             <div class="project-actions">
-                <button class="action-btn btn-primary" onclick="openTicket('${t._id}')">فتح الطلب</button>
+                <button class="action-btn btn-primary" onclick="openTicket('${t._id}')">فتح التذكرة</button>
                 <button class="action-btn btn-danger" onclick="deleteTicket('${t._id}')"><i class="fas fa-trash"></i></button>
             </div>
-        </div>`;
-    }).join('');
+        </div>
+    `).join('');
 }
 
 function getTranslateType(type) {
