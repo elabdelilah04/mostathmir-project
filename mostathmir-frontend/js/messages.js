@@ -17,13 +17,17 @@ let allNotifications = [];
     document.addEventListener('DOMContentLoaded', applyInitialTabFromHash);
 })();
 
-// --- دالة مساعدة لجلب الاسم الظاهر بناءً على الرتبة ---
+// --- دالة مساعدة لجلب الاسم الظاهر (إخفاء هوية الآدمن) ---
 function getSenderDisplayName(user) {
     if (!user) return '...';
-    return user.role === 'admin' ? (t('brand.name') || 'منصة مستثمر') : user.fullName;
+    // التحقق الصارم من الرتبة
+    if (user.role === 'admin') {
+        return "منصة مستثمر";
+    }
+    return user.fullName;
 }
 
-// --- دالة مساعدة لجلب الصورة الظاهرة بناءً على الرتبة ---
+// --- دالة مساعدة لجلب الصورة الظاهرة (إخفاء صورة الآدمن) ---
 function getSenderDisplayAvatar(user, sizeClass = 'w-12 h-12') {
     if (!user) return `<div class="${sizeClass} bg-gray-200 rounded-full"></div>`;
     
@@ -37,7 +41,9 @@ function getSenderDisplayAvatar(user, sizeClass = 'w-12 h-12') {
         return `<img src="${user.profilePicture}" alt="${user.fullName}" class="${sizeClass} rounded-full object-cover">`;
     } else {
         const initial = user.fullName ? user.fullName.charAt(0) : '?';
-        return `<div class="${sizeClass} bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
+        const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600'];
+        const colorClass = colors[user.fullName ? user.fullName.charCodeAt(0) % colors.length : 0];
+        return `<div class="${sizeClass} ${colorClass} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
     }
 }
 
@@ -107,7 +113,7 @@ function createConversationCard(conv) {
     const { otherUser, lastMessage, unreadCount } = conv;
     const isUnread = unreadCount > 0;
     
-    // تطبيق منطق الهوية المؤسسية
+    // تطبيق منطق الهوية المؤسسية (التعديل الحاسم هنا)
     const displayName = getSenderDisplayName(otherUser);
     const avatarHTML = getSenderDisplayAvatar(otherUser, 'w-12 h-12');
     
@@ -127,7 +133,7 @@ function createConversationCard(conv) {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="font-bold text-gray-900 truncate">
-                            <a href="${profileLink}" onclick="if(this.getAttribute('href') === '#') event.preventDefault(); event.stopPropagation();" class="hover:underline">${displayName}</a>
+                            <a href="${profileLink}" onclick="if(this.getAttribute('href') === '#') { event.preventDefault(); event.stopPropagation(); }" class="hover:underline">${displayName}</a>
                         </h3>
                         <div class="flex items-center gap-2 text-sm text-gray-500"><span>${timeAgo}</span></div>
                     </div>
@@ -199,15 +205,11 @@ function createNotificationCard(notification) {
 
     let messageHTML = messageText;
     if (notification.sender && notification.sender.fullName) {
-        // تطبيق منطق الهوية المؤسسية في الإشعارات
         const displayName = getSenderDisplayName(notification.sender);
         const senderLink = notification.sender.role === 'admin' ? '#' : `./public-profile.html?id=${notification.sender._id}`;
-        
         const userNameParam = notification.messageParams?.userName || notification.sender.fullName;
         const userRegex = new RegExp(userNameParam.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
-        
-        const linkHTML = `<a href="${senderLink}" class="font-bold text-blue-600 hover:underline" onclick="if(this.getAttribute('href') === '#') event.preventDefault(); event.stopPropagation();">${displayName}</a>`;
-        messageHTML = messageHTML.replace(userRegex, linkHTML);
+        messageHTML = messageHTML.replace(userRegex, `<a href="${senderLink}" class="font-bold text-blue-600 hover:underline" onclick="if(this.getAttribute('href')==='#') event.preventDefault(); event.stopPropagation();">${displayName}</a>`);
     }
     if (notification.projectId && notification.projectId.projectName) {
         const projectLink = `./project-view.html?id=${notification.projectId._id}`;
