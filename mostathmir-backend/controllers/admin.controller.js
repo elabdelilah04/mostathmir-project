@@ -3,7 +3,6 @@ const Proposal = require('../models/proposal.model');
 const User = require('../models/user.model');
 const Support = require('../models/support.model');
 const FAQ = require('../models/faq.model'); 
-const Message = require('../models/message.model');
 const { createNotification } = require('./notification.controller.js');
 
 /**
@@ -60,7 +59,7 @@ const updateProjectStatus = async (req, res, next) => {
             if (messageKey) {
                 await createNotification({
                     recipient: project.owner,
-                    sender: req.user._id, // يُسجل كمسؤول في القاعدة ولكن يظهر كمنصة في الواجهة
+                    sender: req.user._id,
                     type: 'PROJECT_STATUS_UPDATE',
                     messageKey: messageKey,
                     messageParams: params,
@@ -238,7 +237,8 @@ const deleteTicket = async (req, res, next) => {
 };
 
 /**
- * الرد المباشر عبر المنصة (باسم منصة مستثمر)
+ * الرد المباشر عبر المنصة (عبر الإشعارات فقط)
+ * التعديل: لا يتم إرسال رسالة شات، فقط إشعار يحتوي على الرد والطلب الأصلي
  */
 const replyToSupportDirectly = async (req, res, next) => {
     try {
@@ -249,29 +249,23 @@ const replyToSupportDirectly = async (req, res, next) => {
             return res.status(400).json({ message: 'لا يمكن الرد مباشرة على زائر أو تذكرة غير موجودة' });
         }
 
-        // 1. إرسال رسالة شات رسمية (المرسل هو الـ Admin ID ولكن سيظهر كمنصة في الواجهة)
-        await Message.create({
-            sender: req.user._id, 
-            recipient: ticket.user,
-            subject: 'اقتراح شراكة', // استخدام Enum متوافق مع الموديل
-            content: `[رد رسمي من إدارة المنصة بخصوص طلبكم]: \n\n ${replyMessage}`
-        });
-
-        // 2. إرسال إشعار رسمي
+        // إرسال إشعار رسمي متطور للمستخدم
         await createNotification({
             recipient: ticket.user,
-            sender: req.user._id,
-            type: 'NEW_MESSAGE',
-            messageKey: 'notification_support_reply',
+            sender: req.user._id, // مرسل من حساب الآدمن المسجل
+            type: 'PROJECT_STATUS_UPDATE', // نوع يدعم عرض الملاحظات
+            messageKey: 'notification_support_official_reply',
             messageParams: { ticketId: ticket._id.toString().substring(18) },
-            link: '/messages.html#messages'
+            responseMessage: replyMessage, // تخزين الرد الرسمي هنا
+            note: ticket.message,         // تخزين نص طلب المستخدم الأصلي كـ "ملاحظة"
+            link: '/messages.html#notifications'
         });
 
-        // 3. تحديث حالة التذكرة
+        // تحديث حالة التذكرة إلى تم الرد
         ticket.status = 'replied';
         await ticket.save();
 
-        res.json({ success: true, message: 'تم إرسال الرد الرسمي وتحديث الحالة' });
+        res.json({ success: true, message: 'تم إرسال الرد الرسمي عبر الإشعارات بنجاح' });
     } catch (error) {
         next(error);
     }
@@ -326,7 +320,7 @@ module.exports = {
     getAllSupportTickets,
     updateTicketStatus,
     deleteTicket,
-    replyToSupportDirectly,
+    replyToSupportDirectly, 
     getFAQs,
     addFAQ,
     deleteFAQ

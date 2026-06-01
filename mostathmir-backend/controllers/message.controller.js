@@ -30,11 +30,7 @@ const getUserMessages = async (req, res, next) => {
             { $sort: { createdAt: -1 } }
         ]);
 
-        // التعديل هنا: إضافة حقل role لتمكين الواجهة من التعرف على الإدارة
-        await User.populate(lastMessages, {
-            path: "sender recipient",
-            select: "fullName profilePicture accountType profileTitle role"
-        });
+        await User.populate(lastMessages, { path: "sender recipient", select: "fullName profilePicture accountType profileTitle" });
 
         const conversations = [];
         for (const message of lastMessages) {
@@ -74,9 +70,8 @@ const getConversation = async (req, res, next) => {
             ],
             deletedBy: { $ne: userId }
         })
-            // التعديل هنا: إضافة حقل role في populate للمرسل والمستقبل
-            .populate('sender', 'fullName profilePicture accountType profileTitle role')
-            .populate('recipient', 'fullName profilePicture accountType profileTitle role')
+            .populate('sender', 'fullName profilePicture accountType profileTitle')
+            .populate('recipient', 'fullName profilePicture accountType profileTitle')
             .populate('relatedProject', 'projectName')
             .sort({ createdAt: 'asc' });
 
@@ -114,11 +109,9 @@ const createMessage = async (req, res, next) => {
             subject: subject,
             relatedProject: relatedProject || null
         });
-
-        // التعديل هنا: إضافة حقل role لضمان ظهور هوية المنصة فور الإرسال
         const populatedMessage = await Message.findById(message._id)
-            .populate('sender', 'fullName profilePicture accountType profileTitle role')
-            .populate('recipient', 'fullName profilePicture accountType profileTitle role');
+            .populate('sender', 'fullName profilePicture accountType profileTitle')
+            .populate('recipient', 'fullName profilePicture accountType profileTitle');
 
         res.status(201).json({
             message: 'تم إرسال الرسالة بنجاح.',

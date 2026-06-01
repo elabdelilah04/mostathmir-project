@@ -17,36 +17,6 @@ let allNotifications = [];
     document.addEventListener('DOMContentLoaded', applyInitialTabFromHash);
 })();
 
-// --- دالة مساعدة لجلب الاسم الظاهر (إخفاء هوية الآدمن) ---
-function getSenderDisplayName(user) {
-    if (!user) return '...';
-    // التحقق الصارم من الرتبة
-    if (user.role === 'admin') {
-        return "منصة مستثمر";
-    }
-    return user.fullName;
-}
-
-// --- دالة مساعدة لجلب الصورة الظاهرة (إخفاء صورة الآدمن) ---
-function getSenderDisplayAvatar(user, sizeClass = 'w-12 h-12') {
-    if (!user) return `<div class="${sizeClass} bg-gray-200 rounded-full"></div>`;
-    
-    // إذا كان آدمن، نعرض شعار المنصة
-    if (user.role === 'admin') {
-        return `<img src="/logo.png" alt="Platform" class="${sizeClass} rounded-full object-contain bg-white border p-1">`;
-    }
-    
-    // المنطق الأصلي للمستخدمين العاديين
-    if (user.profilePicture && user.profilePicture !== 'default-avatar.png' && user.profilePicture.startsWith('http')) {
-        return `<img src="${user.profilePicture}" alt="${user.fullName}" class="${sizeClass} rounded-full object-cover">`;
-    } else {
-        const initial = user.fullName ? user.fullName.charAt(0) : '?';
-        const colors = ['bg-blue-600', 'bg-green-600', 'bg-purple-600'];
-        const colorClass = colors[user.fullName ? user.fullName.charCodeAt(0) % colors.length : 0];
-        return `<div class="${sizeClass} ${colorClass} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
-    }
-}
-
 function switchTab(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -112,13 +82,15 @@ async function fetchAndRenderMessages() {
 function createConversationCard(conv) {
     const { otherUser, lastMessage, unreadCount } = conv;
     const isUnread = unreadCount > 0;
-    
-    // تطبيق منطق الهوية المؤسسية (التعديل الحاسم هنا)
-    const displayName = getSenderDisplayName(otherUser);
-    const avatarHTML = getSenderDisplayAvatar(otherUser, 'w-12 h-12');
-    
+    let avatarHTML = '';
+    if (otherUser.profilePicture && otherUser.profilePicture !== 'default-avatar.png' && otherUser.profilePicture.startsWith('http')) {
+        avatarHTML = `<img src="${otherUser.profilePicture}" alt="${otherUser.fullName}" class="w-12 h-12 rounded-full object-cover">`;
+    } else {
+        const initial = otherUser.fullName ? otherUser.fullName.charAt(0) : '?';
+        avatarHTML = `<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
+    }
     const timeAgo = new Date(lastMessage.createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'short' });
-    const profileLink = otherUser.role === 'admin' ? '#' : `./public-profile.html?id=${otherUser._id}`;
+    const profileLink = `./public-profile.html?id=${otherUser._id}`;
 
     let subjectHTML = '';
     if (lastMessage.subject && lastMessage.subject !== t('js-messages-subject-general-val')) {
@@ -133,7 +105,7 @@ function createConversationCard(conv) {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="font-bold text-gray-900 truncate">
-                            <a href="${profileLink}" onclick="if(this.getAttribute('href') === '#') { event.preventDefault(); event.stopPropagation(); }" class="hover:underline">${displayName}</a>
+                            <a href="${profileLink}" onclick="event.stopPropagation()" class="hover:underline">${otherUser.fullName}</a>
                         </h3>
                         <div class="flex items-center gap-2 text-sm text-gray-500"><span>${timeAgo}</span></div>
                     </div>
@@ -205,11 +177,10 @@ function createNotificationCard(notification) {
 
     let messageHTML = messageText;
     if (notification.sender && notification.sender.fullName) {
-        const displayName = getSenderDisplayName(notification.sender);
-        const senderLink = notification.sender.role === 'admin' ? '#' : `./public-profile.html?id=${notification.sender._id}`;
+        const senderLink = `./public-profile.html?id=${notification.sender._id}`;
         const userNameParam = notification.messageParams?.userName || notification.sender.fullName;
         const userRegex = new RegExp(userNameParam.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
-        messageHTML = messageHTML.replace(userRegex, `<a href="${senderLink}" class="font-bold text-blue-600 hover:underline" onclick="if(this.getAttribute('href')==='#') event.preventDefault(); event.stopPropagation();">${displayName}</a>`);
+        messageHTML = messageHTML.replace(userRegex, `<a href="${senderLink}" class="font-bold text-blue-600 hover:underline" onclick="event.stopPropagation()">${userNameParam}</a>`);
     }
     if (notification.projectId && notification.projectId.projectName) {
         const projectLink = `./project-view.html?id=${notification.projectId._id}`;
@@ -330,29 +301,29 @@ async function openNotificationDetails(notificationId, event) {
     }
 
     if (notification.sender) {
-        // تطبيق منطق الهوية المؤسسية في تفاصيل الإشعار
-        const displayName = getSenderDisplayName(notification.sender);
-        const avatarHTML = getSenderDisplayAvatar(notification.sender, 'sender-avatar');
-
+        let avatarHTML = '';
+        if (notification.sender.profilePicture && notification.sender.profilePicture !== 'default-avatar.png' && notification.sender.profilePicture.startsWith('http')) {
+            avatarHTML = `<img src="${notification.sender.profilePicture}" alt="${notification.sender.fullName}" class="sender-avatar">`;
+        } else {
+            const initial = notification.sender.fullName ? notification.sender.fullName.charAt(0) : '?';
+            avatarHTML = `<div class="sender-avatar-initials">${initial}</div>`;
+        }
         let senderRole;
-        if (notification.sender.role === 'admin') {
-            senderRole = t('brand.name') || "الإدارة الرسمية";
-        } else if (notification.sender.profileTitle && notification.sender.profileTitle.trim() !== '') {
+        if (notification.sender.profileTitle && notification.sender.profileTitle.trim() !== '') {
             senderRole = notification.sender.profileTitle;
         } else {
             senderRole = notification.sender.accountType === 'investor'
                 ? t('js-messages-role-investor')
                 : t('js-messages-role-ideaholder');
         }
-        
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        const senderProfileLink = notification.sender.role === 'admin' ? '#' : `./public-profile.html?id=${notification.sender._id}`;
+        const senderProfileLink = `./public-profile.html?id=${notification.sender._id}`;
 
         detailsHTML += `
         <div class="notification-details-card">
             <div class="sender-info-grid">
-                <a href="${senderProfileLink}" class="sender-avatar-wrapper" onclick="if(this.getAttribute('href')==='#') event.preventDefault(); event.stopPropagation();">${avatarHTML}</a>
-                <a href="${senderProfileLink}" class="sender-name" onclick="if(this.getAttribute('href')==='#') event.preventDefault(); event.stopPropagation();">${displayName}</a>
+                <a href="${senderProfileLink}" class="sender-avatar-wrapper" onclick="event.stopPropagation()">${avatarHTML}</a>
+                <a href="${senderProfileLink}" class="sender-name" onclick="event.stopPropagation()">${notification.sender.fullName}</a>
                 <div class="sender-title">${senderRole}</div>
                 <div class="notification-date">${formattedDate}</div>
             </div>
@@ -630,18 +601,22 @@ async function openMessage(otherUserId) {
         const otherUser = allConversations.find(c => c.otherUser._id === otherUserId).otherUser;
         const currentUserId = localStorage.getItem('user_id');
 
-        // تطبيق منطق الهوية المؤسسية في ترويسة المحادثة
-        const displayName = getSenderDisplayName(otherUser);
-        const avatarHTML = getSenderDisplayAvatar(otherUser, 'w-12 h-12');
+        let avatarHTML = '';
+        if (otherUser.profilePicture && otherUser.profilePicture !== 'default-avatar.png' && otherUser.profilePicture.startsWith('http')) {
+            avatarHTML = `<img src="${otherUser.profilePicture}" alt="${otherUser.fullName}" class="w-12 h-12 rounded-full object-cover">`;
+        } else {
+            const initial = otherUser.fullName ? otherUser.fullName.charAt(0) : '?';
+            avatarHTML = `<div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
+        }
 
-        const accountTypeDisplay = otherUser.role === 'admin' ? (t('brand.name') || 'الإدارة الرسمية') : (otherUser.accountType === 'ideaHolder' ? t('js-messages-role-ideaholder') : t('js-messages-role-investor'));
+        const accountTypeDisplay = otherUser.accountType === 'ideaHolder' ? t('js-messages-role-ideaholder') : t('js-messages-role-investor');
 
         modalHeader.innerHTML = `
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-4">
                     ${avatarHTML}
                     <div>
-                        <h3 class="font-bold text-gray-900">${displayName}</h3>
+                        <h3 class="font-bold text-gray-900">${otherUser.fullName}</h3>
                         <p class="text-sm text-gray-500">${otherUser.profileTitle || accountTypeDisplay}</p>
                     </div>
                 </div>
