@@ -2,6 +2,8 @@ const Project = require('../models/project.model');
 const Proposal = require('../models/proposal.model');
 const User = require('../models/user.model');
 const Support = require('../models/support.model');
+const FAQ = require('../models/faq.model'); // استدعاء الموديل الجديد
+const Message = require('../models/message.model'); // استدعاء موديل الرسائل للرد المباشر
 const { createNotification } = require('./notification.controller.js');
 
 const getProjectsForAdmin = async (req, res, next) => {
@@ -158,6 +160,8 @@ const sendAdminNotification = async (req, res, next) => {
     }
 };
 
+// --- دوال نظام الدعم المحدثة ---
+
 const submitSupportTicket = async (req, res, next) => {
     try {
         const { name, email, type, message } = req.body;
@@ -198,6 +202,72 @@ const deleteTicket = async (req, res, next) => {
     }
 };
 
+// الرد المباشر عبر المنصة (جديد)
+const replyToSupportDirectly = async (req, res, next) => {
+    try {
+        const { ticketId, replyMessage } = req.body;
+        const ticket = await Support.findById(ticketId);
+
+        if (!ticket || !ticket.user) {
+            return res.status(400).json({ message: 'لا يمكن الرد مباشرة على زائر أو تذكرة غير موجودة' });
+        }
+
+        // 1. إرسال رسالة شات رسمية للمستخدم من قبل الإدارة
+        await Message.create({
+            sender: req.user._id, // الآدمن المسجل
+            recipient: ticket.user,
+            subject: 'اقتراح شراكة', // نستخدم subject موجود في الـ Enum الأصلي 'اقتراح شراكة' أو نعدل الـ Model لاحقاً
+            content: `[رد رسمي بخصوص طلبك رقم ${ticket._id.toString().substring(18)}]: \n\n ${replyMessage}`
+        });
+
+        // 2. إرسال إشعار للمستخدم
+        await createNotification({
+            recipient: ticket.user,
+            sender: req.user._id,
+            type: 'NEW_MESSAGE',
+            messageKey: 'notification_support_reply',
+            messageParams: { ticketId: ticket._id.toString().substring(18) },
+            link: '/messages.html#messages'
+        });
+
+        // 3. تحديث حالة التذكرة إلى "Replied"
+        ticket.status = 'replied';
+        await ticket.save();
+
+        res.json({ success: true, message: 'تم إرسال الرد وتحديث الحالة' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// دوال الـ FAQ الديناميكية (جديد)
+const getFAQs = async (req, res, next) => {
+    try {
+        const faqs = await FAQ.find().sort({ order: 1, createdAt: -1 });
+        res.json(faqs);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const addFAQ = async (req, res, next) => {
+    try {
+        const faq = await FAQ.create(req.body);
+        res.status(201).json(faq);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const deleteFAQ = async (req, res, next) => {
+    try {
+        await FAQ.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProjectsForAdmin,
     updateProjectStatus,
@@ -210,5 +280,9 @@ module.exports = {
     submitSupportTicket,
     getAllSupportTickets,
     updateTicketStatus,
-    deleteTicket
+    deleteTicket,
+    replyToSupportDirectly, // تصدير الدالة الجديدة
+    getFAQs,                // تصدير دوال FAQ
+    addFAQ,
+    deleteFAQ
 };
