@@ -1,5 +1,8 @@
 const Notification = require('../models/notification.model.js');
 
+/**
+ * إنشاء إشعار جديد
+ */
 const createNotification = async (notificationData) => {
     try {
         await Notification.create(notificationData);
@@ -8,18 +11,26 @@ const createNotification = async (notificationData) => {
     }
 };
 
+/**
+ * جلب كافة إشعارات المستخدم الحالي
+ * التعديل: إضافة حقل role في الـ populate لضمان التعرف على الإدارة
+ */
 const getUserNotifications = async (req, res, next) => {
     try {
         const notifications = await Notification.find({ recipient: req.user._id })
-            .populate('sender', 'fullName profilePicture profileTitle accountType')
+            .populate('sender', 'fullName profilePicture profileTitle role') // أضفنا role هنا لتمييز الإدارة
             .populate('projectId', 'projectName _id')
             .sort({ createdAt: -1 });
+            
         res.json(notifications);
     } catch (error) {
         next(error);
     }
 };
 
+/**
+ * تحديد إشعار معين كمقروء
+ */
 const markAsRead = async (req, res, next) => {
     try {
         const notification = await Notification.findById(req.params.id);
@@ -35,6 +46,9 @@ const markAsRead = async (req, res, next) => {
     }
 };
 
+/**
+ * تحديد كافة الإشعارات كمقروءة
+ */
 const markAllAsRead = async (req, res, next) => {
     try {
         await Notification.updateMany(
@@ -47,6 +61,9 @@ const markAllAsRead = async (req, res, next) => {
     }
 };
 
+/**
+ * حذف كافة الإشعارات
+ */
 const deleteAllNotifications = async (req, res, next) => {
     try {
         await Notification.deleteMany({ recipient: req.user._id });
@@ -56,6 +73,9 @@ const deleteAllNotifications = async (req, res, next) => {
     }
 };
 
+/**
+ * حذف إشعار محدد بواسطة المعرف
+ */
 const deleteNotificationById = async (req, res, next) => {
     try {
         const notification = await Notification.findById(req.params.id);
