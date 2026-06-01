@@ -190,9 +190,12 @@ function createNotificationCard(notification) {
     }
 
     let actionButton = '';
+    // إضافة زر التفاصيل خصيصاً لرد الإدارة
+    const isSupportReply = notification.messageKey === 'notification_support_official_reply';
+
     if (notification.note && notification.note.trim() !== '') {
-        actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="showAdminNoteModal('${notification.note.replace(/'/g, "\\'")}')">${t('js-messages-view-note-btn')}</button>`;
-    } else if (['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type)) {
+        actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="openNotificationDetails('${notification._id}', event)">${t('js-messages-view-note-btn')}</button>`;
+    } else if (['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type) || isSupportReply) {
         actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="openNotificationDetails('${notification._id}', event)">${t('js-messages-view-details-btn')}</button>`;
     }
 
@@ -201,7 +204,7 @@ function createNotificationCard(notification) {
             <i class="fas fa-trash delete-icon" title="${t('js-messages-delete-notification-title')}" onclick="deleteSingleItem(event, 'notifications', '${notification._id}')"></i>
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl flex-shrink-0">
-                    <i class="${iconClass}"></i>
+                    <i class="${isSupportReply ? 'fas fa-headset text-blue-600' : iconClass}"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class=" items-center justify-between mb-2">
@@ -269,6 +272,29 @@ async function openNotificationDetails(notificationId, event) {
     const contentEl = document.getElementById('notificationDetailContent');
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
+
+    // --- بداية التعديل لرد الإدارة الرسمي ---
+    if (notification.messageKey === 'notification_support_official_reply') {
+        modalTitle.textContent = "رد الدعم الفني الرسمي";
+        contentEl.innerHTML = `
+            <div class="support-detail-wrapper" style="text-align: right; direction: rtl;">
+                <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 10px; border-right: 4px solid #94a3b8;">
+                    <label style="display:block; font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 5px;">نص طلبك المرسل:</label>
+                    <p style="font-size: 14px; color: #475569; margin: 0; white-space: pre-wrap;">${escapeHTML(notification.note || '...')}</p>
+                </div>
+                <div style="padding: 20px; background: #eff6ff; border-radius: 10px; border-right: 4px solid #1e40af;">
+                    <label style="display:block; font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">رد إدارة مستثمر الرسمي:</label>
+                    <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                        ${escapeHTML(notification.responseMessage || '...')}
+                    </p>
+                </div>
+            </div>
+        `;
+        responseSection.style.display = 'none';
+        modal.classList.remove('hidden');
+        return; // الخروج من الدالة بعد عرض رد الدعم
+    }
+    // --- نهاية التعديل لرد الإدارة ---
 
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
@@ -725,6 +751,11 @@ function showSuccessMessage(message) {
     messageDiv.innerHTML = `<div class="flex items-center gap-3"><span class="text-lg">✅</span><span class="flex-1">${message}</span><button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-gray-700">×</button></div>`;
     document.body.appendChild(messageDiv);
     setTimeout(() => { if (messageDiv.parentElement) { messageDiv.remove(); } }, 5000);
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
 document.addEventListener('DOMContentLoaded', function () {
