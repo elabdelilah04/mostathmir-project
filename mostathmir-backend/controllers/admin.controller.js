@@ -2,10 +2,13 @@ const Project = require('../models/project.model');
 const Proposal = require('../models/proposal.model');
 const User = require('../models/user.model');
 const Support = require('../models/support.model');
-const FAQ = require('../models/faq.model'); // استدعاء الموديل الجديد
-const Message = require('../models/message.model'); // استدعاء موديل الرسائل للرد المباشر
+const FAQ = require('../models/faq.model'); 
+const Message = require('../models/message.model');
 const { createNotification } = require('./notification.controller.js');
 
+/**
+ * جلب المشاريع للمراجعة
+ */
 const getProjectsForAdmin = async (req, res, next) => {
     try {
         const query = { status: { $ne: 'draft' } };
@@ -26,6 +29,9 @@ const getProjectsForAdmin = async (req, res, next) => {
     }
 };
 
+/**
+ * تحديث حالة المشروع (قبول/رفض/طلب تعديل)
+ */
 const updateProjectStatus = async (req, res, next) => {
     try {
         const { status, adminNotes } = req.body;
@@ -54,6 +60,7 @@ const updateProjectStatus = async (req, res, next) => {
             if (messageKey) {
                 await createNotification({
                     recipient: project.owner,
+                    sender: req.user._id, // يُسجل كمسؤول في القاعدة ولكن يظهر كمنصة في الواجهة
                     type: 'PROJECT_STATUS_UPDATE',
                     messageKey: messageKey,
                     messageParams: params,
@@ -69,6 +76,9 @@ const updateProjectStatus = async (req, res, next) => {
     }
 };
 
+/**
+ * إحصائيات لوحة تحكم الإدارة
+ */
 const getAdminStats = async (req, res, next) => {
     try {
         const today = new Date();
@@ -84,6 +94,9 @@ const getAdminStats = async (req, res, next) => {
     }
 };
 
+/**
+ * تمييز المشروع (Featured)
+ */
 const toggleFeaturedStatus = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
@@ -96,10 +109,13 @@ const toggleFeaturedStatus = async (req, res, next) => {
     }
 };
 
+/**
+ * جلب كافة عروض الشراكة
+ */
 const getAllProposalsForAdmin = async (req, res, next) => {
     try {
         const proposals = await Proposal.find()
-            .populate('investorId', 'fullName email profilePicture')
+            .populate('investorId', 'fullName email profilePicture role')
             .populate({
                 path: 'projectId',
                 select: 'projectName owner',
@@ -112,12 +128,15 @@ const getAllProposalsForAdmin = async (req, res, next) => {
     }
 };
 
+/**
+ * إرسال إشعار رسمي بخصوص عرض شراكة
+ */
 const notifyProposalParty = async (req, res, next) => {
     try {
         const { recipientId, adminNote, proposalId, projectName, projectId } = req.body;
         await createNotification({
             recipient: recipientId,
-            sender: req.user._id,
+            sender: req.user._id, 
             type: 'PROJECT_STATUS_UPDATE',
             messageKey: 'notification_admin_proposal_official',
             messageParams: { projectName: projectName || 'المشروع', adminNote },
@@ -132,6 +151,9 @@ const notifyProposalParty = async (req, res, next) => {
     }
 };
 
+/**
+ * حذف عرض شراكة
+ */
 const deleteProposal = async (req, res, next) => {
     try {
         await Proposal.findByIdAndDelete(req.params.id);
@@ -141,6 +163,9 @@ const deleteProposal = async (req, res, next) => {
     }
 };
 
+/**
+ * إرسال إشعار إداري مباشر لمستخدم
+ */
 const sendAdminNotification = async (req, res, next) => {
     try {
         const { recipientId, message, projectId } = req.body;
@@ -152,7 +177,7 @@ const sendAdminNotification = async (req, res, next) => {
             messageParams: { adminMessage: message },
             note: message,
             projectId: projectId,
-            link: `/project-view.html?id=${projectId}`
+            link: projectId ? `/project-view.html?id=${projectId}` : '/messages.html#notifications'
         });
         res.json({ success: true });
     } catch (error) {
@@ -160,8 +185,9 @@ const sendAdminNotification = async (req, res, next) => {
     }
 };
 
-// --- دوال نظام الدعم المحدثة ---
-
+/**
+ * تقديم تذكرة دعم (من قبل المستخدم)
+ */
 const submitSupportTicket = async (req, res, next) => {
     try {
         const { name, email, type, message } = req.body;
@@ -173,10 +199,13 @@ const submitSupportTicket = async (req, res, next) => {
     }
 };
 
+/**
+ * جلب كافة تذاكر الدعم
+ */
 const getAllSupportTickets = async (req, res, next) => {
     try {
         const tickets = await Support.find()
-            .populate('user', 'fullName profilePicture')
+            .populate('user', 'fullName profilePicture role')
             .sort({ createdAt: -1 });
         res.json(tickets);
     } catch (error) {
@@ -184,6 +213,9 @@ const getAllSupportTickets = async (req, res, next) => {
     }
 };
 
+/**
+ * تحديث حالة تذكرة دعم
+ */
 const updateTicketStatus = async (req, res, next) => {
     try {
         const ticket = await Support.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
@@ -193,6 +225,9 @@ const updateTicketStatus = async (req, res, next) => {
     }
 };
 
+/**
+ * حذف تذكرة دعم
+ */
 const deleteTicket = async (req, res, next) => {
     try {
         await Support.findByIdAndDelete(req.params.id);
@@ -202,7 +237,9 @@ const deleteTicket = async (req, res, next) => {
     }
 };
 
-// الرد المباشر عبر المنصة (جديد)
+/**
+ * الرد المباشر عبر المنصة (باسم منصة مستثمر)
+ */
 const replyToSupportDirectly = async (req, res, next) => {
     try {
         const { ticketId, replyMessage } = req.body;
@@ -212,15 +249,15 @@ const replyToSupportDirectly = async (req, res, next) => {
             return res.status(400).json({ message: 'لا يمكن الرد مباشرة على زائر أو تذكرة غير موجودة' });
         }
 
-        // 1. إرسال رسالة شات رسمية للمستخدم من قبل الإدارة
+        // 1. إرسال رسالة شات رسمية (المرسل هو الـ Admin ID ولكن سيظهر كمنصة في الواجهة)
         await Message.create({
-            sender: req.user._id, // الآدمن المسجل
+            sender: req.user._id, 
             recipient: ticket.user,
-            subject: 'اقتراح شراكة', // نستخدم subject موجود في الـ Enum الأصلي 'اقتراح شراكة' أو نعدل الـ Model لاحقاً
-            content: `[رد رسمي بخصوص طلبك رقم ${ticket._id.toString().substring(18)}]: \n\n ${replyMessage}`
+            subject: 'اقتراح شراكة', // استخدام Enum متوافق مع الموديل
+            content: `[رد رسمي من إدارة المنصة بخصوص طلبكم]: \n\n ${replyMessage}`
         });
 
-        // 2. إرسال إشعار للمستخدم
+        // 2. إرسال إشعار رسمي
         await createNotification({
             recipient: ticket.user,
             sender: req.user._id,
@@ -230,17 +267,19 @@ const replyToSupportDirectly = async (req, res, next) => {
             link: '/messages.html#messages'
         });
 
-        // 3. تحديث حالة التذكرة إلى "Replied"
+        // 3. تحديث حالة التذكرة
         ticket.status = 'replied';
         await ticket.save();
 
-        res.json({ success: true, message: 'تم إرسال الرد وتحديث الحالة' });
+        res.json({ success: true, message: 'تم إرسال الرد الرسمي وتحديث الحالة' });
     } catch (error) {
         next(error);
     }
 };
 
-// دوال الـ FAQ الديناميكية (جديد)
+/**
+ * جلب الأسئلة الشائعة FAQ
+ */
 const getFAQs = async (req, res, next) => {
     try {
         const faqs = await FAQ.find().sort({ order: 1, createdAt: -1 });
@@ -250,6 +289,9 @@ const getFAQs = async (req, res, next) => {
     }
 };
 
+/**
+ * إضافة سؤال شائع جديد
+ */
 const addFAQ = async (req, res, next) => {
     try {
         const faq = await FAQ.create(req.body);
@@ -259,6 +301,9 @@ const addFAQ = async (req, res, next) => {
     }
 };
 
+/**
+ * حذف سؤال شائع
+ */
 const deleteFAQ = async (req, res, next) => {
     try {
         await FAQ.findByIdAndDelete(req.params.id);
@@ -281,8 +326,8 @@ module.exports = {
     getAllSupportTickets,
     updateTicketStatus,
     deleteTicket,
-    replyToSupportDirectly, // تصدير الدالة الجديدة
-    getFAQs,                // تصدير دوال FAQ
+    replyToSupportDirectly,
+    getFAQs,
     addFAQ,
     deleteFAQ
 };

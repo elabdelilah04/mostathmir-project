@@ -4,7 +4,8 @@
   // =========================
   const dict = {
     ar: {
-      "notification_support_reply": "قام فريق الدعم بالرد على استفسارك رقم #{ticketId}.",
+      "notification_support_reply": "وصلك رد رسمي من منصة مستثمر بخصوص طلب الدعم رقم #{ticketId}.",
+      "notification_admin_direct_message": "رسالة إدارية من منصة مستثمر: {adminMessage}",
       "notification_admin_proposal_official": "إشعار من الإدارة بخصوص اقتراح الشراكة مرسل لمشروع {projectName}: \n\n {adminNote}",
 
       // "notification_admin_proposal_msg": "إشعار من الإدارة بخصوص اقتراح الشراكة المرسل من {senderName}: {adminNote}",
@@ -2002,7 +2003,8 @@
     },
 
     en: {
-      "notification_support_reply": "Support team has replied to your inquiry #{ticketId}.",
+      "notification_support_reply": "You have received an official reply from Mostathmir Platform regarding ticket #{ticketId}.",
+      "notification_admin_direct_message": "Official message from Mostathmir Platform: {adminMessage}",
       "notification_admin_proposal_official": "Admin notice regarding the partnership proposal for project {projectName}: \n\n {adminNote}",
       "notification_admin_proposal_msg": "Admin notice regarding the partnership proposal from {senderName}: {adminNote}",
       "notification_admin_direct_message": "Admin message regarding your project: {adminMessage}",
