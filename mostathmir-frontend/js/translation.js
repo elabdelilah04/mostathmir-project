@@ -4,6 +4,9 @@
   // =========================
   const dict = {
     ar: {
+      "messages-support-title": "الدعم الفني",
+      "messages-support-request-label": "نص طلبك المرسل:",
+      "messages-support-response-label": "رد الإدارة:",
       "notification_support_official_reply": "رد من الإدارة بخصوص طلب الدعم رقم #{ticketId}.",
       "notification_admin_proposal_official": "إشعار من الإدارة بخصوص اقتراح الشراكة مرسل لمشروع {projectName}: \n\n {adminNote}",
 
@@ -2002,6 +2005,9 @@
     },
 
     en: {
+      "messages-support-title": "Technical Support",
+      "messages-support-request-label": "Your Sent Request:",
+      "messages-support-response-label": "Admin Response:",
       "notification_support_official_reply": "Official reply from Admin regarding support ticket #{ticketId}.",
       "notification_admin_proposal_official": "Admin notice regarding the partnership proposal for project {projectName}: \n\n {adminNote}",
       "notification_admin_proposal_msg": "Admin notice regarding the partnership proposal from {senderName}: {adminNote}",

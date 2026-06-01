@@ -34,7 +34,8 @@ function switchTab(tab) {
 function filterByStatus(status) {
     currentFilter = status;
     document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
-    document.querySelector(`[data-filter="${status}"]`).classList.add('active');
+    const filterBtn = document.querySelector(`[data-filter="${status}"]`);
+    if (filterBtn) filterBtn.classList.add('active');
     filterContent();
 }
 
@@ -190,7 +191,6 @@ function createNotificationCard(notification) {
     }
 
     let actionButton = '';
-    // إضافة زر التفاصيل خصيصاً لرد الإدارة
     const isSupportReply = notification.messageKey === 'notification_support_official_reply';
 
     if (notification.note && notification.note.trim() !== '') {
@@ -273,17 +273,17 @@ async function openNotificationDetails(notificationId, event) {
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
 
-    // --- بداية التعديل لرد الإدارة الرسمي ---
+    // --- منطق الدعم الفني المحدث ---
     if (notification.messageKey === 'notification_support_official_reply') {
-        modalTitle.textContent = "رد الدعم الفني الرسمي";
+        modalTitle.textContent = t('messages-support-title'); // "الدعم الفني"
         contentEl.innerHTML = `
             <div class="support-detail-wrapper" style="text-align: right; direction: rtl;">
                 <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 10px; border-right: 4px solid #94a3b8;">
-                    <label style="display:block; font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 5px;">نص طلبك المرسل:</label>
+                    <label style="display:block; font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 5px;">${t('messages-support-request-label')}</label>
                     <p style="font-size: 14px; color: #475569; margin: 0; white-space: pre-wrap;">${escapeHTML(notification.note || '...')}</p>
                 </div>
                 <div style="padding: 20px; background: #eff6ff; border-radius: 10px; border-right: 4px solid #1e40af;">
-                    <label style="display:block; font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">رد إدارة مستثمر الرسمي:</label>
+                    <label style="display:block; font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">${t('messages-support-response-label')}</label>
                     <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">
                         ${escapeHTML(notification.responseMessage || '...')}
                     </p>
@@ -291,10 +291,11 @@ async function openNotificationDetails(notificationId, event) {
             </div>
         `;
         responseSection.style.display = 'none';
+        linkEl.style.display = 'none'; // إخفاء زر الانتقال للمشروع
         modal.classList.remove('hidden');
-        return; // الخروج من الدالة بعد عرض رد الدعم
+        return; 
     }
-    // --- نهاية التعديل لرد الإدارة ---
+    // --- نهاية منطق الدعم الفني ---
 
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
@@ -318,7 +319,7 @@ async function openNotificationDetails(notificationId, event) {
             Object.keys(notification.messageParams).forEach(key => {
                 const regex = new RegExp(`{${key}}`, 'g');
                 let paramValue = notification.messageParams[key];
-                if (key === 'statusKey' && typeof paramValue === 'string') {
+                if (key === 'statusKey') {
                     paramValue = t(paramValue);
                 }
                 messageText = messageText.replace(regex, paramValue);
@@ -730,17 +731,20 @@ function closeMessageModal() {
 }
 
 function updateStats() {
-    const unreadMessages = allConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+    const unreadMessages = allConversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
     const unreadNotifications = allNotifications.filter(n => !n.read).length;
 
     const messagesBadge = document.getElementById('messagesBadge');
     const notificationsBadge = document.getElementById('notificationsBadge');
 
-    messagesBadge.textContent = unreadMessages;
-    messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
-
-    notificationsBadge.textContent = unreadNotifications;
-    notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    if (messagesBadge) {
+        messagesBadge.textContent = unreadMessages;
+        messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
+    }
+    if (notificationsBadge) {
+        notificationsBadge.textContent = unreadNotifications;
+        notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    }
 }
 
 function showSuccessMessage(message) {
