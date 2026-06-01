@@ -77,14 +77,9 @@
     </div>
 
     <!-- مودال طلب التعديل -->
-    <div id="revisionModal" class="modal-overlay" style="display: none;">
+    <div id="revisionModal" class="modal-overlay" style="display: none; z-index: 1000;">
         <div class="modal-box" style="max-width: 550px;">
             <div class="modal-header">
-                <h3 class="modal-title" data-i18n-key="revision-modal-title">طلب تعديل على المشروع</h3>
-                <span class="modal-close" onclick="closeRevisionModal()">&times;</span>
-            </div>
-
-            <div class="modal-body">
                 <!-- رسالة توضيحية -->
                 <div class="info-alert"
                     style="background: #eff6ff; border-right: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -94,7 +89,10 @@
 
                     </p>
                 </div>
+                <span class="modal-close" onclick="closeRevisionModal()">&times;</span>
+            </div>
 
+            <div class="modal-body">
                 <form id="revisionForm">
                     <input type="hidden" id="revisionProjectId">
                     <input type="hidden" id="revisionProjectName">
