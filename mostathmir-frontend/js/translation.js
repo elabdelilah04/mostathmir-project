@@ -4,6 +4,25 @@
   // =========================
   const dict = {
     ar: {
+      // --- مفاتيح مودال طلب التعديل الجديدة ---
+      "revision-modal-title": "طلب تعديل على المشروع",
+      "revision-importance-msg": "تساعدنا مراجعة التعديلات على ضمان دقة البيانات المعروضة للمستثمرين. يرجى تحديد الأقسام بدقة لتسريع عملية الموافقة.",
+      "revision-select-sections": "ما هي الأقسام التي تود تعديلها؟",
+      "revision-section-basic": "معلومات المشروع",
+      "revision-section-financial": "البيانات المالية",
+      "revision-section-media": "الصور والملفات",
+      "revision-section-team": "فريق العمل",
+      "revision-section-stage": "مرحلة التنفيذ",
+      "revision-section-other": "أخرى",
+      "revision-details-label": "وضح أسباب التعديل والتغييرات المطلوبة:",
+      "revision-details-placeholder": "مثلاً: أريد تحديث نسبة الأرباح المتوقعة للسنة الثانية...",
+      "revision-submit-btn": "إرسال الطلب",
+
+      // --- مفاتيح مضافة لملف الجافاسكريبت (بطاقة المشروع) ---
+      "js-my-projects-request-edit-btn": "طلب تعديل",
+      "js-my-projects-edit-locked-funded": "تم قفل التعديل لوجود استثمارات قائمة",
+      "js-my-projects-contact-admin-btn": "الدعم الفني",
+
       "messages-support-title": "الدعم الفني",
       "messages-support-request-label": "نص طلبك المرسل:",
       "messages-support-response-label": "رد الإدارة:",
@@ -2005,6 +2024,25 @@
     },
 
     en: {
+      // --- New Revision Modal Keys ---
+      "revision-modal-title": "Request Project Edit",
+      "revision-importance-msg": "Reviewing edits helps us ensure data accuracy for investors. Please specify sections accurately to speed up approval.",
+      "revision-select-sections": "Which sections would you like to edit?",
+      "revision-section-basic": "Project Information",
+      "revision-section-financial": "Financial Data",
+      "revision-section-media": "Images & Files",
+      "revision-section-team": "Team Members",
+      "revision-section-stage": "Project Stage",
+      "revision-section-other": "Other",
+      "revision-details-label": "Explain reasons and requested changes:",
+      "revision-details-placeholder": "e.g., I want to update the expected profit for the second year...",
+      "revision-submit-btn": "Send Request",
+
+      // --- Added JS Keys (Project Card) ---
+      "js-my-projects-request-edit-btn": "Request Edit",
+      "js-my-projects-edit-locked-funded": "Editing locked due to active investments",
+      "js-my-projects-contact-admin-btn": "Support",
+
       "messages-support-title": "Technical Support",
       "messages-support-request-label": "Your Sent Request:",
       "messages-support-response-label": "Admin Response:",

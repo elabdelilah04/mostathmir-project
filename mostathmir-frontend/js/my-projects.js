@@ -1,3 +1,7 @@
+/**
+ * MOSTATHMIR - MY PROJECTS MANAGEMENT
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
     // const API_BASE_URL = 'https://mostathmir-api.onrender.com';
     const projectsGrid = document.getElementById('projectsGrid');
@@ -20,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         keyword: ''
     };
 
+    // ==========================================
+    // 1. منطق جلب وعرض المشاريع
+    // ==========================================
     async function fetchAndRenderProjects() {
         projectsGrid.innerHTML = `<p class="loading-text">${t('js-my-projects-loading')}</p>`;
 
@@ -40,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const projects = await response.json();
             renderProjects(projects);
 
-            // Force re-translation after dynamic content is added
             if (window.translatePage) {
                 window.translatePage();
             }
@@ -57,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="no-projects-placeholder">
                     <i class="fas fa-folder-open"></i>
                     <h3 data-i18n-key="js-my-projects-no-projects-found">${t('js-my-projects-no-projects-found')}</h3>
-                    <p data-i18n-key="js-my-projects-no-projects-suggestion">${t('js-my-projects-no-projects-suggestion').replace('<a href="add-project-new.html">', '<a href="add-project-new.html">')}</p>
+                    <p data-i18n-key="js-my-projects-no-projects-suggestion">${t('js-my-projects-no-projects-suggestion')}</p>
                 </div>`;
             return;
         }
@@ -90,28 +96,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let actionButtonsHTML = '';
-
-        // --- القاعدة الجديدة: القفل يعتمد على وجود تمويل فعلي ---
         const hasInvestment = (project.fundingAmountRaised || 0) > 0;
-
-        // المشاريع المكتملة أو التي بدأت باستلام مبالغ يتم قفلها
         const isLocked = hasInvestment || project.status === 'funded' || project.status === 'completed';
 
         if (isLocked) {
-            // حالة القفل: لا يمكن التعديل أو الحذف لوجود أموال مستثمرة
+            // حالة القفل: استبدال التوجه لصفحة المساعدة بفتح المودال المطور
             actionButtonsHTML = `
             <a href="project-view.html?id=${project._id}" class="action-btn btn-primary">
                 <i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span>
             </a>
-            <a href="faq-support.html" class="action-btn btn-secondary">
-                <i class="fas fa-headset"></i><span>${t('js-my-projects-contact-admin-btn')}</span>
-            </a>
+            <button class="action-btn btn-warning" onclick="openRevisionModal('${project._id}', '${escapeHTML(projectName)}')">
+                <i class="fas fa-edit"></i> <span>${t('js-my-projects-request-edit-btn') || 'طلب تعديل'}</span>
+            </button>
             <div style="flex-basis: 100%; text-align: center; margin-top: 10px; font-size: 0.75rem; color: #ef4444; font-weight: 600;">
                 <i class="fas fa-lock"></i> ${t('js-my-projects-edit-locked-funded')}
             </div>
         `;
         } else {
-            // حالة السماح: (مسودة، مراجعة، منشور) طالما التمويل = 0
             const previewText = project.status === 'needs-revision' ? t('js-my-projects-view-notes-btn') : t('js-my-projects-preview-btn');
             const editText = (project.status === 'draft') ? t('js-my-projects-complete-project-btn') : t('js-my-projects-edit-btn');
 
@@ -123,44 +124,125 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const notesIndicatorHTML = project.adminNotes ? `
-        <span class="admin-notes-indicator" data-notes="${escapeHTML(project.adminNotes)}">
-            <i class="fas fa-comment-alt"></i>
-        </span>
-    ` : '';
+            <span class="admin-notes-indicator" data-notes="${escapeHTML(project.adminNotes)}">
+                <i class="fas fa-comment-alt"></i>
+            </span>
+        ` : '';
 
         return `
-    <div class="project-card" data-id="${project._id}">
-        <div class="project-header">
-            <h3 class="project-title">${escapeHTML(projectName)}</h3>
-            <div class="header-indicators">
-                ${notesIndicatorHTML}
-                <span class="project-status status-${project.status.replace('_', '-')}">${statusText}</span>
-            </div>
-        </div>
-        <p class="project-description">${escapeHTML(description)}</p>
-        ${(project.fundingGoal && project.fundingGoal.amount > 0) ? `
-            <div class="project-funding">
-                <div class="funding-item">
-                    <div class="funding-label">${t('funding-required')}</div>
-                    <div class="funding-value required">${project.fundingGoal.amount.toLocaleString()} ${project.fundingGoal.currency}</div>
-                </div>
-                <div class="funding-item">
-                    <div class="funding-label">${t('funding-received')}</div>
-                    <div class="funding-value collected">${(project.fundingAmountRaised || 0).toLocaleString()} ${project.fundingGoal.currency}</div>
+        <div class="project-card" data-id="${project._id}">
+            <div class="project-header">
+                <h3 class="project-title">${escapeHTML(projectName)}</h3>
+                <div class="header-indicators">
+                    ${notesIndicatorHTML}
+                    <span class="project-status status-${project.status.replace('_', '-')}">${statusText}</span>
                 </div>
             </div>
-            <div class="progress-bar"><div class="progress-fill" style="width: ${fundingProgress}%"></div></div>
-        ` : ""}
-        <div class="project-meta">
-            <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+            <p class="project-description">${escapeHTML(description)}</p>
+            ${(project.fundingGoal && project.fundingGoal.amount > 0) ? `
+                <div class="project-funding">
+                    <div class="funding-item">
+                        <div class="funding-label">${t('funding-required')}</div>
+                        <div class="funding-value required">${project.fundingGoal.amount.toLocaleString()} ${project.fundingGoal.currency}</div>
+                    </div>
+                    <div class="funding-item">
+                        <div class="funding-label">${t('funding-received')}</div>
+                        <div class="funding-value collected">${(project.fundingAmountRaised || 0).toLocaleString()} ${project.fundingGoal.currency}</div>
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: ${fundingProgress}%"></div></div>
+            ` : ""}
+            <div class="project-meta">
+                <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+            </div>
+            <div class="project-actions">
+                ${actionButtonsHTML}
+            </div>
         </div>
-        <div class="project-actions">
-            ${actionButtonsHTML}
-        </div>
-    </div>
-    `;
+        `;
     }
 
+    // ==========================================
+    // 2. منطق مودال طلب التعديل (Revision Modal)
+    // ==========================================
+    window.openRevisionModal = (projectId, projectName) => {
+        const modal = document.getElementById('revisionModal');
+        const idInput = document.getElementById('revisionProjectId');
+        const nameInput = document.getElementById('revisionProjectName');
+
+        if (modal && idInput && nameInput) {
+            idInput.value = projectId;
+            nameInput.value = projectName;
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeRevisionModal = () => {
+        const modal = document.getElementById('revisionModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.getElementById('revisionForm')?.reset();
+        }
+    };
+
+    // معالجة إرسال طلب التعديل لربطه بنظام الدعم
+    document.getElementById('revisionForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const projectId = document.getElementById('revisionProjectId').value;
+        const projectName = document.getElementById('revisionProjectName').value;
+        const details = document.getElementById('revisionDetails').value;
+
+        // جمع الأقسام المختارة من الـ Checkboxes
+        const checkboxes = document.querySelectorAll('.sections-selection-grid input:checked');
+        const selectedSections = Array.from(checkboxes).map(cb => cb.value).join('، ');
+
+        if (selectedSections.length === 0) {
+            return alert("يرجى تحديد قسم واحد على الأقل تود تعديله.");
+        }
+
+        const btn = document.getElementById('btnSendRevision');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = t('js-script-please-wait') || "...";
+
+        // صياغة الرسالة النهائية للآدمن
+        const finalMessage = `[طلب تعديل مشروع]\nاسم المشروع: ${projectName}\nالأقسام: ${selectedSections}\nالتفاصيل: ${details}`;
+
+        const supportPayload = {
+            type: 'tech',
+            message: finalMessage,
+            name: JSON.parse(localStorage.getItem('user_data'))?.fullName || 'صاحب مشروع',
+            email: JSON.parse(localStorage.getItem('user_data'))?.email || 'N/A'
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/support/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(supportPayload)
+            });
+
+            if (response.ok) {
+                alert('✅ تم إرسال طلب التعديل للإدارة بنجاح. سنوافيك بالرد عبر الإشعارات قريباً.');
+                closeRevisionModal();
+            } else {
+                throw new Error();
+            }
+        } catch (error) {
+            alert('❌ فشل إرسال الطلب، يرجى المحاولة لاحقاً أو التواصل مع الدعم المباشر.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    });
+
+    // ==========================================
+    // 3. باقي الوظائف (حذف، تصفية، ملاحظات)
+    // ==========================================
     window.deleteProject = async (projectId) => {
         if (!confirm(t('js-my-projects-confirm-delete'))) return;
         try {
@@ -194,9 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
+    // التشغيل الأولي
     fetchAndRenderProjects();
 });
 
+// مصفوفة إدارة ملاحظات الإدارة
 if (!document.getElementById('notesModal')) {
     const modalHTML = `
         <div id="notesModal" class="modal-overlay" style="display:none;">
@@ -222,6 +306,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
         document.getElementById('notesModal').style.display = 'none';
+        document.getElementById('revisionModal').style.display = 'none';
     }
 });
 
