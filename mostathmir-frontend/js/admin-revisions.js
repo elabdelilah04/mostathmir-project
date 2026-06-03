@@ -31,14 +31,14 @@ async function updateRevisionStats() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) return;
-
+        
         const stats = await res.json();
-
+        
         // تحديث أرقام العدادات في الواجهة
         document.getElementById('pendingCount').textContent = stats.pendingCount || 0;
         document.getElementById('approvedToday').textContent = stats.approvedToday || 0;
         document.getElementById('rejectedToday').textContent = stats.rejectedToday || 0;
-
+        
     } catch (error) {
         console.error("Stats Update Error:", error);
     }
@@ -53,9 +53,9 @@ async function fetchRevisions() {
         const res = await fetch(`${API_BASE_URL}/api/admin/revisions`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
+        
         if (!res.ok) throw new Error('Failed to fetch requests');
-
+        
         allRequests = await res.json();
         applyFilters(); // عرض البيانات مع الترتيب الافتراضي
 
@@ -112,10 +112,10 @@ function renderRevisions(requests) {
     }
 
     grid.innerHTML = requests.map(req => {
-        const dateStr = new Date(req.createdAt).toLocaleDateString('ar-SA', {
-            day: 'numeric', month: 'short', year: 'numeric'
+        const dateStr = new Date(req.createdAt).toLocaleDateString('ar-SA', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
         });
-
+        
         const statusMap = {
             'pending': { text: 'قيد الانتظار', class: 'status-pending' },
             'approved': { text: 'تمت الموافقة', class: 'status-approved' },
@@ -226,9 +226,9 @@ async function processDecision(decision) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/admin/revisions/decision`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
             },
             body: JSON.stringify({ requestId: currentRequestId, decision, adminNote })
         });

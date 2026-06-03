@@ -57,64 +57,64 @@
             <header class="page-header">
                 <div class="header-top">
                     <h1 class="page-title"><i class="fas fa-history"></i> طلبات المراجعة</h1>
-                </div>
-                <!-- قسم الإحصائيات الجديد -->
-                <div class="stats-summary">
-                    <div class="stat-item">
-                        <span class="stat-number" id="pendingCount">0</span>
-                        <span class="stat-label">في الانتظار</span>
+
+                    <!-- قسم الإحصائيات الجديد -->
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-number" id="pendingCount">0</span>
+                            <span class="stat-label">في الانتظار</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="approvedToday">0</span>
+                            <span class="stat-label">تم قبولها اليوم</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="rejectedToday">0</span>
+                            <span class="stat-label">تم رفضها اليوم</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="approvedToday">0</span>
-                        <span class="stat-label">تم قبولها اليوم</span>
+                </div>
+
+                <div class="filters-section">
+                    <div class="filters">
+                        <!-- فلتر الحالة -->
+                        <div class="filter-group">
+                            <label>الحالة:</label>
+                            <select class="filter-select" id="statusFilter">
+                                <option value="all">الكل</option>
+                                <option value="pending">قيد الانتظار</option>
+                                <option value="approved">تمت الموافقة</option>
+                                <option value="rejected">مرفوضة</option>
+                            </select>
+                        </div>
+
+                        <!-- فلتر القسم -->
+                        <div class="filter-group">
+                            <label>حسب القسم:</label>
+                            <select class="filter-select" id="sectionFilter">
+                                <option value="all">كل الأقسام</option>
+                                <option value="المعلومات الأساسية">معلومات المشروع</option>
+                                <option value="الخطة المالية">البيانات المالية</option>
+                                <option value="الصور والمرفقات">الصور والملفات</option>
+                                <option value="مرحلة المشروع">مرحلة التنفيذ</option>
+                            </select>
+                        </div>
+
+                        <!-- فلتر الترتيب -->
+                        <div class="filter-group">
+                            <label>الترتيب:</label>
+                            <select class="filter-select" id="sortFilter">
+                                <option value="newest">الأحدث أولاً</option>
+                                <option value="oldest">الأقدم أولاً</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="rejectedToday">0</span>
-                        <span class="stat-label">تم رفضها اليوم</span>
-                    </div>
                 </div>
-        </div>
+            </header>
 
-        <div class="filters-section">
-            <div class="filters">
-                <!-- فلتر الحالة -->
-                <div class="filter-group">
-                    <label>الحالة:</label>
-                    <select class="filter-select" id="statusFilter">
-                        <option value="all">الكل</option>
-                        <option value="pending">قيد الانتظار</option>
-                        <option value="approved">تمت الموافقة</option>
-                        <option value="rejected">مرفوضة</option>
-                    </select>
-                </div>
-
-                <!-- فلتر القسم -->
-                <div class="filter-group">
-                    <label>حسب القسم:</label>
-                    <select class="filter-select" id="sectionFilter">
-                        <option value="all">كل الأقسام</option>
-                        <option value="المعلومات الأساسية">معلومات المشروع</option>
-                        <option value="الخطة المالية">البيانات المالية</option>
-                        <option value="الصور والمرفقات">الصور والملفات</option>
-                        <option value="مرحلة المشروع">مرحلة التنفيذ</option>
-                    </select>
-                </div>
-
-                <!-- فلتر الترتيب -->
-                <div class="filter-group">
-                    <label>الترتيب:</label>
-                    <select class="filter-select" id="sortFilter">
-                        <option value="newest">الأحدث أولاً</option>
-                        <option value="oldest">الأقدم أولاً</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        </header>
-
-        <section class="projects-grid" id="revisionsGrid">
-            <div class="text-center py-20">جاري تحميل الطلبات...</div>
-        </section>
+            <section class="projects-grid" id="revisionsGrid">
+                <div class="text-center py-20">جاري تحميل الطلبات...</div>
+            </section>
         </div>
     </main>
 
