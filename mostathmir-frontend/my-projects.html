@@ -80,7 +80,7 @@
     <!-- مودال طلب التعديل -->
     <div id="revisionModal" class="modal-overlay" style="display: none; z-index: 1000;">
         <div class="modal-box" style="max-width: 550px;">
-            <div class="modal-header">
+            <div class="modal-header" style="padding: 0;">
                 <!-- رسالة توضيحية -->
                 <div class="info-alert"
                     style="background: #eff6ff; border-right: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -93,14 +93,14 @@
                 <span class="modal-close" onclick="closeRevisionModal()">&times;</span>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 0;">
                 <form id="revisionForm">
                     <input type="hidden" id="revisionProjectId">
                     <input type="hidden" id="revisionProjectName">
 
                     <!-- اختيار الأقسام (Checkboxes بأسلوب أنيق) -->
                     <div class="form-group">
-                        <label style="font-weight: bold; margin-bottom: 10px; display: block;"
+                        <label style="font-weight: bold; margin: 10px; display: block;"
                             data-i18n-key="revision-select-sections">ما هي الأقسام التي تود تعديلها؟</label>
                         <div class="sections-selection-grid"
                             style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
