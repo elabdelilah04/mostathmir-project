@@ -19,6 +19,7 @@ const {
     deleteFAQ,
     getAllRevisionRequests,
     handleRevisionDecision,
+    getRevisionStats,
 } = require('../controllers/admin.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 const { admin } = require('../middleware/admin.middleware.js');
@@ -53,5 +54,7 @@ router.delete('/support/faqs/:id', protect, admin, deleteFAQ);
 
 router.get('/revisions', protect, admin, getAllRevisionRequests);
 router.post('/revisions/decision', protect, admin, handleRevisionDecision);
+router.get('/revisions/stats', protect, admin, getRevisionStats);
+
 
 module.exports = router;

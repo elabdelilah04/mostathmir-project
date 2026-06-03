@@ -355,6 +355,27 @@ const handleRevisionDecision = async (req, res, next) => {
     } catch (error) { next(error); }
 };
 
+const getRevisionStats = async (req, res, next) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const [pending, approvedToday, rejectedToday] = await Promise.all([
+            RevisionRequest.countDocuments({ status: 'pending' }),
+            RevisionRequest.countDocuments({ status: 'approved', updatedAt: { $gte: today } }),
+            RevisionRequest.countDocuments({ status: 'rejected', updatedAt: { $gte: today } })
+        ]);
+
+        res.json({
+            pendingCount: pending,
+            approvedToday: approvedToday,
+            rejectedToday: rejectedToday
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProjectsForAdmin,
     updateProjectStatus,
@@ -374,4 +395,5 @@ module.exports = {
     deleteFAQ,
     handleRevisionDecision,
     getAllRevisionRequests,
+    getRevisionStats,
 };
