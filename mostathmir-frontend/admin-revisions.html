@@ -119,25 +119,18 @@
     </main>
 
     <!-- مودال اتخاذ القرار -->
-    <div class="modal" id="decisionModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">اتخاذ قرار بشأن الطلب</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="requestInfo" class="mb-4"></p>
-                <div class="form-group">
-                    <label>ملاحظة الإدارة للمستخدم:</label>
-                    <textarea id="adminNote" rows="4" placeholder="وضح سبب القبول أو الرفض..."></textarea>
-                </div>
-                <div class="approval-actions" style="margin-top: 20px;">
-                    <button class="action-btn btn-success" id="approveBtn">قبول وفتح التعديل</button>
-                    <button class="action-btn btn-danger" id="rejectBtn">رفض الطلب</button>
-                </div>
-            </div>
+<!-- مودال اتخاذ القرار -->
+<div class="modal" id="decisionModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">اتخاذ قرار بشأن الطلب</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- سيتم مسح هذا المحتوى وحقن البيانات الجديدة مكانه عبر JS -->
         </div>
     </div>
+</div>
 
     <script src="/js/script.js"></script>
     <script src="/js/admin-revisions.js"></script>
