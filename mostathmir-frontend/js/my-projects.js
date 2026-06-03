@@ -185,17 +185,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // معالجة إرسال طلب التعديل لربطه بنظام الدعم
+    // معالجة إرسال طلب التعديل الفعلي
     document.getElementById('revisionForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const projectId = document.getElementById('revisionProjectId').value;
-        const projectName = document.getElementById('revisionProjectName').value;
-        const details = document.getElementById('revisionDetails').value;
+        const reason = document.getElementById('revisionDetails').value;
 
-        // جمع الأقسام المختارة من الـ Checkboxes
+        // 1. جمع الأقسام المختارة من الـ Checkboxes
         const checkboxes = document.querySelectorAll('.sections-selection-grid input:checked');
-        const selectedSections = Array.from(checkboxes).map(cb => cb.value).join('، ');
+        const selectedSections = Array.from(checkboxes).map(cb => cb.value);
 
         if (selectedSections.length === 0) {
             return alert("يرجى تحديد قسم واحد على الأقل تود تعديله.");
@@ -204,36 +203,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btnSendRevision');
         const originalText = btn.textContent;
         btn.disabled = true;
-        btn.textContent = t('js-script-please-wait') || "...";
+        btn.textContent = "...";
 
-        // صياغة الرسالة النهائية للآدمن
-        const finalMessage = `[طلب تعديل مشروع]\nاسم المشروع: ${projectName}\nالأقسام: ${selectedSections}\nالتفاصيل: ${details}`;
-
-        const supportPayload = {
-            type: 'tech',
-            message: finalMessage,
-            name: JSON.parse(localStorage.getItem('user_data'))?.fullName || 'صاحب مشروع',
-            email: JSON.parse(localStorage.getItem('user_data'))?.email || 'N/A'
+        // 2. تجهيز البيانات للإرسال للموديل الجديد
+        const payload = {
+            projectId: projectId,
+            sections: selectedSections, // نرسل المصفوفة مباشرة
+            reason: reason
         };
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/support/submit`, {
+            const token = localStorage.getItem('user_token');
+            const response = await fetch(`${API_BASE_URL}/api/users/revisions/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(supportPayload)
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
-                alert('✅ تم إرسال طلب التعديل للإدارة بنجاح. سنوافيك بالرد عبر الإشعارات قريباً.');
-                closeRevisionModal();
+                alert('✅ تم إيداع طلب التعديل بنجاح. سيتم مراجعته من قبل الإدارة وإشعارك بالقرار.');
+                closeRevisionModal(); // إغلاق النافذة
             } else {
-                throw new Error();
+                const err = await response.json();
+                throw new Error(err.message);
             }
         } catch (error) {
-            alert('❌ فشل إرسال الطلب، يرجى المحاولة لاحقاً أو التواصل مع الدعم المباشر.');
+            alert('❌ فشل إرسال الطلب: ' + error.message);
         } finally {
             btn.disabled = false;
             btn.textContent = originalText;

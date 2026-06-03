@@ -6,6 +6,7 @@ const Proposal = require('../models/proposal.model');
 const path = require('path');
 const fs = require('fs');
 const { createNotification } = require('./notification.controller.js');
+const RevisionRequest = require('../models/revision.model'); // استيراد الموديل الجديد
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -621,6 +622,28 @@ const getEliteMembers = async (req, res) => {
     }
 };
 
+
+const submitRevisionRequest = async (req, res, next) => {
+    try {
+        const { projectId, sections, reason } = req.body;
+
+        // إنشاء طلب مراجعة جديد
+        const request = await RevisionRequest.create({
+            user: req.user._id,
+            project: projectId,
+            sections: sections, // المصفوفة القادمة من Checkboxes
+            reason: reason
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'تم إرسال طلب التعديل بنجاح'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getUserProfile,
     updateUserProfile,
@@ -638,5 +661,6 @@ module.exports = {
     updateTestimonial,
     getPublicPlatformStats,
     getEliteMembers,
-    verifyPhoneManual // تمت إضافة الدالة الجديدة هنا
+    verifyPhoneManual,
+    submitRevisionRequest,
 };

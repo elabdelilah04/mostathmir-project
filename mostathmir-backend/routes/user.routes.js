@@ -21,6 +21,7 @@ const {
     getPublicPlatformStats,
     getEliteMembers,
     verifyPhoneManual,
+    submitRevisionRequest,
 } = require('../controllers/user.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 
@@ -63,5 +64,6 @@ router.get('/portfolio/stats', protect, getInvestorStats);
 router.get('/portfolio/investments', protect, getInvestmentRecords);
 router.get('/portfolio/followed', protect, getFollowedProjects);
 router.get('/portfolio/proposals', protect, getPendingProposals);
+router.post('/revisions/submit', protect, submitRevisionRequest);
 
 module.exports = router;
