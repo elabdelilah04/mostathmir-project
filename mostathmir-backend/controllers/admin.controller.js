@@ -4,6 +4,7 @@ const User = require('../models/user.model');
 const Support = require('../models/support.model');
 const FAQ = require('../models/faq.model'); 
 const { createNotification } = require('./notification.controller.js');
+const RevisionRequest = require('../models/revision.model');
 
 /**
  * جلب المشاريع للمراجعة
@@ -307,6 +308,53 @@ const deleteFAQ = async (req, res, next) => {
     }
 };
 
+
+// 1. جلب كافة طلبات التعديل للآدمن
+const getAllRevisionRequests = async (req, res, next) => {
+    try {
+        const requests = await RevisionRequest.find()
+            .populate('user', 'fullName email')
+            .populate('project', 'projectName status')
+            .sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (error) { next(error); }
+};
+
+// 2. اتخاذ قرار (قبول/رفض) طلب التعديل
+const handleRevisionDecision = async (req, res, next) => {
+    try {
+        const { requestId, decision, adminNote } = req.body;
+        const request = await RevisionRequest.findById(requestId).populate('project');
+
+        if (!request) return res.status(404).json({ message: 'الطلب غير موجود' });
+
+        request.status = decision;
+        request.adminNote = adminNote;
+        await request.save();
+
+        if (decision === 'approved') {
+            // التعديل الجوهري: نفتح خاصية التعديل مع بقاء المشروع Published
+            await Project.findByIdAndUpdate(request.project._id, {
+                isRevisionAllowed: true,
+                adminRevisionNote: adminNote
+            });
+        }
+
+        // إرسال إشعار للمستخدم بالقرار
+        await createNotification({
+            recipient: request.user,
+            type: 'PROJECT_STATUS_UPDATE',
+            messageKey: decision === 'approved' ? 'notification_revision_approved' : 'notification_revision_rejected',
+            messageParams: { projectName: request.project.projectName },
+            note: adminNote,
+            link: decision === 'approved' ? `/add-project-new.html?id=${request.project._id}` : '/my-projects.html',
+            projectId: request.project._id
+        });
+
+        res.json({ success: true, message: `تم ${decision === 'approved' ? 'قبول' : 'رفض'} طلب التعديل` });
+    } catch (error) { next(error); }
+};
+
 module.exports = {
     getProjectsForAdmin,
     updateProjectStatus,
@@ -323,5 +371,7 @@ module.exports = {
     replyToSupportDirectly, 
     getFAQs,
     addFAQ,
-    deleteFAQ
+    deleteFAQ,
+    handleRevisionDecision,
+    getAllRevisionRequests,
 };

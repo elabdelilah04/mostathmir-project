@@ -16,7 +16,9 @@ const {
     replyToSupportDirectly,
     getFAQs,
     addFAQ,
-    deleteFAQ
+    deleteFAQ,
+    getAllRevisionRequests,
+    handleRevisionDecision,
 } = require('../controllers/admin.controller.js');
 const { protect, getAuthUser } = require('../middleware/auth.middleware.js');
 const { admin } = require('../middleware/admin.middleware.js');
@@ -46,5 +48,10 @@ router.post('/support/reply-direct', protect, admin, replyToSupportDirectly); //
 router.get('/support/faqs', getFAQs);
 router.post('/support/faqs', protect, admin, addFAQ);
 router.delete('/support/faqs/:id', protect, admin, deleteFAQ);
+
+// طلبات التعديل 
+
+router.get('/revisions', protect, admin, getAllRevisionRequests);
+router.post('/revisions/decision', protect, admin, handleRevisionDecision);
 
 module.exports = router;

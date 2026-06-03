@@ -36,8 +36,6 @@ const projectSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
-
-    // --- === START: NEW FIELDS FOR PROJECT STAGE DETAILS === ---
     progressDetails: { // For "in-progress" stage
         type: String,
         trim: true
@@ -48,8 +46,6 @@ const projectSchema = new mongoose.Schema({
         max: 100
     },
     pastFinancials: [financialProjectionSchema], // For "established" stage
-    // --- === END: NEW FIELDS === ---
-
     projectDescription: { type: String },
     detailedDescription: { type: String },
     keyFeatures: [String],
@@ -58,7 +54,6 @@ const projectSchema = new mongoose.Schema({
         city: String
     },
     videoLink: { type: String, trim: true },
-
     fundingGoal: {
         type: {
             amount: { type: Number, default: 0 },
@@ -67,19 +62,15 @@ const projectSchema = new mongoose.Schema({
         default: { amount: 0, currency: 'SAR' }
     },
     minInvestment: { type: Number, default: 0 },
-
     fundingDetails: [expenseItemSchema],
     financialProjections: [financialProjectionSchema],
-
     mainImage: { type: String },
     projectImages: [String],
     businessPlan: { type: String },
     presentation: { type: String },
-
     targetAudience: { type: String, default: 'all' },
     campaignDuration: { type: Number, default: 60 },
     campaignStartDate: { type: Date },
-
     visibilityScope: {
         type: String,
         enum: ['public', 'investors_only'],
@@ -90,9 +81,7 @@ const projectSchema = new mongoose.Schema({
         enum: ['all', 'verified_only'],
         default: 'all'
     },
-
     teamMembers: [teamMemberSchema],
-
     status: {
         type: String,
         enum: ['draft', 'under-review', 'published', 'funded', 'completed', 'cancelled', 'closed'],
@@ -103,9 +92,9 @@ const projectSchema = new mongoose.Schema({
     views: { type: Number, default: 0 },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     fundingAmountRaised: { type: Number, default: 0 },
-
     investors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-
+    isRevisionAllowed: { type: Boolean, default: false }, // يسمح بدخول صفحة التعديل والمشروع منشور
+    adminRevisionNote: { type: String } // ملاحظة الإدارة بخصوص التعديل المسموح به
 }, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة طلبات تعديل المشاريع | لوحة التحكم</title>
+    <link rel="stylesheet" href="/css/admin-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .section-tag {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-right">
+                <div class="logo"><i class="fas fa-edit"></i> <span>مستثمر - طلبات المراجعة</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="admin-approval.html" class="nav-link">المشاريع</a>
+                <a href="admin-support.html" class="nav-link">الدعم الفني</a>
+                <a href="admin-revisions.html" class="nav-link active">طلبات التعديل</a>
+                <a href="index.html" class="nav-link">الموقع</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <header class="page-header">
+                <h1 class="page-title"><i class="fas fa-history"></i> طلبات تحديث المشاريع المنشورة</h1>
+                <p class="text-gray-500">هنا تظهر طلبات أصحاب المشاريع الراغبين في تعديل بياناتهم بعد النشر.</p>
+            </header>
+
+            <section class="projects-grid" id="revisionsGrid">
+                <div class="text-center py-20">جاري تحميل الطلبات...</div>
+            </section>
+        </div>
+    </main>
+
+    <!-- مودال اتخاذ القرار -->
+    <div class="modal" id="decisionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">اتخاذ قرار بشأن الطلب</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="requestInfo" class="mb-4"></p>
+                <div class="form-group">
+                    <label>ملاحظة الإدارة للمستخدم:</label>
+                    <textarea id="adminNote" rows="4" placeholder="وضح سبب القبول أو الرفض..."></textarea>
+                </div>
+                <div class="approval-actions" style="margin-top: 20px;">
+                    <button class="action-btn btn-success" id="approveBtn">قبول وفتح التعديل</button>
+                    <button class="action-btn btn-danger" id="rejectBtn">رفض الطلب</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/admin-revisions.js"></script>
+</body>
+
+</html>
