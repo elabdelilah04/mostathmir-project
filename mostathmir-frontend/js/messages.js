@@ -166,25 +166,14 @@ function createNotificationCard(notification) {
             Object.keys(notification.messageParams).forEach(key => {
                 const regex = new RegExp(`{${key}}`, 'g');
                 let paramValue = notification.messageParams[key];
-                if (key === 'statusKey') paramValue = t(paramValue);
+                if (key === 'statusKey') {
+                    paramValue = t(paramValue);
+                }
                 messageText = messageText.replace(regex, paramValue);
             });
         }
     } else {
         messageText = notification.message;
-    }
-
-    // --- تصحيح النص: إزالة جملة "يرجى مراجعة الملاحظات" إذا كان حقل الملاحظة فارغاً ---
-    if (!notification.note || notification.note.trim() === "") {
-        const phrasesToRemove = [
-            "يرجى مراجعة ملاحظات الإدارة لمزيد من التفاصيل.",
-            "لديك ملاحظة من الإدارة.",
-            "Please review the admin notes for more details.",
-            "You have a note from the administration."
-        ];
-        phrasesToRemove.forEach(phrase => {
-            messageText = messageText.replace(phrase, "");
-        });
     }
 
     let messageHTML = messageText;
@@ -201,26 +190,25 @@ function createNotificationCard(notification) {
         messageHTML = messageHTML.replace(projectRegex, `<a href="${projectLink}" class="font-bold text-purple-600 hover:underline" onclick="event.stopPropagation()">${projectNameParam}</a>`);
     }
 
-    const isSupportReply = notification.messageKey === 'notification_support_official_reply';
-    const hasNote = notification.note && notification.note.trim() !== '';
-    const isRevisionResult = notification.messageKey === 'notification_revision_approved' || notification.messageKey === 'notification_revision_rejected';
-
     let actionButton = '';
-    // إظهار زر "عرض التفاصيل" إذا كان هناك ملاحظة أو إشعار خاص
-    if (hasNote || ['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type) || isSupportReply || isRevisionResult) {
+    const isSupportReply = notification.messageKey === 'notification_support_official_reply';
+
+    if (notification.note && notification.note.trim() !== '') {
+        actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="openNotificationDetails('${notification._id}', event)">${t('js-messages-view-note-btn')}</button>`;
+    } else if (['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type) || isSupportReply) {
         actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="openNotificationDetails('${notification._id}', event)">${t('js-messages-view-details-btn')}</button>`;
     }
 
     return `
-        <div class="notification-card ${isUnread ? 'unread' : ''} p-6" data-status="${isUnread ? 'unread' : 'read'}" data-id="${notification._id}">
+        <div class="notification-card ${isUnread ? 'unread' : ''} p-6" data-status="${isUnread ? 'unread' : 'read'}" data-id="${notification._id}" data-link="${notification.link}">
             <i class="fas fa-trash delete-icon" title="${t('js-messages-delete-notification-title')}" onclick="deleteSingleItem(event, 'notifications', '${notification._id}')"></i>
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl flex-shrink-0">
                     <i class="${isSupportReply ? 'fas fa-headset text-blue-600' : iconClass}"></i>
                 </div>
-                <div class="flex-1 min-w-0" onclick="handleNotificationClick(event)">
+                <div class="flex-1 min-w-0">
                     <div class=" items-center justify-between mb-2">
-                        <p class="text-sm text-gray-700 mb-1">${messageHTML}</p>
+                        <p class="text-sm text-gray-700 mb-1" onclick="handleNotificationClick(event)">${messageHTML}</p>
                         <span class="text-xs text-gray-500 flex-shrink-0 ml-2">${timeAgo}</span>
                     </div>
                     <div class="mt-2">
@@ -232,12 +220,13 @@ function createNotificationCard(notification) {
 }
 
 async function handleNotificationClick(event) {
-    if (event.target.tagName === 'A' || event.target.closest('button') || event.target.classList.contains('delete-icon')) {
+    if (event.target.tagName === 'A' || event.target.dataset.note || event.target.closest('button') || event.target.classList.contains('delete-icon')) {
         return;
     }
 
     const card = event.currentTarget.closest('.notification-card');
     const notificationId = card.dataset.id;
+    const link = card.dataset.link;
     const token = localStorage.getItem('user_token');
 
     try {
@@ -248,9 +237,27 @@ async function handleNotificationClick(event) {
         card.classList.remove('unread');
         card.dataset.status = 'read';
         updateStats();
-        // تم إلغاء التوجيه التلقائي للصفحة الرئيسية لضمان عدم تشتيت المستخدم
+        if (link && link !== 'undefined') {
+            window.location.href = `.${link}`;
+        }
     } catch (error) {
         console.error('Failed to mark notification as read:', error);
+    }
+}
+
+function showAdminNoteModal(note) {
+    const modal = document.getElementById('adminNoteModal');
+    const content = document.getElementById('adminNoteContent');
+    if (modal && content) {
+        content.textContent = note;
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeAdminNoteModal() {
+    const modal = document.getElementById('adminNoteModal');
+    if (modal) {
+        modal.classList.add('hidden');
     }
 }
 
@@ -266,9 +273,9 @@ async function openNotificationDetails(notificationId, event) {
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
 
-    // --- منطق الدعم الفني ---
+    // --- منطق الدعم الفني المحدث ---
     if (notification.messageKey === 'notification_support_official_reply') {
-        modalTitle.textContent = t('messages-support-title');
+        modalTitle.textContent = t('messages-support-title'); // "الدعم الفني"
         contentEl.innerHTML = `
             <div class="support-detail-wrapper" style="text-align: right; direction: rtl;">
                 <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 10px; border-right: 4px solid #94a3b8;">
@@ -277,14 +284,18 @@ async function openNotificationDetails(notificationId, event) {
                 </div>
                 <div style="padding: 20px; background: #eff6ff; border-radius: 10px; border-right: 4px solid #1e40af;">
                     <label style="display:block; font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">${t('messages-support-response-label')}</label>
-                    <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">${escapeHTML(notification.responseMessage || '...')}</p>
+                    <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">
+                        ${escapeHTML(notification.responseMessage || '...')}
+                    </p>
                 </div>
-            </div>`;
+            </div>
+        `;
         responseSection.style.display = 'none';
-        linkEl.style.display = 'none';
+        linkEl.style.display = 'none'; // إخفاء زر الانتقال للمشروع
         modal.classList.remove('hidden');
         return;
     }
+    // --- نهاية منطق الدعم الفني ---
 
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
@@ -296,6 +307,9 @@ async function openNotificationDetails(notificationId, event) {
     };
     modalTitle.textContent = typeMap[notification.type] || t('messages-notification-details-title');
 
+    let detailsHTML = '';
+    responseSection.style.display = 'none';
+
     let messageText;
     if (!notification.messageKey) {
         messageText = notification.message;
@@ -305,25 +319,13 @@ async function openNotificationDetails(notificationId, event) {
             Object.keys(notification.messageParams).forEach(key => {
                 const regex = new RegExp(`{${key}}`, 'g');
                 let paramValue = notification.messageParams[key];
-                if (key === 'statusKey') paramValue = t(paramValue);
+                if (key === 'statusKey') {
+                    paramValue = t(paramValue);
+                }
                 messageText = messageText.replace(regex, paramValue);
             });
         }
     }
-
-    // --- منطق عرض المحتوى المحدث (أولوية الملاحظة) ---
-    let bodyTextHTML = '';
-    if (notification.note && notification.note.trim() !== "") {
-        bodyTextHTML = `
-            <div class="admin-note-highlight" style="background: #fffbeb; border-right: 4px solid #f59e0b; padding: 15px; border-radius: 8px; color: #92400e; font-style: italic; margin-bottom: 15px;">
-                "${escapeHTML(notification.note)}"
-            </div>`;
-    } else {
-        bodyTextHTML = `<p class="notification-main-message">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
-    }
-
-    let detailsHTML = '';
-    responseSection.style.display = 'none';
 
     if (notification.sender) {
         let avatarHTML = '';
@@ -333,7 +335,14 @@ async function openNotificationDetails(notificationId, event) {
             const initial = notification.sender.fullName ? notification.sender.fullName.charAt(0) : '?';
             avatarHTML = `<div class="sender-avatar-initials">${initial}</div>`;
         }
-        let senderRole = notification.sender.profileTitle || (notification.sender.accountType === 'investor' ? t('js-messages-role-investor') : t('js-messages-role-ideaholder'));
+        let senderRole;
+        if (notification.sender.profileTitle && notification.sender.profileTitle.trim() !== '') {
+            senderRole = notification.sender.profileTitle;
+        } else {
+            senderRole = notification.sender.accountType === 'investor'
+                ? t('js-messages-role-investor')
+                : t('js-messages-role-ideaholder');
+        }
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const senderProfileLink = `./public-profile.html?id=${notification.sender._id}`;
 
@@ -345,34 +354,107 @@ async function openNotificationDetails(notificationId, event) {
                 <div class="sender-title">${senderRole}</div>
                 <div class="notification-date">${formattedDate}</div>
             </div>
-            ${bodyTextHTML}
-            ${notification.projectId ? `<div class="project-link"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>` : ''}
-        </div>`;
+            <p class="notification-main-message">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
+
+        if (notification.projectId) {
+            detailsHTML += `<div class="project-link"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>`;
+        }
+        detailsHTML += '</div>';
     } else {
-        detailsHTML += bodyTextHTML;
+        detailsHTML += `<p>${messageText}</p>`;
     }
 
-    // --- منطق الزر المحدث (قبول/رفض التعديل) ---
-    if (notification.messageKey === 'notification_revision_approved') {
-        linkEl.style.display = 'inline-flex';
-        linkEl.textContent = t('js-my-projects-edit-btn') || 'تعديل المشروع الآن';
-        linkEl.href = `.${notification.link}`;
-    } else if (notification.messageKey === 'notification_revision_rejected') {
-        linkEl.style.display = 'none'; // إخفاء الزر تماماً في حالة الرفض كما طلبت
-    } else {
-        if (notification.link && notification.link !== 'undefined' && notification.link !== null) {
-            linkEl.href = `.${notification.link}`;
-            linkEl.style.display = 'inline-flex';
-            linkEl.textContent = t('messages-go-to-project-btn');
+
+    if (notification.type === 'NEW_INVESTMENT') {
+        const currency = notification.currency || '';
+        if (notification.investmentType === 'reservation') {
+            detailsHTML += `
+                <div class="mt-4 border-t pt-4">
+                    <h4 class="font-bold text-gray-800 mb-2">${t('js-messages-reservation-details-title')}:</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between p-2 bg-gray-100 rounded"><span>${t('js-messages-total-label')}:</span><span class="font-semibold">${(notification.amount || 0).toLocaleString()} ${currency}</span></div>
+                        <div class="flex justify-between p-2 bg-green-100 rounded"><span>${t('js-messages-paid-now-label')}:</span><span class="font-semibold text-green-700">${(notification.amountPaidNow || 0).toLocaleString()} ${currency}</span></div>
+                        <div class="flex justify-between p-2 bg-red-100 rounded"><span>${t('js-messages-remaining-label')}:</span><span class="font-semibold text-red-700">${(notification.amountRemaining || 0).toLocaleString()} ${currency}</span></div>
+                    </div>
+                </div>`;
         } else {
-            linkEl.style.display = 'none';
+            detailsHTML += `
+                <div class="mt-4 border-t pt-4">
+                    <h4 class="font-bold text-gray-800 mb-2">${t('js-messages-full-funding-details-title')}:</h4>
+                    <div class="p-3 bg-green-100 rounded text-center">
+                        <span class="text-sm text-green-800">${t('js-messages-investment-amount-label')}</span>
+                        <div class="text-xl font-bold text-green-700">${(notification.amount || 0).toLocaleString()} ${currency}</div>
+                    </div>
+                </div>`;
         }
+    } else if (notification.type === 'NEW_PROPOSAL') {
+        responseSection.style.display = 'block';
+        const proposalId = notification.referenceId;
+        document.getElementById('acceptProposalBtn').onclick = () => handleProposalResponse(proposalId, 'accepted');
+        document.getElementById('rejectProposalBtn').onclick = () => handleProposalResponse(proposalId, 'rejected');
+        document.getElementById('responseForm').onsubmit = (e) => { e.preventDefault(); handleProposalResponse(proposalId, 'rejected'); };
+
+        const typeMap = {
+            'strategic': t('js-investor-profile-proposal-type-strategic'),
+            'expertise': t('js-investor-profile-proposal-type-expertise'),
+            'advisory': t('js-investor-profile-proposal-type-advisory'),
+            'hybrid': t('js-investor-profile-proposal-type-hybrid'),
+            'unspecified': t('js-investor-profile-proposal-type-custom')
+        };
+
+        detailsHTML += `
+            <div class="mt-4 border-t pt-4 space-y-4">
+                <h4 class="font-bold text-gray-800">${t('proposal-details-title')}</h4>
+                
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-type')}</div>
+                    <div class="p-2 bg-gray-100 rounded font-medium text-purple-800">${typeMap[notification.partnershipType] || t('js-investor-profile-proposal-type-custom')}</div>
+                </div>
+                
+                ${notification.expertiseAreas && notification.expertiseAreas.length > 0 ? `
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-expertise')}</div>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                        ${notification.expertiseAreas.map(area => `<span class="text-xs font-semibold px-2 py-1 bg-slate-200 text-slate-700 rounded-full">${area}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div>
+                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-terms')}</div>
+                    <p class="p-3 bg-gray-100 border rounded text-gray-700 whitespace-pre-wrap">${notification.proposedTerms || t('proposal-details-no-terms')}</p>
+                </div>
+            </div>
+        `;
+
+    } else if (notification.type === 'PROPOSAL_RESPONSE') {
+        detailsHTML += `<div class="border-t pt-4">`;
+
+        const statusClass = notification.responseStatus === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+        const statusText = notification.responseStatus === 'accepted' ? t('js-messages-status-accepted') : t('js-messages-status-rejected');
+        detailsHTML += `
+            <h4 class="font-bold text-gray-800 mt-4 mb-2">${t('js-messages-response-from-owner-title')}:</h4>
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold">${t('js-messages-status-label')}:</span> 
+                <span class="px-3 py-1 rounded-full text-sm font-bold ${statusClass}">${statusText}</span>
+            </div>
+            <p class="p-3 bg-gray-100 border rounded text-gray-700">${notification.responseMessage || t('js-messages-no-response-message')}</p>
+        </div>`;
     }
 
     contentEl.innerHTML = detailsHTML;
+    if (notification.projectId) {
+        linkEl.href = `./project-view.html?id=${notification.projectId._id}`;
+        linkEl.style.display = 'inline-flex';
+    } else if (notification.link && notification.link !== 'undefined') {
+        linkEl.href = `.${notification.link}`;
+        linkEl.style.display = 'inline-flex';
+    } else {
+        linkEl.style.display = 'none';
+    }
+
     modal.classList.remove('hidden');
 
-    // تحديد كمقروء عند الفتح
     if (!notification.read) {
         try {
             await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
@@ -380,34 +462,44 @@ async function openNotificationDetails(notificationId, event) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const card = document.querySelector(`.notification-card[data-id='${notificationId}']`);
-            if (card) { card.classList.remove('unread'); card.dataset.status = 'read'; }
+            if (card) {
+                card.classList.remove('unread');
+                card.dataset.status = 'read';
+            }
             notification.read = true;
             updateStats();
-        } catch (error) { console.error('Failed to mark notification as read:', error); }
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
     }
 }
 
 async function handleProposalResponse(proposalId, status) {
     const token = localStorage.getItem('user_token');
     const responseMessage = document.getElementById('responseMessageText').value;
+
     const btnId = status === 'accepted' ? 'acceptProposalBtn' : 'rejectProposalBtn';
     const actionButton = document.getElementById(btnId);
     const originalText = actionButton.innerHTML;
     actionButton.disabled = true;
     actionButton.innerHTML = t('js-messages-sending-text');
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/proposals/${proposalId}/respond`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status, responseMessage })
         });
+
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || t('js-messages-error-response-failed'));
         }
+
         alert(t('js-messages-success-response-sent'));
         closeNotificationDetailsModal();
         fetchAndRenderNotifications();
+
     } catch (error) {
         alert(`${t('js-messages-error-prefix')}: ${error.message}`);
     } finally {
@@ -424,12 +516,15 @@ function closeNotificationDetailsModal() {
 async function markAllAsRead(type) {
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? '/api/messages/read-all' : '/api/notifications/read-all';
+    const method = 'PUT';
+
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'PUT',
+            method: method,
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-mark-all-read-failed'));
+
         if (type === 'messages') {
             document.querySelectorAll('.message-card.unread').forEach(card => card.classList.remove('unread'));
             fetchAndRenderMessages();
@@ -443,6 +538,7 @@ async function markAllAsRead(type) {
         updateStats();
         showSuccessMessage(t('js-messages-success-mark-all-read'));
     } catch (error) {
+        console.error(`Failed to mark all ${type} as read:`, error);
         alert(error.message);
     }
 }
@@ -450,14 +546,17 @@ async function markAllAsRead(type) {
 async function deleteAll(type) {
     const confirmMessage = type === 'messages' ? t('js-messages-confirm-delete-all-messages') : t('js-messages-confirm-delete-all-notifications');
     if (!confirm(confirmMessage)) return;
+
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? '/api/messages' : '/api/notifications';
+
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-delete-all-failed'));
+
         if (type === 'messages') {
             document.getElementById('messagesList').innerHTML = `<p class="text-center text-gray-500 py-8">${t('js-messages-no-messages')}</p>`;
             allConversations = [];
@@ -468,6 +567,7 @@ async function deleteAll(type) {
         updateStats();
         showSuccessMessage(t('js-messages-success-delete-all'));
     } catch (error) {
+        console.error(`Failed to delete all ${type}:`, error);
         alert(error.message);
     }
 }
@@ -476,21 +576,32 @@ async function deleteSingleItem(event, type, id) {
     event.stopPropagation();
     const confirmMessage = type === 'messages' ? t('js-messages-confirm-delete-conversation') : t('js-messages-confirm-delete-notification');
     if (!confirm(confirmMessage)) return;
+
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? `/api/messages/conversation/${id}` : `/api/notifications/${id}`;
+
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-delete-item-failed'));
+
         const cardToRemove = document.querySelector(`[data-id="${id}"]`);
-        if (cardToRemove) cardToRemove.remove();
-        if (type === 'messages') allConversations = allConversations.filter(c => c.otherUser._id !== id);
-        else allNotifications = allNotifications.filter(n => n._id !== id);
+        if (cardToRemove) {
+            cardToRemove.remove();
+        }
+
+        if (type === 'messages') {
+            allConversations = allConversations.filter(c => c.otherUser._id !== id);
+        } else {
+            allNotifications = allNotifications.filter(n => n._id !== id);
+        }
         updateStats();
         showSuccessMessage(t('js-messages-success-delete-item'));
+
     } catch (error) {
+        console.error(`Failed to delete item:`, error);
         alert(error.message);
     }
 }
@@ -501,24 +612,32 @@ async function openMessage(otherUserId) {
     const modalHeader = document.getElementById('modalHeader');
     const modalBody = document.getElementById('modalBody');
     const modalFooter = document.getElementById('modalFooter');
+
     modalHeader.innerHTML = `<p>${t('js-messages-loading-conversation')}</p>`;
+    modalBody.innerHTML = '';
+    modalFooter.innerHTML = '';
     modal.classList.remove('hidden');
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/messages/conversation/${otherUserId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-fetch-conversation'));
         const messages = await response.json();
+
         const otherUser = allConversations.find(c => c.otherUser._id === otherUserId).otherUser;
         const currentUserId = localStorage.getItem('user_id');
+
         let avatarHTML = '';
         if (otherUser.profilePicture && otherUser.profilePicture !== 'default-avatar.png' && otherUser.profilePicture.startsWith('http')) {
             avatarHTML = `<img src="${otherUser.profilePicture}" alt="${otherUser.fullName}" class="w-12 h-12 rounded-full object-cover">`;
         } else {
             const initial = otherUser.fullName ? otherUser.fullName.charAt(0) : '?';
-            avatarHTML = `<div class="w-12 h-12 bg-gradient-to-br from-purple-50 to-pink-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
+            avatarHTML = `<div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
         }
+
         const accountTypeDisplay = otherUser.accountType === 'ideaHolder' ? t('js-messages-role-ideaholder') : t('js-messages-role-investor');
+
         modalHeader.innerHTML = `
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-4">
@@ -530,6 +649,7 @@ async function openMessage(otherUserId) {
                 </div>
                 <button onclick="closeMessageModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
             </div>`;
+
         modalBody.innerHTML = messages.map(msg => {
             const isSentByMe = msg.sender._id.toString() === currentUserId;
             let subjectHTML = '';
@@ -547,6 +667,7 @@ async function openMessage(otherUserId) {
                     <div class="time-stamp text-right">${new Date(msg.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>`;
         }).join('');
+
         modalFooter.innerHTML = `
             <form onsubmit="sendReply(event, '${otherUserId}')">
                 <div class="flex items-center gap-2">
@@ -556,9 +677,13 @@ async function openMessage(otherUserId) {
                     </button>
                 </div>
             </form>`;
+
         modalBody.scrollTop = modalBody.scrollHeight;
         fetchAndRenderMessages();
-    } catch (error) { modalHeader.innerHTML = `<p class="text-red-500">${error.message}</p>`; }
+
+    } catch (error) {
+        modalHeader.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+    }
 }
 
 async function sendReply(event, recipientId) {
@@ -567,8 +692,10 @@ async function sendReply(event, recipientId) {
     const content = textarea.value.trim();
     const token = localStorage.getItem('user_token');
     if (!content) return;
+
     const submitButton = event.target.querySelector('button[type="submit"]');
     submitButton.disabled = true;
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/messages`, {
             method: 'POST',
@@ -576,29 +703,48 @@ async function sendReply(event, recipientId) {
             body: JSON.stringify({ recipientId, content })
         });
         if (!response.ok) throw new Error(t('js-messages-error-reply-failed'));
+
         const newMessage = await response.json();
+
         const modalBody = document.getElementById('modalBody');
         const currentUserId = localStorage.getItem('user_id');
         const isSentByMe = newMessage.data.sender._id.toString() === currentUserId;
         const messageBubble = document.createElement('div');
         messageBubble.className = `reply-bubble ${isSentByMe ? 'investor' : 'entrepreneur'}`;
-        messageBubble.innerHTML = `<p class="text-gray-700 text-sm leading-relaxed">${newMessage.data.content}</p><div class="time-stamp text-right">${new Date(newMessage.data.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>`;
+        messageBubble.innerHTML = `
+            <p class="text-gray-700 text-sm leading-relaxed">${newMessage.data.content}</p>
+            <div class="time-stamp text-right">${new Date(newMessage.data.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>
+        `;
         modalBody.appendChild(messageBubble);
         modalBody.scrollTop = modalBody.scrollHeight;
         textarea.value = '';
         fetchAndRenderMessages();
-    } catch (error) { alert(error.message); } finally { submitButton.disabled = false; }
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        submitButton.disabled = false;
+    }
 }
 
-function closeMessageModal() { document.getElementById('messageModal').classList.add('hidden'); }
+function closeMessageModal() {
+    document.getElementById('messageModal').classList.add('hidden');
+}
 
 function updateStats() {
     const unreadMessages = allConversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
     const unreadNotifications = allNotifications.filter(n => !n.read).length;
+
     const messagesBadge = document.getElementById('messagesBadge');
     const notificationsBadge = document.getElementById('notificationsBadge');
-    if (messagesBadge) { messagesBadge.textContent = unreadMessages; messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none'; }
-    if (notificationsBadge) { notificationsBadge.textContent = unreadNotifications; notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none'; }
+
+    if (messagesBadge) {
+        messagesBadge.textContent = unreadMessages;
+        messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
+    }
+    if (notificationsBadge) {
+        notificationsBadge.textContent = unreadNotifications;
+        notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
+    }
 }
 
 function showSuccessMessage(message) {
@@ -611,13 +757,23 @@ function showSuccessMessage(message) {
     setTimeout(() => { if (messageDiv.parentElement) { messageDiv.remove(); } }, 5000);
 }
 
-function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.initHeader) { window.initHeader(); }
-    else { document.addEventListener('header:ready', () => fetchAndRenderNotifications()); }
+    if (window.initHeader) {
+        window.initHeader();
+    } else {
+        document.addEventListener('header:ready', () => fetchAndRenderNotifications());
+    }
     fetchAndRenderMessages();
     fetchAndRenderNotifications();
-    document.addEventListener('click', (e) => { if (e.target.id === 'messageModal') closeMessageModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMessageModal(); });
+    document.addEventListener('click', function (event) {
+        if (event.target.id === 'messageModal') { closeMessageModal(); }
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') { closeMessageModal(); }
+    });
 });
