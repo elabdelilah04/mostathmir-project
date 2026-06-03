@@ -2,7 +2,7 @@ const Project = require('../models/project.model');
 const Proposal = require('../models/proposal.model');
 const User = require('../models/user.model');
 const Support = require('../models/support.model');
-const FAQ = require('../models/faq.model'); 
+const FAQ = require('../models/faq.model');
 const { createNotification } = require('./notification.controller.js');
 const RevisionRequest = require('../models/revision.model');
 
@@ -136,7 +136,7 @@ const notifyProposalParty = async (req, res, next) => {
         const { recipientId, adminNote, proposalId, projectName, projectId } = req.body;
         await createNotification({
             recipient: recipientId,
-            sender: req.user._id, 
+            sender: req.user._id,
             type: 'PROJECT_STATUS_UPDATE',
             messageKey: 'notification_admin_proposal_official',
             messageParams: { projectName: projectName || 'المشروع', adminNote },
@@ -346,9 +346,9 @@ const handleRevisionDecision = async (req, res, next) => {
             type: 'PROJECT_STATUS_UPDATE',
             messageKey: decision === 'approved' ? 'notification_revision_approved' : 'notification_revision_rejected',
             messageParams: { projectName: request.project.projectName },
-            note: adminNote,
-            link: decision === 'approved' ? `/add-project-new.html?id=${request.project._id}` : '/my-projects.html',
-            projectId: request.project._id
+            note: adminNote, 
+            projectId: request.project._id,
+            link: decision === 'approved' ? `/add-project-new.html?id=${request.project._id}` : null
         });
 
         res.json({ success: true, message: `تم ${decision === 'approved' ? 'قبول' : 'رفض'} طلب التعديل` });
@@ -389,7 +389,7 @@ module.exports = {
     getAllSupportTickets,
     updateTicketStatus,
     deleteTicket,
-    replyToSupportDirectly, 
+    replyToSupportDirectly,
     getFAQs,
     addFAQ,
     deleteFAQ,

@@ -291,11 +291,10 @@ async function openNotificationDetails(notificationId, event) {
             </div>
         `;
         responseSection.style.display = 'none';
-        linkEl.style.display = 'none'; // إخفاء زر الانتقال للمشروع
+        linkEl.style.display = 'none';
         modal.classList.remove('hidden');
-        return; 
+        return;
     }
-    // --- نهاية منطق الدعم الفني ---
 
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
@@ -307,9 +306,6 @@ async function openNotificationDetails(notificationId, event) {
     };
     modalTitle.textContent = typeMap[notification.type] || t('messages-notification-details-title');
 
-    let detailsHTML = '';
-    responseSection.style.display = 'none';
-
     let messageText;
     if (!notification.messageKey) {
         messageText = notification.message;
@@ -319,13 +315,25 @@ async function openNotificationDetails(notificationId, event) {
             Object.keys(notification.messageParams).forEach(key => {
                 const regex = new RegExp(`{${key}}`, 'g');
                 let paramValue = notification.messageParams[key];
-                if (key === 'statusKey') {
-                    paramValue = t(paramValue);
-                }
+                if (key === 'statusKey') paramValue = t(paramValue);
                 messageText = messageText.replace(regex, paramValue);
             });
         }
     }
+
+    // --- منطق عرض المحتوى المحدث (أولوية الملاحظة) ---
+    let bodyTextHTML = '';
+    if (notification.note && notification.note.trim() !== "") {
+        bodyTextHTML = `
+            <div class="admin-note-highlight" style="background: #fffbeb; border-right: 4px solid #f59e0b; padding: 15px; border-radius: 8px; color: #92400e; font-style: italic; margin-bottom: 15px;">
+                "${escapeHTML(notification.note)}"
+            </div>`;
+    } else {
+        bodyTextHTML = `<p class="notification-main-message">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
+    }
+
+    let detailsHTML = '';
+    responseSection.style.display = 'none';
 
     if (notification.sender) {
         let avatarHTML = '';
@@ -335,14 +343,7 @@ async function openNotificationDetails(notificationId, event) {
             const initial = notification.sender.fullName ? notification.sender.fullName.charAt(0) : '?';
             avatarHTML = `<div class="sender-avatar-initials">${initial}</div>`;
         }
-        let senderRole;
-        if (notification.sender.profileTitle && notification.sender.profileTitle.trim() !== '') {
-            senderRole = notification.sender.profileTitle;
-        } else {
-            senderRole = notification.sender.accountType === 'investor'
-                ? t('js-messages-role-investor')
-                : t('js-messages-role-ideaholder');
-        }
+        let senderRole = notification.sender.profileTitle || (notification.sender.accountType === 'investor' ? t('js-messages-role-investor') : t('js-messages-role-ideaholder'));
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const senderProfileLink = `./public-profile.html?id=${notification.sender._id}`;
 
@@ -354,105 +355,31 @@ async function openNotificationDetails(notificationId, event) {
                 <div class="sender-title">${senderRole}</div>
                 <div class="notification-date">${formattedDate}</div>
             </div>
-            <p class="notification-main-message">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
-
-        if (notification.projectId) {
-            detailsHTML += `<div class="project-link"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>`;
-        }
-        detailsHTML += '</div>';
+            ${bodyTextHTML}
+            ${notification.projectId ? `<div class="project-link"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>` : ''}
+        </div>`;
     } else {
-        detailsHTML += `<p>${messageText}</p>`;
+        detailsHTML += bodyTextHTML;
     }
 
-
-    if (notification.type === 'NEW_INVESTMENT') {
-        const currency = notification.currency || '';
-        if (notification.investmentType === 'reservation') {
-            detailsHTML += `
-                <div class="mt-4 border-t pt-4">
-                    <h4 class="font-bold text-gray-800 mb-2">${t('js-messages-reservation-details-title')}:</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between p-2 bg-gray-100 rounded"><span>${t('js-messages-total-label')}:</span><span class="font-semibold">${(notification.amount || 0).toLocaleString()} ${currency}</span></div>
-                        <div class="flex justify-between p-2 bg-green-100 rounded"><span>${t('js-messages-paid-now-label')}:</span><span class="font-semibold text-green-700">${(notification.amountPaidNow || 0).toLocaleString()} ${currency}</span></div>
-                        <div class="flex justify-between p-2 bg-red-100 rounded"><span>${t('js-messages-remaining-label')}:</span><span class="font-semibold text-red-700">${(notification.amountRemaining || 0).toLocaleString()} ${currency}</span></div>
-                    </div>
-                </div>`;
+    // --- منطق الزر المحدث (قبول/رفض التعديل) ---
+    if (notification.messageKey === 'notification_revision_approved') {
+        linkEl.style.display = 'inline-flex';
+        linkEl.textContent = t('js-my-projects-edit-btn') || 'تعديل المشروع الآن';
+        linkEl.href = `.${notification.link}`;
+    } else if (notification.messageKey === 'notification_revision_rejected') {
+        linkEl.style.display = 'none'; // إخفاء الأيقونة في حالة الرفض
+    } else {
+        if (notification.link && notification.link !== 'undefined') {
+            linkEl.href = `.${notification.link}`;
+            linkEl.style.display = 'inline-flex';
+            linkEl.textContent = t('messages-go-to-project-btn');
         } else {
-            detailsHTML += `
-                <div class="mt-4 border-t pt-4">
-                    <h4 class="font-bold text-gray-800 mb-2">${t('js-messages-full-funding-details-title')}:</h4>
-                    <div class="p-3 bg-green-100 rounded text-center">
-                        <span class="text-sm text-green-800">${t('js-messages-investment-amount-label')}</span>
-                        <div class="text-xl font-bold text-green-700">${(notification.amount || 0).toLocaleString()} ${currency}</div>
-                    </div>
-                </div>`;
+            linkEl.style.display = 'none';
         }
-    } else if (notification.type === 'NEW_PROPOSAL') {
-        responseSection.style.display = 'block';
-        const proposalId = notification.referenceId;
-        document.getElementById('acceptProposalBtn').onclick = () => handleProposalResponse(proposalId, 'accepted');
-        document.getElementById('rejectProposalBtn').onclick = () => handleProposalResponse(proposalId, 'rejected');
-        document.getElementById('responseForm').onsubmit = (e) => { e.preventDefault(); handleProposalResponse(proposalId, 'rejected'); };
-
-        const typeMap = {
-            'strategic': t('js-investor-profile-proposal-type-strategic'),
-            'expertise': t('js-investor-profile-proposal-type-expertise'),
-            'advisory': t('js-investor-profile-proposal-type-advisory'),
-            'hybrid': t('js-investor-profile-proposal-type-hybrid'),
-            'unspecified': t('js-investor-profile-proposal-type-custom')
-        };
-
-        detailsHTML += `
-            <div class="mt-4 border-t pt-4 space-y-4">
-                <h4 class="font-bold text-gray-800">${t('proposal-details-title')}</h4>
-                
-                <div>
-                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-type')}</div>
-                    <div class="p-2 bg-gray-100 rounded font-medium text-purple-800">${typeMap[notification.partnershipType] || t('js-investor-profile-proposal-type-custom')}</div>
-                </div>
-                
-                ${notification.expertiseAreas && notification.expertiseAreas.length > 0 ? `
-                <div>
-                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-expertise')}</div>
-                    <div class="flex flex-wrap gap-2 mt-1">
-                        ${notification.expertiseAreas.map(area => `<span class="text-xs font-semibold px-2 py-1 bg-slate-200 text-slate-700 rounded-full">${area}</span>`).join('')}
-                    </div>
-                </div>
-                ` : ''}
-                
-                <div>
-                    <div class="text-sm font-semibold text-gray-500">${t('proposal-details-terms')}</div>
-                    <p class="p-3 bg-gray-100 border rounded text-gray-700 whitespace-pre-wrap">${notification.proposedTerms || t('proposal-details-no-terms')}</p>
-                </div>
-            </div>
-        `;
-
-    } else if (notification.type === 'PROPOSAL_RESPONSE') {
-        detailsHTML += `<div class="border-t pt-4">`;
-
-        const statusClass = notification.responseStatus === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-        const statusText = notification.responseStatus === 'accepted' ? t('js-messages-status-accepted') : t('js-messages-status-rejected');
-        detailsHTML += `
-            <h4 class="font-bold text-gray-800 mt-4 mb-2">${t('js-messages-response-from-owner-title')}:</h4>
-            <div class="flex justify-between items-center mb-2">
-                <span class="font-semibold">${t('js-messages-status-label')}:</span> 
-                <span class="px-3 py-1 rounded-full text-sm font-bold ${statusClass}">${statusText}</span>
-            </div>
-            <p class="p-3 bg-gray-100 border rounded text-gray-700">${notification.responseMessage || t('js-messages-no-response-message')}</p>
-        </div>`;
     }
 
     contentEl.innerHTML = detailsHTML;
-    if (notification.projectId) {
-        linkEl.href = `./project-view.html?id=${notification.projectId._id}`;
-        linkEl.style.display = 'inline-flex';
-    } else if (notification.link && notification.link !== 'undefined') {
-        linkEl.href = `.${notification.link}`;
-        linkEl.style.display = 'inline-flex';
-    } else {
-        linkEl.style.display = 'none';
-    }
-
     modal.classList.remove('hidden');
 
     if (!notification.read) {
@@ -462,44 +389,34 @@ async function openNotificationDetails(notificationId, event) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const card = document.querySelector(`.notification-card[data-id='${notificationId}']`);
-            if (card) {
-                card.classList.remove('unread');
-                card.dataset.status = 'read';
-            }
+            if (card) { card.classList.remove('unread'); card.dataset.status = 'read'; }
             notification.read = true;
             updateStats();
-        } catch (error) {
-            console.error('Failed to mark notification as read:', error);
-        }
+        } catch (error) { console.error('Failed to mark notification as read:', error); }
     }
 }
 
 async function handleProposalResponse(proposalId, status) {
     const token = localStorage.getItem('user_token');
     const responseMessage = document.getElementById('responseMessageText').value;
-
     const btnId = status === 'accepted' ? 'acceptProposalBtn' : 'rejectProposalBtn';
     const actionButton = document.getElementById(btnId);
     const originalText = actionButton.innerHTML;
     actionButton.disabled = true;
     actionButton.innerHTML = t('js-messages-sending-text');
-
     try {
         const response = await fetch(`${API_BASE_URL}/api/proposals/${proposalId}/respond`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ status, responseMessage })
         });
-
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || t('js-messages-error-response-failed'));
         }
-
         alert(t('js-messages-success-response-sent'));
         closeNotificationDetailsModal();
         fetchAndRenderNotifications();
-
     } catch (error) {
         alert(`${t('js-messages-error-prefix')}: ${error.message}`);
     } finally {
@@ -516,15 +433,12 @@ function closeNotificationDetailsModal() {
 async function markAllAsRead(type) {
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? '/api/messages/read-all' : '/api/notifications/read-all';
-    const method = 'PUT';
-
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: method,
+            method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-mark-all-read-failed'));
-
         if (type === 'messages') {
             document.querySelectorAll('.message-card.unread').forEach(card => card.classList.remove('unread'));
             fetchAndRenderMessages();
@@ -538,7 +452,6 @@ async function markAllAsRead(type) {
         updateStats();
         showSuccessMessage(t('js-messages-success-mark-all-read'));
     } catch (error) {
-        console.error(`Failed to mark all ${type} as read:`, error);
         alert(error.message);
     }
 }
@@ -546,17 +459,14 @@ async function markAllAsRead(type) {
 async function deleteAll(type) {
     const confirmMessage = type === 'messages' ? t('js-messages-confirm-delete-all-messages') : t('js-messages-confirm-delete-all-notifications');
     if (!confirm(confirmMessage)) return;
-
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? '/api/messages' : '/api/notifications';
-
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-delete-all-failed'));
-
         if (type === 'messages') {
             document.getElementById('messagesList').innerHTML = `<p class="text-center text-gray-500 py-8">${t('js-messages-no-messages')}</p>`;
             allConversations = [];
@@ -567,7 +477,6 @@ async function deleteAll(type) {
         updateStats();
         showSuccessMessage(t('js-messages-success-delete-all'));
     } catch (error) {
-        console.error(`Failed to delete all ${type}:`, error);
         alert(error.message);
     }
 }
@@ -576,32 +485,21 @@ async function deleteSingleItem(event, type, id) {
     event.stopPropagation();
     const confirmMessage = type === 'messages' ? t('js-messages-confirm-delete-conversation') : t('js-messages-confirm-delete-notification');
     if (!confirm(confirmMessage)) return;
-
     const token = localStorage.getItem('user_token');
     const endpoint = type === 'messages' ? `/api/messages/conversation/${id}` : `/api/notifications/${id}`;
-
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-delete-item-failed'));
-
         const cardToRemove = document.querySelector(`[data-id="${id}"]`);
-        if (cardToRemove) {
-            cardToRemove.remove();
-        }
-
-        if (type === 'messages') {
-            allConversations = allConversations.filter(c => c.otherUser._id !== id);
-        } else {
-            allNotifications = allNotifications.filter(n => n._id !== id);
-        }
+        if (cardToRemove) cardToRemove.remove();
+        if (type === 'messages') allConversations = allConversations.filter(c => c.otherUser._id !== id);
+        else allNotifications = allNotifications.filter(n => n._id !== id);
         updateStats();
         showSuccessMessage(t('js-messages-success-delete-item'));
-
     } catch (error) {
-        console.error(`Failed to delete item:`, error);
         alert(error.message);
     }
 }
@@ -612,22 +510,16 @@ async function openMessage(otherUserId) {
     const modalHeader = document.getElementById('modalHeader');
     const modalBody = document.getElementById('modalBody');
     const modalFooter = document.getElementById('modalFooter');
-
     modalHeader.innerHTML = `<p>${t('js-messages-loading-conversation')}</p>`;
-    modalBody.innerHTML = '';
-    modalFooter.innerHTML = '';
     modal.classList.remove('hidden');
-
     try {
         const response = await fetch(`${API_BASE_URL}/api/messages/conversation/${otherUserId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error(t('js-messages-error-fetch-conversation'));
         const messages = await response.json();
-
         const otherUser = allConversations.find(c => c.otherUser._id === otherUserId).otherUser;
         const currentUserId = localStorage.getItem('user_id');
-
         let avatarHTML = '';
         if (otherUser.profilePicture && otherUser.profilePicture !== 'default-avatar.png' && otherUser.profilePicture.startsWith('http')) {
             avatarHTML = `<img src="${otherUser.profilePicture}" alt="${otherUser.fullName}" class="w-12 h-12 rounded-full object-cover">`;
@@ -635,9 +527,7 @@ async function openMessage(otherUserId) {
             const initial = otherUser.fullName ? otherUser.fullName.charAt(0) : '?';
             avatarHTML = `<div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">${initial}</div>`;
         }
-
         const accountTypeDisplay = otherUser.accountType === 'ideaHolder' ? t('js-messages-role-ideaholder') : t('js-messages-role-investor');
-
         modalHeader.innerHTML = `
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-4">
@@ -649,7 +539,6 @@ async function openMessage(otherUserId) {
                 </div>
                 <button onclick="closeMessageModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
             </div>`;
-
         modalBody.innerHTML = messages.map(msg => {
             const isSentByMe = msg.sender._id.toString() === currentUserId;
             let subjectHTML = '';
@@ -667,7 +556,6 @@ async function openMessage(otherUserId) {
                     <div class="time-stamp text-right">${new Date(msg.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>`;
         }).join('');
-
         modalFooter.innerHTML = `
             <form onsubmit="sendReply(event, '${otherUserId}')">
                 <div class="flex items-center gap-2">
@@ -677,13 +565,9 @@ async function openMessage(otherUserId) {
                     </button>
                 </div>
             </form>`;
-
         modalBody.scrollTop = modalBody.scrollHeight;
         fetchAndRenderMessages();
-
-    } catch (error) {
-        modalHeader.innerHTML = `<p class="text-red-500">${error.message}</p>`;
-    }
+    } catch (error) { modalHeader.innerHTML = `<p class="text-red-500">${error.message}</p>`; }
 }
 
 async function sendReply(event, recipientId) {
@@ -692,10 +576,8 @@ async function sendReply(event, recipientId) {
     const content = textarea.value.trim();
     const token = localStorage.getItem('user_token');
     if (!content) return;
-
     const submitButton = event.target.querySelector('button[type="submit"]');
     submitButton.disabled = true;
-
     try {
         const response = await fetch(`${API_BASE_URL}/api/messages`, {
             method: 'POST',
@@ -703,48 +585,29 @@ async function sendReply(event, recipientId) {
             body: JSON.stringify({ recipientId, content })
         });
         if (!response.ok) throw new Error(t('js-messages-error-reply-failed'));
-
         const newMessage = await response.json();
-
         const modalBody = document.getElementById('modalBody');
         const currentUserId = localStorage.getItem('user_id');
         const isSentByMe = newMessage.data.sender._id.toString() === currentUserId;
         const messageBubble = document.createElement('div');
         messageBubble.className = `reply-bubble ${isSentByMe ? 'investor' : 'entrepreneur'}`;
-        messageBubble.innerHTML = `
-            <p class="text-gray-700 text-sm leading-relaxed">${newMessage.data.content}</p>
-            <div class="time-stamp text-right">${new Date(newMessage.data.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>
-        `;
+        messageBubble.innerHTML = `<p class="text-gray-700 text-sm leading-relaxed">${newMessage.data.content}</p><div class="time-stamp text-right">${new Date(newMessage.data.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' })}</div>`;
         modalBody.appendChild(messageBubble);
         modalBody.scrollTop = modalBody.scrollHeight;
         textarea.value = '';
         fetchAndRenderMessages();
-    } catch (error) {
-        alert(error.message);
-    } finally {
-        submitButton.disabled = false;
-    }
+    } catch (error) { alert(error.message); } finally { submitButton.disabled = false; }
 }
 
-function closeMessageModal() {
-    document.getElementById('messageModal').classList.add('hidden');
-}
+function closeMessageModal() { document.getElementById('messageModal').classList.add('hidden'); }
 
 function updateStats() {
     const unreadMessages = allConversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
     const unreadNotifications = allNotifications.filter(n => !n.read).length;
-
     const messagesBadge = document.getElementById('messagesBadge');
     const notificationsBadge = document.getElementById('notificationsBadge');
-
-    if (messagesBadge) {
-        messagesBadge.textContent = unreadMessages;
-        messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none';
-    }
-    if (notificationsBadge) {
-        notificationsBadge.textContent = unreadNotifications;
-        notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none';
-    }
+    if (messagesBadge) { messagesBadge.textContent = unreadMessages; messagesBadge.style.display = unreadMessages > 0 ? 'block' : 'none'; }
+    if (notificationsBadge) { notificationsBadge.textContent = unreadNotifications; notificationsBadge.style.display = unreadNotifications > 0 ? 'block' : 'none'; }
 }
 
 function showSuccessMessage(message) {
@@ -757,23 +620,13 @@ function showSuccessMessage(message) {
     setTimeout(() => { if (messageDiv.parentElement) { messageDiv.remove(); } }, 5000);
 }
 
-function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-}
+function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.initHeader) {
-        window.initHeader();
-    } else {
-        document.addEventListener('header:ready', () => fetchAndRenderNotifications());
-    }
+    if (window.initHeader) { window.initHeader(); }
+    else { document.addEventListener('header:ready', () => fetchAndRenderNotifications()); }
     fetchAndRenderMessages();
     fetchAndRenderNotifications();
-    document.addEventListener('click', function (event) {
-        if (event.target.id === 'messageModal') { closeMessageModal(); }
-    });
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') { closeMessageModal(); }
-    });
+    document.addEventListener('click', (e) => { if (e.target.id === 'messageModal') closeMessageModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMessageModal(); });
 });
