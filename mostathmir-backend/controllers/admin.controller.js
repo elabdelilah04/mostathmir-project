@@ -13,17 +13,13 @@ const getProjectsForAdmin = async (req, res, next) => {
     try {
         let query = {};
 
-        if (req.query.status) {
+        if (req.query.status === 'updates-pending') {
+            query = { hasPendingChanges: true };
+        } else if (req.query.status && req.query.status !== "") {
             const filterStatus = req.query.status === 'pending' ? 'under-review' : req.query.status;
             query.status = filterStatus;
         } else {
-            query = {
-                $or: [
-                    { status: 'under-review' },
-                    { hasPendingChanges: true },
-                    { status: 'needs-revision' }
-                ]
-            };
+            query = { status: { $ne: 'draft' } };
         }
 
         if (req.query.keyword) {
