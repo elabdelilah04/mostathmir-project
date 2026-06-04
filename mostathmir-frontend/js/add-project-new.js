@@ -465,6 +465,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.goBack = () => { if (confirm(t('js-addproject-confirm-go-back'))) window.history.back(); };
 
     function populateForm(project) {
+
+        const hasInvestments = (project.fundingAmountRaised || 0) > 0;
+
+        // التعديل: نسمح بالتعديل إذا كان مسموحاً به من الإدارة حتى لو وجد استثمار
+        if (hasInvestments && !project.isRevisionAllowed) {
+            alert(t('js-project-edit-locked-message') || "لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.");
+            window.location.href = "./my-projects.html";
+            return;
+        }
+
+        // إذا كان مسموحاً بالتعديل، نظهر رسالة تنبيه للمستخدم
+        if (project.isRevisionAllowed) {
+            showTopNotice("⚠️ أنت تقوم بتعديل مشروع منشور بإذن من الإدارة. سيتم مراجعة التعديلات قبل نشرها.");
+        }
+
         document.getElementById("projectName").value = project.projectName || "";
         document.getElementById("projectDescription").value = project.projectDescription || "";
         document.getElementById("detailedDescription").innerHTML = project.detailedDescription || "";
@@ -513,7 +528,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateTotalPercentage();
         }
 
-        // تعبئة الحالة المخزنة عند تعديل المشروع
         if (project.visibilityScope) {
             document.querySelector(`input[name="visibilityScope"][value="${project.visibilityScope}"]`).checked = true;
         }
