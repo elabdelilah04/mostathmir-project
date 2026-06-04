@@ -260,7 +260,6 @@ async function openNotificationDetails(notificationId, event) {
     const contentEl = document.getElementById('notificationDetailContent');
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
-
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
         'NEW_INVESTMENT': t('js-messages-notification-type-new-investment'),
@@ -272,42 +271,40 @@ async function openNotificationDetails(notificationId, event) {
     const isFromAdmin = notification.sender && notification.sender.role === 'admin';
     const isSupportReply = notification.messageKey === 'notification_support_official_reply';
 
+    let messageText = notification.message;
+    if (notification.messageKey) {
+        messageText = t(notification.messageKey);
+        if (notification.messageParams) {
+            Object.keys(notification.messageParams).forEach(k => {
+                const r = new RegExp(`{${k}}`, 'g');
+                let v = notification.messageParams[k];
+                if (k === 'statusKey') v = t(v);
+                messageText = messageText.replace(r, v);
+            });
+        }
+    }
+
     let bodyTextHTML = '';
+    // إذا وجد نص ملاحظة يدوية من الإدارة
     if (notification.note && notification.note.trim() !== "") {
         bodyTextHTML = `
             <div class="admin-note-highlight" style="background: #fffbeb; border-right: 4px solid #f59e0b; padding: 20px; border-radius: 8px; color: #92400e; font-style: italic; margin-bottom: 15px;">
                 "${escapeHTML(notification.note)}"
             </div>`;
     } else {
-        let messageText = notification.message;
-        if (notification.messageKey) {
-            messageText = t(notification.messageKey);
-            if (notification.messageParams) {
-                Object.keys(notification.messageParams).forEach(k => {
-                    const r = new RegExp(`{${k}}`, 'g');
-                    let v = notification.messageParams[k];
-                    if (k === 'statusKey') v = t(v);
-                    messageText = messageText.replace(r, v);
-                });
-            }
-        }
         bodyTextHTML = `<p class="notification-main-message" style="padding:10px; line-height:1.6;">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
     }
 
-    let detailsHTML = '';
-    responseSection.style.display = 'none';
-    
-    // --- منطق إظهار جدول المقارنة للمستثمر ---
     if (notification.comparisonData && notification.comparisonData.old) {
         const oldData = notification.comparisonData.old;
         const newData = notification.comparisonData.new;
 
         const labels = {
-            projectName: 'اسم المشروع',
-            projectDescription: 'الوصف المختصر',
-            detailedDescription: 'الوصف التفصيلي',
-            equityOffered: 'الملكية %',
-            projectCategory: 'الفئة'
+            projectName: t('addproject-name-label'),
+            projectDescription: t('addproject-short-desc-label'),
+            detailedDescription: t('addproject-detailed-desc-label'),
+            equityOffered: t('project-view-equity-label'),
+            projectCategory: t('addproject-category-label')
         };
 
         let rows = '';
@@ -315,32 +312,36 @@ async function openNotificationDetails(notificationId, event) {
             if (newData[key] !== undefined && String(newData[key]) !== String(oldData[key])) {
                 rows += `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px; font-weight: bold; color: #64748b;">${labels[key]}</td>
-                        <td style="padding: 10px; color: #d32f2f; text-decoration: line-through;">${oldData[key] || '---'}</td>
-                        <td style="padding: 10px; color: #2e7d32; font-weight: bold; background: #f0fdf4;">${newData[key]}</td>
+                        <td style="padding: 10px; font-weight: bold; color: #64748b; font-size: 11px;">${labels[key]}</td>
+                        <td style="padding: 10px; color: #d32f2f; text-decoration: line-through; font-size: 11px;">${oldData[key] || '---'}</td>
+                        <td style="padding: 10px; color: #2e7d32; font-weight: bold; background: #f0fdf4; font-size: 11px;">${newData[key]}</td>
                     </tr>`;
             }
         }
 
         bodyTextHTML += `
             <div class="comparison-container" style="margin-top: 15px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-                <div style="background: #f8fafc; padding: 10px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #e2e8f0;">
-                    <i class="fas fa-history"></i> التغييرات المعتمدة حديثاً
+                <div style="background: #f8fafc; padding: 10px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #e2e8f0; color: #1e3a8a;">
+                    <i class="fas fa-history"></i> التغييرات المعتمدة حديثاً في المشروع
                 </div>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: right;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
                     ${rows}
                 </table>
             </div>`;
 
-        // تغيير نص زر الانتقال
+        // تحديث نص الزر
         linkEl.textContent = "إطلع على التعديل";
     }
-    // إذا كان الإشعار من آدمن أو رد دعم، نعرض الملاحظة مباشرة بدون هيدر الشخصية
+
+    let detailsHTML = '';
+    responseSection.style.display = 'none';
+
     if (isFromAdmin || isSupportReply) {
-        const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const formattedDate = new Date(notification.createdAt).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
         detailsHTML = `
-            <div style="text-align: right; margin-bottom:15px;">
-                <span style="font-size: 11px; color: #94a3b8;">${formattedDate}</span>
+            <div style="text-align: right; margin-bottom:15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                <span style="font-size: 12px; font-weight: bold; color: #1e3a8a;"><i class="fas fa-shield-alt"></i> إشعار رسمي من الإدارة</span>
+                <span style="font-size: 11px; color: #94a3b8; float: left;">${formattedDate}</span>
             </div>
             ${bodyTextHTML}`;
 
@@ -352,7 +353,6 @@ async function openNotificationDetails(notificationId, event) {
                 </div>`;
         }
     }
-    // إذا كان من مستخدم عادي، نبقي على التصميم القديم (هيدر الشخصية)
     else if (notification.sender) {
         let avatarHTML = '';
         if (notification.sender.profilePicture && notification.sender.profilePicture !== 'default-avatar.png' && notification.sender.profilePicture.startsWith('http')) {
@@ -383,7 +383,6 @@ async function openNotificationDetails(notificationId, event) {
         detailsHTML += `<div class="project-link" style="margin-top:10px;"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>`;
     }
 
-    // منطق الأزرار (تعديل المشروع)
     if (notification.messageKey === 'notification_revision_approved') {
         linkEl.style.display = 'inline-flex';
         linkEl.textContent = t('js-my-projects-edit-btn') || 'تعديل المشروع الآن';
@@ -394,7 +393,7 @@ async function openNotificationDetails(notificationId, event) {
         if (notification.link && notification.link !== 'undefined' && notification.link !== null) {
             linkEl.href = `.${notification.link}`;
             linkEl.style.display = 'inline-flex';
-            linkEl.textContent = t('messages-go-to-project-btn');
+            if (!notification.comparisonData) linkEl.textContent = t('messages-go-to-project-btn');
         } else {
             linkEl.style.display = 'none';
         }
