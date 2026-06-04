@@ -95,23 +95,45 @@ document.addEventListener('DOMContentLoaded', () => {
             day: 'numeric'
         });
 
+        // --- إضافة منطق التنبيه للتعديلات المعلقة ---
+        let pendingUpdatesNotice = '';
+        if (project.hasPendingChanges) {
+            pendingUpdatesNotice = `
+                <div class="pending-updates-alert" style="background: #fffbeb; color: #9a3412; padding: 10px; border-radius: 8px; border: 1px solid #fde68a; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-history animate-pulse"></i>
+                    <span>المشروع منشور، ولكن هناك تعديلات جديدة قيد المراجعة حالياً من قبل الإدارة.</span>
+                </div>
+            `;
+        }
+
         let actionButtonsHTML = '';
         const hasInvestment = (project.fundingAmountRaised || 0) > 0;
         const isLocked = hasInvestment || project.status === 'funded' || project.status === 'completed';
 
         if (isLocked) {
-            // حالة القفل: استبدال التوجه لصفحة المساعدة بفتح المودال المطور
-            actionButtonsHTML = `
-            <a href="project-view.html?id=${project._id}" class="action-btn btn-primary">
-                <i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span>
-            </a>
-            <button class="action-btn btn-warning" onclick="openRevisionModal('${project._id}', '${escapeHTML(projectName)}')">
-                <i class="fas fa-edit"></i> <span>${t('js-my-projects-request-edit-btn') || 'طلب تعديل'}</span>
-            </button>
-            <div style="flex-basis: 100%; text-align: center; margin-top: 10px; font-size: 0.75rem; color: #ef4444; font-weight: 600;">
-                <i class="fas fa-lock"></i> ${t('js-my-projects-edit-locked-funded')}
-            </div>
-        `;
+            // التحقق إذا كان مسموحاً له بالتعديل استثنائياً من الإدارة
+            if (project.isRevisionAllowed) {
+                actionButtonsHTML = `
+                    <a href="project-view.html?id=${project._id}" class="action-btn btn-primary">
+                        <i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span>
+                    </a>
+                    <a href="add-project-new.html?id=${project._id}" class="action-btn btn-success">
+                        <i class="fas fa-edit"></i> <span>تعديل البيانات المسموح بها</span>
+                    </a>
+                `;
+            } else {
+                actionButtonsHTML = `
+                <a href="project-view.html?id=${project._id}" class="action-btn btn-primary">
+                    <i class="fas fa-chart-line"></i><span>${t('js-my-projects-view-performance-btn')}</span>
+                </a>
+                <button class="action-btn btn-warning" onclick="openRevisionModal('${project._id}', '${escapeHTML(projectName)}')">
+                    <i class="fas fa-edit"></i> <span>${t('js-my-projects-request-edit-btn') || 'طلب تعديل'}</span>
+                </button>
+                <div style="flex-basis: 100%; text-align: center; margin-top: 10px; font-size: 0.75rem; color: #ef4444; font-weight: 600;">
+                    <i class="fas fa-lock"></i> ${t('js-my-projects-edit-locked-funded')}
+                </div>
+            `;
+            }
         } else {
             const previewText = project.status === 'needs-revision' ? t('js-my-projects-view-notes-btn') : t('js-my-projects-preview-btn');
             const editText = (project.status === 'draft') ? t('js-my-projects-complete-project-btn') : t('js-my-projects-edit-btn');
@@ -131,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `
         <div class="project-card" data-id="${project._id}">
+            ${pendingUpdatesNotice} <!-- عرض التنبيه هنا في أعلى الكرت -->
             <div class="project-header">
                 <h3 class="project-title">${escapeHTML(projectName)}</h3>
                 <div class="header-indicators">

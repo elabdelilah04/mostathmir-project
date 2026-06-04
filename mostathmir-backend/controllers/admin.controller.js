@@ -116,9 +116,15 @@ const getAdminStats = async (req, res, next) => {
         const [pending, approvedToday, rejectedToday] = await Promise.all([
             Project.countDocuments({ status: 'under-review' }),
             Project.countDocuments({ status: 'published', updatedAt: { $gte: today } }),
-            Project.countDocuments({ status: 'closed', updatedAt: { $gte: today } })
+            Project.countDocuments({ status: 'closed', updatedAt: { $gte: today } }),
+            Project.countDocuments({ hasPendingChanges: true }) // الإحصائية الجديدة
         ]);
-        res.json({ pendingCount: pending, approvedToday, rejectedToday });
+        res.json({
+            pendingCount: pending,
+            approvedToday,
+            rejectedToday,
+            updatesPendingCount: updatesPending // إرسال الرقم الجديد
+        });
     } catch (error) {
         next(error);
     }
