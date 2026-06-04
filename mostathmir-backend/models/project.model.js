@@ -94,7 +94,9 @@ const projectSchema = new mongoose.Schema({
     fundingAmountRaised: { type: Number, default: 0 },
     investors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     isRevisionAllowed: { type: Boolean, default: false }, // يسمح بدخول صفحة التعديل والمشروع منشور
-    adminRevisionNote: { type: String } // ملاحظة الإدارة بخصوص التعديل المسموح به
+    adminRevisionNote: { type: String },
+    pendingChanges: { type: Object, default: null }, // تخزين البيانات الجديدة هنا
+    hasPendingChanges: { type: Boolean, default: false } // علامة للآدمن ليعرف أن هناك تحديثاً
 }, { timestamps: true });
 
 const Project = mongoose.model('Project', projectSchema);

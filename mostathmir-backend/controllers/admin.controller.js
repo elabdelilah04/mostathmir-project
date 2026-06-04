@@ -11,20 +11,37 @@ const RevisionRequest = require('../models/revision.model');
  */
 const getProjectsForAdmin = async (req, res, next) => {
     try {
-        const query = { status: { $ne: 'draft' } };
+        let query = {};
+
         if (req.query.status) {
-            query.status = req.query.status === 'pending' ? 'under-review' : req.query.status;
+            const filterStatus = req.query.status === 'pending' ? 'under-review' : req.query.status;
+            query.status = filterStatus;
+        } else {
+            query = {
+                $or: [
+                    { status: 'under-review' },
+                    { hasPendingChanges: true },
+                    { status: 'needs-revision' }
+                ]
+            };
         }
+
         if (req.query.keyword) {
             query.projectName = { $regex: req.query.keyword, $options: 'i' };
         }
-        let sortOrder = { createdAt: -1 };
+
+        let sortOrder = { updatedAt: -1 };
         if (req.query.sort === 'oldest') {
             sortOrder = { createdAt: 1 };
         }
-        const projects = await Project.find(query).populate('owner', 'fullName email').sort(sortOrder);
+
+        const projects = await Project.find(query)
+            .populate('owner', 'fullName email')
+            .sort(sortOrder);
+
         res.json(projects);
     } catch (error) {
+        console.error("Admin: Error fetching projects:", error);
         next(error);
     }
 };
@@ -36,42 +53,55 @@ const updateProjectStatus = async (req, res, next) => {
     try {
         const { status, adminNotes } = req.body;
         const project = await Project.findById(req.params.id);
-        if (!project) return res.status(404).json({ message: 'المشروع غير موجود' });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
 
         const oldStatus = project.status;
+
+        if (status === 'published' && project.hasPendingChanges) {
+            Object.assign(project, project.pendingChanges);
+            project.pendingChanges = null;
+            project.hasPendingChanges = false;
+        }
+
         project.status = status;
         project.adminNotes = adminNotes || '';
+
         await project.save();
 
-        if (oldStatus !== status) {
-            let messageKey = '';
-            const params = { projectName: `"${project.projectName}"` };
-            switch (status) {
-                case 'published':
-                    messageKey = adminNotes ? 'notification_project_approved_with_notes' : 'notification_project_approved';
-                    break;
-                case 'closed':
-                    messageKey = adminNotes ? 'notification_project_rejected_with_notes' : 'notification_project_rejected';
-                    break;
-                case 'needs-revision':
-                    messageKey = adminNotes ? 'notification_project_revision_with_notes' : 'notification_project_revision';
-                    break;
-            }
-            if (messageKey) {
-                await createNotification({
-                    recipient: project.owner,
-                    sender: req.user._id,
-                    type: 'PROJECT_STATUS_UPDATE',
-                    messageKey: messageKey,
-                    messageParams: params,
-                    link: `/project-view.html?id=${project._id}`,
-                    note: adminNotes || null,
-                    projectId: project._id
-                });
-            }
+        let messageKey = '';
+        const params = { projectName: `"${project.projectName}"` };
+
+        switch (status) {
+            case 'published':
+                messageKey = adminNotes ? 'notification_project_approved_with_notes' : 'notification_project_approved';
+                break;
+            case 'closed':
+                messageKey = adminNotes ? 'notification_project_rejected_with_notes' : 'notification_project_rejected';
+                break;
+            case 'needs-revision':
+                messageKey = adminNotes ? 'notification_project_revision_with_notes' : 'notification_project_revision';
+                break;
         }
-        res.json({ message: `تم تحديث الحالة إلى ${status}` });
+
+        if (messageKey) {
+            await createNotification({
+                recipient: project.owner,
+                sender: req.user._id,
+                type: 'PROJECT_STATUS_UPDATE',
+                messageKey: messageKey,
+                messageParams: params,
+                link: `/project-view.html?id=${project._id}`,
+                note: adminNotes || null,
+                projectId: project._id
+            });
+        }
+
+        res.json({ success: true, message: `Project status updated to ${status}` });
     } catch (error) {
+        console.error("Admin: Error updating project status:", error);
         next(error);
     }
 };

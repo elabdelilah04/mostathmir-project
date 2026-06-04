@@ -81,19 +81,22 @@ const createProject = async (req, res, next) => {
         res.status(400).json({ message: error.message });
     }
 };
-
-
 const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
 
         if (project.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'غير مصرح لك بتعديل هذا المشروع.' });
+            return res.status(403).json({ message: 'Not authorized to edit this project.' });
         }
 
         const hasInvestments = (project.fundingAmountRaised || 0) > 0;
+        if (hasInvestments && !project.isRevisionAllowed && project.status === 'published') {
+            return res.status(403).json({ message: 'تعديل المشروع المنشور يتطلب إذن مراجعة من الإدارة.' });
+        }
+
         const parsedData = parseProjectData(req.body);
+        const oldStatus = project.status;
 
         let fileData = {};
         if (req.files) {
@@ -108,31 +111,17 @@ const updateProject = async (req, res, next) => {
 
         const finalUpdateData = { ...parsedData, ...fileData };
 
-        if (project.status === 'published') {
-            if (hasInvestments && !project.isRevisionAllowed) {
-                return res.status(403).json({
-                    message: 'تعديل المشروع المنشور يتطلب إذن مراجعة من الإدارة لوجود استثمارات.'
-                });
-            }
-
-            if (project.isRevisionAllowed) {
-                await RevisionRequest.findOneAndUpdate(
-                    { project: project._id, status: 'approved' },
-                    {
-                        updatedData: finalUpdateData,
-                        status: 'pending'
-                    }
-                );
-
-                project.isRevisionAllowed = false;
-                await project.save();
-
-                return res.json({
-                    message: 'تم استلام تعديلاتك بنجاح. سيبقى مشروعك منشوراً بالبيانات الحالية حتى تنتهي الإدارة من مراجعة التحديثات الجديدة.',
-                    stayPublished: true
-                });
-            }
+        if (project.status === 'published' && project.isRevisionAllowed) {
+            project.pendingChanges = finalUpdateData;
+            project.hasPendingChanges = true;
+            project.isRevisionAllowed = false;
+            await project.save();
+            return res.json({
+                message: 'تم إرسال التعديلات لصفحة المصادقة بنجاح. سيبقى مشروعك منشوراً بالبيانات الحالية حتى الموافقة.',
+                stayPublished: true
+            });
         }
+
         Object.keys(finalUpdateData).forEach(key => {
             if (Project.schema.path(key)) {
                 project[key] = finalUpdateData[key];
@@ -141,23 +130,26 @@ const updateProject = async (req, res, next) => {
 
         if (finalUpdateData.status === 'under-review') {
             project.status = 'under-review';
+        } else if (finalUpdateData.status === 'draft') {
+            project.status = 'draft';
         }
 
         const updatedProject = await project.save();
 
-        await createNotification({
-            recipient: updatedProject.owner,
-            type: 'PROJECT_STATUS_UPDATE',
-            messageKey: 'notification_project_resubmitted',
-            messageParams: { projectName: `"${updatedProject.projectName}"` },
-            link: `/my-projects.html`,
-            projectId: updatedProject._id
-        });
+        if (updatedProject.status === 'under-review' && oldStatus !== 'under-review') {
+            await createNotification({
+                recipient: updatedProject.owner,
+                type: 'PROJECT_STATUS_UPDATE',
+                messageKey: 'notification_project_resubmitted',
+                messageParams: { projectName: `"${updatedProject.projectName}"` },
+                link: `/my-projects.html`,
+                projectId: updatedProject._id
+            });
+        }
 
         res.json(updatedProject);
-
     } catch (error) {
-        console.error("Error in updateProject:", error);
+        console.error("Error updating project:", error);
         res.status(400).json({ message: error.message });
     }
 };
