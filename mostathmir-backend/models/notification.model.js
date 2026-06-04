@@ -30,14 +30,14 @@ const notificationSchema = new mongoose.Schema({
         ]
     },
     message: { // أصبح اختياريًا للتوافق مع البيانات القديمة
-        type: String 
+        type: String
     },
     messageKey: { // أصبح إلزاميًا للبيانات الجديدة
         type: String,
         required: true
     },
     messageParams: { // لتخزين المتغيرات مثل اسم المستخدم والمشروع
-        type: Object 
+        type: Object
     },
     note: {
         type: String,
@@ -57,20 +57,17 @@ const notificationSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-
     amount: { type: Number },
     currency: { type: String },
     investmentType: { type: String },
     amountPaidNow: { type: Number },
     amountRemaining: { type: Number },
-
     partnershipType: { type: String },
     proposedTerms: { type: String },
     expertiseAreas: [String],
-
     responseMessage: { type: String },
-    responseStatus: { type: String, enum: ['accepted', 'rejected'] }
-
+    responseStatus: { type: String, enum: ['accepted', 'rejected'] },
+    comparisonData: { old: Object, new: Object },
 }, { timestamps: true });
 
 const Notification = mongoose.model('Notification', notificationSchema);

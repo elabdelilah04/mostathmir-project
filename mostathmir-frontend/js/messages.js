@@ -261,7 +261,6 @@ async function openNotificationDetails(notificationId, event) {
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
 
-    // تحديد عنوان المودال
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
         'NEW_INVESTMENT': t('js-messages-notification-type-new-investment'),
@@ -270,10 +269,9 @@ async function openNotificationDetails(notificationId, event) {
     };
     modalTitle.textContent = typeMap[notification.type] || t('messages-notification-details-title');
 
-    // --- منطق إخفاء بيانات الآدمن (Admin Privacy Logic) ---
     const isFromAdmin = notification.sender && notification.sender.role === 'admin';
     const isSupportReply = notification.messageKey === 'notification_support_official_reply';
-    
+
     let bodyTextHTML = '';
     if (notification.note && notification.note.trim() !== "") {
         bodyTextHTML = `
@@ -281,7 +279,6 @@ async function openNotificationDetails(notificationId, event) {
                 "${escapeHTML(notification.note)}"
             </div>`;
     } else {
-        // بناء الرسالة المترجمة
         let messageText = notification.message;
         if (notification.messageKey) {
             messageText = t(notification.messageKey);
@@ -299,7 +296,45 @@ async function openNotificationDetails(notificationId, event) {
 
     let detailsHTML = '';
     responseSection.style.display = 'none';
+    
+    // --- منطق إظهار جدول المقارنة للمستثمر ---
+    if (notification.comparisonData && notification.comparisonData.old) {
+        const oldData = notification.comparisonData.old;
+        const newData = notification.comparisonData.new;
 
+        const labels = {
+            projectName: 'اسم المشروع',
+            projectDescription: 'الوصف المختصر',
+            detailedDescription: 'الوصف التفصيلي',
+            equityOffered: 'الملكية %',
+            projectCategory: 'الفئة'
+        };
+
+        let rows = '';
+        for (let key in labels) {
+            if (newData[key] !== undefined && String(newData[key]) !== String(oldData[key])) {
+                rows += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px; font-weight: bold; color: #64748b;">${labels[key]}</td>
+                        <td style="padding: 10px; color: #d32f2f; text-decoration: line-through;">${oldData[key] || '---'}</td>
+                        <td style="padding: 10px; color: #2e7d32; font-weight: bold; background: #f0fdf4;">${newData[key]}</td>
+                    </tr>`;
+            }
+        }
+
+        bodyTextHTML += `
+            <div class="comparison-container" style="margin-top: 15px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <div style="background: #f8fafc; padding: 10px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #e2e8f0;">
+                    <i class="fas fa-history"></i> التغييرات المعتمدة حديثاً
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: right;">
+                    ${rows}
+                </table>
+            </div>`;
+
+        // تغيير نص زر الانتقال
+        linkEl.textContent = "إطلع على التعديل";
+    }
     // إذا كان الإشعار من آدمن أو رد دعم، نعرض الملاحظة مباشرة بدون هيدر الشخصية
     if (isFromAdmin || isSupportReply) {
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -308,7 +343,7 @@ async function openNotificationDetails(notificationId, event) {
                 <span style="font-size: 11px; color: #94a3b8;">${formattedDate}</span>
             </div>
             ${bodyTextHTML}`;
-            
+
         if (isSupportReply && notification.responseMessage) {
             detailsHTML += `
                 <div style="padding: 20px; background: #eff6ff; border-radius: 10px; border-right: 4px solid #1e40af; margin-top:15px;">
@@ -316,7 +351,7 @@ async function openNotificationDetails(notificationId, event) {
                     <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">${escapeHTML(notification.responseMessage)}</p>
                 </div>`;
         }
-    } 
+    }
     // إذا كان من مستخدم عادي، نبقي على التصميم القديم (هيدر الشخصية)
     else if (notification.sender) {
         let avatarHTML = '';
@@ -609,7 +644,7 @@ function showSuccessMessage(message) {
 function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.initHeader) { window.initHeader(); } 
+    if (window.initHeader) { window.initHeader(); }
     else { document.addEventListener('header:ready', () => fetchAndRenderNotifications()); }
     fetchAndRenderMessages();
     fetchAndRenderNotifications();

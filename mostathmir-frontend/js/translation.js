@@ -4,8 +4,9 @@
   // =========================
   const dict = {
     ar: {
-      "notification_project_update_rejected": "نعتذر، تم رفض التعديلات المقترحة على مشروع {projectName}. سيظل مشروعك منشوراً ببياناته الحالية المعتمدة.",
       // --- مفاتيح مودال طلب التعديل الجديدة ---
+      "notification_project_update_rejected": "نعتذر، تم رفض التعديلات المقترحة على مشروع {projectName}. سيظل مشروعك منشوراً ببياناته الحالية المعتمدة.",
+      "notification_investor_project_updated": "تم تحديث بيانات مشروع {projectName} الذي تتابعه. يمكنك الاطلاع على التعديلات الجديدة الآن.",
       "js-project-edit-locked-message": "لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.",
       "notification_revision_approved": "وافقت الإدارة على طلبك لتعديل مشروع {projectName}. يمكنك الآن تحديث البيانات المطلوبة مع بقاء مشروعك منشوراً.",
       "notification_revision_rejected": "نعتذر، تم رفض طلبك لتعديل مشروع {projectName}. يرجى مراجعة ملاحظات الإدارة لمزيد من التفاصيل.",
@@ -22,7 +23,6 @@
       "revision-details-label": "وضح أسباب التعديل والتغييرات المطلوبة:",
       "revision-details-placeholder": "مثلاً: أريد تحديث نسبة الأرباح المتوقعة للسنة الثانية...",
       "revision-submit-btn": "إرسال الطلب",
-
       // --- مفاتيح مضافة لملف الجافاسكريبت (بطاقة المشروع) ---
       "js-my-projects-request-edit-btn": "طلب تعديل",
       "js-my-projects-edit-locked-funded": "تم قفل التعديل لوجود استثمارات قائمة",
@@ -2030,6 +2030,7 @@
 
     en: {
       // --- New Revision Modal Keys ---
+      "notification_investor_project_updated": "The project {projectName} has been updated. You can check the new changes now.",
       "js-project-edit-locked-message": "لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.",
       "notification_project_update_rejected": "Sorry, the proposed updates for {projectName} were rejected. Your project will remain live with its current approved data.",
       "notification_revision_approved": "The admin has approved your request to edit {projectName}. You can now update the data while your project remains live.",

@@ -50,17 +50,32 @@ const updateProjectStatus = async (req, res, next) => {
 
         const oldStatus = project.status;
         let isUpdateRejection = false;
+        let isUpdateApproval = false;
+        let comparisonData = null;
 
         if (status === 'published' && project.hasPendingChanges) {
-            Object.assign(project, project.pendingChanges); // استبدال البيانات القديمة بالجديدة
+            isUpdateApproval = true;
+
+            comparisonData = {
+                old: {
+                    projectName: project.projectName,
+                    projectDescription: project.projectDescription,
+                    detailedDescription: project.detailedDescription,
+                    equityOffered: project.equityOffered,
+                    projectCategory: project.projectCategory
+                },
+                new: project.pendingChanges
+            };
+
+            Object.assign(project, project.pendingChanges);
             project.pendingChanges = null;
             project.hasPendingChanges = false;
-            project.status = 'published'; // ضمان بقاء الحالة منشور
+            project.status = 'published';
         }
 
         else if (status === 'closed' && project.hasPendingChanges) {
-            project.pendingChanges = null; // حذف المقترحات الجديدة
-            project.hasPendingChanges = false; // إزالة علامة وجود تحديث
+            project.pendingChanges = null;
+            project.hasPendingChanges = false;
             isUpdateRejection = true;
         }
 
@@ -70,6 +85,27 @@ const updateProjectStatus = async (req, res, next) => {
 
         project.adminNotes = adminNotes || '';
         await project.save();
+
+        if (isUpdateApproval) {
+            const stakeholderIds = [...new Set([
+                ...project.investors.map(id => id.toString()),
+                ...project.followers.map(id => id.toString())
+            ])];
+
+            const filteredStakeholders = stakeholderIds.filter(id => id !== project.owner.toString());
+
+            await Promise.all(filteredStakeholders.map(id =>
+                createNotification({
+                    recipient: id,
+                    type: 'PROJECT_STATUS_UPDATE',
+                    messageKey: 'notification_investor_project_updated',
+                    messageParams: { projectName: project.projectName },
+                    comparisonData: comparisonData,
+                    projectId: project._id,
+                    link: `/project-view.html?id=${project._id}`
+                })
+            ));
+        }
 
         let messageKey = '';
         const params = { projectName: `"${project.projectName}"` };
@@ -105,7 +141,7 @@ const updateProjectStatus = async (req, res, next) => {
 
         res.json({
             success: true,
-            message: isUpdateRejection ? 'تم رفض التعديلات المقترحة مع إبقاء المشروع منشوراً' : `تم تحديث حالة المشروع إلى ${status}`
+            message: isUpdateRejection ? 'تم رفض التعديلات مع بقاء المشروع منشوراً' : `تم تحديث الحالة إلى ${status}`
         });
     } catch (error) {
         console.error("Admin: Error updating project status:", error);
