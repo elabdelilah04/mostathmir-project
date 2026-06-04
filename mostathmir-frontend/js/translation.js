@@ -4,7 +4,7 @@
   // =========================
   const dict = {
     ar: {
-
+      "notification_project_update_rejected": "نعتذر، تم رفض التعديلات المقترحة على مشروع {projectName}. سيظل مشروعك منشوراً ببياناته الحالية المعتمدة.",
       // --- مفاتيح مودال طلب التعديل الجديدة ---
       "notification_revision_approved": "وافقت الإدارة على طلبك لتعديل مشروع {projectName}. يمكنك الآن تحديث البيانات المطلوبة مع بقاء مشروعك منشوراً.",
       "notification_revision_rejected": "نعتذر، تم رفض طلبك لتعديل مشروع {projectName}. يرجى مراجعة ملاحظات الإدارة لمزيد من التفاصيل.",
@@ -2028,6 +2028,7 @@
     },
 
     en: {
+      "notification_project_update_rejected": "Sorry, the proposed updates for {projectName} were rejected. Your project will remain live with its current approved data.",
       // --- New Revision Modal Keys ---
       "notification_revision_approved": "The admin has approved your request to edit {projectName}. You can now update the data while your project remains live.",
       "notification_revision_rejected": "Sorry, your request to edit {projectName} was rejected. Please review the admin notes for more details.",

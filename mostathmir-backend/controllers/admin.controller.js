@@ -49,31 +49,45 @@ const updateProjectStatus = async (req, res, next) => {
         }
 
         const oldStatus = project.status;
+        let isUpdateRejection = false;
 
         if (status === 'published' && project.hasPendingChanges) {
-            Object.assign(project, project.pendingChanges);
+            Object.assign(project, project.pendingChanges); // استبدال البيانات القديمة بالجديدة
             project.pendingChanges = null;
             project.hasPendingChanges = false;
+            project.status = 'published'; // ضمان بقاء الحالة منشور
         }
 
-        project.status = status;
-        project.adminNotes = adminNotes || '';
+        else if (status === 'closed' && project.hasPendingChanges) {
+            project.pendingChanges = null; // حذف المقترحات الجديدة
+            project.hasPendingChanges = false; // إزالة علامة وجود تحديث
+            isUpdateRejection = true;
+        }
 
+        else {
+            project.status = status;
+        }
+
+        project.adminNotes = adminNotes || '';
         await project.save();
 
         let messageKey = '';
         const params = { projectName: `"${project.projectName}"` };
 
-        switch (status) {
-            case 'published':
-                messageKey = adminNotes ? 'notification_project_approved_with_notes' : 'notification_project_approved';
-                break;
-            case 'closed':
-                messageKey = adminNotes ? 'notification_project_rejected_with_notes' : 'notification_project_rejected';
-                break;
-            case 'needs-revision':
-                messageKey = adminNotes ? 'notification_project_revision_with_notes' : 'notification_project_revision';
-                break;
+        if (isUpdateRejection) {
+            messageKey = 'notification_project_update_rejected';
+        } else {
+            switch (status) {
+                case 'published':
+                    messageKey = adminNotes ? 'notification_project_approved_with_notes' : 'notification_project_approved';
+                    break;
+                case 'closed':
+                    messageKey = adminNotes ? 'notification_project_rejected_with_notes' : 'notification_project_rejected';
+                    break;
+                case 'needs-revision':
+                    messageKey = adminNotes ? 'notification_project_revision_with_notes' : 'notification_project_revision';
+                    break;
+            }
         }
 
         if (messageKey) {
@@ -89,7 +103,10 @@ const updateProjectStatus = async (req, res, next) => {
             });
         }
 
-        res.json({ success: true, message: `Project status updated to ${status}` });
+        res.json({
+            success: true,
+            message: isUpdateRejection ? 'تم رفض التعديلات المقترحة مع إبقاء المشروع منشوراً' : `تم تحديث حالة المشروع إلى ${status}`
+        });
     } catch (error) {
         console.error("Admin: Error updating project status:", error);
         next(error);
