@@ -319,7 +319,7 @@ async function openNotificationDetails(notificationId, event) {
                 rows += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px; font-weight: bold; color: #64748b; font-size: 11px;">${labels[key]}</td>
-                        <td style="padding: 10px; color: #d32f2f; text-decoration: line-through; font-size: 11px;">${oldData[key] || '---'}</td>
+                        <td style="padding: 10px; color: #d32f2f;  font-size: 11px;">${oldData[key] || '---'}</td>
                         <td style="padding: 10px; color: #2e7d32; font-weight: bold; background: #f0fdf4; font-size: 11px;">${newData[key]}</td>
                     </tr>`;
             }
