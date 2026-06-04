@@ -4,6 +4,7 @@ const User = require('../models/user.model');
 const Investment = require('../models/investment.model');
 const { createNotification } = require('./notification.controller.js');
 const cloudinary = require('cloudinary').v2;
+const RevisionRequest = require('../models/revision.model');
 const exchangeRatesToUSD = {
     "SAR": 0.27, "AED": 0.27, "QAR": 0.27, "OMR": 2.60,
     "KWD": 3.25, "BHD": 2.65, "EGP": 0.021, "JOD": 1.41,
@@ -81,73 +82,82 @@ const createProject = async (req, res, next) => {
     }
 };
 
+
 const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
-        if (project.fundingAmountRaised > 0 && !project.isRevisionAllowed) {
-            return res.status(403).json({
-                message: 'لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى تقديم طلب تعديل للإدارة أولاً.'
-            });
-        }
 
         if (project.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'Not authorized to edit this project.' });
+            return res.status(403).json({ message: 'غير مصرح لك بتعديل هذا المشروع.' });
         }
 
+        const hasInvestments = (project.fundingAmountRaised || 0) > 0;
         const parsedData = parseProjectData(req.body);
-        const oldStatus = project.status;
 
-        Object.keys(parsedData).forEach(key => {
-            if (Project.schema.path(key)) {
-                project[key] = parsedData[key];
-            }
-        });
-
-        if (project.isRevisionAllowed) {
-            project.status = 'under-review';
-            project.isRevisionAllowed = false;
-            project.adminNotes = "تعديلات قيد المراجعة بعد طلب المراجعة المعتمد.";
-        } else if (parsedData.status) {
-            if ((project.status === 'draft' || project.status === 'needs-revision') && parsedData.status === 'under-review') {
-                project.status = 'under-review';
-            } else if (parsedData.status === 'draft') {
-                project.status = 'draft';
-            }
-        }
-
+        let fileData = {};
         if (req.files) {
             if (req.files.projectImages && req.files.projectImages.length > 0) {
                 const newImagePaths = req.files.projectImages.map(file => file.path);
-                project.projectImages = [...project.projectImages, ...newImagePaths];
-                if (!project.mainImage) {
-                    project.mainImage = newImagePaths[0];
-                }
+                fileData.projectImages = [...(project.projectImages || []), ...newImagePaths];
+                if (!project.mainImage) fileData.mainImage = newImagePaths[0];
             }
-            if (req.files.businessPlan) {
-                project.businessPlan = req.files.businessPlan[0].path;
+            if (req.files.businessPlan) fileData.businessPlan = req.files.businessPlan[0].path;
+            if (req.files.presentation) fileData.presentation = req.files.presentation[0].path;
+        }
+
+        const finalUpdateData = { ...parsedData, ...fileData };
+
+        if (project.status === 'published') {
+            if (hasInvestments && !project.isRevisionAllowed) {
+                return res.status(403).json({
+                    message: 'تعديل المشروع المنشور يتطلب إذن مراجعة من الإدارة لوجود استثمارات.'
+                });
             }
-            if (req.files.presentation) {
-                project.presentation = req.files.presentation[0].path;
+
+            if (project.isRevisionAllowed) {
+                await RevisionRequest.findOneAndUpdate(
+                    { project: project._id, status: 'approved' },
+                    {
+                        updatedData: finalUpdateData,
+                        status: 'pending'
+                    }
+                );
+
+                project.isRevisionAllowed = false;
+                await project.save();
+
+                return res.json({
+                    message: 'تم استلام تعديلاتك بنجاح. سيبقى مشروعك منشوراً بالبيانات الحالية حتى تنتهي الإدارة من مراجعة التحديثات الجديدة.',
+                    stayPublished: true
+                });
             }
+        }
+        Object.keys(finalUpdateData).forEach(key => {
+            if (Project.schema.path(key)) {
+                project[key] = finalUpdateData[key];
+            }
+        });
+
+        if (finalUpdateData.status === 'under-review') {
+            project.status = 'under-review';
         }
 
         const updatedProject = await project.save();
-        const newStatus = updatedProject.status;
 
-        if (newStatus === 'under-review' && oldStatus !== 'under-review') {
-            await createNotification({
-                recipient: updatedProject.owner,
-                type: 'PROJECT_STATUS_UPDATE',
-                messageKey: 'notification_project_resubmitted',
-                messageParams: { projectName: `"${updatedProject.projectName}"` },
-                link: `/my-projects.html`,
-                projectId: updatedProject._id
-            });
-        }
+        await createNotification({
+            recipient: updatedProject.owner,
+            type: 'PROJECT_STATUS_UPDATE',
+            messageKey: 'notification_project_resubmitted',
+            messageParams: { projectName: `"${updatedProject.projectName}"` },
+            link: `/my-projects.html`,
+            projectId: updatedProject._id
+        });
+
         res.json(updatedProject);
+
     } catch (error) {
-        console.error("Error updating project:", error);
+        console.error("Error in updateProject:", error);
         res.status(400).json({ message: error.message });
     }
 };

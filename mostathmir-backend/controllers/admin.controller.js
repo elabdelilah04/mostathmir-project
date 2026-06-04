@@ -346,7 +346,7 @@ const handleRevisionDecision = async (req, res, next) => {
             type: 'PROJECT_STATUS_UPDATE',
             messageKey: decision === 'approved' ? 'notification_revision_approved' : 'notification_revision_rejected',
             messageParams: { projectName: request.project.projectName },
-            note: adminNote, 
+            note: adminNote,
             projectId: request.project._id,
             link: decision === 'approved' ? `/add-project-new.html?id=${request.project._id}` : null
         });
@@ -376,6 +376,30 @@ const getRevisionStats = async (req, res, next) => {
     }
 };
 
+const approveFinalChanges = async (req, res, next) => {
+    try {
+        const { requestId } = req.body;
+        const RevisionRequest = require('../models/revision.model');
+        const request = await RevisionRequest.findById(requestId).populate('project');
+
+        if (!request || !request.updatedData) return res.status(400).json({ message: 'لا توجد بيانات للتحديث' });
+
+        // 1. نقل البيانات الجديدة للمشروع الأصلي (Merging)
+        const updatedFields = request.updatedData;
+        Object.assign(request.project, updatedFields);
+
+        // 2. التأكد من بقاء الحالة Published
+        request.project.status = 'published';
+        await request.project.save();
+
+        // 3. إغلاق الطلب
+        request.status = 'approved'; // أو حالة جديدة مثل 'finalized'
+        await request.save();
+
+        res.json({ success: true, message: 'تم نشر التعديلات الجديدة بنجاح' });
+    } catch (error) { next(error); }
+};
+
 module.exports = {
     getProjectsForAdmin,
     updateProjectStatus,
@@ -396,4 +420,5 @@ module.exports = {
     handleRevisionDecision,
     getAllRevisionRequests,
     getRevisionStats,
+    approveFinalChanges,
 };
