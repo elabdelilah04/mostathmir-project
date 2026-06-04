@@ -187,7 +187,7 @@ function createNotificationCard(notification) {
     }
 
     let messageHTML = messageText;
-    if (notification.sender && notification.sender.fullName) {
+    if (notification.sender && notification.sender.fullName && notification.sender.role !== 'admin') {
         const senderLink = `./public-profile.html?id=${notification.sender._id}`;
         const userNameParam = notification.messageParams?.userName || notification.sender.fullName;
         const userRegex = new RegExp(userNameParam.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
@@ -203,9 +203,11 @@ function createNotificationCard(notification) {
     const isSupportReply = notification.messageKey === 'notification_support_official_reply';
     const hasNote = notification.note && notification.note.trim() !== '';
     const isRevisionResult = notification.messageKey === 'notification_revision_approved' || notification.messageKey === 'notification_revision_rejected';
+    const isProjectUpdate = notification.messageKey === 'notification_investor_project_updated';
 
     let actionButton = '';
-    if (hasNote || ['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type) || isSupportReply || isRevisionResult) {
+    // --- التعديل: إضافة isProjectUpdate لشرط ظهور الزر ---
+    if (hasNote || ['NEW_INVESTMENT', 'NEW_PROPOSAL', 'PROPOSAL_RESPONSE'].includes(notification.type) || isSupportReply || isRevisionResult || isProjectUpdate) {
         actionButton = `<button class="secondary-button px-3 py-1 text-xs" onclick="openNotificationDetails('${notification._id}', event)">${t('js-messages-view-details-btn')}</button>`;
     }
 
@@ -214,7 +216,7 @@ function createNotificationCard(notification) {
             <i class="fas fa-trash delete-icon" title="${t('js-messages-delete-notification-title')}" onclick="deleteSingleItem(event, 'notifications', '${notification._id}')"></i>
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl flex-shrink-0">
-                    <i class="${isSupportReply ? 'fas fa-headset text-blue-600' : iconClass}"></i>
+                    <i class="${isSupportReply || (notification.sender && notification.sender.role === 'admin') ? 'fas fa-shield-alt text-blue-600' : iconClass}"></i>
                 </div>
                 <div class="flex-1 min-w-0" onclick="handleNotificationClick(event)">
                     <div class=" items-center justify-between mb-2">
@@ -260,9 +262,11 @@ async function openNotificationDetails(notificationId, event) {
     const contentEl = document.getElementById('notificationDetailContent');
     const linkEl = document.getElementById('notificationDetailLink');
     const responseSection = document.getElementById('proposalResponseSection');
+
     const typeMap = {
         'PROJECT_STATUS_UPDATE': t('js-messages-notification-type-status-update'),
         'NEW_INVESTMENT': t('js-messages-notification-type-new-investment'),
+        'NEW_FOLLOWER': t('js-messages-notification-type-new-follower'),
         'NEW_PROPOSAL': t('js-messages-notification-type-new-proposal'),
         'PROPOSAL_RESPONSE': t('js-messages-notification-type-proposal-response')
     };
@@ -271,8 +275,10 @@ async function openNotificationDetails(notificationId, event) {
     const isFromAdmin = notification.sender && notification.sender.role === 'admin';
     const isSupportReply = notification.messageKey === 'notification_support_official_reply';
 
-    let messageText = notification.message;
-    if (notification.messageKey) {
+    let messageText;
+    if (!notification.messageKey) {
+        messageText = notification.message;
+    } else {
         messageText = t(notification.messageKey);
         if (notification.messageParams) {
             Object.keys(notification.messageParams).forEach(k => {
@@ -285,7 +291,6 @@ async function openNotificationDetails(notificationId, event) {
     }
 
     let bodyTextHTML = '';
-    // إذا وجد نص ملاحظة يدوية من الإدارة
     if (notification.note && notification.note.trim() !== "") {
         bodyTextHTML = `
             <div class="admin-note-highlight" style="background: #fffbeb; border-right: 4px solid #f59e0b; padding: 20px; border-radius: 8px; color: #92400e; font-style: italic; margin-bottom: 15px;">
@@ -295,6 +300,7 @@ async function openNotificationDetails(notificationId, event) {
         bodyTextHTML = `<p class="notification-main-message" style="padding:10px; line-height:1.6;">${messageText.replace(/<a[^>]*>(.*?)<\/a>/g, '$1')}</p>`;
     }
 
+    // --- منطق إظهار جدول المقارنة للمستثمر ---
     if (notification.comparisonData && notification.comparisonData.old) {
         const oldData = notification.comparisonData.old;
         const newData = notification.comparisonData.new;
@@ -329,30 +335,29 @@ async function openNotificationDetails(notificationId, event) {
                 </table>
             </div>`;
 
-        // تحديث نص الزر
         linkEl.textContent = "إطلع على التعديل";
     }
 
-    let detailsHTML = '';
+    let finalDetailsHTML = '';
     responseSection.style.display = 'none';
 
     if (isFromAdmin || isSupportReply) {
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
-        detailsHTML = `
+        finalDetailsHTML = `
             <div style="text-align: right; margin-bottom:15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
                 <span style="font-size: 12px; font-weight: bold; color: #1e3a8a;"><i class="fas fa-shield-alt"></i> إشعار رسمي من الإدارة</span>
                 <span style="font-size: 11px; color: #94a3b8; float: left;">${formattedDate}</span>
             </div>
             ${bodyTextHTML}`;
-
+            
         if (isSupportReply && notification.responseMessage) {
-            detailsHTML += `
+            finalDetailsHTML += `
                 <div style="padding: 20px; background: #eff6ff; border-radius: 10px; border-right: 4px solid #1e40af; margin-top:15px;">
                     <label style="display:block; font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 8px;">${t('messages-support-response-label')}</label>
                     <p style="font-size: 15px; color: #1e293b; font-weight: 500; line-height: 1.6; margin: 0; white-space: pre-wrap;">${escapeHTML(notification.responseMessage)}</p>
                 </div>`;
         }
-    }
+    } 
     else if (notification.sender) {
         let avatarHTML = '';
         if (notification.sender.profilePicture && notification.sender.profilePicture !== 'default-avatar.png' && notification.sender.profilePicture.startsWith('http')) {
@@ -365,7 +370,7 @@ async function openNotificationDetails(notificationId, event) {
         const formattedDate = new Date(notification.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const senderProfileLink = `./public-profile.html?id=${notification.sender._id}`;
 
-        detailsHTML = `
+        finalDetailsHTML = `
         <div class="notification-details-card">
             <div class="sender-info-grid">
                 <a href="${senderProfileLink}" class="sender-avatar-wrapper" onclick="event.stopPropagation()">${avatarHTML}</a>
@@ -376,11 +381,11 @@ async function openNotificationDetails(notificationId, event) {
             ${bodyTextHTML}
         </div>`;
     } else {
-        detailsHTML = bodyTextHTML;
+        finalDetailsHTML = bodyTextHTML;
     }
 
     if (notification.projectId) {
-        detailsHTML += `<div class="project-link" style="margin-top:10px;"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>`;
+        finalDetailsHTML += `<div class="project-link" style="margin-top:10px;"><span>${t('js-messages-project-label')}:</span><a href="./project-view.html?id=${notification.projectId._id}">${notification.projectId.projectName}</a></div>`;
     }
 
     if (notification.messageKey === 'notification_revision_approved') {
@@ -399,7 +404,7 @@ async function openNotificationDetails(notificationId, event) {
         }
     }
 
-    contentEl.innerHTML = detailsHTML;
+    contentEl.innerHTML = finalDetailsHTML;
     modal.classList.remove('hidden');
 
     if (!notification.read) {
@@ -643,7 +648,7 @@ function showSuccessMessage(message) {
 function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (window.initHeader) { window.initHeader(); }
+    if (window.initHeader) { window.initHeader(); } 
     else { document.addEventListener('header:ready', () => fetchAndRenderNotifications()); }
     fetchAndRenderMessages();
     fetchAndRenderNotifications();
