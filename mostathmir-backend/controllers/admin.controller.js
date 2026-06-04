@@ -17,7 +17,7 @@ const getProjectsForAdmin = async (req, res, next) => {
             query = { hasPendingChanges: true };
         } else if (req.query.status && req.query.status !== "") {
             const filterStatus = req.query.status === 'pending' ? 'under-review' : req.query.status;
-            query.status = filterStatus;
+            query = { status: filterStatus };
         } else {
             query = { status: { $ne: 'draft' } };
         }
@@ -26,18 +26,12 @@ const getProjectsForAdmin = async (req, res, next) => {
             query.projectName = { $regex: req.query.keyword, $options: 'i' };
         }
 
-        let sortOrder = { updatedAt: -1 };
-        if (req.query.sort === 'oldest') {
-            sortOrder = { createdAt: 1 };
-        }
-
         const projects = await Project.find(query)
             .populate('owner', 'fullName email')
-            .sort(sortOrder);
+            .sort({ updatedAt: -1 });
 
         res.json(projects);
     } catch (error) {
-        console.error("Admin: Error fetching projects:", error);
         next(error);
     }
 };
@@ -109,20 +103,21 @@ const getAdminStats = async (req, res, next) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const [pending, approvedToday, rejectedToday] = await Promise.all([
+        const [pending, approvedToday, rejectedToday, updatesPending] = await Promise.all([
             Project.countDocuments({ status: 'under-review' }),
             Project.countDocuments({ status: 'published', updatedAt: { $gte: today } }),
             Project.countDocuments({ status: 'closed', updatedAt: { $gte: today } }),
             Project.countDocuments({ hasPendingChanges: true }) // الإحصائية الجديدة
         ]);
         res.json({
-            pendingCount: pending,
-            approvedToday,
-            rejectedToday,
-            updatesPendingCount: updatesPending // إرسال الرقم الجديد
+            pendingCount: pending || 0,
+            approvedToday: approvedToday || 0,
+            rejectedToday: rejectedToday || 0,
+            updatesPendingCount: updatesPending || 0
         });
     } catch (error) {
-        next(error);
+        console.error("Error in getAdminStats:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
