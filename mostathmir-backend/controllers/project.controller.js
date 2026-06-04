@@ -85,10 +85,9 @@ const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id);
         if (!project) return res.status(404).json({ message: 'Project not found.' });
-
-        if (project.fundingAmountRaised > 0) {
+        if (project.fundingAmountRaised > 0 && !project.isRevisionAllowed) {
             return res.status(403).json({
-                message: 'لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى التواصل مع الإدارة.'
+                message: 'لا يمكن تعديل المشروع بعد استلام أول استثمار. يرجى تقديم طلب تعديل للإدارة أولاً.'
             });
         }
 
@@ -105,7 +104,11 @@ const updateProject = async (req, res, next) => {
             }
         });
 
-        if (parsedData.status) {
+        if (project.isRevisionAllowed) {
+            project.status = 'under-review';
+            project.isRevisionAllowed = false;
+            project.adminNotes = "تعديلات قيد المراجعة بعد طلب المراجعة المعتمد.";
+        } else if (parsedData.status) {
             if ((project.status === 'draft' || project.status === 'needs-revision') && parsedData.status === 'under-review') {
                 project.status = 'under-review';
             } else if (parsedData.status === 'draft') {
@@ -131,6 +134,7 @@ const updateProject = async (req, res, next) => {
 
         const updatedProject = await project.save();
         const newStatus = updatedProject.status;
+
         if (newStatus === 'under-review' && oldStatus !== 'under-review') {
             await createNotification({
                 recipient: updatedProject.owner,
@@ -166,7 +170,7 @@ const getProjectById = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id)
             .populate('owner', 'fullName profileTitle profilePicture socialLinks');
-        
+
         if (!project) {
             return res.status(404).json({ message: 'Project not found' });
         }
@@ -200,7 +204,7 @@ const getProjectById = async (req, res, next) => {
         // 2. تطبيق قيود الخصوصية والتوثيق (للروابط المباشرة)
         // يتم تطبيق هذه القيود على الجميع ما عدا المالك والآدمن
         if (!isOwner && !isAdmin) {
-            
+
             // أ- المنع التام للزوار (يجب تسجيل الدخول لرؤية أي مشروع)
             if (!viewingUser) {
                 return res.status(401).json({ message: 'يرجى تسجيل الدخول لمشاهدة تفاصيل المشروع.' });
@@ -294,18 +298,18 @@ const getAllProjects = async (req, res, next) => {
                         {
                             $or: [
                                 { visibilityScope: 'public' },
-                                { 
-                                    visibilityScope: 'investors_only', 
-                                    $expr: { $eq: [user.accountType, 'investor'] } 
+                                {
+                                    visibilityScope: 'investors_only',
+                                    $expr: { $eq: [user.accountType, 'investor'] }
                                 }
                             ]
                         },
                         {
                             $or: [
                                 { accessRestriction: 'all' },
-                                { 
-                                    accessRestriction: 'verified_only', 
-                                    $expr: { $eq: [user.isPhoneVerified, true] } 
+                                {
+                                    accessRestriction: 'verified_only',
+                                    $expr: { $eq: [user.isPhoneVerified, true] }
                                 }
                             ]
                         }
@@ -434,9 +438,9 @@ const adminToggleFeatured = async (req, res, next) => {
         project.isFeatured = !project.isFeatured;
         await project.save();
 
-        res.json({ 
+        res.json({
             message: project.isFeatured ? 'تم تمييز المشروع بنجاح' : 'تم إلغاء تمييز المشروع',
-            isFeatured: project.isFeatured 
+            isFeatured: project.isFeatured
         });
     } catch (error) {
         next(error);

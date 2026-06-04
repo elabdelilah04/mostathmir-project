@@ -560,7 +560,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         changeCurrency();
         updatePreview();
     }
-
+    function showTopNotice(msg) {
+        const notice = document.createElement('div');
+        notice.style = "background: #fff3cd; color: #856404; padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid #ffeeba; position: sticky; top: 0; z-index: 1000;";
+        notice.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+        document.body.prepend(notice);
+    }
     if (isEditMode) {
         document.querySelector("h1").textContent = t('js-addproject-edit-mode-title');
         fetch(`${API_BASE_URL}/api/projects/${projectId}`, { headers: { Authorization: `Bearer ${token}` } })
