@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
     bio: { type: String },
     profileTitle: { type: String },
     profilePicture: { type: String, default: 'default-avatar.png' },
-    isVerified: { // تمت الإضافة
+    isVerified: {
         type: Boolean,
         default: false
     },
@@ -53,14 +53,14 @@ const userSchema = new mongoose.Schema({
     },
     showEmailPublicly: {
         type: Boolean,
-        default: false // إخفاء افتراضي لمزيد من الخصوصية
+        default: false
     },
     showPhonePublicly: {
         type: Boolean,
         default: false
     },
-    verificationToken: String, // تمت الإضافة
-    verificationTokenExpires: Date, // تمت الإضافة
+    verificationToken: String,
+    verificationTokenExpires: Date,
 
     passwordResetToken: String,
     passwordResetExpires: Date,
@@ -84,6 +84,20 @@ const userSchema = new mongoose.Schema({
     professionalExperience: [experienceSchema],
     education: [educationSchema],
     testimonials: [testimonialSchema],
+
+    preferredLanguage: {
+        type: String,
+        enum: ['ar', 'en'],
+        default: 'ar'
+    },
+    preferredCurrency: {
+        type: String,
+        default: 'MAD' 
+    },
+    preferredCountry: {
+        type: String,
+        default: 'Morocco'
+    },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
@@ -101,38 +115,28 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// === START: NEW METHOD TO CREATE VERIFICATION TOKEN ===
 userSchema.methods.createVerificationToken = function () {
-    // 1. إنشاء رمز عشوائي مكون من 6 أرقام
     const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 2. تشفير الرمز قبل حفظه في قاعدة البيانات للأمان
     this.verificationToken = crypto
         .createHash('sha256')
         .update(token)
         .digest('hex');
 
-    // 3. تحديد مدة صلاحية للرمز (10 دقائق)
     this.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
 
-    // 4. إرجاع الرمز غير المشفر ليتم إرساله في الإيميل
     return token;
 };
-// === END: NEW METHOD ===
 userSchema.methods.createPasswordResetToken = function () {
-    // 1. إنشاء رمز عشوائي
     const resetToken = crypto.randomBytes(32).toString('hex');
 
-    // 2. تشفير الرمز قبل حفظه في قاعدة البيانات (للأمان)
     this.passwordResetToken = crypto
         .createHash('sha256')
         .update(resetToken)
         .digest('hex');
 
-    // 3. تحديد مدة صلاحية للرمز (10 دقائق)
     this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
-    // 4. إرجاع الرمز غير المشفر ليتم إرساله في الإيميل
     return resetToken;
 };
 

@@ -167,11 +167,11 @@ const updateUserProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id);
         if (user) {
-            // تحديث خيارات الخصوصية الجديدة
+            user.preferredLanguage = req.body.preferredLanguage || user.preferredLanguage;
+            user.preferredCurrency = req.body.preferredCurrency || user.preferredCurrency;
+            user.preferredCountry = req.body.preferredCountry || user.preferredCountry;
             user.showEmailPublicly = req.body.showEmailPublicly !== undefined ? req.body.showEmailPublicly : user.showEmailPublicly;
             user.showPhonePublicly = req.body.showPhonePublicly !== undefined ? req.body.showPhonePublicly : user.showPhonePublicly;
-
-            // تحديث الحقول الأساسية
             user.fullName = req.body.fullName || user.fullName;
             user.phone = req.body.phone || user.phone;
             user.location = req.body.location || user.location;
