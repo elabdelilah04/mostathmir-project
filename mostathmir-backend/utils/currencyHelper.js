@@ -1,5 +1,3 @@
-// utils/currencyHelper.js
-
 const EXCHANGE_RATES = {
     "USD": 1,
     "MAD": 10.05,
@@ -14,18 +12,14 @@ const EXCHANGE_RATES = {
     "JOD": 0.71
 };
 
-/**
- * دالة عالمية للتحويل المالي في السيرفر
- */
+
 const convertCurrency = (amount, fromCurrency, toCurrency) => {
     if (fromCurrency === toCurrency) return amount;
-    
-    // التحويل إلى الدولار كعملة وسيطة (Base)
+
     const amountInUSD = amount / (EXCHANGE_RATES[fromCurrency] || 1);
-    
-    // التحويل من الدولار إلى العملة المستهدفة
+
     const finalAmount = amountInUSD * (EXCHANGE_RATES[toCurrency] || 1);
-    
+
     return parseFloat(finalAmount.toFixed(2));
 };
 
