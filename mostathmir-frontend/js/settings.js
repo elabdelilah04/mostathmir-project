@@ -1,5 +1,5 @@
 /* ============================================================
-   MOSTATHMIR PLATFORM - SETTINGS ENGINE (FINAL UNIFIED VERSION)
+   MOSTATHMIR PLATFORM - SETTINGS ENGINE (TRANSLATED VERSION)
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -32,40 +32,24 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-    // ==========================================
-    // 1. منطق التبديل الموحد للأقسام (Tabs Engine)
-    // ==========================================
-    function switchTab(targetId) {
-        const navItems = document.querySelectorAll('.nav-item');
-        const tabContents = document.querySelectorAll('.tab-content'); 
+    // 1. منطق التنقل الجانبي (Side Tabs)
+    const stLinks = document.querySelectorAll('.st-nav-link');
+    const stContents = document.querySelectorAll('.st-tab-content');
 
-        navItems.forEach(nav => {
-            if (nav.getAttribute('data-target') === targetId) nav.classList.add('active');
-            else nav.classList.remove('active');
-        });
-
-        tabContents.forEach(content => {
-            if (content.id === targetId) {
-                content.classList.add('active');
-                content.style.display = 'block';
-            } else {
-                content.classList.remove('active');
-                content.style.display = 'none';
-            }
-        });
-    }
-
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.onclick = (e) => {
+    stLinks.forEach(link => {
+        link.onclick = (e) => {
             e.preventDefault();
-            const targetId = btn.getAttribute('data-target');
-            switchTab(targetId);
+            const targetId = link.getAttribute('data-target');
+            stLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            stContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === targetId) content.classList.add('active');
+            });
         };
     });
 
-    // ==========================================
-    // 2. إدارة حالة الهاتف والتحقق (0000)
-    // ==========================================
+    // 2. إدارة حالة الهاتف (التحقق المترجم)
     const phoneInput = document.getElementById('phone');
     const btnStartVerify = document.getElementById('btnStartVerify');
     const otpSection = document.getElementById('otpSection');
@@ -106,8 +90,7 @@ async function initSettingsPage(user) {
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/users/verify-phone-manual`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ isPhoneVerified: true })
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
                         alert(t('js-phone-verify-success'));
@@ -121,9 +104,7 @@ async function initSettingsPage(user) {
         };
     }
 
-    // ==========================================
-    // 3. إدارة وضع التعديل (Edit Mode)
-    // ==========================================
+    // 3. دالة التحكم في وضع التعديل
     function toggleEditMode(enable) {
         const allInputs = settingsForm.querySelectorAll('input, select, textarea, button:not([type="submit"]):not(#editBtnGlobal)');
         allInputs.forEach(input => {
@@ -133,7 +114,6 @@ async function initSettingsPage(user) {
                 return;
             }
             if (input.id === 'otpInput' || input.id === 'btnConfirmOTP') return;
-            
             input.disabled = !enable;
             const switchCont = input.closest('.switch-toggle');
             if (switchCont) {
@@ -150,12 +130,7 @@ async function initSettingsPage(user) {
         toggleEditMode(true);
     };
 
-    // ==========================================
-    // 4. تعبئة البيانات (Logic: الدولة تقترح، التفضيلات تقرر)
-    // ==========================================
-    const langSel = document.getElementById('language'); // تأكد أن الـ ID مطابق لـ HTML
-    const currSel = document.getElementById('preferredCurrency'); // تأكد من الـ ID في HTML
-
+    // 4. تعبئة البيانات (منع التكرار)
     function populateFields() {
         document.getElementById('email').value = user.email || '';
         document.getElementById('fullName').value = user.fullName || '';
@@ -163,16 +138,11 @@ async function initSettingsPage(user) {
         document.getElementById('bio').value = user.bio || '';
         document.getElementById('profileTitle').value = user.profileTitle || '';
 
-        // تعبئة التفضيلات الحالية للمستخدم
-        if (langSel) langSel.value = user.preferredLanguage || 'ar';
-        if (currSel) currSel.value = user.preferredCurrency || 'MAD';
-
         if (document.getElementById('showEmailPublicly'))
             document.getElementById('showEmailPublicly').checked = !!user.showEmailPublicly;
         if (document.getElementById('showPhonePublicly'))
             document.getElementById('showPhonePublicly').checked = !!user.showPhonePublicly;
 
-        // تفريغ وتعبئة المصفوفات (مهارات، خبرات، إلخ)
         const containers = ['skillsFormContainer', 'experienceFormContainer', 'educationFormContainer', 'socialLinksContainer', 'achievementsFormContainer'];
         containers.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
 
@@ -181,43 +151,68 @@ async function initSettingsPage(user) {
             c.querySelector('.skill-level').value = d.level;
             c.querySelector('.skill-level-value').textContent = `${d.level}%`;
         }));
+
         if (user.professionalExperience) user.professionalExperience.forEach(e => createRow('experienceTemplate', 'experienceFormContainer', e, (c, d) => {
             c.querySelector('.exp-title').value = d.title; c.querySelector('.exp-company').value = d.company;
             c.querySelector('.exp-period').value = d.period; c.querySelector('.exp-description').value = d.description;
         }));
+
         if (user.education) user.education.forEach(edu => createRow('educationTemplate', 'educationFormContainer', edu, (c, d) => {
             c.querySelector('.edu-degree').value = d.degree; c.querySelector('.edu-institution').value = d.institution;
             c.querySelector('.edu-details').value = d.details;
         }));
+
         if (user.socialLinks) user.socialLinks.forEach(l => createRow('socialLinkTemplate', 'socialLinksContainer', l, (c, d) => {
             c.querySelector('.social-platform').value = d.platform; c.querySelector('.social-url').value = d.url;
         }));
     }
 
-    // ==========================================
-    // 5. منطق الدول والمدن مع نظام الاقتراح
-    // ==========================================
-    const arabCountries = { 
-        [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')], 
-        [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah')], 
-        [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi')], 
-        [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria')] 
+    function createRow(templateId, containerId, data, populateFn) {
+        const template = document.getElementById(templateId);
+        const container = document.getElementById(containerId);
+        if (!template || !container) return;
+        const content = template.content.cloneNode(true);
+        if (data) populateFn(content, data);
+        container.appendChild(content);
+    }
+
+    const bindBtn = (id, temp, cont) => {
+        const b = document.getElementById(id);
+        if (b) b.onclick = (e) => { e.preventDefault(); createRow(temp, cont, null, () => { }); };
     };
+    bindBtn('addSkillBtn', 'skillTemplate', 'skillsFormContainer');
+    bindBtn('addExperienceBtn', 'experienceTemplate', 'experienceFormContainer');
+    bindBtn('addEducationBtn', 'educationTemplate', 'educationFormContainer');
+    bindBtn('addSocialLinkBtn', 'socialLinkTemplate', 'socialLinksContainer');
+
+    settingsForm.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.remove-row-btn, .remove-link-btn, .remove-ach-btn');
+        if (delBtn) {
+            e.preventDefault();
+            delBtn.closest('.dynamic-form-row, .social-link-row, .skill-row').remove();
+        }
+    });
+
+    settingsForm.addEventListener('input', (e) => {
+        if (e.target.classList.contains('skill-level')) {
+            e.target.parentElement.querySelector('.skill-level-value').textContent = `${e.target.value}%`;
+        }
+    });
+
+    // 5. القائمة الكاملة للدول والمدن
+    const arabCountries = { [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')], [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah')], [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi')], [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria')] };
 
     function initLocation(currentLoc) {
         const countrySel = document.getElementById("country");
         const citySel = document.getElementById("city");
         if (!countrySel || !citySel) return;
-
         let initialCountry = '', initialCity = '';
         if (currentLoc && currentLoc.includes(', ')) { const parts = currentLoc.split(', '); initialCity = parts[0]; initialCountry = parts[1]; }
-        
         countrySel.innerHTML = `<option value="">${t('settings-country-select')}</option>`;
         Object.keys(arabCountries).forEach(c => {
             const opt = new Option(c, c); if (c === initialCountry) opt.selected = true;
             countrySel.appendChild(opt);
         });
-
         const fillCities = (country, city) => {
             citySel.innerHTML = `<option value="">${t('js-settings-select-city')}</option>`;
             if (country && arabCountries[country]) {
@@ -227,25 +222,11 @@ async function initSettingsPage(user) {
                 });
             }
         };
-
         fillCities(initialCountry, initialCity);
-        
-        countrySel.onchange = function () { 
-            fillCities(this.value, null);
-            
-            // --- منطق الاقتراح: تغيير اللغة والعملة بناءً على الدولة ---
-            if (window.LocalizationManager) {
-                const suggestions = LocalizationManager.getSuggestionForCountry(this.value);
-                if (langSel) langSel.value = suggestions.lang;
-                if (currSel) currSel.value = suggestions.currency;
-                console.log("Country suggestion applied:", suggestions);
-            }
-        };
+        countrySel.onchange = function () { fillCities(this.value, null); };
     }
 
-    // ==========================================
-    // 6. حفظ البيانات النهائي المدمج
-    // ==========================================
+    // 6. حفظ البيانات النهائي المترجم
     settingsForm.onsubmit = async (e) => {
         e.preventDefault();
         const country = document.getElementById('country').value;
@@ -254,7 +235,7 @@ async function initSettingsPage(user) {
 
         const saveBtn = document.getElementById('saveAllBtn') || e.submitter;
         const originalText = saveBtn.textContent;
-        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('js-settings-saving') || '...'; }
+        if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('js-settings-saving'); }
 
         const updatedData = {
             fullName: document.getElementById('fullName').value,
@@ -264,11 +245,6 @@ async function initSettingsPage(user) {
             profileTitle: document.getElementById('profileTitle').value,
             showEmailPublicly: document.getElementById('showEmailPublicly').checked,
             showPhonePublicly: document.getElementById('showPhonePublicly').checked,
-            // التفضيلات (الكلمة الأخيرة للمستخدم)
-            preferredLanguage: langSel ? langSel.value : user.preferredLanguage,
-            preferredCurrency: currSel ? currSel.value : user.preferredCurrency,
-            preferredCountry: country,
-            
             skills: Array.from(document.querySelectorAll('.skill-row')).map(r => ({ name: r.querySelector('.skill-name').value, level: r.querySelector('.skill-level').value })).filter(s => s.name),
             socialLinks: Array.from(document.querySelectorAll('.social-link-row')).map(r => ({ platform: r.querySelector('.social-platform').value, url: r.querySelector('.social-url').value })).filter(l => l.url),
             professionalExperience: Array.from(document.querySelectorAll('#experienceFormContainer .dynamic-form-row')).map(r => ({ title: r.querySelector('.exp-title').value, company: r.querySelector('.exp-company').value, period: r.querySelector('.exp-period').value, description: r.querySelector('.exp-description').value })),
@@ -281,51 +257,20 @@ async function initSettingsPage(user) {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(updatedData)
             });
-            
             if (res.ok) {
-                // 1. تحديث الـ LocalStorage فوراً عبر المحرك
-                if (window.LocalizationManager) {
-                    LocalizationManager.savePreferences({
-                        lang: updatedData.preferredLanguage,
-                        currency: updatedData.preferredCurrency,
-                        country: updatedData.preferredCountry
-                    });
-                }
-                
                 alert(t('js-settings-success-update'));
-                
-                // 2. إذا تغيرت اللغة، يجب إعادة تحميل الصفحة بالكامل
-                if (user.preferredLanguage !== updatedData.preferredLanguage) {
-                    window.location.reload();
-                } else {
-                    window.location.reload(); // إعادة تحميل لتنشيط كافة الإعدادات
-                }
+                window.location.reload();
             } else {
                 alert(t('js-settings-error-save'));
             }
         } catch (err) { alert(t('js-auth-server-error')); }
         finally { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; } }
     };
-
     // ==========================================
-    // 7. منظم التشغيل (Orchestrator) والتنبيهات
+    // منطق إظهار تنبيه "تفعيل وضع التعديل" (النسخة المصلحة)
     // ==========================================
-    function runPageOrchestrator() {
-        const hash = window.location.hash; 
-        if (hash && document.getElementById(hash.substring(1))) {
-            const targetId = hash.substring(1);
-            switchTab(targetId);
-            toggleEditMode(true);
-            setTimeout(() => {
-                document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 500);
-        } else {
-            switchTab('section-account');
-            toggleEditMode(false);
-        }
-    }
 
-    // منطق تنبيه "تفعيل وضع التعديل"
+    // 1. إنشاء عنصر التنبيه لمرة واحدة
     let hintToast = document.querySelector('.edit-hint-toast');
     if (!hintToast) {
         hintToast = document.createElement('div');
@@ -334,37 +279,37 @@ async function initSettingsPage(user) {
         document.body.appendChild(hintToast);
     }
 
+    let toastTimer;
+    function showEditHint() {
+        hintToast.classList.remove('show');
+        clearTimeout(toastTimer);
+
+        setTimeout(() => {
+            hintToast.classList.add('show');
+            toastTimer = setTimeout(() => {
+                hintToast.classList.remove('show');
+            }, 3000);
+        }, 10);
+    }
+
+    // 2. مراقبة أي نقرة على النموذج بالكامل
     settingsForm.addEventListener('mousedown', (e) => {
-        if (!settingsForm.classList.contains('is-editing')) {
-            if (!e.target.closest('[data-i18n-key="settings-account-info-edit"]')) {
-                hintToast.classList.add('show');
-                setTimeout(() => hintToast.classList.remove('show'), 3000);
+        // نتحقق: هل نحن في وضع القراءة فقط؟ (النموذج ليس لديه كلاس is-editing)
+        const isReadOnly = !settingsForm.classList.contains('is-editing');
+
+        if (isReadOnly) {
+            // نتحقق أن المستخدم لم يضغط على زر "تعديل" نفسه (لأننا لا نريد إظهار تنبيه عند الضغط عليه)
+            const isEditBtn = e.target.closest('[data-i18n-key="settings-account-info-edit"]');
+
+            if (!isEditBtn) {
+                showEditHint();
             }
         }
     });
 
-    // تشغيل الوظائف
-    function createRow(temp, cont, d, pop) {
-        const t = document.getElementById(temp), c = document.getElementById(cont);
-        if (!t || !c) return;
-        const n = t.content.cloneNode(true);
-        if (d) pop(n, d);
-        c.appendChild(n);
-    }
-
-    const bindBtn = (id, temp, cont) => {
-        const b = document.getElementById(id);
-        if (b) b.onclick = (e) => { e.preventDefault(); createRow(temp, cont, null, () => { }); };
-    };
-    bindBtn('addSkillBtn', 'skillTemplate', 'skillsFormContainer');
-    bindBtn('addExperienceBtn', 'experienceTemplate', 'experienceFormContainer');
-    bindBtn('addEducationBtn', 'educationTemplate', 'educationFormContainer');
-    bindBtn('addSocialLinkBtn', 'socialLinkTemplate', 'socialLinksContainer');
-
     populateFields();
     initLocation(user.location);
-    setTimeout(runPageOrchestrator, 400);
-    window.addEventListener('hashchange', runPageOrchestrator);
+    toggleEditMode(false);
 }
 
 function escapeHTML(str) {
