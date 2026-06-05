@@ -1,5 +1,5 @@
 /* ============================================================
-   MOSTATHMIR PLATFORM - SETTINGS ENGINE (TRANSLATED VERSION)
+   MOSTATHMIR PLATFORM - SETTINGS ENGINE (FINAL UNIFIED VERSION)
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -32,20 +32,30 @@ async function initSettingsPage(user) {
     const API_BASE_URL = "https://mostathmir-api.onrender.com";
     const token = localStorage.getItem('user_token');
 
-    // 1. منطق التنقل الجانبي (Side Tabs)
+    // العناصر الجديدة للتفضيلات
+    const langSel = document.getElementById('language');
+    const currSel = document.getElementById('preferredCurrency');
+
+    // 1. منطق التنقل الجانبي (Side Tabs) - المحرك الأصلي
     const stLinks = document.querySelectorAll('.st-nav-link');
     const stContents = document.querySelectorAll('.st-tab-content');
+
+    function switchTab(targetId) {
+        stLinks.forEach(l => {
+            if (l.getAttribute('data-target') === targetId) l.classList.add('active');
+            else l.classList.remove('active');
+        });
+        stContents.forEach(content => {
+            if (content.id === targetId) content.classList.add('active');
+            else content.classList.remove('active');
+        });
+    }
 
     stLinks.forEach(link => {
         link.onclick = (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('data-target');
-            stLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            stContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === targetId) content.classList.add('active');
-            });
+            switchTab(targetId);
         };
     });
 
@@ -104,7 +114,7 @@ async function initSettingsPage(user) {
         };
     }
 
-    // 3. دالة التحكم في وضع التعديل
+    // 3. دالة التحكم في وضع التعديل (المحرك الأصلي)
     function toggleEditMode(enable) {
         const allInputs = settingsForm.querySelectorAll('input, select, textarea, button:not([type="submit"]):not(#editBtnGlobal)');
         allInputs.forEach(input => {
@@ -121,7 +131,7 @@ async function initSettingsPage(user) {
                 switchCont.style.pointerEvents = enable ? 'auto' : 'none';
             }
         });
-        if (btnStartVerify && !user.isPhoneVerified) btnStartVerify.style.display = 'block';
+        if (btnStartVerify && !user.isPhoneVerified) btnStartVerify.style.display = enable ? 'none' : 'block';
         settingsForm.classList.toggle('is-editing', enable);
     }
 
@@ -137,6 +147,10 @@ async function initSettingsPage(user) {
         document.getElementById('phone').value = user.phone || '';
         document.getElementById('bio').value = user.bio || '';
         document.getElementById('profileTitle').value = user.profileTitle || '';
+
+        // تعبئة التفضيلات الحالية
+        if (langSel) langSel.value = user.preferredLanguage || 'ar';
+        if (currSel) currSel.value = user.preferredCurrency || 'MAD';
 
         if (document.getElementById('showEmailPublicly'))
             document.getElementById('showEmailPublicly').checked = !!user.showEmailPublicly;
@@ -199,7 +213,7 @@ async function initSettingsPage(user) {
         }
     });
 
-    // 5. القائمة الكاملة للدول والمدن
+    // 5. القائمة الكاملة للدول والمدن مع منطق الاقتراح الذكي
     const arabCountries = { [t('js-country-morocco')]: [t('js-city-rabat'), t('js-city-casablanca'), t('js-city-marrakech')], [t('js-country-saudi')]: [t('js-city-riyadh'), t('js-city-jeddah')], [t('js-country-uae')]: [t('js-city-dubai'), t('js-city-abudhabi')], [t('js-country-egypt')]: [t('js-city-cairo'), t('js-city-alexandria')] };
 
     function initLocation(currentLoc) {
@@ -223,10 +237,18 @@ async function initSettingsPage(user) {
             }
         };
         fillCities(initialCountry, initialCity);
-        countrySel.onchange = function () { fillCities(this.value, null); };
+        countrySel.onchange = function () {
+            fillCities(this.value, null);
+            // منطق الاقتراح الذكي: الدولة تقترح
+            if (window.LocalizationManager) {
+                const suggestion = LocalizationManager.getSuggestionForCountry(this.value);
+                if (langSel) langSel.value = suggestion.lang;
+                if (currSel) currSel.value = suggestion.currency;
+            }
+        };
     }
 
-    // 6. حفظ البيانات النهائي المترجم
+    // 6. حفظ البيانات النهائي (التحكم الأخير لقسم التفضيلات)
     settingsForm.onsubmit = async (e) => {
         e.preventDefault();
         const country = document.getElementById('country').value;
@@ -245,6 +267,12 @@ async function initSettingsPage(user) {
             profileTitle: document.getElementById('profileTitle').value,
             showEmailPublicly: document.getElementById('showEmailPublicly').checked,
             showPhonePublicly: document.getElementById('showPhonePublicly').checked,
+
+            // الكلمة الأخيرة لقسم التفضيلات
+            preferredLanguage: langSel ? langSel.value : user.preferredLanguage,
+            preferredCurrency: currSel ? currSel.value : user.preferredCurrency,
+            preferredCountry: country,
+
             skills: Array.from(document.querySelectorAll('.skill-row')).map(r => ({ name: r.querySelector('.skill-name').value, level: r.querySelector('.skill-level').value })).filter(s => s.name),
             socialLinks: Array.from(document.querySelectorAll('.social-link-row')).map(r => ({ platform: r.querySelector('.social-platform').value, url: r.querySelector('.social-url').value })).filter(l => l.url),
             professionalExperience: Array.from(document.querySelectorAll('#experienceFormContainer .dynamic-form-row')).map(r => ({ title: r.querySelector('.exp-title').value, company: r.querySelector('.exp-company').value, period: r.querySelector('.exp-period').value, description: r.querySelector('.exp-description').value })),
@@ -258,19 +286,26 @@ async function initSettingsPage(user) {
                 body: JSON.stringify(updatedData)
             });
             if (res.ok) {
+                // حفظ في المتصفح فوراً للتأثير اللحظي
+                if (window.LocalizationManager) {
+                    LocalizationManager.savePreferences({
+                        lang: updatedData.preferredLanguage,
+                        currency: updatedData.preferredCurrency,
+                        country: updatedData.preferredCountry
+                    });
+                }
                 alert(t('js-settings-success-update'));
-                window.location.reload();
+                window.location.reload(); // إعادة تحميل لتطبيق اللغة والعملة
             } else {
                 alert(t('js-settings-error-save'));
             }
         } catch (err) { alert(t('js-auth-server-error')); }
         finally { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; } }
     };
-    // ==========================================
-    // منطق إظهار تنبيه "تفعيل وضع التعديل" (النسخة المصلحة)
-    // ==========================================
 
-    // 1. إنشاء عنصر التنبيه لمرة واحدة
+    // ==========================================
+    // منطق إظهار تنبيه "تفعيل وضع التعديل"
+    // ==========================================
     let hintToast = document.querySelector('.edit-hint-toast');
     if (!hintToast) {
         hintToast = document.createElement('div');
@@ -278,12 +313,10 @@ async function initSettingsPage(user) {
         hintToast.innerHTML = `<i class="fas fa-lock" style="color:#D4AF37"></i> <span>${t('js-settings-edit-hint')}</span>`;
         document.body.appendChild(hintToast);
     }
-
     let toastTimer;
     function showEditHint() {
         hintToast.classList.remove('show');
         clearTimeout(toastTimer);
-
         setTimeout(() => {
             hintToast.classList.add('show');
             toastTimer = setTimeout(() => {
@@ -291,25 +324,30 @@ async function initSettingsPage(user) {
             }, 3000);
         }, 10);
     }
-
-    // 2. مراقبة أي نقرة على النموذج بالكامل
     settingsForm.addEventListener('mousedown', (e) => {
-        // نتحقق: هل نحن في وضع القراءة فقط؟ (النموذج ليس لديه كلاس is-editing)
-        const isReadOnly = !settingsForm.classList.contains('is-editing');
-
-        if (isReadOnly) {
-            // نتحقق أن المستخدم لم يضغط على زر "تعديل" نفسه (لأننا لا نريد إظهار تنبيه عند الضغط عليه)
-            const isEditBtn = e.target.closest('[data-i18n-key="settings-account-info-edit"]');
-
-            if (!isEditBtn) {
-                showEditHint();
-            }
+        if (!settingsForm.classList.contains('is-editing')) {
+            if (!e.target.closest('[data-i18n-key="settings-account-info-edit"]')) showEditHint();
         }
     });
 
+    // منطق الهاش (Hash) للتنقل التلقائي
+    function runPageOrchestrator() {
+        const hash = window.location.hash;
+        if (hash && document.getElementById(hash.substring(1))) {
+            const targetId = hash.substring(1);
+            switchTab(targetId);
+            toggleEditMode(true);
+            setTimeout(() => { document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 500);
+        } else {
+            switchTab('section-account');
+            toggleEditMode(false);
+        }
+    }
+
     populateFields();
     initLocation(user.location);
-    toggleEditMode(false);
+    setTimeout(runPageOrchestrator, 400);
+    window.addEventListener('hashchange', runPageOrchestrator);
 }
 
 function escapeHTML(str) {
